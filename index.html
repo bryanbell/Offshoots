@@ -242,6 +242,11 @@ body.open .pcnt{display:none}
 .pcard{margin:0}
 body.open .pcard{margin:0 0 4px}
 .pcard .mn{display:block;font-weight:700;font-size:18px;letter-spacing:-.018em;line-height:1.25;margin:0 0 3px}
+.pcard .phead{display:flex;align-items:center;gap:13px;margin:2px 0 10px}
+.pcard .phead .phtx{min-width:0;flex:1 1 auto}
+.pcard .appicon{flex:none;width:56px;height:56px;border-radius:14px;display:block;background:#181818}
+@media (max-width:899px){.pcard .appicon{width:48px;height:48px;border-radius:12px}}
+.pcard .phead .tag{margin:0}
 .pcard .tag{margin:1px 0 9px;font:400 13px/1.4 var(--f-body);color:var(--muted);max-width:40em}
 .pcard .meta{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0}
 .pcard .my{display:flex;min-width:0;font:500 12px var(--f-mono);color:var(--muted);white-space:nowrap;overflow:hidden}
@@ -1985,12 +1990,13 @@ function setTint(fam){
   else { el.style.removeProperty("--tint"); el.style.removeProperty("--ink"); el.style.removeProperty("--acc"); }
   el.classList.toggle("tinted",!!s);
 }
+function ICONSRC(){const l=document.querySelector('link[rel="apple-touch-icon"]')||document.querySelector('link[rel="icon"]');return l?l.href:"";}
 function emptyPanel(){
   setTint("");
   setExpandLabel("", "About this map", "About");
   setPbar("Offshoots", FAMS.length+" families · "+nodes.length+" styles");
   const top=[...nodes].sort((a,b)=>b.children.length-a.children.length||a.year-b.year).slice(0,12);
-  $("panelBody").innerHTML=`<div class="pcard"><span class="mn">Offshoots</span><p class="tag">What grew out of what in North American music.</p><div class="meta"><span class="my">${FAMS.length} families · ${nodes.length} styles</span></div><div class="pcnt"><span>About this map</span></div></div><div class="more"><p class="note">Click or tap any style to trace where it came from and what it led to. Click empty space to clear.</p>
+  $("panelBody").innerHTML=`<div class="pcard"><div class="phead"><img class="appicon" alt="" src="${ICONSRC()}"><div class="phtx"><span class="mn">Offshoots</span><p class="tag">What grew out of what in North American music.</p></div></div><div class="meta"><span class="my">${FAMS.length} families · ${nodes.length} styles</span></div><div class="pcnt"><span>About this map</span></div></div><div class="more"><p class="note">Click or tap any style to trace where it came from and what it led to. Click empty space to clear.</p>
     ${sect("fams","Families by size",`<div class="chips">${[...FAMS].sort((x,y)=>nodes.filter(n=>n.fam===y[0]).length-nodes.filter(n=>n.fam===x[0]).length).map(([k,name,h])=>`<button type="button" class="chip c" style="--c:${FAM[k].c}" data-fam="${k}" title="Show ${esc(name)} · ${nodes.filter(n=>n.fam===k).length} styles"><i class="nm">${esc(name)}</i><span>${nodes.filter(n=>n.fam===k).length}</span></button>`).join("")}</div>`)}
     ${sect("top","Styles by influence",`<div class="chips">${top.map(n=>chip(n.id,n.children.length+" led to")).join("")}</div>`)}
     <div class="about"><p class="stats">${$("stats").textContent}</p>
