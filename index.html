@@ -242,10 +242,12 @@ body.open .pcnt{display:none}
 .pcard{margin:0}
 body.open .pcard{margin:0 0 4px}
 .pcard .mn{display:block;font-weight:700;font-size:18px;letter-spacing:-.018em;line-height:1.25;margin:0 0 3px}
-.navrow{position:sticky;top:0;z-index:35;display:flex;align-items:center;gap:8px;
-  margin:0 0 2px;padding:10px 0 11px;background:var(--panel)}
+.navrow{position:sticky;top:0;z-index:35;display:grid;grid-template-columns:1fr minmax(0,auto) 1fr;
+  align-items:center;gap:8px;margin:0 0 2px;padding:10px 0 11px;background:var(--panel)}
+.navrow .nav-from{justify-self:start}
+.navrow .nav-led{justify-self:end}
 body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line)}
-.navttl{flex:1 1 auto;min-width:0;text-align:center;overflow:hidden}
+.navttl{min-width:0;text-align:center;overflow:hidden}
 .navttl .mn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .navttl .mn{margin:0}
 .navttl .my{justify-content:center}
