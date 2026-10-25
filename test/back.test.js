@@ -71,5 +71,33 @@ const hash=p=>p.evaluate(()=>location.hash);
   say("tap target "+boxes[3]+"px", boxes[3]>=40);
   say("no page errors", p._errs.length===0 ? true : p._errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
 
+  // the home pill: a shortcut only worth showing once back has become a walk
+  const home=q=>q.$eval("#mapHome",e=>!e.hidden&&getComputedStyle(e).display!=="none");
+  p=await fresh(b,M);
+  say("home hidden on the map itself", (await home(p))===false);
+  await p.click("#grab").catch(()=>{}); await p.waitForTimeout(400);
+  await p.click('[data-mk="winddown"]'); await p.waitForTimeout(500);
+  await p.click(".picks .pick"); await p.waitForTimeout(600);
+  say("home still hidden one step out", (await home(p))===false);
+  const hwalk=["hardcore","thrash"];
+  p=await fresh(b,M,"#punk");
+  await p.click('[data-menu="led"]'); await p.waitForTimeout(350);
+  await p.click(`.navmenu:not([hidden]) [data-go="${hwalk[0]}"]`); await p.waitForTimeout(550);
+  say("home appears two styles deep", await home(p));
+  say("it says", await p.$eval("#mapHome",e=>e.getAttribute("title")));
+  const hb=await p.evaluate(()=>{const h=document.getElementById("mapHome").getBoundingClientRect(),
+    b=document.getElementById("mapBack").getBoundingClientRect();
+    return [Math.round(h.width),Math.round(h.height),Math.round(h.right),Math.round(b.left)];});
+  say("tap target "+hb[0]+"x"+hb[1], hb[0]>=40&&hb[1]>=40);
+  say("sits left of back ("+hb[2]+" vs "+hb[3]+")", hb[2]<=hb[3]);
+  const from=await hash(p);
+  await p.click("#mapHome"); await p.waitForTimeout(600);
+  say("one tap lands on the map", (await hash(p))==="" && (await p.$eval(".ovcard .mn",e=>e.textContent))==="Offshoots");
+  say("and hides itself again", (await home(p))===false);
+  say("back still returns to where you jumped from", await label(p));
+  await p.click("#mapBack"); await p.waitForTimeout(600);
+  say("which it does ("+from+")", (await hash(p))===from);
+  say("no page errors", p._errs.length===0 ? true : p._errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
+
   await b.close();
 })();

@@ -433,7 +433,13 @@ aside{display:flex;flex-direction:column;position:absolute;z-index:30;top:calc(e
   width:42px;height:42px;border:0;border-radius:50%;color:var(--fg);cursor:pointer;transition:background .15s}
 #mapSearch svg{width:18px;height:18px}
 /* the way out of a lineage you have walked four taps into */
-#mapBack{position:absolute;z-index:24;top:calc(var(--axh,34px) + 12px);left:16px;
+#navpills{position:absolute;z-index:24;top:calc(var(--axh,34px) + 12px);left:16px;display:flex;align-items:center;gap:8px}
+#mapHome{display:grid;place-items:center;flex:none;width:38px;height:38px;border:0;border-radius:999px;cursor:pointer;
+  background:var(--fg);color:var(--bg);box-shadow:0 2px 10px rgb(0 0 0 / .4)}
+#mapHome[hidden]{display:none}
+#mapHome svg{width:18px;height:18px}
+#mapHome:hover{background:#fff}
+#mapBack{position:relative;z-index:24;top:auto;left:auto;
   display:flex;align-items:center;gap:7px;height:38px;max-width:min(46vw,260px);
   padding:0 14px 0 11px;border:0;border-radius:999px;cursor:pointer;
   /* inverted: it has to read instantly against whatever part of the map is behind it */
@@ -443,9 +449,11 @@ aside{display:flex;flex-direction:column;position:absolute;z-index:30;top:calc(e
 #mapBack .bklbl{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   font:600 12.5px var(--f-body)}
 #mapBack:hover{background:#fff}
-body.searching #mapBack{display:none}
+body.searching #navpills{display:none}
 @media (max-width:899px){
-  #mapBack{top:calc(var(--axh,34px) + 10px);left:12px;height:40px;padding:0 13px 0 10px;max-width:52vw}
+  #navpills{top:calc(var(--axh,34px) + 10px);left:12px;gap:7px}
+  #mapBack{height:40px;padding:0 13px 0 10px;max-width:46vw}
+  #mapHome{width:40px;height:40px}
   #mapBack .bklbl{font-size:13px}
 }
 #mapSearch:hover{background:color-mix(in srgb,var(--fg) 8%,transparent)}
@@ -809,7 +817,10 @@ a.am .amgo{display:none}
           <svg id="chart" role="img" aria-label="Genre lineage chart"></svg>
         </div>
       </div>
-      <button id="mapBack" class="glass" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg><span class="bklbl"></span></button>
+      <div id="navpills">
+        <button id="mapHome" class="glass" type="button" hidden aria-label="Back to the map" title="Back to the map"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.6 7.4 3.6v10.8l-4.6 2z"/><path d="M7.4 3.6 12.6 5.6v10.8L7.4 14.4z"/><path d="M12.6 5.6 17.2 3.6v10.8l-4.6 2z"/></svg></button>
+        <button id="mapBack" class="glass" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg><span class="bklbl"></span></button>
+      </div>
       <button id="mapSearch" class="glass" type="button" aria-label="Search styles and artists" title="Search styles and artists"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4 4"/></svg></button>
       <div id="bottomSearch">
           <div class="search" id="searchBox">

@@ -326,7 +326,25 @@ function backLabel(){
   const n=byId[v.sel];
   return n ? "Back to "+n.name : "Back";
 }
+// back presses needed to reach the overview. The map may not be in the trail at all,
+// which happens on a shared link, and that is exactly when the shortcut earns its place.
+function stepsHome(){
+  if(!state.sel) return 0;
+  for(let i=TRAIL.length-1;i>=0;i--) if(!TRAIL[i].sel) return TRAIL.length-i;
+  return TRAIL.length+1;
+}
+function goHome(){
+  if(!state.sel) return;
+  pushTrail();                       // jumping out is a move, so back can still come here
+  if(typeof MODE!=="undefined") MODE=null;
+  GOINGBACK=true;
+  try{ clearSel(); } finally { GOINGBACK=false; }
+  syncBack();
+}
 function syncBack(){
+  // two or more taps from the map is when walking back stops being reasonable
+  const hm=$("mapHome");
+  if(hm) hm.hidden = stepsHome()<2;
   const b=$("mapBack"); if(!b) return;
   const l=backLabel();
   b.hidden=!l; if(!l) return;
@@ -715,6 +733,7 @@ function shareSel(){
 }
 { const sp=$("sheetpull"); if(sp) sp.addEventListener("click",()=>{ restoreSheet(); }); }
 { const bb=$("mapBack"); if(bb) bb.addEventListener("click",e=>{ e.preventDefault(); goBack(); }); }
+{ const hb=$("mapHome"); if(hb) hb.addEventListener("click",e=>{ e.preventDefault(); goHome(); }); }
 // the hardware/browser back gesture should feel the same as the button
 addEventListener("keydown",e=>{
   if(e.key==="Backspace" && !/^(INPUT|TEXTAREA)$/.test((e.target.tagName||""))){ e.preventDefault(); goBack(); }
