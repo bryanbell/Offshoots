@@ -230,7 +230,13 @@ function draw(){
   document.documentElement.style.setProperty("--stripw",(LABELW-8)+"px");
   $("axis").innerHTML = ax+`</svg><div id="corner" style="width:${LABELW-8}px;transform:translateX(${scroller.scrollLeft}px)"></div>`;
   let s="";
-  lanes.forEach((l,i)=>{ if(i%2) s+=`<rect class="band" x="0" y="${l.y0}" width="${W}" height="${l.h}"/>`; });
+  // every lane carries a wash of its own family colour rather than a grey every other
+  // row: the alternating neutral was five levels of luminance off the map and invisible.
+  // The two opacities keep a rhythm so neighbouring families of a similar hue still part.
+  lanes.forEach((l,i)=>{
+    if(i%2) s+=`<rect class="band" x="0" y="${l.y0}" width="${W}" height="${l.h}" style="fill:${FAM[l.k].c}"/>`;
+    if(i) s+=`<line class="lanedge" x1="0" x2="${W}" y1="${l.y0}" y2="${l.y0}"/>`;
+  });
   s+=`<line class="nowline" x1="${xOf(END)}" x2="${xOf(END)}" y1="0" y2="${H}"/>`;
   for(let yr=1950; yr<=2025; yr+=5){ const x=xOf(yr); s+=`<line class="${yr%10?'g5':'g10'}" x1="${x}" x2="${x}" y1="0" y2="${H}"/>`; }
   s+=`<g id="edges">`;
