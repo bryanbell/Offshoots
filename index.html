@@ -1845,7 +1845,19 @@ function wiki(n){
 }
 // Emily's own Apple Music class playlists, keyed by style id (paths are relative to music.apple.com)
 // cover art, if art/<id>.jpg is sitting next to the page; missing files remove themselves
-const ART_DIR="art/", ART_EXT=".jpg";
+// A relative "art/x.jpg" resolves against the page's PARENT directory, so anywhere the page
+// is served at a path with no trailing slash and no file extension — claude.ai/artifact/<id>
+// is exactly that — every cover 404s. Treat the page's own URL as a directory in that case.
+function artBase(){
+  try{
+    if(!/^https?:$/.test(location.protocol)) return "art/";
+    const p=location.pathname, last=p.slice(p.lastIndexOf("/")+1);
+    return (last && last.indexOf(".")<0 ? p+"/" : p.slice(0,p.lastIndexOf("/")+1)) + "art/";
+  }catch(e){ return "art/"; }
+}
+const ART_DIR=artBase(), ART_EXT=".jpg";
+// whichever of the two is wrong, the other is tried before giving up
+const ART_TRY=[ART_DIR].concat(ART_DIR==="art/"?[]:["art/"]);
 // two letters for a style with no art file, so the row keeps its shape
 function initials(name){
   const w=String(name||"").split(/[^A-Za-z0-9]+/).filter(Boolean);
@@ -1857,7 +1869,7 @@ const cover = (id,n) => {
   const node = n || byId[id];
   const c = node ? FAM[node.fam].c : "";
   const ini = initials(node?node.name:id);
-  return `<img class="pcov" src="${ART_DIR}${encodeURIComponent(f)}${ART_EXT}" alt="" loading="lazy" decoding="async" data-c="${esc(c)}" data-ini="${esc(ini)}">`;
+  return `<img class="pcov" src="${ART_TRY[0]}${encodeURIComponent(f)}${ART_EXT}" alt="" loading="lazy" decoding="async" data-f="${esc(f)}" data-try="0" data-c="${esc(c)}" data-ini="${esc(ini)}">`;
 };
 // cover plus a playlist title say what the section is; a heading on top of that is noise
 function playLabel(n){
@@ -2721,14 +2733,14 @@ document.addEventListener("click",e=>{ if(!e.target.closest(".search")) res.hidd
 function go(id){ res.hidden=true; q.value=""; qsync(); document.body.classList.remove("searching"); select(id);
   panelTop(); }
 // a cover that isn't there just disappears; error doesn't bubble, so listen on the capture phase
-// a cover that fails once is usually a hiccup; only a second failure means there is no file,
-// and then a tile keeps the row the same shape instead of collapsing it
+// a failed cover is almost always the base url, not a missing file, so try the other base
+// before giving up; only then does a tile stand in, keeping the row the same shape
 $("panelBody").addEventListener("error",e=>{
   const t=e.target; if(!t||t.tagName!=="IMG"||!t.classList.contains("pcov")) return;
-  if(!t.dataset.retried){
-    t.dataset.retried="1";
-    const src=(t.getAttribute("src")||"").split("?")[0];
-    setTimeout(()=>{ if(t.isConnected) t.src=src+"?r=1"; },500);
+  const next=(+t.dataset.try||0)+1;
+  if(ART_TRY[next] && t.dataset.f){
+    t.dataset.try=String(next);
+    t.src=ART_TRY[next]+encodeURIComponent(t.dataset.f)+ART_EXT;
     return;
   }
   const ph=document.createElement("span");
