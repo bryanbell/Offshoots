@@ -242,6 +242,35 @@ body.open .pcnt{display:none}
 .pcard{margin:0}
 body.open .pcard{margin:0 0 4px}
 .pcard .mn{display:block;font-weight:700;font-size:18px;letter-spacing:-.018em;line-height:1.25;margin:0 0 3px}
+.navrow{position:sticky;top:0;z-index:35;display:flex;align-items:center;gap:8px;
+  margin:0 0 2px;padding:10px 0 11px;background:var(--panel)}
+body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line)}
+.navttl{flex:1 1 auto;min-width:0;text-align:center;overflow:hidden}
+.navttl .mn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.navttl .mn{margin:0}
+.navttl .my{justify-content:center}
+.navwrap{position:relative;flex:none}
+.navbtn{display:flex;align-items:center;gap:5px;height:30px;padding:0 10px;border:0;border-radius:999px;cursor:pointer;
+  background:color-mix(in srgb,var(--acc,var(--fg)) 14%,transparent);color:var(--fg);
+  font:600 12px var(--f-body);transition:background .15s}
+.navbtn:hover:not(:disabled){background:color-mix(in srgb,var(--acc,var(--fg)) 24%,transparent)}
+.navbtn:disabled{opacity:.35;cursor:default}
+.navbtn .cv{width:13px;height:13px;flex:none}
+.navbtn .ct{font:600 11px var(--f-mono);font-style:normal;opacity:.72}
+.navmenu{position:absolute;z-index:40;top:calc(100% + 6px);min-width:210px;max-width:min(300px,70vw);
+  max-height:min(52vh,380px);overflow:auto;overscroll-behavior:contain;padding:5px;
+  background:var(--panel);border-radius:12px;box-shadow:0 0 0 .5px var(--line),0 12px 32px rgb(0 0 0 / .4)}
+.nav-from .navmenu{left:0}
+.nav-led .navmenu{right:0}
+.navmenu[hidden]{display:none}
+.navmenu button{all:unset;display:flex;align-items:center;gap:8px;width:100%;box-sizing:border-box;
+  padding:7px 9px;border-radius:8px;cursor:pointer;color:var(--fg);font:500 13px var(--f-body)}
+.navmenu button:hover{background:color-mix(in srgb,var(--fg) 9%,transparent)}
+.navmenu .dot{flex:none;width:7px;height:7px;border-radius:50%}
+.navmenu .nm{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.navmenu small{flex:none;font:500 11px var(--f-mono);color:var(--muted)}
+@media (max-width:899px){ .navbtn{height:32px;padding:0 11px} .navbtn .lb{font-size:12.5px} }
+@media (max-width:420px){ .navbtn{padding:0 8px;gap:4px} .navbtn .lb{font-size:11.5px} .navttl .mn{font-size:16px} }
 .pcard .phead{display:flex;align-items:center;gap:13px;margin:2px 0 10px}
 .pcard .phead .phtx{min-width:0;flex:1 1 auto}
 .pcard .appicon{flex:none;width:56px;height:56px;border-radius:14px;display:block;background:#181818}
@@ -406,7 +435,7 @@ aside#panel{padding-left:0;padding-right:0}
 
 /* ---- scrolled state: search collapses to an icon, title stays, hairline appears ---- */
 #pbar{display:none;align-items:center;gap:10px;flex:none;padding:0 var(--ppad) 10px}
-body.pscrolled #pbar{display:flex}
+body.pscrolled #pbar{display:none}
 
 body.pscrolled #panelBody{border-top:.5px solid var(--line)}
 #pbar[hidden]{display:none}
@@ -461,14 +490,12 @@ aside#panel{padding-bottom:0}
 @media (max-width:899px){ aside#panel{padding-bottom:env(safe-area-inset-bottom,0px)} }
 
 /* ---- header: name + Search button; the field opens on demand ---- */
-#pbar{display:flex}
-#pbar[hidden]{display:none}
+#pbar{display:none}
 
 
 
 
-/* the header carries the identity now, so the card does not repeat it */
-.pcard .mn,.pcard .meta{display:none}
+/* the sticky nav row carries the identity */
 .pcard .tag{margin-top:0}
 .pcard .links,body.open .pcard .links{margin-top:18px}
 
@@ -1779,9 +1806,11 @@ function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   n.prose = looksLikeArtists ? "" : (n.note||"");
   const whoList = [...new Set([...n.noteNames,...n.artists])];
   n.whoList = whoList;
-  PHEAD = `<div class="pcard"><span class="mn">${esc(n.name)}</span>`
-    + `<div class="meta"><span class="my"><span class="yr">${n.year<1950?esc(n.disp):"c. "+n.year}</span></span></div>`
-    + `</div>`;
+  PHEAD = `<div class="pcard"><div class="navrow">`
+    + navBtn("from",[...n.parents].sort(byYear))
+    + `<div class="navttl"><span class="mn">${esc(n.name)}</span><span class="my"><span class="yr">${n.year<1950?esc(n.disp):"c. "+n.year}</span></span></div>`
+    + navBtn("led",[...n.children].sort(byYear))
+    + `</div></div>`;
   setExpandLabel("", `${n.parents.length} from · ${n.children.length} led to`, `${n.parents.length} from · ${n.children.length} led to`);
   if(repaint){
     panel(n,anc,desc); amUpgrade();
@@ -1889,6 +1918,25 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ if(!$("wikiwrap")
 const chip = (id,extra)=>{ const n=byId[id]; const yr=n.year<1950?n.disp:n.year;
   const tip=esc(n.name+" · "+yr+(extra?" · "+extra:"")+(n.done?" · playlist":""));
   return `<button class="chip c" style="--c:${FAM[n.fam].c}" data-go="${n.id}" title="${tip}" aria-label="${tip}"><i class="nm">${esc(n.name)}</i><span title="Styles it led to">${n.children.length}</span></button>`; };
+const CHEV={from:'<svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8l5 5"/></svg>',
+             led:'<svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5"/></svg>'};
+function navBtn(kind,ids){
+  const label = kind==="from" ? "From" : "Led to";
+  const n=ids.length;
+  const title = n ? `${label}: ${n} ${n===1?"style":"styles"}` : (kind==="from"?"A root style: nothing before it here":"Nothing grew out of this one here");
+  const items = ids.map(id=>{ const x=byId[id];
+    return `<button type="button" role="menuitem" data-go="${x.id}"><i class="dot" style="background:${FAM[x.fam].c}"></i><span class="nm">${esc(x.name)}</span><small>${x.year<1950?esc(x.disp):x.year}</small></button>`;
+  }).join("");
+  return `<div class="navwrap nav-${kind}">`
+    + `<button type="button" class="navbtn" data-menu="${kind}" aria-haspopup="menu" aria-expanded="false"`
+    + ` title="${esc(title)}" aria-label="${esc(title)}"${n?"":" disabled"}>`
+    + (kind==="from"?CHEV.from:"")
+    + `<span class="lb">${label}</span><em class="ct">${n}</em>`
+    + (kind==="led"?CHEV.led:"")
+    + `</button>`
+    + (n?`<div class="navmenu" role="menu" hidden>${items}</div>`:"")
+    + `</div>`;
+}
 const chips = ids=> ids.length ? `<div class="chips">${ids.map(id=>chip(id)).join("")}</div>` : `<p class="empty">None in this map.</p>`;
 const byYear = (a,b)=>byId[a].year-byId[b].year||byId[a].name.localeCompare(byId[b].name);
 
@@ -1915,14 +1963,25 @@ function panel(n,anc,desc){
   $("panelBody").innerHTML = PHEAD + `<div class="more">
     ${listenSect(n,who,artistsHtml,svcHtml)}
     <p class="note lede wikiline">${about(n)?esc(about(n))+" ":""}${wikiTxt(n)}</p>
-    ${sect("led","Led to",chips([...n.children].sort(byYear)))}
-    ${sect("from","Came from",chips([...n.parents].sort(byYear)))}
     ${n.sources.length?`<h3>Sources</h3><ul class="srcs">${n.sources.map(u=>{let h="";try{h=new URL(u).hostname.replace(/^www\./,"")}catch(e){h=u}return `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(h)}</a></li>`}).join("")}</ul>`:""}
     <p class="tally">${anc.size} ancestor styles · ${desc.size} descendant styles${desc.size?` across ${dfams.size} ${dfams.size===1?"family":"families"}`:""}</p></div>`;
   paintPlay();
 }
 $("panel").addEventListener("change",e=>{ if(e.target&&e.target.id==="svcsel") setSvc(e.target.value); });
+function closeNav(except){ document.querySelectorAll(".navwrap").forEach(w=>{
+    const b=w.querySelector(".navbtn"), m=w.querySelector(".navmenu");
+    if(!m || w===except) return; m.hidden=true; if(b) b.setAttribute("aria-expanded","false"); }); }
+document.addEventListener("click",e=>{ if(!e.target.closest(".navwrap")) closeNav(); });
+addEventListener("keydown",e=>{ if(e.key==="Escape") closeNav(); });
 $("panel").addEventListener("click",e=>{
+  const mb=e.target.closest("[data-menu]");
+  if(mb){ const w=mb.closest(".navwrap"), m=w&&w.querySelector(".navmenu");
+    if(!m) return;
+    const open=m.hidden;
+    closeNav(open?w:null);
+    m.hidden=!open; mb.setAttribute("aria-expanded",String(open));
+    if(open && OVERLAY && !OPEN) setOpen(true);
+    return; }
   if(e.target.closest("#ptoggle")||e.target.closest("#grab")) return;   // the handle runs its own tap/drag logic
   const sv=e.target.closest("[data-svc]"); if(sv){ setSvc(sv.dataset.svc); return; }
   const fm=e.target.closest("[data-fam]");
@@ -1934,7 +1993,7 @@ $("panel").addEventListener("click",e=>{
   if(!OPEN && OVERLAY){ if(!e.target.closest("a")) setOpen(true); return; }   // only the minimised sheet is tap-to-open
   if(e.target.closest("[data-close]")){ closePanel(); return; }
   const g=e.target.closest("[data-go]");
-  if(g){ select(g.dataset.go); panelTop(); return; }
+  if(g){ closeNav(); select(g.dataset.go); panelTop(); return; }
   const m=e.target.closest("[data-mode]"); if(m){ state.mode=m.dataset.mode; select(state.sel,{scroll:false}); }
 });
 $("lanes").addEventListener("click",e=>{ const l=e.target.closest(".lane"); if(!l) return; const lane=lanes.find(x=>x.k===l.dataset.fam); if(lane) scroller.scrollTo({top:Math.max(0,lane.y0-8),behavior:reduce?"auto":"smooth"}); });
