@@ -139,6 +139,25 @@ aside h3,.pcard h3.sec{font:600 11px var(--f-body);letter-spacing:.06em;text-tra
 .chip::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:var(--c)}
 .chip>i.nm{font-style:normal;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .chip:hover{background:var(--fill)}
+/* listening modes */
+.sectaside{font:500 11px var(--f-mono);color:var(--muted);opacity:.75}
+.modechip{padding:6px 11px}
+.modechip::before{display:none}
+.modechip.on{background:var(--fg);color:var(--bg)}
+.modeout{margin-top:10px}
+.modettl{margin:0;font:600 13px var(--f-body);color:var(--fg)}
+.modewhy{margin:3px 0 9px;font-size:13px;line-height:1.45;color:var(--muted);max-width:60ch}
+.picks{display:flex;flex-direction:column;gap:4px}
+.pick{all:unset;display:grid;grid-template-columns:auto 1fr auto;column-gap:9px;align-items:baseline;
+  box-sizing:border-box;width:100%;padding:9px 11px;border-radius:10px;cursor:pointer;
+  background:var(--fill2);transition:background .15s}
+.pick:hover,.pick:focus-visible{background:var(--fill)}
+.pick:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+.pick::before{content:"";grid-row:1;align-self:center;width:8px;height:8px;border-radius:50%;background:var(--c)}
+.pknm{grid-column:2;font:600 13.5px var(--f-body);color:var(--fg)}
+.pkplay{grid-column:2;font-style:normal;font-size:8px;margin-left:6px;color:var(--muted);vertical-align:1px}
+.pkfam{grid-column:3;grid-row:1;font:500 10px var(--f-mono);color:var(--muted);white-space:nowrap}
+.pkwhy{grid-column:2/4;font-size:12.5px;line-height:1.35;color:var(--muted);margin-top:2px}
 .chip span{flex:none;font-family:var(--f-mono);font-size:10px;color:var(--muted)}
 .legend{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px;font-size:12.5px}
 .legend span{display:flex;align-items:center;gap:7px;min-width:0}
@@ -184,6 +203,12 @@ a.am:hover{color:var(--accent)}
   .chip::after{content:"";position:absolute;inset:-6px;border-radius:inherit}   /* tap area stays ~42px */
   .chip::before{width:8px;height:8px}
   .chip:active{background:var(--fill)}
+  .modechip{min-height:34px;padding:7px 12px}
+  .pick{padding:11px 12px}
+  .pknm{font-size:15px}
+  .pkwhy{font-size:13px}
+  .pkfam{font-size:10.5px}
+  .modewhy{font-size:13.5px}
   .chip span{font-size:10.5px}
   .who a.am{gap:6px;padding:6px 11px 6px 9px;font-size:13px}
   .who a.am svg{width:13px;height:13px}
@@ -728,7 +753,7 @@ a.am .amgo{display:none}
   <button id="sheetpull" type="button" aria-label="Show the map details" hidden><svg class="pchev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10L8 5.5l4.5 4.5"/></svg><span class="plbl"></span></button>
   <aside id="panel" aria-live="polite"><div id="grab" role="button" tabindex="0" aria-label="Expand details" aria-expanded="false"></div>
   <button id="pclose" data-close aria-label="Collapse details"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l5-5 5 5"/></svg></button>  <div id="pbar"><div id="pbarTxt"><span id="pbarTitle"></span><span id="pbarSub"></span></div></div>
-  <div id="panelBody"></div><div id="pfoot"><button id="pshare" type="button" aria-label="Share this map" title="Share this map"><svg class="up" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13V3"/><path d="M6.5 6.5L10 3l3.5 3.5"/><path d="M5 11v5.5h10V11"/></svg><svg class="ok" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5l4 4 8-8.5"/></svg><span class="lbl">Share this style</span></button></div><div id="ptoggle"><button id="expand" aria-label="Show details" aria-expanded="false"><span class="lbl">Details</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg></button></div></aside>
+  <div id="panelBody"></div><div id="pfoot"><button id="pshare" type="button" aria-label="Share this map" title="Share this map"><svg class="up" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13V3"/><path d="M6.5 6.5L10 3l3.5 3.5"/><path d="M5 11v5.5h10V11"/></svg><svg class="ok" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5l4 4 8-8.5"/></svg><span class="lbl">Share this map</span></button></div><div id="ptoggle"><button id="expand" aria-label="Show details" aria-expanded="false"><span class="lbl">Details</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg></button></div></aside>
 </div>
 <div id="wikiwrap" hidden>
   <div id="wikibd" data-wclose></div>
@@ -737,7 +762,6 @@ a.am .amgo{display:none}
     <div id="wikibody"><iframe id="wikiframe" title="Wikipedia article" referrerpolicy="no-referrer"></iframe><div id="wikihint">Blank? Wikipedia may refuse to embed here — <a id="wikihintlink" target="_blank" rel="noopener">open it in a tab ↗</a></div><p id="wikifail" hidden>Wikipedia wouldn’t load in this window.<a class="go" target="_blank" rel="noopener">Open on Wikipedia ↗</a></p></div>
   </div>
 </div>
-
 <script>
 const FAMS = [
   ["exp","Western art music & experimental",265,"Art music"],
@@ -1541,7 +1565,93 @@ const COVER = {"electro":"electro","oldschool":"old-school-hip-hop","chiptune":"
 const PTITLE = {"jerk":"45.09 JERKIN’ · The Beat Leaves Room for the Feet","chiptune":"80.10 CHIPTUNE · Small Chips, Big Melodies","electroclash":"80.09 ELECTROCLASH · Cold Machines, Exaggerated Attitudes","kpop":"72.21 K-POP · The Song Changes Rooms","idm":"80.08 IDM · The Beat Becomes a Puzzle","njs":"41.04 NEW JACK SWING · The Soul Singer Rides the Rap Beat","raprock":"42.18 RAP ROCK · The Rhyme Locks Into the Riff","hardcore_hh":"45.08.2 HARDCORE HIP HOP · The Voice Hits Like a Drum","golden":"45.08.1 GOLDEN-AGE HIP HOP · The Sample Opens a World","ragga":"71.01.1.1.1.2.1 RAGGA / DIGITAL DANCEHALL · A Small Keyboard Changes the Riddim","miamibass":"80.07.1 MIAMI BASS · The Low End Moves the Crowd","christianhh":"60.01 CHRISTIAN HIP HOP · Faith Finds a Flow","freestyle":"72.20 FREESTYLE · Heartbreak Moves to the Dance Floor","newschool":"45.08 NEW-SCHOOL HIP HOP · Fewer Sounds, Harder Rhymes","electro":"80.07 ELECTRO · The Machine Learns to Breakdance","conscious":"45.07 CONSCIOUS HIP HOP · The Verse Makes an Argument","oldschool":"45.06 OLD-SCHOOL HIP HOP · The Party Finds Its Voice","heavymetal":"43.04 HEAVY METAL · Weight Becomes a Language","son":"72.02 SON CUBANO · The Chorus Opens the Song","mambo":"72.03 MAMBO · The Big Band Learns the Clave","chachacha":"72.04 CHA-CHA-CHÁ · The Melody Makes Room for the Feet","boogaloo":"72.05 LATIN BOOGALOO · The Neighborhood Sings Back","salsa":"72.06 SALSA · The Chorus Hands the Singer a World","bachata":"72.07 BACHATA · The Guitar Answers the Heart","bossa":"72.08 BOSSA NOVA · Quiet Singing Changes the Rhythm","tropicalia":"72.09 TROPICÁLIA · The Song Swallows the World","danzon":"72.10 DANZÓN · The Pause Belongs to the Dance","corrido":"72.11 CORRIDO · The Verse Carries the News","ranchera":"72.12 RANCHERA / MARIACHI · The Voice Holds Its Ground","chicano_rock":"72.13 CHICANO ROCK · The Neighborhood Rewrites the Backbeat","conjunto":"72.14 CONJUNTO (TEXAS-MEXICAN) · Two Instruments Build a Dance Floor","cumbia":"72.15 CUMBIA · The Rhythm Travels Without Losing Its Step","bolero":"72.16 BOLERO · A Quiet Pulse Holds a Large Feeling","balada":"72.17 BALADA · The Arrangement Makes the Confession","latin_rock":"72.18 LATIN ROCK · The Guitar Enters the Rhythm Section","latinpop":"72.19 LATIN POP · The Big Feeling Finds a New Beat"};
 const FAMSKIN = {"exp":["#45484C","#EDE4D1","#EDE4D1"],"latin":["#1A5038","#EDE4D1","#EDE4D1"],"gospel":["#373c1c","#ede4d1","#ede4d1"],"folk":["#483716","#ede4d1","#ede4d1"],"jazz":["#4c2f63","#ede4d1","#ede4d1"],"pop":["#711e1f","#ede4d1","#ede4d1"],"global":["#17413e","#ede4d1","#ede4d1"],"blues":["#1f3a6e","#ede4d1","#ede4d1"],"country":["#45382b","#ede4d1","#ede4d1"],"carib":["#1b422e","#ede4d1","#ede4d1"],"rock":["#1e1c1a","#ede4d1","#ede4d1"],"soul":["#68233e","#ede4d1","#ede4d1"],"alt":["#1e1c1a","#ede4d1","#c9c24a"],"hiphop":["#1e1c1a","#ede4d1","#e8b84a"],"metal":["#0e0d0c","#ede4d1","#d8463b"],"elec":["#124A57","#EDE4D1","#EDE4D1"]};
 const FAMMAP = {"exp":"#bac5d5","latin":"#2fa984","gospel":"#879c5d","folk":"#cf9944","jazz":"#c797fd","pop":"#ff9ea7","global":"#6cbda9","blues":"#79a1fc","country":"#bb7b56","carib":"#7ad689","rock":"#bdae9e","soul":"#e77ab5","alt":"#bac03d","hiphop":"#f3c443","metal":"#dc604a","elec":"#19c4ec"};
+// Listening modes. Each: [key, chip label, heading, why it works, [[styleId, one-line reason], ...]]
+// Shape follows the contexts the services actually sort by (Spotify: focus, study, workout,
+// party, chill, cooking, dinner, travel; Apple: workout, work & study, chill, feeling bad,
+// happy, driving) plus the two reasons listening research puts at the top — regulating how
+// you feel, and listening to think about yourself.
+const MODES = [
+  ["focus","Focus","Working or studying",
+   "Words compete with the words in your own head, so what survives is instrumental, steady and a little uneventful — music that puts a floor under the work instead of asking for attention.",
+   [["ambient","Written to be as ignorable as it is interesting"],
+    ["minimal","A pulse that barely changes, so nothing snags"],
+    ["modernclassical","Slow piano and strings, long arcs, no hooks"],
+    ["lofi_hh","A warm loop with the edges sanded off"],
+    ["dubtechno","Chords dissolving into echo, for hours"],
+    ["cool","Jazz that stays at conversation volume"]]],
 
+  ["workout","Workout","Working out",
+   "A running cadence sits near 160 steps a minute, so 130–140 BPM lands on every other footfall. Loud, repetitive and front-loaded beats anything subtle here.",
+   [["house","Four-on-the-floor at 120–128 — the original treadmill tempo"],
+    ["techno","Machine-steady and relentless"],
+    ["trap","Half-time and heavy, built for the last set"],
+    ["thrash","Nothing but forward momentum"],
+    ["miamibass","Low end you feel in the chest"],
+    ["hardstyle","Faster than your heart means to go"]]],
+
+  ["winddown","Wind down","Winding down",
+   "Slow tempos, soft attacks and space between the notes. Getting under your own resting pulse is most of the trick.",
+   [["slowcore","Quiet, unhurried, barely there"],
+    ["quiet_storm","Late-night radio soul, by design"],
+    ["bossa","Nylon strings and a whisper"],
+    ["dreampop","Reverb used as a blanket"],
+    ["newage","Music with no corners"],
+    ["chillwave","Sunlit and half-remembered"]]],
+
+  ["party","Party","A room full of people",
+   "A floor beat people can find without counting, choruses that arrive early, and enough familiarity that nobody has to work at it.",
+   [["disco","The style that invented the modern dance floor"],
+    ["salsa","Horn-led and impossible to stand still through"],
+    ["dancehall","Riddims the room already knows"],
+    ["freestyle","Drum machines and heartbreak at 115 BPM"],
+    ["jerseyclub","Fast, chopped, relentless"],
+    ["bailefunk","A Rio block party in one speaker"]]],
+
+  ["driving","Driving","On the road",
+   "Road music keeps a mid-tempo groove going without needing you to follow it, and it has to scale — a chorus competes with a windshield.",
+   [["krautrock","Motorik: a beat built out of the highway itself"],
+    ["heartland","Written about the road it gets played on"],
+    ["southern_rock","Two guitars and a long horizon"],
+    ["outlaw","Country for people leaving somewhere"],
+    ["arena","Choruses sized for an open window"],
+    ["surf","Reverb, coastline, speed"]]],
+
+  ["dinner","Dinner","Cooking or eating",
+   "Present without demanding. Groove-forward, warm in timbre and even in volume, so it holds the room between conversations.",
+   [["souljazz","Hammond organ at a slow simmer"],
+    ["boogaloo","Latin soul with its sleeves rolled up"],
+    ["philly","Strings, sweetness, immaculate manners"],
+    ["exotica","Dinner-party music that thinks it is on an island"],
+    ["mento","Jamaican porch music, acoustic and light"],
+    ["smoothjazz","Unembarrassed background"]]],
+
+  ["lift","Lift the mood","Changing how you feel",
+   "Major keys, chords that change often, and more than one voice singing at once. Steering mood is the most common reason people reach for music at all.",
+   [["motown","Three minutes engineered for joy"],
+    ["gospel","Built to raise a room"],
+    ["ska","Offbeat guitar, permanent grin"],
+    ["powerpop","Hooks with no apology"],
+    ["stompclap","A chorus to shout in a car"],
+    ["afrobeats","Buoyant by default"]]],
+
+  ["sit","Sit with it","Something heavy",
+   "Sad music is reliably one of the most pleasurable kinds there is: slow, minor, a single voice close to the microphone, the feeling rehearsed at a safe distance.",
+   [["delta","One voice, one guitar, nothing hidden"],
+    ["ranchera","Heartbreak sung at full volume"],
+    ["singer_songwriter","A diary with tuning pegs"],
+    ["midwestemo","Specific, unguarded, loud at the end"],
+    ["bolero","Romantic devastation, beautifully dressed"],
+    ["doom","Grief at a crawl"]]],
+
+  ["deep","Listen properly","Nothing else running",
+   "Wide dynamic range and long forms that only pay off if you give them the whole stretch. This is the one that rewards headphones and an hour.",
+   [["freejazz","No net and no map"],
+    ["modal","Few chords, enormous space"],
+    ["prog","Side-long, deliberate, built to be followed"],
+    ["postrock","Twelve minutes to arrive somewhere"],
+    ["shoegaze","Detail buried under volume — headphones only"],
+    ["concrete","Recorded sound treated as raw material"]]]
+];
 (function(){
 const FAM = {}; FAMS.forEach((f,i)=>FAM[f[0]]={key:f[0],name:f[1],h:f[2],short:f[3]||f[1],i,
   c:(typeof FAMMAP!=="undefined"&&FAMMAP[f[0]])||`hsl(${f[2]} 72% 64%)`});
@@ -2109,6 +2219,11 @@ $("panel").addEventListener("click",e=>{
     return; }
   if(e.target.closest("#ptoggle")||e.target.closest("#grab")) return;   // the handle runs its own tap/drag logic
   const sv=e.target.closest("[data-svc]"); if(sv){ setSvc(sv.dataset.svc); return; }
+  const mk=e.target.closest("[data-mk]");
+  if(mk){ MODE = MODE===mk.dataset.mk ? null : mk.dataset.mk;   // tapping the open one closes it
+    if(!state.sel) emptyPanel();
+    if(MODE && OVERLAY && !OPEN) setOpen(true);
+    return; }
   const fm=e.target.closest("[data-fam]");
   if(fm){ // jump to the family by selecting its most influential style, so the map centres and its lineage draws
     const k=fm.dataset.fam;
@@ -2191,6 +2306,27 @@ function setTint(fam){
   el.classList.toggle("tinted",!!s);
 }
 function ICONSRC(){const l=document.querySelector('link[rel="apple-touch-icon"]')||document.querySelector('link[rel="icon"]');return l?l.href:"";}
+// ---------- listening modes ----------
+// a way in for people who know what they want the music to DO but not what to call it
+let MODE=null;
+function modePicks(m){
+  return m[4].map(([id,why])=>{
+    const n=byId[id]; if(!n) return "";
+    const play=(typeof PLAY!=="undefined"&&PLAY[id])||(typeof SPLAY!=="undefined"&&SPLAY[id]);
+    return `<button type="button" class="pick c" style="--c:${FAM[n.fam].c}" data-go="${esc(id)}" title="Show ${esc(n.name)} on the map">`
+      + `<span class="pknm">${esc(n.name)}${play?'<i class="pkplay" aria-label="has a playlist">▶</i>':""}</span>`
+      + `<span class="pkwhy">${esc(why)}</span>`
+      + `<span class="pkfam">${esc(FAM[n.fam].short)} · ${n.year}</span></button>`;
+  }).join("");
+}
+function modeSect(){
+  if(typeof MODES==="undefined") return "";
+  const chips=MODES.map(m=>`<button type="button" class="chip modechip${MODE===m[0]?" on":""}" data-mk="${esc(m[0])}" aria-pressed="${MODE===m[0]}"><i class="nm">${esc(m[1])}</i></button>`).join("");
+  const m=MODE&&MODES.find(x=>x[0]===MODE);
+  const out=m?`<div class="modeout"><h4 class="modettl">${esc(m[2])}</h4><p class="modewhy">${esc(m[3])}</p><div class="picks">${modePicks(m)}</div></div>`:"";
+  return sect("modes","What do you need it to do?",`<div class="chips modechips">${chips}</div>${out}`,
+              '<span class="sectaside">pick one</span>');
+}
 function emptyPanel(){
   setTint("");
   setExpandLabel("", "About this map", "About");
@@ -2198,6 +2334,7 @@ function emptyPanel(){
   syncPull();
   const top=[...nodes].sort((a,b)=>b.children.length-a.children.length||a.year-b.year).slice(0,12);
   $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="phead"><img class="appicon" alt="" src="${ICONSRC()}"><div class="phtx"><span class="mn">Offshoots</span><p class="tag">What grew out of what in North American music.</p><p class="ovmeta">${FAMS.length} families · ${nodes.length} styles</p></div></div></div><div class="more"><p class="note ovhint">Tap any style to trace where it came from and what it led to.</p>
+    ${modeSect()}
     ${sect("fams","Families by size",`<div class="chips">${[...FAMS].sort((x,y)=>nodes.filter(n=>n.fam===y[0]).length-nodes.filter(n=>n.fam===x[0]).length).map(([k,name,h])=>`<button type="button" class="chip c" style="--c:${FAM[k].c}" data-fam="${k}" title="Show ${esc(name)} · ${nodes.filter(n=>n.fam===k).length} styles"><i class="nm">${esc(name)}</i><span>${nodes.filter(n=>n.fam===k).length}</span></button>`).join("")}</div>`)}
     ${sect("top","Styles by influence",`<div class="chips">${top.map(n=>chip(n.id,n.children.length+" led to")).join("")}</div>`)}
     <div class="about"><p class="stats">${$("stats").textContent}</p>
