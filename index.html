@@ -746,6 +746,10 @@ a.wk.pl:hover,a.wk.sp:hover{background:color-mix(in srgb,var(--ink,var(--fg)) 84
   background:color-mix(in srgb,var(--acc,var(--fg)) 13%,transparent);color:var(--fg);text-decoration:none;
   transition:background .15s}
 .plrow:hover{background:color-mix(in srgb,var(--acc,var(--fg)) 22%,transparent);color:var(--fg)}
+.plrow .pcovph{display:grid;place-items:center;width:64px;height:64px;flex:none;border-radius:9px;
+  background:linear-gradient(150deg,color-mix(in srgb,var(--c,var(--fg)) 62%,#000),color-mix(in srgb,var(--c,var(--fg)) 20%,#000));
+  box-shadow:inset 0 0 0 .5px color-mix(in srgb,#fff 16%,transparent)}
+.plrow .pcovph b{font:700 21px var(--f-body);letter-spacing:.01em;color:#fff;opacity:.92}
 .plrow img.pcov{width:64px;height:64px;flex:none;margin:0;border-radius:9px;aspect-ratio:1;object-fit:cover;
   box-shadow:0 0 0 .5px var(--line),0 1px 3px rgb(0 0 0 / .25)}
 .plrow .pltx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
@@ -760,7 +764,7 @@ a.wk.pl:hover,a.wk.sp:hover{background:color-mix(in srgb,var(--ink,var(--fg)) 84
 .plrow.off img.pcov{opacity:.5}
 .plrow.off .plttl{opacity:.6}
 .plrow.off .plgo{background:transparent;color:var(--muted);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 55%,transparent)}
-@media (max-width:899px){ .plrow{padding:9px 17px 9px 9px;gap:11px} .plrow img.pcov{width:60px;height:60px} }
+@media (max-width:899px){ .plrow{padding:9px 17px 9px 9px;gap:11px} .plrow img.pcov,.plrow .pcovph{width:60px;height:60px} .plrow .pcovph b{font-size:20px} }
 
 /* the service switch fills the row beside "Listen on", three equal thirds */
 .sect-listen .secthead{gap:14px}
@@ -1842,9 +1846,18 @@ function wiki(n){
 // Emily's own Apple Music class playlists, keyed by style id (paths are relative to music.apple.com)
 // cover art, if art/<id>.jpg is sitting next to the page; missing files remove themselves
 const ART_DIR="art/", ART_EXT=".jpg";
-const cover = id => {
+// two letters for a style with no art file, so the row keeps its shape
+function initials(name){
+  const w=String(name||"").split(/[^A-Za-z0-9]+/).filter(Boolean);
+  if(!w.length) return "?";
+  return (w.length>1 ? w[0][0]+w[1][0] : w[0].slice(0,2)).toUpperCase();
+}
+const cover = (id,n) => {
   const f = (typeof COVER!=="undefined" && COVER[id]) || id;   // COVER maps a style to its file name; otherwise the id is the file name
-  return `<img class="pcov" src="${ART_DIR}${encodeURIComponent(f)}${ART_EXT}" alt="" loading="lazy" decoding="async">`;
+  const node = n || byId[id];
+  const c = node ? FAM[node.fam].c : "";
+  const ini = initials(node?node.name:id);
+  return `<img class="pcov" src="${ART_DIR}${encodeURIComponent(f)}${ART_EXT}" alt="" loading="lazy" decoding="async" data-c="${esc(c)}" data-ini="${esc(ini)}">`;
 };
 // cover plus a playlist title say what the section is; a heading on top of that is noise
 function playLabel(n){
@@ -1863,7 +1876,7 @@ function plist(n){
   const t=(typeof PTITLE!=="undefined"&&PTITLE[n.id])||n.name;
   return `<a class="plrow pl" target="_blank" rel="noopener"`
     + ` data-ap="${ap?esc("https://music.apple.com"+ap):""}" data-spid="${esc(sp)}" data-style="${esc(n.name)}">`
-    + cover(n.id)
+    + cover(n.id,n)
     + `<span class="pltx"><b class="plttl">${esc(t)}</b><span class="plsvc"></span></span>`
     + `<span class="plgo">${PLAYGO}</span></a>`;
 }
@@ -2615,7 +2628,7 @@ function featSect(){
   const n=featPick(); if(!n) return "";
   // the same component the style panel uses for a playlist, so the two read as one app
   const body=`<div class="feat"><button type="button" class="plrow featrow" data-go="${esc(n.id)}" title="Open ${esc(n.name)}">`
-    + cover(n.id)
+    + cover(n.id,n)
     + `<span class="pltx"><b class="plttl">${esc(n.name)}</b><span class="plsvc">${esc(FAM[n.fam].short)} · ${n.year} · ${esc(featLine(n))}</span></span>`
     + `<span class="plgo">${PLAYGO}</span></button>`
     + `<button type="button" class="shuf" data-shuffle aria-label="Suggest another" title="Suggest another"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h3.5l7 8H17"/><path d="M3 14h3.5l2-2.3"/><path d="M11.5 8.3L13.5 6H17"/><path d="M15 4l2 2-2 2"/><path d="M15 12l2 2-2 2"/></svg></button></div>`;
@@ -2708,7 +2721,22 @@ document.addEventListener("click",e=>{ if(!e.target.closest(".search")) res.hidd
 function go(id){ res.hidden=true; q.value=""; qsync(); document.body.classList.remove("searching"); select(id);
   panelTop(); }
 // a cover that isn't there just disappears; error doesn't bubble, so listen on the capture phase
-$("panelBody").addEventListener("error",e=>{ const t=e.target; if(t&&t.tagName==="IMG"&&t.classList.contains("pcov")) t.remove(); },true);
+// a cover that fails once is usually a hiccup; only a second failure means there is no file,
+// and then a tile keeps the row the same shape instead of collapsing it
+$("panelBody").addEventListener("error",e=>{
+  const t=e.target; if(!t||t.tagName!=="IMG"||!t.classList.contains("pcov")) return;
+  if(!t.dataset.retried){
+    t.dataset.retried="1";
+    const src=(t.getAttribute("src")||"").split("?")[0];
+    setTimeout(()=>{ if(t.isConnected) t.src=src+"?r=1"; },500);
+    return;
+  }
+  const ph=document.createElement("span");
+  ph.className="pcov pcovph"; ph.setAttribute("aria-hidden","true");
+  if(t.dataset.c) ph.style.setProperty("--c",t.dataset.c);
+  ph.innerHTML="<b></b>"; ph.firstChild.textContent=t.dataset.ini||"";
+  t.replaceWith(ph);
+},true);
 
 function panelTop(){ const pb=$("panelBody"); if(!pb) return; pb.scrollTop=0; document.body.classList.remove("pscrolled"); setTimeout(()=>{ pb.scrollTop=0; document.body.classList.remove("pscrolled"); },60); }
 function qsync(){ const b=$("qclear"); if(b) b.hidden = !q.value; }
