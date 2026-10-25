@@ -439,6 +439,12 @@ body.searching #mapBack{display:none}
 body.searching #mapSearch{display:none}
 @media (max-width:899px){ #mapSearch{top:calc(var(--axh,34px) + 10px);right:12px;width:40px;height:40px} }
 #bottomSearch{position:fixed;z-index:60;left:50%;right:auto;transform:translateX(-50%);width:min(520px,calc(100vw - 2*var(--gutter)));top:12px;bottom:auto;display:none}
+/* on a wide screen the panel is a sidebar, so centring on the viewport pushed the
+   field under it: centre on the map instead */
+@media (min-width:900px){
+  #bottomSearch{left:calc((100vw - var(--sidew)) / 2);
+    width:min(520px,calc(100vw - var(--sidew) - 2*var(--gutter)))}
+}
 body.searching #bottomSearch{display:block}
 #bottomSearch .results{top:calc(100% + 6px);bottom:auto;max-height:min(60vh,420px);overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 #bottomSearch .search input{background-color:var(--glass);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);box-shadow:0 0 0 .5px rgb(0 0 0 / .14),0 10px 30px rgb(0 0 0 / .22)}
