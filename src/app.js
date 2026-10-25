@@ -643,13 +643,14 @@ $("panel").addEventListener("click",e=>{
     const pick=nodes.filter(x=>x.fam===k).sort((x,y)=>y.children.length-x.children.length||x.year-y.year)[0];
     if(pick){ select(pick.id,{scroll:true,smooth:!reduce}); panelTop(); }
     return; }
+  // a row that names a style navigates to it even on a minimised sheet, which is
+  // otherwise tap-anywhere-to-open: Start here and the mode picks both sit there,
+  // and expanding the panel is not what tapping a named style asks for
   const g0=e.target.closest("[data-go]");
-  if(g0 && e.target.closest(".navmenu")){ closeNav(); select(g0.dataset.go); panelTop(); return; }
+  if(g0){ closeNav(); select(g0.dataset.go); panelTop(); return; }
   if(!OPEN && OVERLAY){ if(!e.target.closest("a")) setOpen(true); return; }   // only the minimised sheet is tap-to-open
   if(e.target.closest("[data-share]")){ shareSel(); return; }
   if(e.target.closest("[data-close]")){ closePanel(); return; }
-  const g=e.target.closest("[data-go]");
-  if(g){ closeNav(); select(g.dataset.go); panelTop(); return; }
   const m=e.target.closest("[data-mode]"); if(m){ state.mode=m.dataset.mode; select(state.sel,{scroll:false}); }
 });
 $("lanes").addEventListener("click",e=>{ const l=e.target.closest(".lane"); if(!l) return; const lane=lanes.find(x=>x.k===l.dataset.fam); if(lane) scroller.scrollTo({top:Math.max(0,lane.y0-8),behavior:reduce?"auto":"smooth"}); });
