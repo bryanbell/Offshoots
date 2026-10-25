@@ -522,6 +522,17 @@ aside#panel{padding-bottom:0}
 #pshare.done{background:color-mix(in srgb,var(--acc,var(--fg)) 28%,transparent)}
 /* the minimised sheet keeps its height for the playlist */
 @media (max-width:899px){ body:not(.open) #pfoot{display:none} }
+/* minimised: a floating chevron says the sheet carries more */
+@media (max-width:899px){
+  body:not(.open) aside#panel{padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))}
+  body:not(.open) #ptoggle{display:block;position:absolute;left:50%;transform:translateX(-50%);
+    bottom:calc(5px + env(safe-area-inset-bottom,0px));z-index:38}
+  body:not(.open) #ptoggle #expand{width:30px;height:30px;min-width:0;padding:0;border-radius:50%;
+    background:color-mix(in srgb,var(--ink,var(--fg)) 16%,transparent);
+    box-shadow:0 1px 6px rgb(0 0 0 / .28)}
+  body:not(.open) #ptoggle #expand .lbl{display:none}
+  body:not(.open) #ptoggle #expand svg{width:15px;height:15px}
+}
 
 
 /* stronger divider between map and sidebar */
