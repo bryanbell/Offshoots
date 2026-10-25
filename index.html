@@ -149,13 +149,17 @@ aside h3,.pcard h3.sec{font:600 11px var(--f-body);letter-spacing:.06em;text-tra
 .modewhy{margin:3px 0 9px;font-size:13px;line-height:1.45;color:var(--muted);max-width:60ch}
 .picks{display:flex;flex-direction:column;gap:4px}
 .pick{all:unset;display:grid;grid-template-columns:auto 1fr auto;column-gap:9px;align-items:baseline;
-  box-sizing:border-box;width:100%;padding:9px 11px;border-radius:10px;cursor:pointer;
+  box-sizing:border-box;width:100%;padding:10px 13px;border-radius:14px;cursor:pointer;
   background:var(--fill2);transition:background .15s}
 .pick:hover,.pick:focus-visible{background:var(--fill)}
 .pick:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
 .pick::before{content:"";grid-row:1;align-self:center;width:8px;height:8px;border-radius:50%;background:var(--c)}
 .pknm{grid-column:2;font:600 13.5px var(--f-body);color:var(--fg)}
-.pkplay{grid-column:2;font-style:normal;font-size:8px;margin-left:6px;color:var(--muted);vertical-align:1px}
+/* the same round play mark the artist chips carry, so "playable" looks the same everywhere */
+.pkgo{grid-column:2;display:inline-grid;place-items:center;width:19px;height:19px;border-radius:50%;
+  margin-left:7px;vertical-align:-4px;background:color-mix(in srgb,var(--fg) 13%,transparent);color:var(--fg)}
+.pkgo svg{width:10px;height:10px;margin-left:1px}
+.pick:hover .pkgo{background:var(--fg);color:var(--bg)}
 .pkfam{grid-column:3;grid-row:1;font:500 10px var(--f-mono);color:var(--muted);white-space:nowrap}
 .pkwhy{grid-column:2/4;font-size:12.5px;line-height:1.35;color:var(--muted);margin-top:2px}
 .chip span{flex:none;font-family:var(--f-mono);font-size:10px;color:var(--muted)}
@@ -207,7 +211,7 @@ a.am:hover{color:var(--accent)}
   .brbtn{height:38px;padding:0 13px}
   .brlbl{font-size:14px}
   .brmenu{min-width:272px}
-  .pick{padding:11px 12px}
+  .pick{padding:11px 13px}
   .pknm{font-size:15px}
   .pkwhy{font-size:13px}
   .pkfam{font-size:10.5px}
@@ -291,8 +295,10 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line)}
 .browse{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 2px}
 /* the featured row: one concrete thing to listen to, with a re-roll beside it */
 .feat{display:flex;align-items:stretch;gap:8px}
-.featpick{flex:1 1 auto;min-width:0}
-.shuf{all:unset;flex:none;display:grid;place-items:center;width:44px;border-radius:10px;cursor:pointer;
+button.featrow{appearance:none;-webkit-appearance:none;border:0;margin:0;font:inherit;text-align:left;
+  flex:1 1 auto;min-width:0;cursor:pointer}
+.featrow .plsvc{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.shuf{all:unset;flex:none;display:grid;place-items:center;width:46px;border-radius:14px;cursor:pointer;
   background:var(--fill2);color:var(--muted);transition:background .15s,color .15s}
 .shuf:hover{background:var(--fill);color:var(--fg)}
 .shuf:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
@@ -335,7 +341,7 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line)}
 .navmenu[hidden]{display:none}
 body > .navmenu{color:var(--fg);background:var(--panel);z-index:70}
 .navmenu button{all:unset;display:flex;align-items:center;gap:9px;width:100%;box-sizing:border-box;
-  min-height:38px;padding:8px 10px;border-radius:9px;cursor:pointer;color:var(--fg);font:500 13.5px var(--f-body)}
+  min-height:38px;padding:8px 10px;border-radius:11px;cursor:pointer;color:var(--fg);font:500 13.5px var(--f-body)}
 .navmenu button:hover{background:color-mix(in srgb,var(--fg) 9%,transparent)}
 .navmenu .dot{flex:none;width:7px;height:7px;border-radius:50%}
 .navmenu .nm{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -2542,7 +2548,7 @@ function modePicks(m){
     const n=byId[id]; if(!n) return "";
     const play=(typeof PLAY!=="undefined"&&PLAY[id])||(typeof SPLAY!=="undefined"&&SPLAY[id]);
     return `<button type="button" class="pick c" style="--c:${FAM[n.fam].c}" data-go="${esc(id)}" title="Show ${esc(n.name)} on the map">`
-      + `<span class="pknm">${esc(n.name)}${play?'<i class="pkplay" aria-label="has a playlist">▶</i>':""}</span>`
+      + `<span class="pknm">${esc(n.name)}${play?`<i class="pkgo" aria-label="has a playlist">${PLAYGO}</i>`:""}</span>`
       + `<span class="pkwhy">${esc(why)}</span>`
       + `<span class="pkfam">${esc(FAM[n.fam].short)} · ${n.year}</span></button>`;
   }).join("");
@@ -2592,7 +2598,8 @@ function plStylesHtml(k){
 // a concrete suggestion beats an empty menu: the most-connected styles that are
 // actually listenable, rotating by the day so the map looks tended rather than static
 let FEAT=null;
-function featPool(){ return playable().sort((x,y)=>y.children.length-x.children.length||x.year-y.year).slice(0,40); }
+const hasCover=id=>!!((typeof COVER!=="undefined"&&COVER[id])||false);
+function featPool(){ return playable().filter(n=>hasCover(n.id)).sort((x,y)=>y.children.length-x.children.length||x.year-y.year).slice(0,40); }
 function featPick(){
   const pool=featPool(); if(!pool.length) return null;
   if(FEAT&&byId[FEAT]&&hasPlay(FEAT)) return byId[FEAT];
@@ -2600,16 +2607,17 @@ function featPick(){
 }
 function featLine(n){
   const d=(typeof DESC!=="undefined"&&DESC[n.id])||"";
-  if(d){ const s=d.split(/(?<=[.!?])\s/)[0]; return s.length>96?s.slice(0,93).trim()+"…":s; }
+  if(d){ const s=d.split(/(?<=[.!?])\s/)[0]; return s.length>64?s.slice(0,61).trim()+"…":s; }
   const who=(typeof ART!=="undefined"&&ART[n.id])||[];
   return who.length?who.slice(0,3).join(", "):"A School of Listening playlist";
 }
 function featSect(){
   const n=featPick(); if(!n) return "";
-  const body=`<div class="feat"><button type="button" class="pick featpick c" style="--c:${FAM[n.fam].c}" data-go="${esc(n.id)}" title="Open ${esc(n.name)}">`
-    + `<span class="pknm">${esc(n.name)}<i class="pkplay" aria-label="has a playlist">▶</i></span>`
-    + `<span class="pkwhy">${esc(featLine(n))}</span>`
-    + `<span class="pkfam">${esc(FAM[n.fam].short)} · ${n.year}</span></button>`
+  // the same component the style panel uses for a playlist, so the two read as one app
+  const body=`<div class="feat"><button type="button" class="plrow featrow" data-go="${esc(n.id)}" title="Open ${esc(n.name)}">`
+    + cover(n.id)
+    + `<span class="pltx"><b class="plttl">${esc(n.name)}</b><span class="plsvc">${esc(FAM[n.fam].short)} · ${n.year} · ${esc(featLine(n))}</span></span>`
+    + `<span class="plgo">${PLAYGO}</span></button>`
     + `<button type="button" class="shuf" data-shuffle aria-label="Suggest another" title="Suggest another"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h3.5l7 8H17"/><path d="M3 14h3.5l2-2.3"/><path d="M11.5 8.3L13.5 6H17"/><path d="M15 4l2 2-2 2"/><path d="M15 12l2 2-2 2"/></svg></button></div>`;
   return sect("feat","Start here",body,'<span class="sectaside">a playlist to try</span>');
 }
