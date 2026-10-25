@@ -241,9 +241,9 @@ body:not(.open) aside:hover{background:var(--panel)}
 body.open .pcnt{display:none}
 .pcard{margin:0}
 body.open .pcard{margin:0 0 4px}
-.pcard .mn{display:block;font-weight:700;font-size:18px;letter-spacing:-.018em;line-height:1.25;margin:0 0 3px}
+.pcard .mn{display:block;font-weight:700;font-size:18px;letter-spacing:-.018em;line-height:1.2;margin:0 0 1px}
 .navrow{position:sticky;top:0;z-index:35;display:grid;grid-template-columns:1fr minmax(0,auto) 1fr;
-  align-items:center;gap:8px;margin:0 0 2px;padding:10px 0 11px;background:var(--panel)}
+  align-items:center;gap:8px;margin:0;padding:6px 0 7px;background:var(--panel)}
 .navrow .nav-from{justify-self:start}
 .navrow .nav-led{justify-self:end}
 body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line)}
@@ -413,7 +413,7 @@ body:not(.open) aside#panel{width:var(--sidew);cursor:pointer}
 /* ---- mobile: drag handle instead of a chevron ---- */
 #grab{display:none}
 @media (max-width:899px){
-  #grab{display:flex;align-items:center;justify-content:center;flex:none;height:12px;margin:0 0 11px;position:relative;touch-action:none;cursor:grab;-webkit-tap-highlight-color:transparent}
+  #grab{display:flex;align-items:center;justify-content:center;flex:none;height:11px;margin:0 0 4px;position:relative;touch-action:none;cursor:grab;-webkit-tap-highlight-color:transparent}
   #grab::after{content:"";position:absolute;inset:-9px 0}
   #grab::before{content:"";width:38px;height:5px;border-radius:999px;background:var(--fill);transition:background .15s}
   #grab:active{cursor:grabbing}
@@ -639,7 +639,8 @@ a.wk.pl:hover,a.wk.sp:hover{background:color-mix(in srgb,var(--ink,var(--fg)) 84
 .svcinline:hover{text-decoration-color:var(--fg)}
 .svcinline .svcchev{width:12px;height:12px;opacity:.75}
 /* the section is framed: a rule above the heading, another below the options */
-.sect-listen{padding-bottom:16px;border-bottom:var(--sectw,.5px) solid var(--sectline,var(--line))}
+.sect-listen{margin-top:8px;padding:10px 0 14px;border-bottom:var(--sectw,.5px) solid var(--sectline,var(--line))}
+.sect-listen .secthead{margin-bottom:10px}
 .sect-listen .secthead .svc{flex:none;display:flex;min-width:0}
 
 /* artist chips: no speaker icon, a small play button on the right instead.
