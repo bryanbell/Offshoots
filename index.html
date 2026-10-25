@@ -286,11 +286,12 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line)}
 .pcard .my .fam{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .pcard .my .yr{flex:none;white-space:pre}
 p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:4px 0 9px;font:400 11.5px var(--f-body);color:var(--muted)}
-.svc{display:inline-flex;flex-wrap:wrap;gap:3px;padding:2px;border-radius:8px;background:var(--fill2)}
-.svc button .short{display:none}
-@media (max-width:699px){.svc{gap:2px;padding:2px}.svc button{padding:3px 7px;font-size:10.5px}.svc button .long{display:none}.svc button .short{display:inline}}
-.svc button{border:0;border-radius:6px;padding:3px 8px;background:none;color:var(--muted);font:600 11px var(--f-body);cursor:pointer}
-.svc button[aria-pressed="true"]{background:var(--panel);color:var(--fg);box-shadow:0 1px 2px rgb(0 0 0 / .12)}
+.svc{display:inline-flex}
+.svc select{appearance:none;-webkit-appearance:none;border:0;cursor:pointer;border-radius:999px;
+  padding:5px 25px 5px 11px;background-color:var(--fill2);color:var(--fg);font:600 11.5px var(--f-body);
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 6.5L8 10.5l4-4'/></svg>");
+  background-repeat:no-repeat;background-position:right 9px center;background-size:11px}
+.svc select:focus-visible{outline:2px solid color-mix(in srgb,var(--accent) 60%,transparent);outline-offset:2px}
 
 .who{display:flex;flex-wrap:wrap;gap:7px}
 .pcard .links{display:none}
@@ -631,6 +632,13 @@ a.wk.pl:hover,a.wk.sp:hover{background:color-mix(in srgb,var(--ink,var(--fg)) 84
 
 /* the service switch fills the row beside "Listen on", three equal thirds */
 .sect-listen .secthead{gap:14px}
+.sect-listen .secttl{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.svcinline select{padding:0 16px 0 0;border-radius:0;background-color:transparent;color:var(--fg);
+  font:inherit;background-position:right 1px center;background-size:12px;
+  text-underline-offset:3px;text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--fg) 32%,transparent)}
+.svcinline select:hover{text-decoration-color:var(--fg)}
+/* the section is framed: a rule above the heading, another below the options */
+.sect-listen{padding-bottom:16px;border-bottom:var(--sectw,.5px) solid var(--sectline,var(--line))}
 .sect-listen .secthead .svc{flex:none;display:flex;min-width:0}
 
 /* artist chips: no speaker icon, a small play button on the right instead.
@@ -1952,7 +1960,8 @@ function noteHtml(n){
 }
 // playlist and key artists are two subdivisions of one Listen section, with the
 // service switch in its header governing both
-function svcPicker(){ return `<span class="svc"><select id="svcsel" aria-label="Streaming service">`
+function svcPicker(kind){ return `<span class="svc${kind==="inline"?" svcinline":""}">`
+  + `<select class="svcsel" aria-label="Streaming service">`
   + `<option value="apple"${SVC==="apple"?" selected":""}>Apple Music</option>`
   + `<option value="spotify"${SVC==="spotify"?" selected":""}>Spotify</option>`
   + `<option value="qobuz"${SVC==="qobuz"?" selected":""}>Qobuz</option>`
@@ -1962,7 +1971,8 @@ function listenSect(n,who,artistsHtml){
   if(!pb && !who.length) return "";
   const body = (pb?`<h4 class="subh">Playlist</h4>${pb}`:"")
              + (who.length?`<h4 class="subh${pb?" gap":""}">Key artists</h4>${artistsHtml}`:"");
-  return sect("listen","Listen on",body);
+  const head = `<div class="secthead"><h3 class="secttl">Listen on ${svcPicker("inline")}</h3></div>`;
+  return `<div class="sect sect-listen">${head}<div class="secbody">${body}</div></div>`;
 }
 function panel(n,anc,desc){
   const dfams=new Set([...desc.keys()].map(k=>byId[k].fam));
@@ -1975,7 +1985,7 @@ function panel(n,anc,desc){
     <p class="tally">${anc.size} ancestor styles · ${desc.size} descendant styles${desc.size?` across ${dfams.size} ${dfams.size===1?"family":"families"}`:""}</p></div>`;
   paintPlay();
 }
-$("panel").addEventListener("change",e=>{ if(e.target&&e.target.id==="svcsel") setSvc(e.target.value); });
+$("panel").addEventListener("change",e=>{ if(e.target&&e.target.classList.contains("svcsel")) setSvc(e.target.value); });
 function closeNav(except){ document.querySelectorAll(".navwrap").forEach(w=>{
     const b=w.querySelector(".navbtn"), m=w.querySelector(".navmenu");
     if(!m || w===except) return; m.hidden=true; if(b) b.setAttribute("aria-expanded","false"); }); }
@@ -2077,7 +2087,7 @@ function emptyPanel(){
   setPbar("Offshoots", FAMS.length+" families · "+nodes.length+" styles");
   const top=[...nodes].sort((a,b)=>b.children.length-a.children.length||a.year-b.year).slice(0,12);
   $("panelBody").innerHTML=`<div class="pcard"><div class="phead"><img class="appicon" alt="" src="${ICONSRC()}"><div class="phtx"><span class="mn">Offshoots</span><p class="tag">What grew out of what in North American music.</p></div></div><div class="meta"><span class="my">${FAMS.length} families · ${nodes.length} styles</span></div><div class="pcnt"><span>About this map</span></div></div><div class="more"><p class="note">Click or tap any style to trace where it came from and what it led to. Click empty space to clear.</p>
-    ${sect("svc","Streaming service",`<p class="note svcnote">Playlists and artist links open in this service. Set it once; it is remembered.</p>`,svcPicker())}
+    ${sect("svc","Streaming service",`<p class="note svcnote">Playlists and artist links open in this service. Set it once; it is remembered.</p>`,svcPicker("block"))}
     ${sect("fams","Families by size",`<div class="chips">${[...FAMS].sort((x,y)=>nodes.filter(n=>n.fam===y[0]).length-nodes.filter(n=>n.fam===x[0]).length).map(([k,name,h])=>`<button type="button" class="chip c" style="--c:${FAM[k].c}" data-fam="${k}" title="Show ${esc(name)} · ${nodes.filter(n=>n.fam===k).length} styles"><i class="nm">${esc(name)}</i><span>${nodes.filter(n=>n.fam===k).length}</span></button>`).join("")}</div>`)}
     ${sect("top","Styles by influence",`<div class="chips">${top.map(n=>chip(n.id,n.children.length+" led to")).join("")}</div>`)}
     <div class="about"><p class="stats">${$("stats").textContent}</p>
