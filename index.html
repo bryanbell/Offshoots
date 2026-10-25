@@ -535,6 +535,17 @@ aside#panel{padding-bottom:0}
 #pshare.done{background:color-mix(in srgb,var(--acc,var(--fg)) 28%,transparent)}
 /* the minimised sheet keeps its height for the playlist */
 @media (max-width:899px){ body:not(.open) #pfoot{display:none} }
+/* swiped away: the sheet leaves the screen and a thin handle takes its place */
+#sheetpull{display:none}
+@media (max-width:899px){
+  body.sheetgone aside#panel{display:none}
+  body.sheetgone #sheetpull{display:flex;position:absolute;z-index:30;left:50%;transform:translateX(-50%);
+    bottom:calc(10px + env(safe-area-inset-bottom,0px));align-items:center;justify-content:center;
+    width:84px;height:26px;padding:0;border:0;border-radius:999px;cursor:pointer;
+    background:color-mix(in srgb,var(--panel) 92%,transparent);box-shadow:0 1px 8px rgb(0 0 0 / .34)}
+  body.sheetgone #sheetpull[hidden]{display:flex}
+  body.sheetgone #sheetpull span{display:block;width:34px;height:4px;border-radius:2px;background:var(--muted);opacity:.85}
+}
 /* minimised: a floating chevron says the sheet carries more */
 @media (max-width:899px){
   body:not(.open) aside#panel{padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))}
@@ -710,6 +721,7 @@ a.am .amgo{display:none}
     
     </div>
   </div>
+  <button id="sheetpull" type="button" aria-label="Show the map details" hidden><span></span></button>
   <aside id="panel" aria-live="polite"><div id="grab" role="button" tabindex="0" aria-label="Expand details" aria-expanded="false"></div>
   <button id="pclose" data-close aria-label="Collapse details"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l5-5 5 5"/></svg></button>  <div id="pbar"><div id="pbarTxt"><span id="pbarTitle"></span><span id="pbarSub"></span></div></div>
   <div id="panelBody"></div><div id="pfoot"><button id="pshare" type="button" aria-label="Share this map" title="Share this map"><svg class="up" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13V3"/><path d="M6.5 6.5L10 3l3.5 3.5"/><path d="M5 11v5.5h10V11"/></svg><svg class="ok" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5l4 4 8-8.5"/></svg><span class="lbl">Share this style</span></button></div><div id="ptoggle"><button id="expand" aria-label="Show details" aria-expanded="false"><span class="lbl">Details</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg></button></div></aside>
@@ -1811,7 +1823,7 @@ function centerOn(n,smooth,onlyIfNeeded){
 // resizing and zooming use it, so the cover <img> isn't torn down and reloaded (which flickers).
 function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   if(!byId[id]) return;
-  state.sel=id; const n=byId[id];
+  state.sel=id; restoreSheet(); const n=byId[id];
   const anc=walk(id,"parents"), desc=walk(id,"children");
   // the map highlights two generations each way; the panel still lists the full ancestry
   const near=m=>new Map([...m].filter(([,d])=>d<=HOPS));
@@ -1917,6 +1929,9 @@ function setPbar(t,s){ PBAR={t:t||"",s:s||""}; const a1=$("pbarTitle"), a2=$("pb
 })();
 // the sheet's grab handle: tap toggles, a vertical drag resizes and snaps to the nearer state
 let MINH=0, DRAGGING=false;
+const dismissable = ()=> OVERLAY && !OPEN && !state.sel;
+function dismissSheet(){ document.body.classList.add("sheetgone"); setOpen(false); }
+function restoreSheet(){ document.body.classList.remove("sheetgone"); }
 function sheetMin(){ return MINH || 170; }
 function sheetMax(){ return Math.round(innerHeight*0.5); }
 (function(){
@@ -1935,7 +1950,8 @@ function sheetMax(){ return Math.round(innerHeight*0.5); }
     if(!DRAGGING && moved<4) return;
     if(!DRAGGING){ DRAGGING=true; document.body.classList.add("dragging"); }
     e.preventDefault();
-    el.style.height=Math.max(sheetMin(), Math.min(sheetMax(), h0+dy))+"px";
+    const floor = dismissable() ? 0 : sheetMin();
+    el.style.height=Math.max(floor, Math.min(sheetMax(), h0+dy))+"px";
   });
   const end=e=>{
     if(!active) return; active=false;
@@ -1945,6 +1961,7 @@ function sheetMax(){ return Math.round(innerHeight*0.5); }
     if(!DRAGGING){ setOpen(!OPEN); DRAGGING=false; return; }   // a tap, not a drag
     DRAGGING=false;
     const flick = dt<260 && Math.abs(dy)>24;                   // quick flick wins over position
+    if(dismissable() && (flick ? dy<0 : hNow < sheetMin()*0.62)){ dismissSheet(); return; }
     const open = flick ? dy>0 : hNow > (sheetMin()+sheetMax())/2;
     setOpen(open);
   };
@@ -2113,6 +2130,7 @@ function shareSel(){
   } else copy();
 }
 { const sb=$("pshare"); if(sb) sb.addEventListener("click",shareSel); }
+{ const sp=$("sheetpull"); if(sp) sp.addEventListener("click",()=>{ restoreSheet(); }); }
 // always available: it shares the selected style, or the map when nothing is selected
 function syncShare(){ const sb=$("pshare"); if(!sb) return;
   sb.hidden=false;
