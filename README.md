@@ -14,6 +14,7 @@ descriptions, and 233 styles with a playlist on Apple Music and Spotify.
 |---|---|
 | `index.html` | The whole app, built and ready to serve. Generated: edit `src/`, not this |
 | `src/` | The files it is built from |
+| `test/` | Browser checks that drive the built page |
 | `art/` | Playlist cover art, one square JPEG per style |
 
 Netlify serves this directory as-is. No build command, no publish subdirectory:
@@ -72,3 +73,33 @@ node -e 'const {DATA,COVER}=require("./src/data.js"); /* ... */'
 
 Commit `index.html` along with the source change. Netlify serves the committed file,
 so a source edit that is not rebuilt will not reach the site.
+
+### Why it is still one file
+
+Splitting the served page into separate js and css would buy better caching on a
+repeat visit and not much else. Against that, a self-contained page can be mailed,
+opened from a disk or dropped into any host, and every extra fetched file is another
+relative URL that can resolve wrong where the page is served from a path with no
+trailing slash. That has already bitten once: see `artBase()` in `app.js`, which
+exists because `art/x.jpg` resolved against the parent directory and every cover
+404'd. The maintenance argument for splitting is already answered by `src/`.
+
+## Tests
+
+```
+npm install            # playwright, once
+npm test               # rebuilds, then runs every test/*.test.js
+```
+
+92 checks across five suites, driving a real Chromium against the built page at
+mobile and desktop widths: the back trail, the listening modes, the browse menus,
+sharing from the title, and the root panel. Each prints one line per check and the
+runner exits non-zero if any fails.
+
+They load `index.html` over `file://`, so `art/` resolves from this folder and covers
+render exactly as they do when served.
+
+One trap worth knowing before adding a test: setting `location.hash` on a page that
+is already loaded is a same-document navigation, so the app does not re-select and
+the panel keeps showing the previous style. Open each style on a fresh page. Several
+false failures in this project came from reusing one.
