@@ -159,10 +159,10 @@ aside h3,.pcard h3.sec{font:600 11px var(--f-body);letter-spacing:.06em;text-tra
 .pick::before{content:"";grid-row:1;align-self:center;width:8px;height:8px;border-radius:50%;background:var(--c)}
 .pknm{grid-column:2;font:600 13.5px var(--f-body);color:var(--fg)}
 /* the same round play mark the artist chips carry, so "playable" looks the same everywhere */
-.pkgo{grid-column:2;display:inline-grid;place-items:center;width:19px;height:19px;border-radius:50%;
-  margin-left:7px;vertical-align:-4px;background:color-mix(in srgb,var(--fg) 13%,transparent);color:var(--fg)}
-.pkgo svg{width:10px;height:10px;margin-left:1px}
-.pick:hover .pkgo{background:var(--fg);color:var(--bg)}
+.pkgo{grid-column:2;display:inline-grid;place-items:center;margin-left:7px;vertical-align:-1px;
+  color:color-mix(in srgb,var(--fg) 55%,transparent)}
+.pkgo svg{width:10px;height:10px}
+.pick:hover .pkgo{color:var(--fg)}
 .pkfam{grid-column:3;grid-row:1;font:500 10px var(--f-mono);color:var(--muted);white-space:nowrap}
 .pkwhy{grid-column:2/4;font-size:12.5px;line-height:1.35;color:var(--muted);margin-top:2px}
 .chip span{flex:none;font-family:var(--f-mono);font-size:10px;color:var(--muted)}
