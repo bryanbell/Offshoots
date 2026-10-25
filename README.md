@@ -5,17 +5,19 @@ and what grew out of it. Built for the School of Listening class.
 
 Live: https://offshoots.netlify.app/
 
-459 styles across 16 families, 1,127 parent-to-child connections, 276 written
-descriptions, and playlists on Apple Music and Spotify for the styles that have them.
+460 styles across 16 families, 1,130 parent-to-child connections, 277 written
+descriptions, and 233 styles with a playlist on Apple Music and Spotify.
 
 ## What's in here
 
 | Path | What it is |
 |---|---|
-| `index.html` | The whole app, built and ready to serve |
+| `index.html` | The whole app, built and ready to serve. Generated: edit `src/`, not this |
+| `src/` | The files it is built from |
 | `art/` | Playlist cover art, one square JPEG per style |
 
-Netlify serves this directory as-is. No build command, no publish subdirectory.
+Netlify serves this directory as-is. No build command, no publish subdirectory:
+`index.html` is committed already built.
 
 ## How the connections work
 
@@ -45,15 +47,28 @@ the shelves whose covers are near-black, the cover accent supplies it instead. T
 same palette tints the detail panel, so a style's panel, its lane, its dot and its
 lines are all the same family color.
 
-## Source
+## Building
 
-Built from three files that concatenate into `index.html`:
+`index.html` is generated. Edit the files in `src/` and rebuild:
 
 ```
-head.html   CSS and markup
-data.js     families, styles, parents, artists, playlists, descriptions, covers
-app.js      layout, rendering, interaction
+node src/build.js      # writes index.html at the repo root
 ```
 
-Source and data exports live alongside the class materials in
-`/Users/slim/Code/Music`, not in this repository.
+```
+src/head.html   CSS and markup
+src/data.js     families, styles, parents, artists, playlists, descriptions, covers, modes
+src/app.js      layout, rendering, interaction
+src/build.js    joins the three into index.html
+```
+
+`data.js` ends with a `module.exports` tail so scripts and tests can `require()` it;
+the build strips that tail, since the page has no module system. That makes checks
+like this possible without a browser:
+
+```
+node -e 'const {DATA,COVER}=require("./src/data.js"); /* ... */'
+```
+
+Commit `index.html` along with the source change. Netlify serves the committed file,
+so a source edit that is not rebuilt will not reach the site.
