@@ -1780,12 +1780,12 @@ function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   const whoList = [...new Set([...n.noteNames,...n.artists])];
   n.whoList = whoList;
   PHEAD = `<div class="pcard"><span class="mn">${esc(n.name)}</span>`
-    + `<div class="meta"><span class="my"><span class="fam">${esc(FAM[n.fam].name)}</span><span class="yr"> · ${n.year<1950?esc(n.disp):"c. "+n.year}</span></span></div>`
+    + `<div class="meta"><span class="my"><span class="yr">${n.year<1950?esc(n.disp):"c. "+n.year}</span></span></div>`
     + `</div>`;
   setExpandLabel("", `${n.parents.length} from · ${n.children.length} led to`, `${n.parents.length} from · ${n.children.length} led to`);
   if(repaint){
     panel(n,anc,desc); amUpgrade();
-    setPbar(n.name, FAM[n.fam].name+" · "+(n.year<1950?n.disp:"c. "+n.year));
+    setPbar(n.name, n.year<1950?n.disp:"c. "+n.year);
   }
   sizeCard();
   setTint(n.fam);
