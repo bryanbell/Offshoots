@@ -204,6 +204,9 @@ a.am:hover{color:var(--accent)}
   .chip::before{width:8px;height:8px}
   .chip:active{background:var(--fill)}
   .modechip{min-height:34px;padding:7px 12px}
+  .brbtn{height:38px;padding:0 13px}
+  .brlbl{font-size:14px}
+  .brmenu{min-width:272px}
   .pick{padding:11px 12px}
   .pknm{font-size:15px}
   .pkwhy{font-size:13px}
@@ -284,6 +287,19 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line)}
 .navbtn:disabled{opacity:.35;cursor:default}
 .navbtn .cv{width:14px;height:14px;flex:none}
 .navbtn .ct{font:600 12px var(--f-mono);font-style:normal;opacity:.8}
+/* browse menus in the overview */
+.browse{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 2px}
+.nav-br .navmenu{left:0}
+.brbtn{height:34px;padding:0 11px;gap:7px;background:var(--fill2)}
+.brbtn:hover:not(:disabled){background:var(--fill)}
+.brlbl{font:600 13px var(--f-body)}
+.brbtn .cv{width:13px;height:13px;opacity:.65}
+.brmenu{min-width:252px}
+.brback{position:sticky;top:-5px;z-index:1;background:var(--panel);
+  box-shadow:0 .5px 0 var(--line);border-radius:9px 9px 0 0;color:var(--muted)}
+.brback .nm{font-weight:600;color:var(--fg)}
+.brback .bk{flex:none;display:flex;width:14px;height:14px;opacity:.8}
+.brback .bk .cv{width:14px;height:14px}
 .ovcard .phead{gap:12px;margin:0 0 8px}
 .ovcard .appicon{width:46px;height:46px;border-radius:11px}
 @media (max-width:899px){ .ovcard .appicon{width:42px;height:42px;border-radius:10px} }
@@ -2299,6 +2315,12 @@ function closeNav(except){
 document.addEventListener("click",e=>{ if(!e.target.closest(".navwrap") && !e.target.closest(".navmenu")) closeNav(); });
 // menu items no longer sit inside #panel, so they need their own handler
 document.addEventListener("click",e=>{
+  const fb=e.target.closest(".navmenu [data-fambr]");
+  if(fb){ const m=fb.closest(".navmenu"); m.innerHTML=famStylesHtml(fb.dataset.fambr); m.scrollTop=0; return; }
+  const bk=e.target.closest(".navmenu [data-brback]");
+  if(bk){ const m=bk.closest(".navmenu"); m.innerHTML=famMenuHtml(); m.scrollTop=0; return; }
+});
+document.addEventListener("click",e=>{
   const g=e.target.closest(".navmenu [data-go]"); if(!g) return;
   e.preventDefault(); closeNav(); select(g.dataset.go); panelTop();
 });
@@ -2312,6 +2334,7 @@ $("panel").addEventListener("click",e=>{
       || [...document.querySelectorAll("body > .navmenu")].find(x=>x._home===w));
     if(!m) return;
     const open=m.hidden;
+    if(open && m.dataset.br==="fams") m.innerHTML=famMenuHtml();   // never reopen mid-drill
     closeNav(open?w:null);
     m.hidden=!open; mb.setAttribute("aria-expanded",String(open));
     if(open) placeNav(mb,m); else clearNav(m);
@@ -2427,6 +2450,37 @@ function showMode(){
   if(or.top < pr.bottom-60) return;                    // already in view, leave the scroll alone
   pn.scrollTo({top: pn.scrollTop + (or.top-pr.top) - 12, behavior: reduce?"auto":"smooth"});
 }
+// Families and influence as menus rather than two walls of chips. Same navwrap/navmenu
+// machinery as the From and Led to buttons, so they portal, flip and close identically.
+const TOPN=24;
+function famCount(k){ return nodes.filter(n=>n.fam===k).length; }
+function famMenuHtml(){
+  const rows=[...FAMS].sort((x,y)=>famCount(y[0])-famCount(x[0])).map(([k,name])=>
+    `<button type="button" role="menuitem" data-fambr="${k}" title="${esc(name)}: ${famCount(k)} styles"><i class="dot" style="background:${FAM[k].c}"></i><span class="nm">${esc(name)}</span><small>${famCount(k)}</small></button>`).join("");
+  return `<div class="navhd">Families by size</div>${rows}`;
+}
+function famStylesHtml(k){
+  const rows=nodes.filter(n=>n.fam===k).sort((x,y)=>x.year-y.year||x.name.localeCompare(y.name)).map(x=>
+    `<button type="button" role="menuitem" data-go="${x.id}"><i class="dot" style="background:${FAM[x.fam].c}"></i><span class="nm">${esc(x.name)}</span><small>${x.year<1950?esc(x.disp):x.year}</small></button>`).join("");
+  return `<button type="button" class="brback" data-brback="1"><i class="bk">${CHEV.from}</i><span class="nm">${esc(FAM[k].name)}</span><small>${famCount(k)}</small></button>${rows}`;
+}
+function topMenuHtml(){
+  const rows=[...nodes].sort((x,y)=>y.children.length-x.children.length||x.year-y.year).slice(0,TOPN).map(x=>
+    `<button type="button" role="menuitem" data-go="${x.id}" title="${esc(x.name)} led to ${x.children.length} styles"><i class="dot" style="background:${FAM[x.fam].c}"></i><span class="nm">${esc(x.name)}</span><small>${x.children.length}</small></button>`).join("");
+  return `<div class="navhd">Most led to</div>${rows}`;
+}
+function browseBtn(key,label,count,title,inner){
+  return `<div class="navwrap nav-br">`
+    + `<button type="button" class="navbtn brbtn" data-menu="${key}" aria-haspopup="menu" aria-expanded="false" title="${esc(title)}" aria-label="${esc(title)}">`
+    + `<span class="brlbl">${esc(label)}</span><em class="ct">${count}</em>${CHEVSVG.replace("<svg ",'<svg class="cv" ')}</button>`
+    + `<div class="navmenu brmenu" role="menu" data-br="${key}" hidden>${inner}</div></div>`;
+}
+function browseRow(){
+  return `<div class="browse">`
+    + browseBtn("fams","Families",FAMS.length,"Browse all "+FAMS.length+" families",famMenuHtml())
+    + browseBtn("top","Most influential",TOPN,"The "+TOPN+" styles that led to the most",topMenuHtml())
+    + `</div>`;
+}
 function modeSect(){
   if(typeof MODES==="undefined") return "";
   const chips=MODES.map(m=>`<button type="button" class="chip modechip${MODE===m[0]?" on":""}" data-mk="${esc(m[0])}" aria-pressed="${MODE===m[0]}"><i class="nm">${esc(m[1])}</i></button>`).join("");
@@ -2443,8 +2497,7 @@ function emptyPanel(){
   const top=[...nodes].sort((a,b)=>b.children.length-a.children.length||a.year-b.year).slice(0,12);
   $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="phead"><img class="appicon" alt="" src="${ICONSRC()}"><div class="phtx"><span class="mn">Offshoots</span><p class="tag">What grew out of what in North American music.</p><p class="ovmeta">${FAMS.length} families · ${nodes.length} styles</p></div></div></div><div class="more"><p class="note ovhint">Tap any style to trace where it came from and what it led to.</p>
     ${modeSect()}
-    ${sect("fams","Families by size",`<div class="chips">${[...FAMS].sort((x,y)=>nodes.filter(n=>n.fam===y[0]).length-nodes.filter(n=>n.fam===x[0]).length).map(([k,name,h])=>`<button type="button" class="chip c" style="--c:${FAM[k].c}" data-fam="${k}" title="Show ${esc(name)} · ${nodes.filter(n=>n.fam===k).length} styles"><i class="nm">${esc(name)}</i><span>${nodes.filter(n=>n.fam===k).length}</span></button>`).join("")}</div>`)}
-    ${sect("top","Styles by influence",`<div class="chips">${top.map(n=>chip(n.id,n.children.length+" led to")).join("")}</div>`)}
+    ${browseRow()}
     <div class="about"><p class="stats">${$("stats").textContent}</p>
     <p>Named styles and scenes North American listeners could buy, hear on radio or stream from 1950 to today, each linked to the styles it grew out of. Bigger names led to more styles. A play triangle in the dot marks styles with a School of Listening playlist, linked in the panel. Zoomed out, styles that led nowhere show as dots. Hollow dots are pre-1950 roots.</p>
     <p>Years mark when a style cohered into a named, recorded scene, not its earliest precursor. "Came from" lists the direct stylistic parents, not every influence. Styles from elsewhere are included when they charted in North America or seeded scenes here. Boundaries and dates are contested; treat each link as the consensus reading. Styles with a "Sources" list were checked against the linked pages; the rest were compiled from general knowledge.</p></div></div>`;
