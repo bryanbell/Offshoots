@@ -267,13 +267,20 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line)}
 .nav-from .navmenu{left:0}
 .nav-led .navmenu{right:0}
 .navmenu[hidden]{display:none}
-.navmenu button{all:unset;display:flex;align-items:center;gap:8px;width:100%;box-sizing:border-box;
-  padding:7px 9px;border-radius:8px;cursor:pointer;color:var(--fg);font:500 13px var(--f-body)}
+.navmenu button{all:unset;display:flex;align-items:center;gap:9px;width:100%;box-sizing:border-box;
+  min-height:38px;padding:8px 10px;border-radius:9px;cursor:pointer;color:var(--fg);font:500 13.5px var(--f-body)}
 .navmenu button:hover{background:color-mix(in srgb,var(--fg) 9%,transparent)}
 .navmenu .dot{flex:none;width:7px;height:7px;border-radius:50%}
 .navmenu .nm{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .navmenu small{flex:none;font:500 11px var(--f-mono);color:var(--muted)}
-@media (max-width:899px){ .navbtn{height:32px;padding:0 9px} }
+@media (max-width:899px){
+  .navbtn{height:36px;padding:0 11px}
+  .navmenu{min-width:244px;max-width:min(330px,82vw);padding:6px}
+  .navmenu button{min-height:46px;padding:10px 12px;font-size:15px;gap:11px}
+  .navmenu .dot{width:8px;height:8px}
+  .navmenu small{font-size:12px}
+  .navhd{padding:8px 12px 8px}
+}
 @media (max-width:420px){ .navttl .mn{font-size:16px} }
 .pcard .phead{display:flex;align-items:center;gap:13px;margin:2px 0 10px}
 .pcard .phead .phtx{min-width:0;flex:1 1 auto}
@@ -1856,7 +1863,7 @@ function paintExpand(){ const b=$("expand"), l=b.querySelector(".lbl"); if(!l) r
   const n0=b.dataset.name||"", nm=n0?`<b>${esc(n0)}</b>`:"", sep=n0?" · ":"", t=b.dataset.tail, s=b.dataset.stail;
   l.innerHTML = `<span class="long">${nm}${t?`<span class="ct">${sep}${esc(t)}</span>`:""}</span>`
               + `<span class="short">${nm}${s?`<span class="ct">${sep}${esc(s)}</span>`:""}</span>`; }
-function setOpen(v){ OPEN=v; setTimeout(sizeCard,0); if(OVERLAY && state.sel) setTimeout(()=>{ if(state.sel) select(state.sel,{scroll:true,smooth:!reduce,repaint:false}) },260); $("panel").classList.toggle("open",v); document.body.classList.toggle("open",v); $("expand").setAttribute("aria-expanded",v); $("expand").setAttribute("aria-label",v?"Hide details":"Show details"); $("pclose").setAttribute("aria-label",v?"Collapse details":"Expand details"); { const g=$("grab"); if(g){ g.setAttribute("aria-expanded",String(v)); g.setAttribute("aria-label",v?"Collapse details":"Expand details"); } } paintExpand(); if(v) $("panel").scrollTop=0; }
+function setOpen(v){ closeNav(); OPEN=v; setTimeout(sizeCard,0); if(OVERLAY && state.sel) setTimeout(()=>{ if(state.sel) select(state.sel,{scroll:true,smooth:!reduce,repaint:false}) },260); $("panel").classList.toggle("open",v); document.body.classList.toggle("open",v); $("expand").setAttribute("aria-expanded",v); $("expand").setAttribute("aria-label",v?"Hide details":"Show details"); $("pclose").setAttribute("aria-label",v?"Collapse details":"Expand details"); { const g=$("grab"); if(g){ g.setAttribute("aria-expanded",String(v)); g.setAttribute("aria-label",v?"Collapse details":"Expand details"); } } paintExpand(); if(v) $("panel").scrollTop=0; }
 function openPanel(){ setOpen(true); }
 function closePanel(){ setOpen(false); }
 function syncPeek(){}
@@ -2002,11 +2009,28 @@ function panel(n,anc,desc){
   paintPlay();
 }
 $("panel").addEventListener("change",e=>{ if(e.target&&e.target.classList.contains("svcsel")) setSvc(e.target.value); });
+function clearNav(m){ m.style.cssText=""; }
+function placeNav(btn,m){
+  const b=btn.getBoundingClientRect();
+  const led=!!m.closest(".nav-led");
+  const gap=6, edge=10;
+  const below=innerHeight-b.bottom-gap-edge, above=b.top-gap-edge;
+  // a bottom sheet leaves no room beneath it, so flip the menu over the map
+  const up = below<220 && above>below;
+  m.style.position="fixed";
+  if(up){ m.style.bottom=Math.round(innerHeight-b.top+gap)+"px"; m.style.top="auto";
+          m.style.maxHeight=Math.max(150,Math.round(above))+"px"; }
+  else  { m.style.top=Math.round(b.bottom+gap)+"px"; m.style.bottom="auto";
+          m.style.maxHeight=Math.max(150,Math.round(below))+"px"; }
+  if(led){ m.style.right=Math.round(innerWidth-b.right)+"px"; m.style.left="auto"; }
+  else   { m.style.left=Math.round(b.left)+"px"; m.style.right="auto"; }
+}
 function closeNav(except){ document.querySelectorAll(".navwrap").forEach(w=>{
     const b=w.querySelector(".navbtn"), m=w.querySelector(".navmenu");
     if(!m || w===except) return; m.hidden=true; if(b) b.setAttribute("aria-expanded","false"); }); }
 document.addEventListener("click",e=>{ if(!e.target.closest(".navwrap")) closeNav(); });
 addEventListener("keydown",e=>{ if(e.key==="Escape") closeNav(); });
+addEventListener("resize",()=>closeNav());
 $("panel").addEventListener("click",e=>{
   const mb=e.target.closest("[data-menu]");
   if(mb){ const w=mb.closest(".navwrap"), m=w&&w.querySelector(".navmenu");
@@ -2014,7 +2038,7 @@ $("panel").addEventListener("click",e=>{
     const open=m.hidden;
     closeNav(open?w:null);
     m.hidden=!open; mb.setAttribute("aria-expanded",String(open));
-    if(open && OVERLAY && !OPEN) setOpen(true);
+    if(open) placeNav(mb,m); else clearNav(m);
     return; }
   if(e.target.closest("#ptoggle")||e.target.closest("#grab")) return;   // the handle runs its own tap/drag logic
   const sv=e.target.closest("[data-svc]"); if(sv){ setSvc(sv.dataset.svc); return; }
@@ -2024,6 +2048,8 @@ $("panel").addEventListener("click",e=>{
     const pick=nodes.filter(x=>x.fam===k).sort((x,y)=>y.children.length-x.children.length||x.year-y.year)[0];
     if(pick){ select(pick.id,{scroll:true,smooth:!reduce}); panelTop(); }
     return; }
+  const g0=e.target.closest("[data-go]");
+  if(g0 && e.target.closest(".navmenu")){ closeNav(); select(g0.dataset.go); panelTop(); return; }
   if(!OPEN && OVERLAY){ if(!e.target.closest("a")) setOpen(true); return; }   // only the minimised sheet is tap-to-open
   if(e.target.closest("[data-close]")){ closePanel(); return; }
   const g=e.target.closest("[data-go]");
