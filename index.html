@@ -80,7 +80,8 @@ button:focus-visible,.chip:focus-visible,.link:focus-visible{outline:0;box-shado
 .lane .vt{writing-mode:vertical-rl;font-family:ui-rounded,"SF Pro Rounded",var(--f-body);font-weight:600;font-size:var(--lf);letter-spacing:.02em;white-space:nowrap;color:color-mix(in srgb,var(--c) 85%,var(--fg))}
 .lane .cnt{flex:none;width:21px;height:21px;border-radius:50%;display:grid;place-items:center;background:transparent;color:color-mix(in srgb,var(--c) 85%,var(--fg));font:600 9.5px var(--f-mono);letter-spacing:-.04em;box-shadow:inset 0 0 0 1.25px color-mix(in srgb,var(--c) 70%,transparent)}
 svg{display:block}
-#chart .band{fill-opacity:var(--bandA,.11)}
+#chart .band{fill-opacity:var(--bandA,.12)}
+#chart .band.b2{fill-opacity:var(--bandB,.045)}
 #chart .lanedge{stroke:var(--laneline,rgb(255 255 255 / .055));stroke-width:1;shape-rendering:crispEdges}
 #chart .rootzone{fill:var(--roots)}
 #chart .g5{stroke:var(--grid);stroke-width:1}
@@ -2076,11 +2077,13 @@ function draw(){
   document.documentElement.style.setProperty("--stripw",(LABELW-8)+"px");
   $("axis").innerHTML = ax+`</svg><div id="corner" style="width:${LABELW-8}px;transform:translateX(${scroller.scrollLeft}px)"></div>`;
   let s="";
-  // every lane carries a wash of its own family colour rather than a grey every other
-  // row: the alternating neutral was five levels of luminance off the map and invisible.
-  // The two opacities keep a rhythm so neighbouring families of a similar hue still part.
+  // every lane carries a wash of its own family colour: the old alternating neutral was
+  // five levels of luminance off the map and invisible. Two opacities keep the rhythm,
+  // and the two ranges do not overlap, so the alternation cannot invert whichever
+  // families end up adjacent - a light family at the low level stays darker than a
+  // dark family at the high one. test/root.test.js holds that invariant.
   lanes.forEach((l,i)=>{
-    if(i%2) s+=`<rect class="band" x="0" y="${l.y0}" width="${W}" height="${l.h}" style="fill:${FAM[l.k].c}"/>`;
+    s+=`<rect class="band${i%2?"":" b2"}" x="0" y="${l.y0}" width="${W}" height="${l.h}" style="fill:${FAM[l.k].c}"/>`;
     if(i) s+=`<line class="lanedge" x1="0" x2="${W}" y1="${l.y0}" y2="${l.y0}"/>`;
   });
   s+=`<line class="nowline" x1="${xOf(END)}" x2="${xOf(END)}" y1="0" y2="${H}"/>`;

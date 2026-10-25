@@ -230,11 +230,13 @@ function draw(){
   document.documentElement.style.setProperty("--stripw",(LABELW-8)+"px");
   $("axis").innerHTML = ax+`</svg><div id="corner" style="width:${LABELW-8}px;transform:translateX(${scroller.scrollLeft}px)"></div>`;
   let s="";
-  // every lane carries a wash of its own family colour rather than a grey every other
-  // row: the alternating neutral was five levels of luminance off the map and invisible.
-  // The two opacities keep a rhythm so neighbouring families of a similar hue still part.
+  // every lane carries a wash of its own family colour: the old alternating neutral was
+  // five levels of luminance off the map and invisible. Two opacities keep the rhythm,
+  // and the two ranges do not overlap, so the alternation cannot invert whichever
+  // families end up adjacent - a light family at the low level stays darker than a
+  // dark family at the high one. test/root.test.js holds that invariant.
   lanes.forEach((l,i)=>{
-    if(i%2) s+=`<rect class="band" x="0" y="${l.y0}" width="${W}" height="${l.h}" style="fill:${FAM[l.k].c}"/>`;
+    s+=`<rect class="band${i%2?"":" b2"}" x="0" y="${l.y0}" width="${W}" height="${l.h}" style="fill:${FAM[l.k].c}"/>`;
     if(i) s+=`<line class="lanedge" x1="0" x2="${W}" y1="${l.y0}" y2="${l.y0}"/>`;
   });
   s+=`<line class="nowline" x1="${xOf(END)}" x2="${xOf(END)}" y1="0" y2="${H}"/>`;

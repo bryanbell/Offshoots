@@ -99,6 +99,21 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
     z=e.querySelector(".aboutwrap").getBoundingClientRect(); return Math.round(z.bottom-a.top);});
   say("root panel height, about collapsed (was 765)", hgt);
   await p.screenshot({path:__dirname+"/screens/r-m-root.png"});
+  // the lane bands are family-coloured at two opacities; the rhythm only survives while
+  // every low row stays darker than every high row, whichever families sit next to each other
+  const bands=await p.evaluate(()=>{
+    const lum=c=>{const s=c.map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});
+      return .2126*s[0]+.7152*s[1]+.0722*s[2];};
+    const px=el=>{const cs=getComputedStyle(el); const m=cs.fill.match(/[\d.]+/g).map(Number);
+      const a=parseFloat(cs.fillOpacity), bg=[15,15,17];
+      return lum(m.slice(0,3).map((v,i)=>bg[i]+(v-bg[i])*a));};
+    const r=[...document.querySelectorAll("#chart .band")];
+    const hi=r.filter(x=>!x.classList.contains("b2")).map(px);
+    const lo=r.filter(x=>x.classList.contains("b2")).map(px);
+    return {n:r.length, hiMin:Math.min(...hi), loMax:Math.max(...lo)};
+  });
+  say("every lane is banded", bands.n===16);
+  say("low rows all darker than high rows", bands.loMax < bands.hiMin);
   say("no mobile errors", p._errs.filter(x=>!/Failed to load/.test(x)).length===0);
 
   const d=await fresh(b,Dk);
