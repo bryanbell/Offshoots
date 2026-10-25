@@ -259,6 +259,7 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line)}
 .navbtn:disabled{opacity:.35;cursor:default}
 .navbtn .cv{width:14px;height:14px;flex:none}
 .navbtn .ct{font:600 12px var(--f-mono);font-style:normal;opacity:.8}
+.svcnote{margin:0;font:400 12.5px/1.45 var(--f-body);color:var(--muted);max-width:40em}
 .navhd{padding:6px 9px 7px;font:600 10.5px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .navmenu{position:absolute;z-index:40;top:calc(100% + 6px);min-width:210px;max-width:min(300px,70vw);
   max-height:min(52vh,380px);overflow:auto;overscroll-behavior:contain;padding:5px;
@@ -1951,20 +1952,24 @@ function noteHtml(n){
 }
 // playlist and key artists are two subdivisions of one Listen section, with the
 // service switch in its header governing both
-function listenSect(n,who,artistsHtml,svcHtml){
+function svcPicker(){ return `<span class="svc"><select id="svcsel" aria-label="Streaming service">`
+  + `<option value="apple"${SVC==="apple"?" selected":""}>Apple Music</option>`
+  + `<option value="spotify"${SVC==="spotify"?" selected":""}>Spotify</option>`
+  + `<option value="qobuz"${SVC==="qobuz"?" selected":""}>Qobuz</option>`
+  + `</select></span>`; }
+function listenSect(n,who,artistsHtml){
   const pb=plist(n);
   if(!pb && !who.length) return "";
   const body = (pb?`<h4 class="subh">Playlist</h4>${pb}`:"")
              + (who.length?`<h4 class="subh${pb?" gap":""}">Key artists</h4>${artistsHtml}`:"");
-  return sect("listen","Listen on",body,svcHtml);
+  return sect("listen","Listen on",body);
 }
 function panel(n,anc,desc){
   const dfams=new Set([...desc.keys()].map(k=>byId[k].fam));
   const who=n.whoList||[];
-  const svcHtml = `<span class="svc"><select id="svcsel" aria-label="Streaming service"><option value="apple"${SVC==="apple"?" selected":""}>Apple Music</option><option value="spotify"${SVC==="spotify"?" selected":""}>Spotify</option><option value="qobuz"${SVC==="qobuz"?" selected":""}>Qobuz</option></select></span>`;
   const artistsHtml = `<div class="who">${who.map(am).join("")}</div>`;
   $("panelBody").innerHTML = PHEAD + `<div class="more">
-    ${listenSect(n,who,artistsHtml,svcHtml)}
+    ${listenSect(n,who,artistsHtml)}
     <p class="note lede wikiline">${about(n)?esc(about(n))+" ":""}${wikiTxt(n)}</p>
     ${n.sources.length?`<h3>Sources</h3><ul class="srcs">${n.sources.map(u=>{let h="";try{h=new URL(u).hostname.replace(/^www\./,"")}catch(e){h=u}return `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(h)}</a></li>`}).join("")}</ul>`:""}
     <p class="tally">${anc.size} ancestor styles · ${desc.size} descendant styles${desc.size?` across ${dfams.size} ${dfams.size===1?"family":"families"}`:""}</p></div>`;
@@ -2072,6 +2077,7 @@ function emptyPanel(){
   setPbar("Offshoots", FAMS.length+" families · "+nodes.length+" styles");
   const top=[...nodes].sort((a,b)=>b.children.length-a.children.length||a.year-b.year).slice(0,12);
   $("panelBody").innerHTML=`<div class="pcard"><div class="phead"><img class="appicon" alt="" src="${ICONSRC()}"><div class="phtx"><span class="mn">Offshoots</span><p class="tag">What grew out of what in North American music.</p></div></div><div class="meta"><span class="my">${FAMS.length} families · ${nodes.length} styles</span></div><div class="pcnt"><span>About this map</span></div></div><div class="more"><p class="note">Click or tap any style to trace where it came from and what it led to. Click empty space to clear.</p>
+    ${sect("svc","Streaming service",`<p class="note svcnote">Playlists and artist links open in this service. Set it once; it is remembered.</p>`,svcPicker())}
     ${sect("fams","Families by size",`<div class="chips">${[...FAMS].sort((x,y)=>nodes.filter(n=>n.fam===y[0]).length-nodes.filter(n=>n.fam===x[0]).length).map(([k,name,h])=>`<button type="button" class="chip c" style="--c:${FAM[k].c}" data-fam="${k}" title="Show ${esc(name)} · ${nodes.filter(n=>n.fam===k).length} styles"><i class="nm">${esc(name)}</i><span>${nodes.filter(n=>n.fam===k).length}</span></button>`).join("")}</div>`)}
     ${sect("top","Styles by influence",`<div class="chips">${top.map(n=>chip(n.id,n.children.length+" led to")).join("")}</div>`)}
     <div class="about"><p class="stats">${$("stats").textContent}</p>
