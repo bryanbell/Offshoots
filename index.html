@@ -542,10 +542,12 @@ aside#panel{padding-bottom:0}
   body.sheetgone aside#panel{display:none}
   body.sheetgone #sheetpull{display:flex;position:absolute;z-index:30;left:50%;transform:translateX(-50%);
     bottom:calc(10px + env(safe-area-inset-bottom,0px));align-items:center;justify-content:center;
-    width:84px;height:26px;padding:0;border:0;border-radius:999px;cursor:pointer;
+    gap:8px;max-width:min(78vw,340px);height:34px;padding:0 15px;border:0;border-radius:999px;cursor:pointer;
     background:color-mix(in srgb,var(--panel) 92%,transparent);box-shadow:0 1px 8px rgb(0 0 0 / .34)}
   body.sheetgone #sheetpull[hidden]{display:flex}
-  body.sheetgone #sheetpull span{display:block;width:34px;height:4px;border-radius:2px;background:var(--muted);opacity:.85}
+  body.sheetgone #sheetpull .grip{display:block;flex:none;width:22px;height:4px;border-radius:2px;background:var(--muted);opacity:.8}
+  body.sheetgone #sheetpull .plbl{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    font:600 13px var(--f-body);color:var(--fg)}
 }
 /* minimised: a floating chevron says the sheet carries more */
 @media (max-width:899px){
@@ -722,7 +724,7 @@ a.am .amgo{display:none}
     
     </div>
   </div>
-  <button id="sheetpull" type="button" aria-label="Show the map details" hidden><span></span></button>
+  <button id="sheetpull" type="button" aria-label="Show the map details" hidden><span class="grip"></span><span class="plbl"></span></button>
   <aside id="panel" aria-live="polite"><div id="grab" role="button" tabindex="0" aria-label="Expand details" aria-expanded="false"></div>
   <button id="pclose" data-close aria-label="Collapse details"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l5-5 5 5"/></svg></button>  <div id="pbar"><div id="pbarTxt"><span id="pbarTitle"></span><span id="pbarSub"></span></div></div>
   <div id="panelBody"></div><div id="pfoot"><button id="pshare" type="button" aria-label="Share this map" title="Share this map"><svg class="up" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13V3"/><path d="M6.5 6.5L10 3l3.5 3.5"/><path d="M5 11v5.5h10V11"/></svg><svg class="ok" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5l4 4 8-8.5"/></svg><span class="lbl">Share this style</span></button></div><div id="ptoggle"><button id="expand" aria-label="Show details" aria-expanded="false"><span class="lbl">Details</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg></button></div></aside>
@@ -1829,6 +1831,7 @@ function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   // only a real change of style brings a dismissed sheet back; re-selects from
   // resize, zoom and setOpen must leave it where the user put it
   if(switched) restoreSheet();
+  syncPull();
   const n=byId[id];
   const anc=walk(id,"parents"), desc=walk(id,"children");
   // the map highlights two generations each way; the panel still lists the full ancestry
@@ -1936,8 +1939,13 @@ function setPbar(t,s){ PBAR={t:t||"",s:s||""}; const a1=$("pbarTitle"), a2=$("pb
 // the sheet's grab handle: tap toggles, a vertical drag resizes and snaps to the nearer state
 let MINH=0, DRAGGING=false;
 const dismissable = ()=> OVERLAY && !OPEN;
-function dismissSheet(){ document.body.classList.add("sheetgone"); setOpen(false); }
+function dismissSheet(){ syncPull(); document.body.classList.add("sheetgone"); setOpen(false); }
 function restoreSheet(){ document.body.classList.remove("sheetgone"); }
+function syncPull(){ const el=$("sheetpull"); if(!el) return; const l=el.querySelector(".plbl"); if(!l) return;
+  const n=state.sel&&byId[state.sel];
+  l.textContent = n ? n.name : "Offshoots";
+  el.setAttribute("aria-label", n ? "Show details for "+n.name : "Show the map details");
+  el.setAttribute("title", l.textContent); }
 function sheetMin(){ return MINH || 170; }
 function sheetMax(){ return Math.round(innerHeight*0.5); }
 (function(){
@@ -2177,6 +2185,7 @@ function emptyPanel(){
   setTint("");
   setExpandLabel("", "About this map", "About");
   setPbar("Offshoots", FAMS.length+" families · "+nodes.length+" styles");
+  syncPull();
   const top=[...nodes].sort((a,b)=>b.children.length-a.children.length||a.year-b.year).slice(0,12);
   $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="phead"><img class="appicon" alt="" src="${ICONSRC()}"><div class="phtx"><span class="mn">Offshoots</span><p class="tag">What grew out of what in North American music.</p><p class="ovmeta">${FAMS.length} families · ${nodes.length} styles</p></div></div></div><div class="more"><p class="note ovhint">Tap any style to trace where it came from and what it led to.</p>
     ${sect("fams","Families by size",`<div class="chips">${[...FAMS].sort((x,y)=>nodes.filter(n=>n.fam===y[0]).length-nodes.filter(n=>n.fam===x[0]).length).map(([k,name,h])=>`<button type="button" class="chip c" style="--c:${FAM[k].c}" data-fam="${k}" title="Show ${esc(name)} · ${nodes.filter(n=>n.fam===k).length} styles"><i class="nm">${esc(name)}</i><span>${nodes.filter(n=>n.fam===k).length}</span></button>`).join("")}</div>`)}
