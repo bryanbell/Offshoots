@@ -273,6 +273,7 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line)}
 .nav-from .navmenu{left:0}
 .nav-led .navmenu{right:0}
 .navmenu[hidden]{display:none}
+body > .navmenu{color:var(--fg);background:var(--panel);z-index:70}
 .navmenu button{all:unset;display:flex;align-items:center;gap:9px;width:100%;box-sizing:border-box;
   min-height:38px;padding:8px 10px;border-radius:9px;cursor:pointer;color:var(--fg);font:500 13.5px var(--f-body)}
 .navmenu button:hover{background:color-mix(in srgb,var(--fg) 9%,transparent)}
@@ -1823,7 +1824,7 @@ function centerOn(n,smooth,onlyIfNeeded){
 // resizing and zooming use it, so the cover <img> isn't torn down and reloaded (which flickers).
 function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   if(!byId[id]) return;
-  state.sel=id; restoreSheet(); const n=byId[id];
+  state.sel=id; closeNav(); restoreSheet(); const n=byId[id];
   const anc=walk(id,"parents"), desc=walk(id,"children");
   // the map highlights two generations each way; the panel still lists the full ancestry
   const near=m=>new Map([...m].filter(([,d])=>d<=HOPS));
@@ -2032,10 +2033,19 @@ function panel(n,anc,desc){
   paintPlay();
 }
 $("panel").addEventListener("change",e=>{ if(e.target&&e.target.classList.contains("svcsel")) setSvc(e.target.value); });
-function clearNav(m){ m.style.cssText=""; }
+function clearNav(m){
+  if(m._home){ m._home.appendChild(m); m._home=null; }
+  m.style.cssText="";
+}
 function placeNav(btn,m){
+  if(!m._home){ m._home=m.parentNode; document.body.appendChild(m); }
+  // outside the panel it would lose the family tint, so carry those values across
+  const pan=$("panel");
+  if(pan){ const cs=getComputedStyle(pan);
+    ["--panel","--fg","--muted","--line","--ink","--tint","--acc"].forEach(v=>{
+      const val=cs.getPropertyValue(v); if(val) m.style.setProperty(v,val.trim()); }); }
   const b=btn.getBoundingClientRect();
-  const led=!!m.closest(".nav-led");
+  const led=!!(m._home&&m._home.classList.contains("nav-led"));
   const gap=6, edge=10;
   const below=innerHeight-b.bottom-gap-edge, above=b.top-gap-edge;
   // a bottom sheet leaves no room beneath it, so flip the menu over the map
@@ -2048,10 +2058,21 @@ function placeNav(btn,m){
   if(led){ m.style.right=Math.round(innerWidth-b.right)+"px"; m.style.left="auto"; }
   else   { m.style.left=Math.round(b.left)+"px"; m.style.right="auto"; }
 }
-function closeNav(except){ document.querySelectorAll(".navwrap").forEach(w=>{
-    const b=w.querySelector(".navbtn"), m=w.querySelector(".navmenu");
-    if(!m || w===except) return; m.hidden=true; if(b) b.setAttribute("aria-expanded","false"); }); }
-document.addEventListener("click",e=>{ if(!e.target.closest(".navwrap")) closeNav(); });
+function closeNav(except){
+  document.querySelectorAll(".navmenu").forEach(m=>{
+    const w=m._home||m.parentNode;
+    if(w===except) return;
+    const b=w&&w.querySelector(".navbtn");
+    m.hidden=true; if(b) b.setAttribute("aria-expanded","false");
+    clearNav(m);
+  });
+}
+document.addEventListener("click",e=>{ if(!e.target.closest(".navwrap") && !e.target.closest(".navmenu")) closeNav(); });
+// menu items no longer sit inside #panel, so they need their own handler
+document.addEventListener("click",e=>{
+  const g=e.target.closest(".navmenu [data-go]"); if(!g) return;
+  e.preventDefault(); closeNav(); select(g.dataset.go); panelTop();
+});
 addEventListener("keydown",e=>{ if(e.key==="Escape") closeNav(); });
 addEventListener("resize",()=>closeNav());
 $("panel").addEventListener("click",e=>{
