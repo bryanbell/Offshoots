@@ -141,7 +141,10 @@ aside h3,.pcard h3.sec{font:600 11px var(--f-body);letter-spacing:.06em;text-tra
 .chip:hover{background:var(--fill)}
 /* listening modes */
 .sectaside{font:500 11px var(--f-mono);color:var(--muted);opacity:.75}
-.modechip{padding:6px 11px}
+.modechip{gap:7px;padding:6px 12px 6px 10px}
+.modechip .mi{flex:none;display:flex;width:15px;height:15px;opacity:.8}
+.modechip .mi svg{width:100%;height:100%}
+.modechip.on .mi{opacity:1}
 .modechip::before{display:none}
 .modechip.on{background:var(--fg);color:var(--bg)}
 .modeout{margin-top:10px}
@@ -207,7 +210,8 @@ a.am:hover{color:var(--accent)}
   .chip::after{content:"";position:absolute;inset:-6px;border-radius:inherit}   /* tap area stays ~42px */
   .chip::before{width:8px;height:8px}
   .chip:active{background:var(--fill)}
-  .modechip{min-height:34px;padding:7px 12px}
+  .modechip{min-height:34px;padding:7px 13px 7px 11px;gap:8px}
+  .modechip .mi{width:16px;height:16px}
   .brbtn{height:38px;padding:0 13px}
   .brlbl{font-size:14px}
   .brmenu{min-width:272px}
@@ -292,7 +296,7 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line)}
 .navbtn .cv{width:14px;height:14px;flex:none}
 .navbtn .ct{font:600 12px var(--f-mono);font-style:normal;opacity:.8}
 /* browse menus in the overview */
-.browse{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 2px}
+.browse{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 2px}
 /* the featured row: one concrete thing to listen to, with a re-roll beside it */
 .feat{display:flex;align-items:stretch;gap:8px}
 button.featrow{appearance:none;-webkit-appearance:none;border:0;margin:0;font:inherit;text-align:left;
@@ -1845,19 +1849,7 @@ function wiki(n){
 }
 // Emily's own Apple Music class playlists, keyed by style id (paths are relative to music.apple.com)
 // cover art, if art/<id>.jpg is sitting next to the page; missing files remove themselves
-// A relative "art/x.jpg" resolves against the page's PARENT directory, so anywhere the page
-// is served at a path with no trailing slash and no file extension — claude.ai/artifact/<id>
-// is exactly that — every cover 404s. Treat the page's own URL as a directory in that case.
-function artBase(){
-  try{
-    if(!/^https?:$/.test(location.protocol)) return "art/";
-    const p=location.pathname, last=p.slice(p.lastIndexOf("/")+1);
-    return (last && last.indexOf(".")<0 ? p+"/" : p.slice(0,p.lastIndexOf("/")+1)) + "art/";
-  }catch(e){ return "art/"; }
-}
-const ART_DIR=artBase(), ART_EXT=".jpg";
-// whichever of the two is wrong, the other is tried before giving up
-const ART_TRY=[ART_DIR].concat(ART_DIR==="art/"?[]:["art/"]);
+const ART_DIR="art/", ART_EXT=".jpg";
 // two letters for a style with no art file, so the row keeps its shape
 function initials(name){
   const w=String(name||"").split(/[^A-Za-z0-9]+/).filter(Boolean);
@@ -1869,7 +1861,7 @@ const cover = (id,n) => {
   const node = n || byId[id];
   const c = node ? FAM[node.fam].c : "";
   const ini = initials(node?node.name:id);
-  return `<img class="pcov" src="${ART_TRY[0]}${encodeURIComponent(f)}${ART_EXT}" alt="" loading="lazy" decoding="async" data-f="${esc(f)}" data-try="0" data-c="${esc(c)}" data-ini="${esc(ini)}">`;
+  return `<img class="pcov" src="${ART_DIR}${encodeURIComponent(f)}${ART_EXT}" alt="" loading="lazy" decoding="async" data-c="${esc(c)}" data-ini="${esc(ini)}">`;
 };
 // cover plus a playlist title say what the section is; a heading on top of that is noise
 function playLabel(n){
@@ -2653,15 +2645,16 @@ function browseBtn(key,label,count,title,inner){
     + `<div class="navmenu brmenu" role="menu" data-br="${key}" hidden>${inner}</div></div>`;
 }
 function browseRow(){
-  return `<div class="browse">`
+  return sect("browse","Browse the map",`<div class="browse">`
     + browseBtn("fams","Families",FAMS.length,"Browse all "+FAMS.length+" families",famMenuHtml())
     + browseBtn("pl","Playlists",playable().length,"Browse the "+playable().length+" styles with a playlist",plMenuHtml())
     + browseBtn("top","Most influential",TOPN,"The "+TOPN+" styles that led to the most",topMenuHtml())
-    + `</div>`;
+    + `</div>`, '<span class="sectaside">every style</span>');
 }
+const MODEICON={"focus":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"10\" r=\"6.8\"/><circle cx=\"10\" cy=\"10\" r=\"2.4\"/></svg>","workout":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.4 7.4v5.2\"/><path d=\"M15.6 7.4v5.2\"/><path d=\"M7 6v8\"/><path d=\"M13 6v8\"/><path d=\"M7 10h6\"/></svg>","winddown":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M16.2 12.3A6.7 6.7 0 0 1 7.7 3.8a6.9 6.9 0 1 0 8.5 8.5z\"/></svg>","party":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"11.6\" r=\"5.4\"/><path d=\"M10 6.2V3\"/><path d=\"M4.7 10.4h10.6\"/><path d=\"M10 6.2V17\"/></svg>","driving":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.2 12.6h13.6\"/><path d=\"M4.8 12.6l1.3-4.1a1.7 1.7 0 0 1 1.6-1.2h4.6a1.7 1.7 0 0 1 1.6 1.2l1.3 4.1\"/><circle cx=\"6.6\" cy=\"14\" r=\"1.5\"/><circle cx=\"13.4\" cy=\"14\" r=\"1.5\"/></svg>","dinner":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6.4 3v4.6\"/><path d=\"M9.1 3v4.6\"/><path d=\"M7.75 7.6V17\"/><path d=\"M14.4 3c1.5 1.7 1.5 5.3 0 6.6V17\"/></svg>","gaming":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2.6\" y=\"6.6\" width=\"14.8\" height=\"8.8\" rx=\"4.1\"/><path d=\"M6.6 9.8v2.4\"/><path d=\"M5.4 11h2.4\"/><circle cx=\"13.4\" cy=\"10.5\" r=\".95\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"15.1\" cy=\"12.4\" r=\".95\" fill=\"currentColor\" stroke=\"none\"/></svg>","lift":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"10\" r=\"3.5\"/><path d=\"M10 2.4v1.7\"/><path d=\"M10 15.9v1.7\"/><path d=\"M2.4 10h1.7\"/><path d=\"M15.9 10h1.7\"/><path d=\"M4.6 4.6l1.2 1.2\"/><path d=\"M14.2 14.2l1.2 1.2\"/><path d=\"M15.4 4.6l-1.2 1.2\"/><path d=\"M5.8 14.2l-1.2 1.2\"/></svg>","burn":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 2.6c3 3.4 5.1 5.6 5.1 8.5a5.1 5.1 0 0 1-10.2 0c0-1.6.6-2.9 1.7-4.1.5 1.1 1.2 1.7 2 1.9C8.2 6.7 8.8 4.7 10 2.6z\"/></svg>","sit":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6.4 12.3a3.2 3.2 0 0 1 .4-6.4 4.3 4.3 0 0 1 8.1 1.4 2.7 2.7 0 0 1-.5 5\"/><path d=\"M7.6 14.8v2.1\"/><path d=\"M11 14.8v2.7\"/><path d=\"M14.3 14.8v2.1\"/></svg>","together":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"7.3\" cy=\"7.4\" r=\"2.4\"/><circle cx=\"13.5\" cy=\"8.3\" r=\"2\"/><path d=\"M3 16.6a4.4 4.4 0 0 1 8.7 0\"/><path d=\"M12.7 12.7a3.8 3.8 0 0 1 4.3 3.9\"/></svg>","deep":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.2 13v-2.6a5.8 5.8 0 0 1 11.6 0V13\"/><path d=\"M4.2 12.3h1.5a1.4 1.4 0 0 1 1.4 1.4v1.6a1.4 1.4 0 0 1-1.4 1.4h-.9a.6.6 0 0 1-.6-.6z\"/><path d=\"M15.8 12.3h-1.5a1.4 1.4 0 0 0-1.4 1.4v1.6a1.4 1.4 0 0 0 1.4 1.4h.9a.6.6 0 0 0 .6-.6z\"/></svg>"};
 function modeSect(){
   if(typeof MODES==="undefined") return "";
-  const chips=MODES.map(m=>`<button type="button" class="chip modechip${MODE===m[0]?" on":""}" data-mk="${esc(m[0])}" aria-pressed="${MODE===m[0]}"><i class="nm">${esc(m[1])}</i></button>`).join("");
+  const chips=MODES.map(m=>`<button type="button" class="chip modechip${MODE===m[0]?" on":""}" data-mk="${esc(m[0])}" aria-pressed="${MODE===m[0]}"><i class="mi">${MODEICON[m[0]]||""}</i><i class="nm">${esc(m[1])}</i></button>`).join("");
   const m=MODE&&MODES.find(x=>x[0]===MODE);
   const out=m?`<div class="modeout"><h4 class="modettl">${esc(m[2])}</h4><p class="modewhy">${esc(m[3])}</p><div class="picks">${modePicks(m)}</div></div>`:"";
   return sect("modes","What do you need it to do?",`<div class="chips modechips">${chips}</div>${out}`,
@@ -2733,14 +2726,14 @@ document.addEventListener("click",e=>{ if(!e.target.closest(".search")) res.hidd
 function go(id){ res.hidden=true; q.value=""; qsync(); document.body.classList.remove("searching"); select(id);
   panelTop(); }
 // a cover that isn't there just disappears; error doesn't bubble, so listen on the capture phase
-// a failed cover is almost always the base url, not a missing file, so try the other base
-// before giving up; only then does a tile stand in, keeping the row the same shape
+// a cover that fails once is usually a hiccup; only a second failure means there is no file,
+// and then a tile keeps the row the same shape instead of collapsing it
 $("panelBody").addEventListener("error",e=>{
   const t=e.target; if(!t||t.tagName!=="IMG"||!t.classList.contains("pcov")) return;
-  const next=(+t.dataset.try||0)+1;
-  if(ART_TRY[next] && t.dataset.f){
-    t.dataset.try=String(next);
-    t.src=ART_TRY[next]+encodeURIComponent(t.dataset.f)+ART_EXT;
+  if(!t.dataset.retried){
+    t.dataset.retried="1";
+    const src=(t.getAttribute("src")||"").split("?")[0];
+    setTimeout(()=>{ if(t.isConnected) t.src=src+"?r=1"; },500);
     return;
   }
   const ph=document.createElement("span");
