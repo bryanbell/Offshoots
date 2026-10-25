@@ -289,6 +289,25 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line)}
 .navbtn .ct{font:600 12px var(--f-mono);font-style:normal;opacity:.8}
 /* browse menus in the overview */
 .browse{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 2px}
+/* the featured row: one concrete thing to listen to, with a re-roll beside it */
+.feat{display:flex;align-items:stretch;gap:8px}
+.featpick{flex:1 1 auto;min-width:0}
+.shuf{all:unset;flex:none;display:grid;place-items:center;width:44px;border-radius:10px;cursor:pointer;
+  background:var(--fill2);color:var(--muted);transition:background .15s,color .15s}
+.shuf:hover{background:var(--fill);color:var(--fg)}
+.shuf:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+.shuf svg{width:18px;height:18px}
+/* the methodology stays one tap away instead of ending the panel */
+.aboutwrap{margin-top:14px;border-top:.5px solid var(--line);padding-top:4px}
+.aboutwrap summary{display:flex;align-items:center;justify-content:space-between;gap:8px;
+  list-style:none;cursor:pointer;padding:9px 2px;border-radius:9px;
+  font:600 13px var(--f-body);color:var(--muted)}
+.aboutwrap summary::-webkit-details-marker{display:none}
+.aboutwrap summary:hover{color:var(--fg)}
+.aboutwrap summary .cv{flex:none;width:14px;height:14px;transition:transform .18s}
+.aboutwrap[open] summary .cv{transform:rotate(180deg)}
+.aboutwrap .about{margin-top:2px}
+@media (prefers-reduced-motion:reduce){ .aboutwrap summary .cv{transition:none} }
 .nav-br .navmenu{left:0}
 .brbtn{height:34px;padding:0 11px;gap:7px;background:var(--fill2)}
 .brbtn:hover:not(:disabled){background:var(--fill)}
@@ -301,8 +320,8 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line)}
 .brback .bk{flex:none;display:flex;width:14px;height:14px;opacity:.8}
 .brback .bk .cv{width:14px;height:14px}
 .ovcard .phead{gap:12px;margin:0 0 8px}
-.ovcard .appicon{width:46px;height:46px;border-radius:11px}
-@media (max-width:899px){ .ovcard .appicon{width:42px;height:42px;border-radius:10px} }
+.pcard.ovcard .appicon{width:38px;height:38px;border-radius:9px}
+@media (max-width:899px){ .pcard.ovcard .appicon{width:36px;height:36px;border-radius:9px} }
 .ovcard .mn{font-size:17px;margin:0 0 2px}
 .ovcard .tag{margin:0;font-size:12.5px}
 .ovmeta{margin:3px 0 0;font:500 11.5px var(--f-mono);color:var(--muted)}
@@ -2378,6 +2397,10 @@ function closeNav(except){
 document.addEventListener("click",e=>{ if(!e.target.closest(".navwrap") && !e.target.closest(".navmenu")) closeNav(); });
 // menu items no longer sit inside #panel, so they need their own handler
 document.addEventListener("click",e=>{
+  const pb=e.target.closest(".navmenu [data-plbr]");
+  if(pb){ const m=pb.closest(".navmenu"); m.innerHTML=plStylesHtml(pb.dataset.plbr); m.scrollTop=0; return; }
+  const pk=e.target.closest(".navmenu [data-plback]");
+  if(pk){ const m=pk.closest(".navmenu"); m.innerHTML=plMenuHtml(); m.scrollTop=0; return; }
   const fb=e.target.closest(".navmenu [data-fambr]");
   if(fb){ const m=fb.closest(".navmenu"); m.innerHTML=famStylesHtml(fb.dataset.fambr); m.scrollTop=0; return; }
   const bk=e.target.closest(".navmenu [data-brback]");
@@ -2398,12 +2421,17 @@ $("panel").addEventListener("click",e=>{
     if(!m) return;
     const open=m.hidden;
     if(open && m.dataset.br==="fams") m.innerHTML=famMenuHtml();   // never reopen mid-drill
+    if(open && m.dataset.br==="pl") m.innerHTML=plMenuHtml();
     closeNav(open?w:null);
     m.hidden=!open; mb.setAttribute("aria-expanded",String(open));
     if(open) placeNav(mb,m); else clearNav(m);
     return; }
   if(e.target.closest("#ptoggle")||e.target.closest("#grab")) return;   // the handle runs its own tap/drag logic
   const sv=e.target.closest("[data-svc]"); if(sv){ setSvc(sv.dataset.svc); return; }
+  if(e.target.closest("[data-shuffle]")){
+    const pool=featPool().filter(x=>x.id!==(featPick()||{}).id);
+    if(pool.length){ FEAT=pool[Math.floor(Math.random()*pool.length)].id; if(!state.sel) emptyPanel(); }
+    return; }
   const mk=e.target.closest("[data-mk]");
   if(mk){ MODE = MODE===mk.dataset.mk ? null : mk.dataset.mk;   // tapping the open one closes it
     if(!state.sel) emptyPanel();
@@ -2540,6 +2568,45 @@ function topMenuHtml(){
     `<button type="button" role="menuitem" data-go="${x.id}" title="${esc(x.name)} led to ${x.children.length} styles"><i class="dot" style="background:${FAM[x.fam].c}"></i><span class="nm">${esc(x.name)}</span><small>${x.children.length}</small></button>`).join("");
   return `<div class="navhd">Most led to</div>${rows}`;
 }
+const hasPlay=id=>!!((typeof PLAY!=="undefined"&&PLAY[id])||(typeof SPLAY!=="undefined"&&SPLAY[id]));
+const playable=()=>nodes.filter(n=>hasPlay(n.id));
+function plCount(k){ return nodes.filter(n=>n.fam===k&&hasPlay(n.id)).length; }
+// the catalog is 233 deep, so it drills by family rather than scrolling as one list
+function plMenuHtml(){
+  const rows=[...FAMS].filter(([k])=>plCount(k)).sort((x,y)=>plCount(y[0])-plCount(x[0])).map(([k,name])=>
+    `<button type="button" role="menuitem" data-plbr="${k}" title="${esc(name)}: ${plCount(k)} playlists"><i class="dot" style="background:${FAM[k].c}"></i><span class="nm">${esc(name)}</span><small>${plCount(k)}</small></button>`).join("");
+  return `<div class="navhd">Playlists by family</div>${rows}`;
+}
+function plStylesHtml(k){
+  const rows=nodes.filter(n=>n.fam===k&&hasPlay(n.id)).sort((x,y)=>x.year-y.year).map(x=>
+    `<button type="button" role="menuitem" data-go="${x.id}"><i class="dot" style="background:${FAM[x.fam].c}"></i><span class="nm">${esc(x.name)}</span><small>${x.year<1950?esc(x.disp):x.year}</small></button>`).join("");
+  return `<button type="button" class="brback" data-plback="${k}"><i class="bk">${CHEV.from}</i><span class="nm">${esc(FAM[k].name)}</span><small>${plCount(k)}</small></button>${rows}`;
+}
+
+// a concrete suggestion beats an empty menu: the most-connected styles that are
+// actually listenable, rotating by the day so the map looks tended rather than static
+let FEAT=null;
+function featPool(){ return playable().sort((x,y)=>y.children.length-x.children.length||x.year-y.year).slice(0,40); }
+function featPick(){
+  const pool=featPool(); if(!pool.length) return null;
+  if(FEAT&&byId[FEAT]&&hasPlay(FEAT)) return byId[FEAT];
+  return pool[Math.floor(Date.now()/864e5)%pool.length];
+}
+function featLine(n){
+  const d=(typeof DESC!=="undefined"&&DESC[n.id])||"";
+  if(d){ const s=d.split(/(?<=[.!?])\s/)[0]; return s.length>96?s.slice(0,93).trim()+"…":s; }
+  const who=(typeof ART!=="undefined"&&ART[n.id])||[];
+  return who.length?who.slice(0,3).join(", "):"A School of Listening playlist";
+}
+function featSect(){
+  const n=featPick(); if(!n) return "";
+  const body=`<div class="feat"><button type="button" class="pick featpick c" style="--c:${FAM[n.fam].c}" data-go="${esc(n.id)}" title="Open ${esc(n.name)}">`
+    + `<span class="pknm">${esc(n.name)}<i class="pkplay" aria-label="has a playlist">▶</i></span>`
+    + `<span class="pkwhy">${esc(featLine(n))}</span>`
+    + `<span class="pkfam">${esc(FAM[n.fam].short)} · ${n.year}</span></button>`
+    + `<button type="button" class="shuf" data-shuffle aria-label="Suggest another" title="Suggest another"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h3.5l7 8H17"/><path d="M3 14h3.5l2-2.3"/><path d="M11.5 8.3L13.5 6H17"/><path d="M15 4l2 2-2 2"/><path d="M15 12l2 2-2 2"/></svg></button></div>`;
+  return sect("feat","Start here",body,'<span class="sectaside">a playlist to try</span>');
+}
 function browseBtn(key,label,count,title,inner){
   return `<div class="navwrap nav-br">`
     + `<button type="button" class="navbtn brbtn" data-menu="${key}" aria-haspopup="menu" aria-expanded="false" title="${esc(title)}" aria-label="${esc(title)}">`
@@ -2549,6 +2616,7 @@ function browseBtn(key,label,count,title,inner){
 function browseRow(){
   return `<div class="browse">`
     + browseBtn("fams","Families",FAMS.length,"Browse all "+FAMS.length+" families",famMenuHtml())
+    + browseBtn("pl","Playlists",playable().length,"Browse the "+playable().length+" styles with a playlist",plMenuHtml())
     + browseBtn("top","Most influential",TOPN,"The "+TOPN+" styles that led to the most",topMenuHtml())
     + `</div>`;
 }
@@ -2558,7 +2626,7 @@ function modeSect(){
   const m=MODE&&MODES.find(x=>x[0]===MODE);
   const out=m?`<div class="modeout"><h4 class="modettl">${esc(m[2])}</h4><p class="modewhy">${esc(m[3])}</p><div class="picks">${modePicks(m)}</div></div>`:"";
   return sect("modes","What do you need it to do?",`<div class="chips modechips">${chips}</div>${out}`,
-              '<span class="sectaside">pick one</span>');
+              `<span class="sectaside">${MODES.length} ways in</span>`);
 }
 function emptyPanel(){
   setTint("");
@@ -2566,12 +2634,16 @@ function emptyPanel(){
   setPbar("Offshoots", FAMS.length+" families · "+nodes.length+" styles");
   syncPull();
   const top=[...nodes].sort((a,b)=>b.children.length-a.children.length||a.year-b.year).slice(0,12);
-  $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="phead"><img class="appicon" alt="" src="${ICONSRC()}"><div class="phtx"><button type="button" class="ovttl" data-share aria-label="Share this map" title="Share this map"><span class="mn">Offshoots</span>${SHAREGLYPH}</button><p class="tag">What grew out of what in North American music.</p><p class="ovmeta">${FAMS.length} families · ${nodes.length} styles</p></div></div></div><div class="more"><p class="note ovhint">Tap any style to trace where it came from and what it led to.</p>
+  const np=playable().length;
+  $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="phead"><img class="appicon" alt="" src="${ICONSRC()}"><div class="phtx"><button type="button" class="ovttl" data-share aria-label="Share this map" title="Share this map"><span class="mn">Offshoots</span>${SHAREGLYPH}</button><p class="tag">Find something to hear, and trace what it grew out of.</p><p class="ovmeta">${nodes.length} styles · ${np} playlists</p></div></div></div><div class="more">
+    ${featSect()}
     ${modeSect()}
     ${browseRow()}
+    <p class="note ovhint">Or tap any style on the map to trace where it came from and what it led to.</p>
+    <details class="aboutwrap"><summary><span>About this map</span><svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg></summary>
     <div class="about"><p class="stats">${$("stats").textContent}</p>
     <p>Named styles and scenes North American listeners could buy, hear on radio or stream from 1950 to today, each linked to the styles it grew out of. Bigger names led to more styles. A play triangle in the dot marks styles with a School of Listening playlist, linked in the panel. Zoomed out, styles that led nowhere show as dots. Hollow dots are pre-1950 roots.</p>
-    <p>Years mark when a style cohered into a named, recorded scene, not its earliest precursor. "Came from" lists the direct stylistic parents, not every influence. Styles from elsewhere are included when they charted in North America or seeded scenes here. Boundaries and dates are contested; treat each link as the consensus reading. Styles with a "Sources" list were checked against the linked pages; the rest were compiled from general knowledge.</p></div></div>`;
+    <p>Years mark when a style cohered into a named, recorded scene, not its earliest precursor. "Came from" lists the direct stylistic parents, not every influence. Styles from elsewhere are included when they charted in North America or seeded scenes here. Boundaries and dates are contested; treat each link as the consensus reading. Styles with a "Sources" list were checked against the linked pages; the rest were compiled from general knowledge.</p></div></details></div>`;
 }
 
 
