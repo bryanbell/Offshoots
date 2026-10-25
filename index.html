@@ -576,21 +576,27 @@ aside#panel{padding-bottom:0}
 /* header: bigger title, outlined accent Search button; searching opens the sheet taller */
 #pbarTitle{font-size:18px;letter-spacing:-.02em}
 #pbarSub{font-size:12px}
-/* share sits beside search: icon only, label appears once copied */
-#pfoot{flex:none;padding:12px var(--ppad) calc(12px + env(safe-area-inset-bottom,0px));
-  border-top:.5px solid var(--line);background:inherit}
-#pshare{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;height:46px;padding:0 16px;
-  border:0;border-radius:12px;cursor:pointer;color:var(--fg);
-  background:color-mix(in srgb,var(--acc,var(--fg)) 15%,transparent);
-  font:600 14px var(--f-body);transition:background .15s}
-#pshare:hover{background:color-mix(in srgb,var(--acc,var(--fg)) 24%,transparent)}
-#pshare svg{flex:none;width:17px;height:17px}
-#pshare .ok{display:none}
-#pshare.done .ok{display:block}
-#pshare.done .up{display:none}
-#pshare.done{background:color-mix(in srgb,var(--acc,var(--fg)) 28%,transparent)}
+/* the panel title is the share control: tap the name to hand off the link */
+button.navttl,button.ovttl{all:unset;box-sizing:border-box;cursor:pointer;min-width:0;max-width:100%}
+button.navttl{display:block;text-align:center;overflow:hidden;border-radius:10px;
+  padding:2px 6px;margin:-2px 0;transition:background .15s}
+button.navttl:hover,button.ovttl:hover{background:color-mix(in srgb,var(--fg) 7%,transparent)}
+button.navttl:focus-visible,button.ovttl:focus-visible{outline:0;
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+.ovttl{display:inline-flex;align-items:center;gap:7px;border-radius:9px;padding:1px 6px;margin:0 -6px}
+.shg{flex:none;width:11px;height:11px;opacity:.55;vertical-align:-1px}
+.ovttl .shg{width:13px;height:13px}
+button.navttl .my{display:inline-flex;align-items:center;gap:5px}
+.shg{display:inline-block}
+.navttl.done .mn,.ovttl.done .mn{color:var(--acc,var(--fg))}
+@media (max-width:899px){
+  /* fill the row rather than float in it: a 50px target at no cost in header height,
+     since the negative margins give back exactly the row padding the button takes */
+  button.navttl{margin:-6px 0 -7px;padding:6px 8px 7px;border-radius:12px}
+  .ovttl{padding:5px 6px}
+}
+.navttl.done .shg,.ovttl.done .shg{opacity:0}
 /* the minimised sheet keeps its height for the playlist */
-@media (max-width:899px){ body:not(.open) #pfoot{display:none} }
 /* swiped away: the sheet leaves the screen and a thin handle takes its place */
 #sheetpull{display:none}
 @media (max-width:899px){
@@ -784,7 +790,7 @@ a.am .amgo{display:none}
   <button id="sheetpull" type="button" aria-label="Show the map details" hidden><svg class="pchev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10L8 5.5l4.5 4.5"/></svg><span class="plbl"></span></button>
   <aside id="panel" aria-live="polite"><div id="grab" role="button" tabindex="0" aria-label="Expand details" aria-expanded="false"></div>
   <button id="pclose" data-close aria-label="Collapse details"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l5-5 5 5"/></svg></button>  <div id="pbar"><div id="pbarTxt"><span id="pbarTitle"></span><span id="pbarSub"></span></div></div>
-  <div id="panelBody"></div><div id="pfoot"><button id="pshare" type="button" aria-label="Share this map" title="Share this map"><svg class="up" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13V3"/><path d="M6.5 6.5L10 3l3.5 3.5"/><path d="M5 11v5.5h10V11"/></svg><svg class="ok" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5l4 4 8-8.5"/></svg><span class="lbl">Share this map</span></button></div><div id="ptoggle"><button id="expand" aria-label="Show details" aria-expanded="false"><span class="lbl">Details</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg></button></div></aside>
+  <div id="panelBody"></div><div id="ptoggle"><button id="expand" aria-label="Show details" aria-expanded="false"><span class="lbl">Details</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg></button></div></aside>
 </div>
 <div id="wikiwrap" hidden>
   <div id="wikibd" data-wclose></div>
@@ -2098,7 +2104,9 @@ function syncBack(){
   const l=backLabel();
   b.hidden=!l; if(!l) return;
   b.setAttribute("aria-label",l); b.setAttribute("title",l);
-  const t=b.querySelector(".bklbl"); if(t) t.textContent=l.replace(/^Back to /,"");
+  const v=TRAIL[TRAIL.length-1];
+  const t=b.querySelector(".bklbl");
+  if(t) t.textContent = v&&v.sel&&byId[v.sel] ? byId[v.sel].name : "The map";
 }
 function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   if(!byId[id]) return;
@@ -2145,7 +2153,7 @@ function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   n.whoList = whoList;
   PHEAD = `<div class="pcard"><div class="navrow">`
     + navBtn("from",[...n.parents].sort(byYear))
-    + `<div class="navttl"><span class="mn">${esc(n.name)}</span><span class="my"><span class="yr">${n.year<1950?esc(n.disp):"c. "+n.year}</span></span></div>`
+    + `<button type="button" class="navttl" data-share aria-label="Share this style" title="Share this style"><span class="mn">${esc(n.name)}</span><span class="my"><span class="yr">${n.year<1950?esc(n.disp):"c. "+n.year}</span>${SHAREGLYPH}</span></button>`
     + navBtn("led",[...n.children].sort(byYear))
     + `</div></div>`;
   setExpandLabel("", `${n.parents.length} from · ${n.children.length} led to`, `${n.parents.length} from · ${n.children.length} led to`);
@@ -2271,6 +2279,9 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ if(!$("wikiwrap")
 const chip = (id,extra)=>{ const n=byId[id]; const yr=n.year<1950?n.disp:n.year;
   const tip=esc(n.name+" · "+yr+(extra?" · "+extra:"")+(n.done?" · playlist":""));
   return `<button class="chip c" style="--c:${FAM[n.fam].c}" data-go="${n.id}" title="${tip}" aria-label="${tip}"><i class="nm">${esc(n.name)}</i><span title="Styles it led to">${n.children.length}</span></button>`; };
+// a small mark on the year line: enough to read as tappable without pulling the
+// style name off centre, which the grid works hard to keep it on
+const SHAREGLYPH='<svg class="shg" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13V3"/><path d="M6.5 6.5L10 3l3.5 3.5"/><path d="M5 11v5.5h10V11"/></svg>';
 const CHEV={from:'<svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 8H3.4"/><path d="M7.4 3.6L3 8l4.4 4.4"/></svg>',
              led:'<svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h9.6"/><path d="M8.6 3.6L13 8l-4.4 4.4"/></svg>'};
 function navBtn(kind,ids){
@@ -2407,6 +2418,7 @@ $("panel").addEventListener("click",e=>{
   const g0=e.target.closest("[data-go]");
   if(g0 && e.target.closest(".navmenu")){ closeNav(); select(g0.dataset.go); panelTop(); return; }
   if(!OPEN && OVERLAY){ if(!e.target.closest("a")) setOpen(true); return; }   // only the minimised sheet is tap-to-open
+  if(e.target.closest("[data-share]")){ shareSel(); return; }
   if(e.target.closest("[data-close]")){ closePanel(); return; }
   const g=e.target.closest("[data-go]");
   if(g){ closeNav(); select(g.dataset.go); panelTop(); return; }
@@ -2445,13 +2457,14 @@ function shareSel(){
   const url = n ? styleURL(id) : location.origin+location.pathname+location.search;
   const title = n ? "Offshoots · "+n.name : "Offshoots";
   const text  = n ? n.name+" on Offshoots" : "Offshoots — what grew out of what in North American music";
-  const btn=$("pshare");
-  const flash=t=>{ if(!btn) return; const lbl=btn.querySelector(".lbl");
-    btn.classList.add("done"); btn.setAttribute("aria-label",t); if(lbl) lbl.textContent=t;
+  const btn=document.querySelector("#panel [data-share]");
+  // the title says what happened, since there is no longer a button to label
+  const flash=t=>{ if(!btn) return; const nm=btn.querySelector(".mn"); if(!nm) return;
+    if(btn._was==null) btn._was=nm.textContent;
+    btn.classList.add("done"); nm.textContent=t;
     clearTimeout(btn._t); btn._t=setTimeout(()=>{ btn.classList.remove("done");
-      const back=n?"Share this style":"Share this map";
-      btn.setAttribute("aria-label",back); if(lbl) lbl.textContent=back; },1800); };
-  const copy=()=>{ const done=()=>flash("Copied");
+      if(btn._was!=null){ nm.textContent=btn._was; btn._was=null; } },1600); };
+  const copy=()=>{ const done=()=>flash("Link copied");
     if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done,()=>fallback());
     else fallback();
     function fallback(){ const ta=document.createElement("textarea"); ta.value=url; ta.setAttribute("readonly","");
@@ -2463,19 +2476,19 @@ function shareSel(){
       if(err && (err.name==="AbortError"||err.name==="NotAllowedError")) return; copy(); });
   } else copy();
 }
-{ const sb=$("pshare"); if(sb) sb.addEventListener("click",shareSel); }
 { const sp=$("sheetpull"); if(sp) sp.addEventListener("click",()=>{ restoreSheet(); }); }
 { const bb=$("mapBack"); if(bb) bb.addEventListener("click",e=>{ e.preventDefault(); goBack(); }); }
 // the hardware/browser back gesture should feel the same as the button
 addEventListener("keydown",e=>{
   if(e.key==="Backspace" && !/^(INPUT|TEXTAREA)$/.test((e.target.tagName||""))){ e.preventDefault(); goBack(); }
 });
-// always available: it shares the selected style, or the map when nothing is selected
-function syncShare(){ const sb=$("pshare"); if(!sb) return;
-  sb.hidden=false;
+// the title carries the label now; it is rebuilt on every select, so this only has
+// to catch the case where the panel is left standing
+function syncShare(){
+  const b=document.querySelector("#panel [data-share]"); if(!b) return;
   const l=state.sel?"Share this style":"Share this map";
-  const lbl=sb.querySelector(".lbl");
-  if(!sb.classList.contains("done")){ sb.setAttribute("aria-label",l); sb.setAttribute("title",l); if(lbl) lbl.textContent=l; } }
+  if(!b.classList.contains("done")){ b.setAttribute("aria-label",l); b.setAttribute("title",l); }
+}
 
 // the panel takes a wash of the family's cover-art ground; strength lives in CSS
 function setTint(fam){
@@ -2552,7 +2565,7 @@ function emptyPanel(){
   setPbar("Offshoots", FAMS.length+" families · "+nodes.length+" styles");
   syncPull();
   const top=[...nodes].sort((a,b)=>b.children.length-a.children.length||a.year-b.year).slice(0,12);
-  $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="phead"><img class="appicon" alt="" src="${ICONSRC()}"><div class="phtx"><span class="mn">Offshoots</span><p class="tag">What grew out of what in North American music.</p><p class="ovmeta">${FAMS.length} families · ${nodes.length} styles</p></div></div></div><div class="more"><p class="note ovhint">Tap any style to trace where it came from and what it led to.</p>
+  $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="phead"><img class="appicon" alt="" src="${ICONSRC()}"><div class="phtx"><button type="button" class="ovttl" data-share aria-label="Share this map" title="Share this map"><span class="mn">Offshoots</span>${SHAREGLYPH}</button><p class="tag">What grew out of what in North American music.</p><p class="ovmeta">${FAMS.length} families · ${nodes.length} styles</p></div></div></div><div class="more"><p class="note ovhint">Tap any style to trace where it came from and what it led to.</p>
     ${modeSect()}
     ${browseRow()}
     <div class="about"><p class="stats">${$("stats").textContent}</p>
