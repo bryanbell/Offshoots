@@ -1824,7 +1824,12 @@ function centerOn(n,smooth,onlyIfNeeded){
 // resizing and zooming use it, so the cover <img> isn't torn down and reloaded (which flickers).
 function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   if(!byId[id]) return;
-  state.sel=id; closeNav(); restoreSheet(); const n=byId[id];
+  const switched = state.sel!==id;
+  state.sel=id; closeNav();
+  // only a real change of style brings a dismissed sheet back; re-selects from
+  // resize, zoom and setOpen must leave it where the user put it
+  if(switched) restoreSheet();
+  const n=byId[id];
   const anc=walk(id,"parents"), desc=walk(id,"children");
   // the map highlights two generations each way; the panel still lists the full ancestry
   const near=m=>new Map([...m].filter(([,d])=>d<=HOPS));
@@ -1930,7 +1935,7 @@ function setPbar(t,s){ PBAR={t:t||"",s:s||""}; const a1=$("pbarTitle"), a2=$("pb
 })();
 // the sheet's grab handle: tap toggles, a vertical drag resizes and snaps to the nearer state
 let MINH=0, DRAGGING=false;
-const dismissable = ()=> OVERLAY && !OPEN && !state.sel;
+const dismissable = ()=> OVERLAY && !OPEN;
 function dismissSheet(){ document.body.classList.add("sheetgone"); setOpen(false); }
 function restoreSheet(){ document.body.classList.remove("sheetgone"); }
 function sheetMin(){ return MINH || 170; }
