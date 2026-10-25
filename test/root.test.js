@@ -61,13 +61,15 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   p=await fresh(b,M);
   await p.click("#grab").catch(()=>{}); await p.waitForTimeout(400);
   say("three browse buttons", await p.$$eval(".brlbl",e=>e.map(x=>x.textContent).join(" / ")));
+  // derived from the data rather than hard-coded: this broke the moment playlists were added
+  const nPlay=await p.evaluate(()=>DATA.filter(r=>PLAY[r[0]]||SPLAY[r[0]]).length);
   const n=await p.$eval('[data-menu="pl"] .ct',e=>+e.textContent);
-  say("playlist count on the button "+n, n===233);
+  say("playlist count on the button matches the data ("+n+")", n===nPlay);
   await p.click('[data-menu="pl"]'); await p.waitForTimeout(350);
   const fams=await p.$$eval('.navmenu[data-br="pl"] [data-plbr]',e=>e.map(x=>x.textContent.replace(/\s+/g," ").trim()));
   say("families offered", fams.length+" — "+fams.slice(0,3).join(", "));
   const sum=await p.$$eval('.navmenu[data-br="pl"] [data-plbr] small',e=>e.reduce((s,x)=>s+ +x.textContent,0));
-  say("counts add up to 233", sum===233 ? true : sum);
+  say("family counts add up to the total ("+sum+")", sum===nPlay);
   say("fewer families than the Families menu (only listenable ones)", fams.length<=16);
   await p.click('.navmenu[data-br="pl"] [data-plbr]'); await p.waitForTimeout(300);
   const rows=await p.$$('.navmenu[data-br="pl"] [data-go]');

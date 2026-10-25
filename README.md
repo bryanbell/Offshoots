@@ -6,7 +6,7 @@ and what grew out of it. Built for the School of Listening class.
 Live: https://offshoots.netlify.app/
 
 460 styles across 16 families, 1,130 parent-to-child connections, 277 written
-descriptions, and 233 styles with a playlist on Apple Music and Spotify.
+descriptions, and 248 styles with a playlist on Apple Music and Spotify.
 
 ## What's in here
 
