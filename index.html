@@ -528,7 +528,7 @@ a.wk.sp:hover{background:color-mix(in srgb,#1db954 86%,#000)}
 .sect .note{margin:0}
 
 .lede{margin:0 0 4px}
-.wikiline{margin:12px 0 2px}
+.wikiline{margin:14px 0 2px}
 @media (max-width:899px){
   body:not(.open) #panelBody .lede{display:none}
   body:not(.open) #panelBody .wikiline{display:none}
@@ -1908,9 +1908,8 @@ function panel(n,anc,desc){
   const svcHtml = `<span class="svc"><select id="svcsel" aria-label="Streaming service"><option value="apple"${SVC==="apple"?" selected":""}>Apple Music</option><option value="spotify"${SVC==="spotify"?" selected":""}>Spotify</option><option value="qobuz"${SVC==="qobuz"?" selected":""}>Qobuz</option></select></span>`;
   const artistsHtml = `<div class="who">${who.map(am).join("")}</div>`;
   $("panelBody").innerHTML = PHEAD + `<div class="more">
-        <p class="note lede">${about(n)?esc(about(n)):""}</p>
     ${listenSect(n,who,artistsHtml,svcHtml)}
-    <p class="note wikiline">${wikiTxt(n)}</p>
+    <p class="note lede wikiline">${about(n)?esc(about(n))+" ":""}${wikiTxt(n)}</p>
     ${sect("led","Led to",chips([...n.children].sort(byYear)))}
     ${sect("from","Came from",chips([...n.parents].sort(byYear)))}
     ${n.sources.length?`<h3>Sources</h3><ul class="srcs">${n.sources.map(u=>{let h="";try{h=new URL(u).hostname.replace(/^www\./,"")}catch(e){h=u}return `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(h)}</a></li>`}).join("")}</ul>`:""}
