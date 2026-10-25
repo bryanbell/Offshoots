@@ -15,7 +15,10 @@ const Dk={width:1280,height:900};
   await p.click("#grab").catch(()=>{});                 // open the sheet
   await p.waitForTimeout(400);
   const chips=await p.$$(".modechip");
-  say("mode chips rendered", chips.length===13 ? true : chips.length);
+  // read the expected count from the page rather than hard-coding it: this assertion
+  // has silently gone non-boolean twice when a mode was added
+  const nModes=await p.evaluate(()=>typeof MODES!=="undefined"?MODES.length:-1);
+  say("one chip per mode ("+nModes+")", nModes>0 && chips.length===nModes);
   say("chip labels", (await p.$$eval(".modechip",e=>e.map(x=>x.textContent.trim()).join(" / "))));
   say("picks hidden before a tap", (await p.$$(".picks .pick")).length===0);
 

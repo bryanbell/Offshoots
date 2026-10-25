@@ -1770,6 +1770,20 @@ const MODES = [
     ["futurebass","Bright, large and friendly"],
     ["witchhouse","Slow and ominous, for the part with the fog"]]],
 
+  ["chores","Getting it done","Chores and admin",
+   "Nothing here has to be followed. It wants to be familiar, mid-tempo and forgiving of being half-ignored, so losing a minute to the washing machine costs nothing. A workout locks to a cadence and a party needs the room; this needs neither.",
+   [["njs","Swing beat and a chorus you already know"],
+    ["postdisco","Disco with the lights up and the tempo friendly"],
+    ["minneapolis","Funk on a drum machine, bright and tireless"],
+    ["electrofunk","All hooks, no demands"],
+    ["britpop","Choruses engineered to be sung badly"],
+    ["poppunk","Three chords and a good mood"],
+    ["countrypop","Easy company for a long list"],
+    ["latinpop","Bright and melodic, and it keeps moving"],
+    ["yacht","Immaculate production, zero stakes"],
+    ["blueeyed","Soul with the edges smoothed for radio"],
+    ["southern_soul","A horn section doing the heavy lifting"],
+    ["skapunk","Too cheerful to let a chore feel like one"]]],
   ["lift","Lift the mood","Changing how you feel",
    "Major keys, chords that change often, and more than one voice singing at once. Steering mood is the most common reason people reach for music at all.",
    [["motown","Three minutes engineered for joy"],
@@ -1785,6 +1799,20 @@ const MODES = [
     ["sunshine","Harmony stacked until it glows"],
     ["nudisco","Disco rebuilt by people who missed it"]]],
 
+  ["hype","Walk in tall","Before you walk in",
+   "Swagger rather than speed. Front-loaded, brash and certain of itself, for the three minutes before the thing rather than during it. Workout is led by tempo and Burn it off is anger; this is neither.",
+   [["golden","The voice arrives already convinced"],
+    ["gangsta","Menace delivered perfectly calmly"],
+    ["hardcore_hh","Hard drums and no hedging"],
+    ["newschool","Lean, loud and sure of itself"],
+    ["glammetal","Entirely unembarrassed"],
+    ["nwobhm","Twin guitars and a raised chin"],
+    ["glam","Dressed to be looked at"],
+    ["raprock","Built for an entrance"],
+    ["numetal","Bottom-heavy and sure it is right"],
+    ["funkmetal","A strut with distortion on it"],
+    ["crossover","Short, fast, chin out"],
+    ["groove","Slower than thrash and twice as heavy"]]],
   ["burn","Burn it off","Anger with nowhere to go",
    "Anger wants volume, distortion and a tempo above your pulse. Playing it through tends to work better than reaching for something calming first.",
    [["hardcore","Two minutes, no chorus, full volume"],
@@ -1843,7 +1871,22 @@ const MODES = [
     ["post_metal","Heavy music built like a symphony"],
     ["idm","Rhythm as a puzzle"],
     ["thirdstream","Jazz and the concert hall, arguing"],
-    ["tape","The studio itself used as the instrument"]]]
+    ["tape","The studio itself used as the instrument"]]],
+
+  ["roots","Go to the source","Where it all starts",
+   "The far left of the map: styles that cohered before 1950, drawn as hollow dots that are easy to scroll past. Nearly everything else on the map descends from this handful, so it is the layer that explains the rest.",
+   [["blues","One voice and a guitar, and most of what followed"],
+    ["ragtime","Syncopation written down, the first American craze"],
+    ["appalachian","Ballads carried over an ocean and kept"],
+    ["oldtime","The first country records, before the word existed"],
+    ["tinpan","The song as sheet music, before the record"],
+    ["broadway","The stage teaching pop how to write"],
+    ["swing","When jazz was simply the popular music"],
+    ["honkytonk","Barroom country, amplified to be heard over it"],
+    ["danzon","Cuba's ballroom, parent to half the Latin map"],
+    ["corrido","News and legend sung on the border"],
+    ["conjunto","Accordion and bajo sexto, a whole tradition"],
+    ["mambo","The big-band answer from Havana"]]]
 ];
 (function(){
 const FAM = {}; FAMS.forEach((f,i)=>FAM[f[0]]={key:f[0],name:f[1],h:f[2],short:f[3]||f[1],i,
@@ -2678,7 +2721,7 @@ function browseRow(){
     + browseBtn("top","Most influential",TOPN,"The "+TOPN+" styles that led to the most",topMenuHtml())
     + `</div>`, '<span class="sectaside">every style</span>');
 }
-const MODEICON={"focus":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"10\" r=\"6.8\"/><circle cx=\"10\" cy=\"10\" r=\"2.4\"/></svg>","workout":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.4 7.4v5.2\"/><path d=\"M15.6 7.4v5.2\"/><path d=\"M7 6v8\"/><path d=\"M13 6v8\"/><path d=\"M7 10h6\"/></svg>","winddown":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M16.2 12.3A6.7 6.7 0 0 1 7.7 3.8a6.9 6.9 0 1 0 8.5 8.5z\"/></svg>","party":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"11.6\" r=\"5.4\"/><path d=\"M10 6.2V3\"/><path d=\"M4.7 10.4h10.6\"/><path d=\"M10 6.2V17\"/></svg>","driving":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.2 12.6h13.6\"/><path d=\"M4.8 12.6l1.3-4.1a1.7 1.7 0 0 1 1.6-1.2h4.6a1.7 1.7 0 0 1 1.6 1.2l1.3 4.1\"/><circle cx=\"6.6\" cy=\"14\" r=\"1.5\"/><circle cx=\"13.4\" cy=\"14\" r=\"1.5\"/></svg>","dinner":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6.4 3v4.6\"/><path d=\"M9.1 3v4.6\"/><path d=\"M7.75 7.6V17\"/><path d=\"M14.4 3c1.5 1.7 1.5 5.3 0 6.6V17\"/></svg>","gaming":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2.6\" y=\"6.6\" width=\"14.8\" height=\"8.8\" rx=\"4.1\"/><path d=\"M6.6 9.8v2.4\"/><path d=\"M5.4 11h2.4\"/><circle cx=\"13.4\" cy=\"10.5\" r=\".95\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"15.1\" cy=\"12.4\" r=\".95\" fill=\"currentColor\" stroke=\"none\"/></svg>","lift":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"10\" r=\"3.5\"/><path d=\"M10 2.4v1.7\"/><path d=\"M10 15.9v1.7\"/><path d=\"M2.4 10h1.7\"/><path d=\"M15.9 10h1.7\"/><path d=\"M4.6 4.6l1.2 1.2\"/><path d=\"M14.2 14.2l1.2 1.2\"/><path d=\"M15.4 4.6l-1.2 1.2\"/><path d=\"M5.8 14.2l-1.2 1.2\"/></svg>","burn":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 2.6c3 3.4 5.1 5.6 5.1 8.5a5.1 5.1 0 0 1-10.2 0c0-1.6.6-2.9 1.7-4.1.5 1.1 1.2 1.7 2 1.9C8.2 6.7 8.8 4.7 10 2.6z\"/></svg>","sit":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6.4 12.3a3.2 3.2 0 0 1 .4-6.4 4.3 4.3 0 0 1 8.1 1.4 2.7 2.7 0 0 1-.5 5\"/><path d=\"M7.6 14.8v2.1\"/><path d=\"M11 14.8v2.7\"/><path d=\"M14.3 14.8v2.1\"/></svg>","together":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"7.3\" cy=\"7.4\" r=\"2.4\"/><circle cx=\"13.5\" cy=\"8.3\" r=\"2\"/><path d=\"M3 16.6a4.4 4.4 0 0 1 8.7 0\"/><path d=\"M12.7 12.7a3.8 3.8 0 0 1 4.3 3.9\"/></svg>","deep":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.2 13v-2.6a5.8 5.8 0 0 1 11.6 0V13\"/><path d=\"M4.2 12.3h1.5a1.4 1.4 0 0 1 1.4 1.4v1.6a1.4 1.4 0 0 1-1.4 1.4h-.9a.6.6 0 0 1-.6-.6z\"/><path d=\"M15.8 12.3h-1.5a1.4 1.4 0 0 0-1.4 1.4v1.6a1.4 1.4 0 0 0 1.4 1.4h.9a.6.6 0 0 0 .6-.6z\"/></svg>","restless":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7.6 2.8h4.8l3.1 14.4H4.5z\"/><path d=\"M4.9 13.9h10.2\"/><path d=\"M10 14.2 13 4.6\"/></svg>"};
+const MODEICON={"focus":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"10\" r=\"6.8\"/><circle cx=\"10\" cy=\"10\" r=\"2.4\"/></svg>","workout":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.4 7.4v5.2\"/><path d=\"M15.6 7.4v5.2\"/><path d=\"M7 6v8\"/><path d=\"M13 6v8\"/><path d=\"M7 10h6\"/></svg>","winddown":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M16.2 12.3A6.7 6.7 0 0 1 7.7 3.8a6.9 6.9 0 1 0 8.5 8.5z\"/></svg>","party":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"11.6\" r=\"5.4\"/><path d=\"M10 6.2V3\"/><path d=\"M4.7 10.4h10.6\"/><path d=\"M10 6.2V17\"/></svg>","driving":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.2 12.6h13.6\"/><path d=\"M4.8 12.6l1.3-4.1a1.7 1.7 0 0 1 1.6-1.2h4.6a1.7 1.7 0 0 1 1.6 1.2l1.3 4.1\"/><circle cx=\"6.6\" cy=\"14\" r=\"1.5\"/><circle cx=\"13.4\" cy=\"14\" r=\"1.5\"/></svg>","dinner":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6.4 3v4.6\"/><path d=\"M9.1 3v4.6\"/><path d=\"M7.75 7.6V17\"/><path d=\"M14.4 3c1.5 1.7 1.5 5.3 0 6.6V17\"/></svg>","gaming":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2.6\" y=\"6.6\" width=\"14.8\" height=\"8.8\" rx=\"4.1\"/><path d=\"M6.6 9.8v2.4\"/><path d=\"M5.4 11h2.4\"/><circle cx=\"13.4\" cy=\"10.5\" r=\".95\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"15.1\" cy=\"12.4\" r=\".95\" fill=\"currentColor\" stroke=\"none\"/></svg>","lift":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"10\" r=\"3.5\"/><path d=\"M10 2.4v1.7\"/><path d=\"M10 15.9v1.7\"/><path d=\"M2.4 10h1.7\"/><path d=\"M15.9 10h1.7\"/><path d=\"M4.6 4.6l1.2 1.2\"/><path d=\"M14.2 14.2l1.2 1.2\"/><path d=\"M15.4 4.6l-1.2 1.2\"/><path d=\"M5.8 14.2l-1.2 1.2\"/></svg>","burn":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 2.6c3 3.4 5.1 5.6 5.1 8.5a5.1 5.1 0 0 1-10.2 0c0-1.6.6-2.9 1.7-4.1.5 1.1 1.2 1.7 2 1.9C8.2 6.7 8.8 4.7 10 2.6z\"/></svg>","sit":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6.4 12.3a3.2 3.2 0 0 1 .4-6.4 4.3 4.3 0 0 1 8.1 1.4 2.7 2.7 0 0 1-.5 5\"/><path d=\"M7.6 14.8v2.1\"/><path d=\"M11 14.8v2.7\"/><path d=\"M14.3 14.8v2.1\"/></svg>","together":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"7.3\" cy=\"7.4\" r=\"2.4\"/><circle cx=\"13.5\" cy=\"8.3\" r=\"2\"/><path d=\"M3 16.6a4.4 4.4 0 0 1 8.7 0\"/><path d=\"M12.7 12.7a3.8 3.8 0 0 1 4.3 3.9\"/></svg>","deep":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.2 13v-2.6a5.8 5.8 0 0 1 11.6 0V13\"/><path d=\"M4.2 12.3h1.5a1.4 1.4 0 0 1 1.4 1.4v1.6a1.4 1.4 0 0 1-1.4 1.4h-.9a.6.6 0 0 1-.6-.6z\"/><path d=\"M15.8 12.3h-1.5a1.4 1.4 0 0 0-1.4 1.4v1.6a1.4 1.4 0 0 0 1.4 1.4h.9a.6.6 0 0 0 .6-.6z\"/></svg>","restless":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7.6 2.8h4.8l3.1 14.4H4.5z\"/><path d=\"M4.9 13.9h10.2\"/><path d=\"M10 14.2 13 4.6\"/></svg>","chores":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7.3 3.1l1.15 3.05L11.5 7.3 8.45 8.45 7.3 11.5 6.15 8.45 3.1 7.3l3.05-1.15z\"/><path d=\"M14.1 10.6l.72 1.9 1.9.72-1.9.72-.72 1.9-.72-1.9-1.9-.72 1.9-.72z\"/></svg>","hype":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M11.6 2.4L5.2 11h4.1l-.9 6.6L14.8 9h-4.1z\"/></svg>","roots":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 17.2V8.6\"/><path d=\"M10 10.8C10 7.7 7.5 5.3 4.5 5.3c0 3.1 2.5 5.5 5.5 5.5z\"/><path d=\"M10 8.9c0-2.7 2.2-4.8 4.9-4.8 0 2.7-2.2 4.8-4.9 4.8z\"/></svg>"};
 function modeSect(){
   if(typeof MODES==="undefined") return "";
   const chips=MODES.map(m=>`<button type="button" class="chip modechip${MODE===m[0]?" on":""}" data-mk="${esc(m[0])}" aria-pressed="${MODE===m[0]}"><i class="mi">${MODEICON[m[0]]||""}</i><i class="nm">${esc(m[1])}</i></button>`).join("");
