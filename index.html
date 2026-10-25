@@ -286,12 +286,12 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line)}
 .pcard .my .fam{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .pcard .my .yr{flex:none;white-space:pre}
 p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:4px 0 9px;font:400 11.5px var(--f-body);color:var(--muted)}
-.svc{display:inline-flex}
-.svc select{appearance:none;-webkit-appearance:none;border:0;cursor:pointer;border-radius:999px;
-  padding:5px 25px 5px 11px;background-color:var(--fill2);color:var(--fg);font:600 11.5px var(--f-body);
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 6.5L8 10.5l4-4'/></svg>");
-  background-repeat:no-repeat;background-position:right 9px center;background-size:11px}
-.svc select:focus-visible{outline:2px solid color-mix(in srgb,var(--accent) 60%,transparent);outline-offset:2px}
+.svc{position:relative;display:inline-flex;align-items:center;gap:5px;border-radius:999px;
+  padding:5px 11px;background-color:var(--fill2);color:var(--fg);font:600 11.5px var(--f-body)}
+.svc .svcchev{width:11px;height:11px;flex:none;opacity:.6}
+.svc select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;
+  appearance:none;-webkit-appearance:none;border:0;font:inherit}
+.svc:focus-within{outline:2px solid color-mix(in srgb,var(--accent) 60%,transparent);outline-offset:2px}
 
 .who{display:flex;flex-wrap:wrap;gap:7px}
 .pcard .links{display:none}
@@ -487,7 +487,7 @@ a.wk span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 
 /* service switch: accent backdrop, solid accent for the active one */
-.svc select{background-color:color-mix(in srgb,var(--brand,var(--accent)) 14%,transparent);color:var(--fg)}
+.svc{background-color:color-mix(in srgb,var(--brand,var(--accent)) 14%,transparent);color:var(--fg)}
 .secbody .who{margin-top:2px}
 
 /* no dead space under the last section */
@@ -601,7 +601,7 @@ a.wk.txt:hover{background:none;color:color-mix(in srgb,var(--accent) 80%,#000)}
 a.wk.pl,a.wk.sp{background:var(--ink,var(--fg));color:var(--tint,var(--panel));border-radius:999px}
 a.wk.pl svg,a.wk.sp svg{opacity:.9}
 a.wk.pl:hover,a.wk.sp:hover{background:color-mix(in srgb,var(--ink,var(--fg)) 84%,var(--tint,var(--panel)));color:var(--tint,var(--panel))}
-.svc select{background-color:color-mix(in srgb,var(--acc,var(--fg)) 18%,transparent);color:var(--ink,var(--fg))}
+.svc{background-color:color-mix(in srgb,var(--acc,var(--fg)) 18%,transparent);color:var(--ink,var(--fg))}
 .svc select option{color:#111;background:#fff}
 
 /* subdivisions inside Listen: quieter than the section heading, not competing with it */
@@ -633,10 +633,11 @@ a.wk.pl:hover,a.wk.sp:hover{background:color-mix(in srgb,var(--ink,var(--fg)) 84
 /* the service switch fills the row beside "Listen on", three equal thirds */
 .sect-listen .secthead{gap:14px}
 .sect-listen .secttl{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
-.svcinline select{padding:0 16px 0 0;border-radius:0;background-color:transparent;color:var(--fg);
-  font:inherit;background-position:right 1px center;background-size:12px;
-  text-underline-offset:3px;text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--fg) 32%,transparent)}
-.svcinline select:hover{text-decoration-color:var(--fg)}
+.svcinline{padding:0;gap:4px;background-color:transparent;font:inherit;
+  text-decoration:underline;text-underline-offset:3px;
+  text-decoration-color:color-mix(in srgb,var(--fg) 30%,transparent)}
+.svcinline:hover{text-decoration-color:var(--fg)}
+.svcinline .svcchev{width:12px;height:12px;opacity:.75}
 /* the section is framed: a rule above the heading, another below the options */
 .sect-listen{padding-bottom:16px;border-bottom:var(--sectw,.5px) solid var(--sectline,var(--line))}
 .sect-listen .secthead .svc{flex:none;display:flex;min-width:0}
@@ -1556,7 +1557,7 @@ function paintPlay(){
       a.classList.remove("off"); a.removeAttribute("aria-disabled");
       a.className="plrow "+(SVC==="spotify"?"sp":"pl");
       a.href=url; if(SVC==="spotify") a.dataset.sp=sp; else delete a.dataset.sp;
-      lbl.textContent=svcName();
+      lbl.textContent="Playlist on "+svcName();
       a.title="Open the "+nm+" playlist in "+svcName();
     } else {
       // the row stays so the section keeps its shape; it just can't be played here yet
@@ -1594,6 +1595,7 @@ function setSvc(s){
   document.querySelectorAll(".svc").forEach(el=>el.style.setProperty("--brand", BRAND[s]||"#0071e3"));
   paintPlay();
   if(s==="apple") amUpgrade();
+  document.querySelectorAll(".svc .svctx").forEach(x=>{ x.textContent=svcName(); });
 }
 const amPending=new Map();
 function amResolve(name){
@@ -1960,7 +1962,9 @@ function noteHtml(n){
 }
 // playlist and key artists are two subdivisions of one Listen section, with the
 // service switch in its header governing both
+const SVCCHEV='<svg class="svcchev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6.5L8 10.5l4-4"/></svg>';
 function svcPicker(kind){ return `<span class="svc${kind==="inline"?" svcinline":""}">`
+  + `<span class="svctx">${esc(svcName())}</span>${SVCCHEV}`
   + `<select class="svcsel" aria-label="Streaming service">`
   + `<option value="apple"${SVC==="apple"?" selected":""}>Apple Music</option>`
   + `<option value="spotify"${SVC==="spotify"?" selected":""}>Spotify</option>`
@@ -1969,7 +1973,7 @@ function svcPicker(kind){ return `<span class="svc${kind==="inline"?" svcinline"
 function listenSect(n,who,artistsHtml){
   const pb=plist(n);
   if(!pb && !who.length) return "";
-  const body = (pb?`<h4 class="subh">Playlist</h4>${pb}`:"")
+  const body = (pb||"")
              + (who.length?`<h4 class="subh${pb?" gap":""}">Key artists</h4>${artistsHtml}`:"");
   const head = `<div class="secthead"><h3 class="secttl">Listen on ${svcPicker("inline")}</h3></div>`;
   return `<div class="sect sect-listen">${head}<div class="secbody">${body}</div></div>`;
