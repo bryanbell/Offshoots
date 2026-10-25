@@ -257,7 +257,7 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line)}
   font:600 12px var(--f-body);transition:background .15s}
 .navbtn:hover:not(:disabled){background:color-mix(in srgb,var(--acc,var(--fg)) 24%,transparent)}
 .navbtn:disabled{opacity:.35;cursor:default}
-.navbtn .cv{width:13px;height:13px;flex:none}
+.navbtn .cv{width:14px;height:14px;flex:none}
 .navbtn .ct{font:600 12px var(--f-mono);font-style:normal;opacity:.8}
 .navhd{padding:6px 9px 7px;font:600 10.5px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .navmenu{position:absolute;z-index:40;top:calc(100% + 6px);min-width:210px;max-width:min(300px,70vw);
@@ -1921,8 +1921,8 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ if(!$("wikiwrap")
 const chip = (id,extra)=>{ const n=byId[id]; const yr=n.year<1950?n.disp:n.year;
   const tip=esc(n.name+" · "+yr+(extra?" · "+extra:"")+(n.done?" · playlist":""));
   return `<button class="chip c" style="--c:${FAM[n.fam].c}" data-go="${n.id}" title="${tip}" aria-label="${tip}"><i class="nm">${esc(n.name)}</i><span title="Styles it led to">${n.children.length}</span></button>`; };
-const CHEV={from:'<svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8l5 5"/></svg>',
-             led:'<svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5"/></svg>'};
+const CHEV={from:'<svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 8H3.4"/><path d="M7.4 3.6L3 8l4.4 4.4"/></svg>',
+             led:'<svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h9.6"/><path d="M8.6 3.6L13 8l-4.4 4.4"/></svg>'};
 function navBtn(kind,ids){
   const label = kind==="from" ? "From" : "Led to";
   const n=ids.length;
