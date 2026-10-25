@@ -2097,7 +2097,10 @@ addEventListener("keydown",e=>{ if(e.key==="Escape") closeNav(); });
 addEventListener("resize",()=>closeNav());
 $("panel").addEventListener("click",e=>{
   const mb=e.target.closest("[data-menu]");
-  if(mb){ const w=mb.closest(".navwrap"), m=w&&w.querySelector(".navmenu");
+  if(mb){ const w=mb.closest(".navwrap");
+    // while open the menu lives on <body>, so it is not under its wrapper any more
+    const m=w&&(w.querySelector(".navmenu")
+      || [...document.querySelectorAll("body > .navmenu")].find(x=>x._home===w));
     if(!m) return;
     const open=m.hidden;
     closeNav(open?w:null);
