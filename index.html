@@ -1567,9 +1567,9 @@ const FAMSKIN = {"exp":["#45484C","#EDE4D1","#EDE4D1"],"latin":["#1A5038","#EDE4
 const FAMMAP = {"exp":"#bac5d5","latin":"#2fa984","gospel":"#879c5d","folk":"#cf9944","jazz":"#c797fd","pop":"#ff9ea7","global":"#6cbda9","blues":"#79a1fc","country":"#bb7b56","carib":"#7ad689","rock":"#bdae9e","soul":"#e77ab5","alt":"#bac03d","hiphop":"#f3c443","metal":"#dc604a","elec":"#19c4ec"};
 // Listening modes. Each: [key, chip label, heading, why it works, [[styleId, one-line reason], ...]]
 // Shape follows the contexts the services actually sort by (Spotify: focus, study, workout,
-// party, chill, cooking, dinner, travel; Apple: workout, work & study, chill, feeling bad,
-// happy, driving) plus the two reasons listening research puts at the top — regulating how
-// you feel, and listening to think about yourself.
+// party, chill, cooking, dinner, travel, gaming; Apple: workout, work & study, chill, angry,
+// happy, romantic, driving) plus the three dimensions listening research keeps finding —
+// regulating how you feel, listening to think about yourself, and listening to be with people.
 const MODES = [
   ["focus","Focus","Working or studying",
    "Words compete with the words in your own head, so what survives is instrumental, steady and a little uneventful — music that puts a floor under the work instead of asking for attention.",
@@ -1578,7 +1578,13 @@ const MODES = [
     ["modernclassical","Slow piano and strings, long arcs, no hooks"],
     ["lofi_hh","A warm loop with the edges sanded off"],
     ["dubtechno","Chords dissolving into echo, for hours"],
-    ["cool","Jazz that stays at conversation volume"]]],
+    ["cool","Jazz that stays at conversation volume"],
+    ["minimalism","Repetition that moves too slowly to interrupt"],
+    ["berlin_school","Sequencers left running for twenty minutes at a time"],
+    ["drone","One sustained note you stop noticing, then miss"],
+    ["deephouse","A soft four-four you can leave on all afternoon"],
+    ["westcoast_jazz","Unhurried and unshowy, written for the room"],
+    ["hauntology","Half-remembered library music, pleasantly out of focus"]]],
 
   ["workout","Workout","Working out",
    "A running cadence sits near 160 steps a minute, so 130–140 BPM lands on every other footfall. Loud, repetitive and front-loaded beats anything subtle here.",
@@ -1587,7 +1593,13 @@ const MODES = [
     ["trap","Half-time and heavy, built for the last set"],
     ["thrash","Nothing but forward momentum"],
     ["miamibass","Low end you feel in the chest"],
-    ["hardstyle","Faster than your heart means to go"]]],
+    ["hardstyle","Faster than your heart means to go"],
+    ["bigroom","Engineered entirely around the drop"],
+    ["drill","Menacing at a pace you can actually hold"],
+    ["crunk","Shouted call-and-response for the last rep"],
+    ["speedmetal","Double kick used as a metronome"],
+    ["hiphouse","Rapping over a house beat, which is as efficient as it sounds"],
+    ["gqom","Heavy and lurching — hard to coast through"]]],
 
   ["winddown","Wind down","Winding down",
    "Slow tempos, soft attacks and space between the notes. Getting under your own resting pulse is most of the trick.",
@@ -1596,7 +1608,13 @@ const MODES = [
     ["bossa","Nylon strings and a whisper"],
     ["dreampop","Reverb used as a blanket"],
     ["newage","Music with no corners"],
-    ["chillwave","Sunlit and half-remembered"]]],
+    ["chillwave","Sunlit and half-remembered"],
+    ["softrock","Written for the hour before bed"],
+    ["triphop","Slow breaks and a lot of smoke"],
+    ["spiritual","Searching, patient, warm"],
+    ["neosoul","Live drums and nowhere to be"],
+    ["hypnagogic","Pop heard through a wall, half asleep"],
+    ["lofihouse","Dance music with the lights off"]]],
 
   ["party","Party","A room full of people",
    "A floor beat people can find without counting, choruses that arrive early, and enough familiarity that nobody has to work at it.",
@@ -1605,7 +1623,13 @@ const MODES = [
     ["dancehall","Riddims the room already knows"],
     ["freestyle","Drum machines and heartbreak at 115 BPM"],
     ["jerseyclub","Fast, chopped, relentless"],
-    ["bailefunk","A Rio block party in one speaker"]]],
+    ["bailefunk","A Rio block party in one speaker"],
+    ["reggaeton","The dembow pattern, which now runs half the planet"],
+    ["hinrg","Disco with the tempo pushed past sense"],
+    ["bounce","New Orleans call-and-response, no slow songs"],
+    ["cumbia","The one rhythm that works at every age in the room"],
+    ["amapiano","South African house with a log drum and infinite patience"],
+    ["eurodance","Enormous, unembarrassed, everybody knows the chorus"]]],
 
   ["driving","Driving","On the road",
    "Road music keeps a mid-tempo groove going without needing you to follow it, and it has to scale — a chorus competes with a windshield.",
@@ -1614,7 +1638,13 @@ const MODES = [
     ["southern_rock","Two guitars and a long horizon"],
     ["outlaw","Country for people leaving somewhere"],
     ["arena","Choruses sized for an open window"],
-    ["surf","Reverb, coastline, speed"]]],
+    ["surf","Reverb, coastline, speed"],
+    ["synthwave","A night drive that never actually happened"],
+    ["bakersfield","Twang built in a town you drive through"],
+    ["gfunk","Windows down, nothing urgent"],
+    ["stoner","Riffs long enough to outlast the next exit"],
+    ["roots_rock","Unfussy and built to last four hours"],
+    ["hardrock","Loud enough to beat the road noise"]]],
 
   ["dinner","Dinner","Cooking or eating",
    "Present without demanding. Groove-forward, warm in timbre and even in volume, so it holds the room between conversations.",
@@ -1623,7 +1653,28 @@ const MODES = [
     ["philly","Strings, sweetness, immaculate manners"],
     ["exotica","Dinner-party music that thinks it is on an island"],
     ["mento","Jamaican porch music, acoustic and light"],
-    ["smoothjazz","Unembarrassed background"]]],
+    ["smoothjazz","Unembarrassed background"],
+    ["easy","The style literally engineered for this"],
+    ["son","Guitar, voice and a clave, nothing louder"],
+    ["citypop","Expensive-sounding Tokyo evening music"],
+    ["jazz_early","Cheerful, busy, never in the way"],
+    ["western_swing","A dance band that fits in a kitchen"],
+    ["acidjazz","Groove with the volume knob at four"]]],
+
+  ["gaming","Gaming","Playing something",
+   "A mood held for hours without competing for the hand-eye part of your brain: loops, sequences and a tempo that stays put. A good share of it descends from the sound chips that scored games in the first place.",
+   [["chiptune","Written on the chips that scored your childhood"],
+    ["dungeon_synth","Ambient for an imaginary map screen"],
+    ["synthwave","A soundtrack to a game nobody made"],
+    ["psytrance","Hours long by construction"],
+    ["nerdcore","Rap that is unembarrassed about any of this"],
+    ["vaporwave","A menu screen you never leave"],
+    ["bigbeat","The sound of every racing game from 1998"],
+    ["phonk","Drift-video music that escaped into the charts"],
+    ["hardtechno","For the part where you keep dying"],
+    ["djent","Rhythm puzzles at high volume"],
+    ["futurebass","Bright, large and friendly"],
+    ["witchhouse","Slow and ominous, for the part with the fog"]]],
 
   ["lift","Lift the mood","Changing how you feel",
    "Major keys, chords that change often, and more than one voice singing at once. Steering mood is the most common reason people reach for music at all.",
@@ -1632,7 +1683,28 @@ const MODES = [
     ["ska","Offbeat guitar, permanent grin"],
     ["powerpop","Hooks with no apology"],
     ["stompclap","A chorus to shout in a car"],
-    ["afrobeats","Buoyant by default"]]],
+    ["afrobeats","Buoyant by default"],
+    ["girl_group","Teenage feeling, perfect construction"],
+    ["highlife","West African guitar bands, relentlessly sunny"],
+    ["soca","Carnival music, which has exactly one job"],
+    ["kpop","Maximalist on purpose"],
+    ["sunshine","Harmony stacked until it glows"],
+    ["nudisco","Disco rebuilt by people who missed it"]]],
+
+  ["burn","Burn it off","Anger with nowhere to go",
+   "Anger wants volume, distortion and a tempo above your pulse. Playing it through tends to work better than reaching for something calming first.",
+   [["hardcore","Two minutes, no chorus, full volume"],
+    ["grind","Thirty seconds counts as a long song"],
+    ["riotgrrrl","Rage with an argument attached"],
+    ["blackmetal","Cold, furious, deliberately unwelcoming"],
+    ["deathmetal","Technical violence"],
+    ["noiserock","Guitars used as a blunt instrument"],
+    ["mathcore","Anger that refuses to sit in a time signature"],
+    ["nyhc","Built for a room with no stage"],
+    ["industrial_metal","Machines losing their temper"],
+    ["crust","Filthy, political, fast"],
+    ["beatdown","Written around the heaviest ten seconds"],
+    ["horrorcore","Rap that goes somewhere unpleasant on purpose"]]],
 
   ["sit","Sit with it","Something heavy",
    "Sad music is reliably one of the most pleasurable kinds there is: slow, minor, a single voice close to the microphone, the feeling rehearsed at a safe distance.",
@@ -1641,7 +1713,28 @@ const MODES = [
     ["singer_songwriter","A diary with tuning pegs"],
     ["midwestemo","Specific, unguarded, loud at the end"],
     ["bolero","Romantic devastation, beautifully dressed"],
-    ["doom","Grief at a crawl"]]],
+    ["doom","Grief at a crawl"],
+    ["soul_blues","Adult disappointment, sung by someone who has had some"],
+    ["sadsierreno","A requinto, a broken heart, twelve million streams"],
+    ["screamo","The point where words stop working"],
+    ["blackgaze","Despair with the beauty left in"],
+    ["countrypolitan","Nashville strings over a genuinely bad week"],
+    ["emorap","Sadness said plainly over a trap beat"]]],
+
+  ["together","With someone","Being with people",
+   "The third thing the research keeps finding, after mood and self-reflection: music as a way of being with someone. Slow enough to talk over, or shared enough that everyone already knows it.",
+   [["doowop","Four people on a corner, no instruments required"],
+    ["bachata","Dominican heartbreak you dance to in pairs"],
+    ["rocksteady","Slower than ska, and much closer"],
+    ["chicago_soul","Smooth, hopeful, immaculately sung"],
+    ["balada","Grand romantic Spanish-language pop"],
+    ["retro_soul","Old-fashioned devotion, recorded last year"],
+    ["trapsoul","Late-night texting music"],
+    ["beach_music","Carolina shag — a whole region's date night"],
+    ["wallofsound","Teenage romance at symphony scale"],
+    ["baroquepop","Harpsichords and longing"],
+    ["merengue","Fast, two-step, nobody sits down"],
+    ["brill","Professional songwriters, amateur feelings"]]],
 
   ["deep","Listen properly","Nothing else running",
    "Wide dynamic range and long forms that only pay off if you give them the whole stretch. This is the one that rewards headphones and an hour.",
@@ -1650,7 +1743,13 @@ const MODES = [
     ["prog","Side-long, deliberate, built to be followed"],
     ["postrock","Twelve minutes to arrive somewhere"],
     ["shoegaze","Detail buried under volume — headphones only"],
-    ["concrete","Recorded sound treated as raw material"]]]
+    ["concrete","Recorded sound treated as raw material"],
+    ["loft","Played in apartments, for people paying attention"],
+    ["artrock","Rock that expects you to sit still"],
+    ["post_metal","Heavy music built like a symphony"],
+    ["idm","Rhythm as a puzzle"],
+    ["thirdstream","Jazz and the concert hall, arguing"],
+    ["tape","The studio itself used as the instrument"]]]
 ];
 (function(){
 const FAM = {}; FAMS.forEach((f,i)=>FAM[f[0]]={key:f[0],name:f[1],h:f[2],short:f[3]||f[1],i,
@@ -2223,6 +2322,7 @@ $("panel").addEventListener("click",e=>{
   if(mk){ MODE = MODE===mk.dataset.mk ? null : mk.dataset.mk;   // tapping the open one closes it
     if(!state.sel) emptyPanel();
     if(MODE && OVERLAY && !OPEN) setOpen(true);
+    if(MODE) setTimeout(showMode, OVERLAY?260:0);               // after the sheet has finished opening
     return; }
   const fm=e.target.closest("[data-fam]");
   if(fm){ // jump to the family by selecting its most influential style, so the map centres and its lineage draws
@@ -2318,6 +2418,14 @@ function modePicks(m){
       + `<span class="pkwhy">${esc(why)}</span>`
       + `<span class="pkfam">${esc(FAM[n.fam].short)} · ${n.year}</span></button>`;
   }).join("");
+}
+// twelve chips fill a phone screen, so the picks can open out of sight below them
+function showMode(){
+  const pn=$("panel"), o=pn&&pn.querySelector(".modeout");
+  if(!o) return;
+  const pr=pn.getBoundingClientRect(), or=o.getBoundingClientRect();
+  if(or.top < pr.bottom-60) return;                    // already in view, leave the scroll alone
+  pn.scrollTo({top: pn.scrollTop + (or.top-pr.top) - 12, behavior: reduce?"auto":"smooth"});
 }
 function modeSect(){
   if(typeof MODES==="undefined") return "";
