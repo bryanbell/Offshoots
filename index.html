@@ -163,10 +163,10 @@ a.am:hover{color:var(--accent)}
 #scrim,/* phones and narrow windows */
 @media (max-width:899px){
 
-      #bottomSearch{left:calc(var(--stripw,28px) + 14px);right:calc(var(--gutter) + 8px)}
+
   #bottomSearch .search input{background-color:var(--glass);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);box-shadow:0 0 0 .5px rgb(0 0 0 / .14),0 10px 30px rgb(0 0 0 / .28),0 0 0 4px color-mix(in srgb,var(--accent) 14%,transparent)}
   #bottomSearch .search{width:100%}
-  #bottomSearch .results{top:auto;bottom:calc(100% + 6px);overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+  #bottomSearch .results{top:calc(100% + 6px);bottom:auto;max-height:min(60vh,420px);overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
   .zoom{bottom:calc(14px + env(safe-area-inset-bottom,0px));right:12px}
   #scroller{padding-bottom:0}
   aside h2{font-size:32px}
@@ -310,15 +310,22 @@ aside{display:flex;flex-direction:column;position:absolute;z-index:30;top:calc(e
 .note:first-child{margin-top:0}
 
 .close{display:none}
-#bottomSearch{position:absolute;z-index:22;left:50%;transform:translateX(-50%);width:min(480px,calc(100% - 2*var(--gutter)));bottom:calc(14px + env(safe-area-inset-bottom,0px))}
-#bottomSearch .results{top:auto;bottom:calc(100% + 6px);overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#mapSearch{position:absolute;z-index:24;top:calc(var(--axh,34px) + 12px);right:16px;display:grid;place-items:center;
+  width:42px;height:42px;border:0;border-radius:50%;color:var(--fg);cursor:pointer;transition:background .15s}
+#mapSearch svg{width:18px;height:18px}
+#mapSearch:hover{background:color-mix(in srgb,var(--fg) 8%,transparent)}
+body.searching #mapSearch{display:none}
+@media (max-width:899px){ #mapSearch{top:calc(var(--axh,34px) + 10px);right:12px;width:40px;height:40px} }
+#bottomSearch{position:fixed;z-index:60;left:50%;right:auto;transform:translateX(-50%);width:min(520px,calc(100vw - 2*var(--gutter)));top:12px;bottom:auto;display:none}
+body.searching #bottomSearch{display:block}
+#bottomSearch .results{top:calc(100% + 6px);bottom:auto;max-height:min(60vh,420px);overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 #bottomSearch .search input{background-color:var(--glass);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);box-shadow:0 0 0 .5px rgb(0 0 0 / .14),0 10px 30px rgb(0 0 0 / .22)}
 .zoom{bottom:calc(16px + env(safe-area-inset-bottom,0px))}
 #panelBody{max-width:720px}
 .about{margin-top:18px;padding-top:14px;border-top:.5px solid var(--line)}
 .about p{margin:0 0 8px;font-size:12.5px;color:var(--muted);line-height:1.5}
 .about .stats{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);margin:0 0 10px;font-variant-numeric:tabular-nums}
-@media (max-width:899px){ #bottomSearch{left:var(--gutter);right:var(--gutter);width:auto;transform:none} .zoom{bottom:calc(14px + env(safe-area-inset-bottom,0px))} }
+@media (max-width:899px){ .zoom{bottom:calc(14px + env(safe-area-inset-bottom,0px))} }
 
 /* ---- docked layout: left sidebar on desktop, bottom sheet on phones ---- */
 #app{display:flex;flex-direction:row}
@@ -358,15 +365,16 @@ body:not(.open) aside#panel{width:var(--sidew);cursor:pointer}
   aside#panel{order:1;flex:0 0 auto;width:auto;height:auto;max-height:70vh;border-left:0;border-top:0;border-radius:16px 16px 0 0;box-shadow:0 -1px 0 var(--line),0 -10px 30px rgb(0 0 0 / .16),0 -3px 10px rgb(0 0 0 / .08);
     padding:2px 16px calc(14px + env(safe-area-inset-bottom,0px))}
   body.open aside#panel{height:70vh}
-  body:not(.open) aside#panel{height:auto;max-height:40vh;width:auto}
+  body:not(.open) aside#panel{height:auto;max-height:46vh;width:auto}
+  body:not(.open) #panelBody{overflow:hidden;flex:0 1 auto}
 }
 
 /* ---- search docked at the top of the panel ---- */
-#bottomSearch{position:static;z-index:auto;left:auto;right:auto;top:auto;bottom:auto;transform:none;width:auto;margin:0 0 14px;flex:none}
+
 #bottomSearch .search input{height:40px;font-size:15px;padding:0 14px 0 38px;background-color:var(--fill2);-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:0 0 0 .5px var(--line);background-position:13px center;background-size:16px}
 #bottomSearch .search input:focus-visible{box-shadow:0 0 0 .5px var(--line),0 0 0 4px color-mix(in srgb,var(--accent) 30%,transparent)}
 #bottomSearch .results{top:calc(100% + 6px);bottom:auto;max-height:min(46vh,340px);overflow:auto;overscroll-behavior:contain}
-@media (max-width:899px){ #bottomSearch{margin:0 44px 12px 0} }
+
 
 /* ---- mobile: drag handle instead of a chevron ---- */
 #grab{display:none}
@@ -377,7 +385,6 @@ body:not(.open) aside#panel{width:var(--sidew);cursor:pointer}
   #grab:active{cursor:grabbing}
   #grab:active::before,#grab:focus-visible::before{background:var(--muted)}
   #pclose{display:none}
-  #bottomSearch{margin:0 0 12px}
   aside#panel{transition:height .26s cubic-bezier(.32,.72,0,1)}
   body.dragging aside#panel{transition:none}
 }
@@ -392,23 +399,21 @@ body.open .pcard{border-bottom:0}
 :root{--ppad:18px}
 aside#panel{padding-left:0;padding-right:0}
 #panelBody{padding:0 var(--ppad)}
-#bottomSearch{margin-left:var(--ppad);margin-right:var(--ppad)}
+
 #grab{margin-left:0;margin-right:0}
 #pclose{right:var(--ppad)}
-@media (max-width:899px){ :root{--ppad:16px} #bottomSearch{margin:0 var(--ppad) 12px} }
+@media (max-width:899px){ :root{--ppad:16px} }
 
 /* ---- scrolled state: search collapses to an icon, title stays, hairline appears ---- */
 #pbar{display:none;align-items:center;gap:10px;flex:none;padding:0 var(--ppad) 10px}
 body.pscrolled #pbar{display:flex}
-body.pscrolled #bottomSearch{display:none}
+
 body.pscrolled #panelBody{border-top:.5px solid var(--line)}
 #pbar[hidden]{display:none}
 #pbarTxt{flex:1;min-width:0}
 #pbarTitle{display:block;font:700 15px var(--f-body);letter-spacing:-.015em;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #pbarSub{display:block;margin-top:1px;font:500 11.5px var(--f-mono);color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#pbarSearch{flex:none;display:grid;place-items:center;width:34px;height:34px;border:0;border-radius:50%;background:var(--fill2);color:var(--fg);cursor:pointer;transition:background .15s}
-#pbarSearch:hover{background:var(--fill)}
-#pbarSearch svg{width:16px;height:16px}
+
 
 /* ---- desktop: artist links match the lineage chips ---- */
 @media (min-width:900px){
@@ -442,15 +447,13 @@ a.wk span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .secthead .secttl{margin:0}
 .sectnote{flex:0 1 auto;min-width:0;font:400 11.5px var(--f-body);color:var(--muted);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-.secthead .svc{flex:none;flex-wrap:nowrap;white-space:nowrap}
+.secthead .svc{flex:none;white-space:nowrap}
 
 
 
 
 /* service switch: accent backdrop, solid accent for the active one */
-.svc{background:color-mix(in srgb,var(--brand,var(--accent)) 14%,transparent)}
-.svc button{color:color-mix(in srgb,var(--brand,var(--accent)) 72%,var(--fg))}
-.svc button[aria-pressed="true"]{background:var(--brand,var(--accent));color:#fff;box-shadow:0 1px 2px rgb(0 0 0 / .18)}
+.svc select{background-color:color-mix(in srgb,var(--brand,var(--accent)) 14%,transparent);color:var(--fg)}
 .secbody .who{margin-top:2px}
 
 /* no dead space under the last section */
@@ -460,12 +463,9 @@ aside#panel{padding-bottom:0}
 /* ---- header: name + Search button; the field opens on demand ---- */
 #pbar{display:flex}
 #pbar[hidden]{display:none}
-body.searching #pbar{display:none}
-#bottomSearch{display:none}
-body.searching #bottomSearch{display:block}
-#pbarSearch{width:auto;height:34px;gap:7px;padding:0 13px 0 11px;border-radius:999px;grid-auto-flow:column;place-items:center}
-#pbarSearch span{font:600 13px var(--f-body)}
-@media (max-width:899px){ #pbarSearch{height:38px;padding:0 15px 0 13px} #pbarSearch span{font-size:13.5px} }
+
+
+
 
 /* the header carries the identity now, so the card does not repeat it */
 .pcard .mn,.pcard .meta{display:none}
@@ -485,10 +485,7 @@ body.searching #bottomSearch{display:block}
 #pshare.done .up{display:none}
 #pshare.done{background:color-mix(in srgb,var(--acc,var(--fg)) 26%,transparent)}
 @media (max-width:899px){ #pshare{width:38px;height:38px} }
-#pbarSearch{background:transparent;color:var(--accent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 42%,transparent)}
-#pbarSearch:hover{background:color-mix(in srgb,var(--accent) 10%,transparent)}
-#pbarSearch span{color:var(--accent)}
-@media (max-width:899px){ body.searching aside#panel{height:85vh;max-height:85vh} }
+
 
 /* stronger divider between map and sidebar */
 @media (min-width:900px){ aside#panel{border-left:1px solid color-mix(in srgb,var(--fg) 24%,transparent)} }
@@ -497,21 +494,21 @@ body.searching #bottomSearch{display:block}
 
 /* minimised sheet shows a sliver of what is below, fading out, so it reads as cut off */
 @media (max-width:899px){
-  body:not(.open):not(.searching) .more{display:block}
-  body:not(.open):not(.searching) .more > .sect-led,
-  body:not(.open):not(.searching) .more > .sect-from,
-  body:not(.open):not(.searching) .more > .sect-top,
-  body:not(.open):not(.searching) .more > h3,
-  body:not(.open):not(.searching) .more > .srcs,
-  body:not(.open):not(.searching) .more > .tally,
-  body:not(.open):not(.searching) .more > .about{display:none}
-  body:not(.open):not(.searching) .more > .sect-fams{max-height:38px;overflow:hidden;pointer-events:none;
+  body:not(.open) .more{display:block}
+  body:not(.open) .more > .sect-led,
+  body:not(.open) .more > .sect-from,
+  body:not(.open) .more > .sect-top,
+  body:not(.open) .more > h3,
+  body:not(.open) .more > .srcs,
+  body:not(.open) .more > .tally,
+  body:not(.open) .more > .about{display:none}
+  body:not(.open) .more > .sect-fams{max-height:38px;overflow:hidden;pointer-events:none;
     -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 35%,transparent 100%);
             mask-image:linear-gradient(to bottom,#000 0,#000 35%,transparent 100%)}
-  /* the sheet stops just past the Listen heading, showing the top edge of the cover */
-  body:not(.open):not(.searching) .more > .sect-listen{max-height:92px;overflow:hidden;pointer-events:none;
-    -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 58%,transparent 100%);
-            mask-image:linear-gradient(to bottom,#000 0,#000 58%,transparent 100%)}
+  /* the minimised sheet carries the whole playlist row, tappable, and cuts off after it */
+  body:not(.open) .more > .sect-listen{max-height:152px;overflow:hidden;
+    -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 94%,transparent 100%);
+            mask-image:linear-gradient(to bottom,#000 0,#000 94%,transparent 100%)}
 }
 
 /* a lone playlist button lines up with the cover above it (beats .sect .links a.wk.pl) */
@@ -531,6 +528,13 @@ a.wk.sp:hover{background:color-mix(in srgb,#1db954 86%,#000)}
 .sect .note{margin:0}
 
 .lede{margin:0 0 4px}
+.wikiline{margin:12px 0 2px}
+@media (max-width:899px){
+  body:not(.open) #panelBody .lede{display:none}
+  body:not(.open) #panelBody .wikiline{display:none}
+  body:not(.open) #panelBody .sect-listen .subh{display:none}
+  body:not(.open) #panelBody .sect-listen .who{display:none}
+}
 a.wk.txt{display:inline;min-height:0;padding:0;border-radius:0;background:none;color:var(--accent);text-decoration:underline;text-underline-offset:2px;font:inherit;white-space:normal}
 a.wk.txt:hover{background:none;color:color-mix(in srgb,var(--accent) 80%,#000)}
 
@@ -560,9 +564,8 @@ a.wk.txt:hover{background:none;color:color-mix(in srgb,var(--accent) 80%,#000)}
 a.wk.pl,a.wk.sp{background:var(--ink,var(--fg));color:var(--tint,var(--panel));border-radius:999px}
 a.wk.pl svg,a.wk.sp svg{opacity:.9}
 a.wk.pl:hover,a.wk.sp:hover{background:color-mix(in srgb,var(--ink,var(--fg)) 84%,var(--tint,var(--panel)));color:var(--tint,var(--panel))}
-.svc{background:color-mix(in srgb,var(--acc,var(--fg)) 16%,transparent)}
-.svc button{color:color-mix(in srgb,var(--ink,var(--fg)) 86%,var(--tint,var(--panel)))}
-.svc button[aria-pressed="true"]{background:var(--ink,var(--fg));color:var(--tint,var(--panel));box-shadow:none}
+.svc select{background-color:color-mix(in srgb,var(--acc,var(--fg)) 18%,transparent);color:var(--ink,var(--fg))}
+.svc select option{color:#111;background:#fff}
 
 /* subdivisions inside Listen: quieter than the section heading, not competing with it */
 .subh{font:600 11px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
@@ -592,9 +595,7 @@ a.wk.pl:hover,a.wk.sp:hover{background:color-mix(in srgb,var(--ink,var(--fg)) 84
 
 /* the service switch fills the row beside "Listen on", three equal thirds */
 .sect-listen .secthead{gap:14px}
-.sect-listen .secthead .svc{flex:1 1 auto;display:flex;min-width:0}
-.sect-listen .secthead .svc button{flex:1 1 0;min-width:0;text-align:center;white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis}
+.sect-listen .secthead .svc{flex:none;display:flex;min-width:0}
 
 /* artist chips: no speaker icon, a small play button on the right instead.
    the same link is used inline in prose notes, where the button stays hidden. */
@@ -619,6 +620,13 @@ a.am .amgo{display:none}
           <svg id="chart" role="img" aria-label="Genre lineage chart"></svg>
         </div>
       </div>
+      <button id="mapSearch" class="glass" type="button" aria-label="Search styles and artists" title="Search styles and artists"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4 4"/></svg></button>
+      <div id="bottomSearch">
+          <div class="search" id="searchBox">
+            <form role="search" autocomplete="off" onsubmit="return false"><input id="q" name="site-search" type="search" placeholder="Search styles and artists" role="combobox" aria-expanded="false" aria-autocomplete="list" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="search" enterkeyhint="search" data-1p-ignore data-lpignore="true" data-form-type="other" data-bwignore aria-label="Search styles and artists" aria-controls="res"></form>
+            <button id="qclear" type="button" aria-label="Clear search" hidden><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></button><ul class="results" id="res" role="listbox" hidden></ul>
+          </div>
+        </div>
       <div class="zoom glass" role="group" aria-label="Zoom">
         <button id="zin" aria-label="Zoom in">+</button>
         <button id="zreset" aria-label="Reset zoom">100%</button>
@@ -633,13 +641,7 @@ a.am .amgo{display:none}
     </div>
   </div>
   <aside id="panel" aria-live="polite"><div id="grab" role="button" tabindex="0" aria-label="Expand details" aria-expanded="false"></div>
-  <div id="bottomSearch">
-      <div class="search" id="searchBox">
-        <form role="search" autocomplete="off" onsubmit="return false"><input id="q" name="site-search" type="search" placeholder="Search styles and artists" role="combobox" aria-expanded="false" aria-autocomplete="list" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="search" enterkeyhint="search" data-1p-ignore data-lpignore="true" data-form-type="other" data-bwignore aria-label="Search styles and artists" aria-controls="res"></form>
-        <button id="qclear" type="button" aria-label="Clear search" hidden><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></button><ul class="results" id="res" role="listbox" hidden></ul>
-      </div>
-    </div>
-  <button id="pclose" data-close aria-label="Collapse details"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l5-5 5 5"/></svg></button>  <div id="pbar"><div id="pbarTxt"><span id="pbarTitle"></span><span id="pbarSub"></span></div><button id="pshare" type="button" aria-label="Share this map" title="Share this map"><svg class="up" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13V3"/><path d="M6.5 6.5L10 3l3.5 3.5"/><path d="M5 11v5.5h10V11"/></svg><svg class="ok" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5l4 4 8-8.5"/></svg></button><button id="pbarSearch" type="button" aria-label="Search styles and artists"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4 4"/></svg><span>Search</span></button></div>
+  <button id="pclose" data-close aria-label="Collapse details"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l5-5 5 5"/></svg></button>  <div id="pbar"><div id="pbarTxt"><span id="pbarTitle"></span><span id="pbarSub"></span></div><button id="pshare" type="button" aria-label="Share this map" title="Share this map"><svg class="up" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13V3"/><path d="M6.5 6.5L10 3l3.5 3.5"/><path d="M5 11v5.5h10V11"/></svg><svg class="ok" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5l4 4 8-8.5"/></svg></button></div>
   <div id="panelBody"></div><div id="ptoggle"><button id="expand" aria-label="Show details" aria-expanded="false"><span class="lbl">Details</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg></button></div></aside>
 </div>
 <div id="wikiwrap" hidden>
@@ -1824,7 +1826,7 @@ $("expand").onclick=()=>setOpen(!OPEN);
 let PBAR={t:"",s:""};
 function setPbar(t,s){ PBAR={t:t||"",s:s||""}; const a1=$("pbarTitle"), a2=$("pbarSub"); if(a1) a1.textContent=PBAR.t; if(a2) a2.textContent=PBAR.s; }
 (function(){
-  const body=$("panelBody"), bar=$("pbar"), btn=$("pbarSearch"); if(!body||!bar) return;
+  const body=$("panelBody"), bar=$("pbar"), btn=$("mapSearch"); if(!body||!bar) return;
   const sync=()=>{ document.body.classList.toggle("pscrolled", body.scrollTop>2); };
   body.addEventListener("scroll",sync,{passive:true});
   addEventListener("resize",sync);
@@ -1903,17 +1905,19 @@ function listenSect(n,who,artistsHtml,svcHtml){
 function panel(n,anc,desc){
   const dfams=new Set([...desc.keys()].map(k=>byId[k].fam));
   const who=n.whoList||[];
-  const svcHtml = `<span class="svc" style="--brand:${BRAND[SVC]||"#0071e3"}"><button type="button" data-svc="apple" aria-pressed="${SVC==="apple"}"><span class="long">Apple Music</span><span class="short">Apple</span></button><button type="button" data-svc="spotify" aria-pressed="${SVC==="spotify"}">Spotify</button><button type="button" data-svc="qobuz" aria-pressed="${SVC==="qobuz"}">Qobuz</button></span>`;
+  const svcHtml = `<span class="svc"><select id="svcsel" aria-label="Streaming service"><option value="apple"${SVC==="apple"?" selected":""}>Apple Music</option><option value="spotify"${SVC==="spotify"?" selected":""}>Spotify</option><option value="qobuz"${SVC==="qobuz"?" selected":""}>Qobuz</option></select></span>`;
   const artistsHtml = `<div class="who">${who.map(am).join("")}</div>`;
   $("panelBody").innerHTML = PHEAD + `<div class="more">
-        <p class="note lede">${about(n)?esc(about(n))+" ":""}${wikiTxt(n)}</p>
+        <p class="note lede">${about(n)?esc(about(n)):""}</p>
     ${listenSect(n,who,artistsHtml,svcHtml)}
+    <p class="note wikiline">${wikiTxt(n)}</p>
     ${sect("led","Led to",chips([...n.children].sort(byYear)))}
     ${sect("from","Came from",chips([...n.parents].sort(byYear)))}
     ${n.sources.length?`<h3>Sources</h3><ul class="srcs">${n.sources.map(u=>{let h="";try{h=new URL(u).hostname.replace(/^www\./,"")}catch(e){h=u}return `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(h)}</a></li>`}).join("")}</ul>`:""}
     <p class="tally">${anc.size} ancestor styles · ${desc.size} descendant styles${desc.size?` across ${dfams.size} ${dfams.size===1?"family":"families"}`:""}</p></div>`;
   paintPlay();
 }
+$("panel").addEventListener("change",e=>{ if(e.target&&e.target.id==="svcsel") setSvc(e.target.value); });
 $("panel").addEventListener("click",e=>{
   if(e.target.closest("#ptoggle")||e.target.closest("#grab")) return;   // the handle runs its own tap/drag logic
   const sv=e.target.closest("[data-svc]"); if(sv){ setSvc(sv.dataset.svc); return; }
@@ -2061,8 +2065,7 @@ function openSearch(){
   // iOS only raises the keyboard if focus happens inside the tap itself, so do it first and synchronously
   document.body.classList.add("searching");
   q.focus({preventScroll:true});
-  if(OVERLAY && !OPEN) setOpen(true);
-  const pb=$("panelBody"); if(pb) pb.scrollTop=0;
+
   qsync();
 }
 function closeSearch(){
