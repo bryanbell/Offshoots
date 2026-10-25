@@ -511,7 +511,7 @@ aside#panel{padding-bottom:0}
     -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 35%,transparent 100%);
             mask-image:linear-gradient(to bottom,#000 0,#000 35%,transparent 100%)}
   /* the minimised sheet carries the whole playlist row, tappable, and cuts off after it */
-  body:not(.open) .more > .sect-listen{max-height:152px;overflow:hidden;
+  body:not(.open) .more > .sect-listen{max-height:130px;overflow:hidden;
     -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 94%,transparent 100%);
             mask-image:linear-gradient(to bottom,#000 0,#000 94%,transparent 100%)}
 }
@@ -582,7 +582,7 @@ a.wk.pl:hover,a.wk.sp:hover{background:color-mix(in srgb,var(--ink,var(--fg)) 84
   background:color-mix(in srgb,var(--acc,var(--fg)) 13%,transparent);color:var(--fg);text-decoration:none;
   transition:background .15s}
 .plrow:hover{background:color-mix(in srgb,var(--acc,var(--fg)) 22%,transparent);color:var(--fg)}
-.plrow img.pcov{width:87px;height:87px;flex:none;margin:0;border-radius:9px;aspect-ratio:1;object-fit:cover;
+.plrow img.pcov{width:64px;height:64px;flex:none;margin:0;border-radius:9px;aspect-ratio:1;object-fit:cover;
   box-shadow:0 0 0 .5px var(--line),0 1px 3px rgb(0 0 0 / .25)}
 .plrow .pltx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .plrow .plttl{font:600 13px var(--f-body);line-height:1.3;overflow:hidden;display:-webkit-box;
@@ -596,7 +596,7 @@ a.wk.pl:hover,a.wk.sp:hover{background:color-mix(in srgb,var(--ink,var(--fg)) 84
 .plrow.off img.pcov{opacity:.5}
 .plrow.off .plttl{opacity:.6}
 .plrow.off .plgo{background:transparent;color:var(--muted);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 55%,transparent)}
-@media (max-width:899px){ .plrow{padding:9px 17px 9px 9px;gap:11px} .plrow img.pcov{width:81px;height:81px} }
+@media (max-width:899px){ .plrow{padding:9px 17px 9px 9px;gap:11px} .plrow img.pcov{width:60px;height:60px} }
 
 /* the service switch fills the row beside "Listen on", three equal thirds */
 .sect-listen .secthead{gap:14px}
