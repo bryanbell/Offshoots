@@ -213,6 +213,8 @@ a.am:hover{color:var(--accent)}
   .modechip{min-height:34px;padding:7px 13px 7px 11px;gap:8px}
   .modechip .mi{width:16px;height:16px}
   .brbtn{height:38px;padding:0 13px}
+  .plrow.featrow .plgo{width:40px;height:40px}
+  .plrow.featrow .plgo svg{width:17px;height:17px}
   .brlbl{font-size:14px}
   .brmenu{min-width:272px}
   .pick{padding:11px 13px}
@@ -299,8 +301,15 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line)}
 .browse{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 2px}
 /* the featured row: one concrete thing to listen to, with a re-roll beside it */
 .feat{display:flex;align-items:stretch;gap:8px}
-button.featrow{appearance:none;-webkit-appearance:none;border:0;margin:0;font:inherit;text-align:left;
-  flex:1 1 auto;min-width:0;cursor:pointer}
+.featrow{flex:1 1 auto;min-width:0}
+.featmain{appearance:none;-webkit-appearance:none;background:none;border:0;margin:0;padding:0;font:inherit;
+  color:inherit;text-align:left;cursor:pointer;display:flex;align-items:center;gap:12px;flex:1 1 auto;min-width:0}
+.featmain:focus-visible,.featplay:focus-visible{outline:0;border-radius:10px;
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+.featrow .plgo{text-decoration:none;transition:transform .15s}
+.featrow .featplay:hover{transform:scale(1.07)}
+.featrow .plgo.off{background:transparent;color:var(--muted);cursor:default;
+  box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 55%,transparent)}
 .featrow .plsvc{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .shuf{all:unset;flex:none;display:grid;place-items:center;width:46px;border-radius:14px;cursor:pointer;
   background:var(--fill2);color:var(--muted);transition:background .15s,color .15s}
@@ -2628,13 +2637,26 @@ function featLine(n){
   const who=(typeof ART!=="undefined"&&ART[n.id])||[];
   return who.length?who.slice(0,3).join(", "):"A School of Listening playlist";
 }
+// the play button opens the playlist, like the one in the style panel; the rest of the row
+// goes to the style on the map, which is the point of a suggestion on a lineage map
+function featPlay(n){
+  const ap=(typeof PLAY!=="undefined"&&PLAY[n.id])||"";
+  const sp=(typeof SPLAY!=="undefined"&&SPLAY[n.id])||"";
+  const url = SVC==="spotify" ? (sp?"https://open.spotify.com/playlist/"+sp:"")
+            : SVC==="apple"   ? (ap?"https://music.apple.com"+ap:"") : "";
+  if(!url) return `<span class="plgo off" title="Not on ${esc(svcName())} yet">${PLAYGO}</span>`;
+  const lbl="Play the "+n.name+" playlist on "+svcName();
+  return `<a class="plgo featplay ${SVC==="spotify"?"sp":"pl"}" href="${esc(url)}" target="_blank" rel="noopener"`
+    + (SVC==="spotify"?` data-sp="${esc(sp)}"`:"")
+    + ` title="${esc(lbl)}" aria-label="${esc(lbl)}">${PLAYGO}</a>`;
+}
 function featSect(){
   const n=featPick(); if(!n) return "";
-  // the same component the style panel uses for a playlist, so the two read as one app
-  const body=`<div class="feat"><button type="button" class="plrow featrow" data-go="${esc(n.id)}" title="Open ${esc(n.name)}">`
+  const body=`<div class="feat"><div class="plrow featrow">`
+    + `<button type="button" class="featmain" data-go="${esc(n.id)}" title="Show ${esc(n.name)} on the map">`
     + cover(n.id,n)
     + `<span class="pltx"><b class="plttl">${esc(n.name)}</b><span class="plsvc">${esc(FAM[n.fam].short)} · ${n.year} · ${esc(featLine(n))}</span></span>`
-    + `<span class="plgo">${PLAYGO}</span></button>`
+    + `</button>${featPlay(n)}</div>`
     + `<button type="button" class="shuf" data-shuffle aria-label="Suggest another" title="Suggest another"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h3.5l7 8H17"/><path d="M3 14h3.5l2-2.3"/><path d="M11.5 8.3L13.5 6H17"/><path d="M15 4l2 2-2 2"/><path d="M15 12l2 2-2 2"/></svg></button></div>`;
   return sect("feat","Start here",body,'<span class="sectaside">a playlist to try</span>');
 }
