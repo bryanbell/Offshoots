@@ -17,7 +17,7 @@
 /* dark is the only palette: these were the light values, now replaced by the dark set,
    so the app can't render light even if data-theme is missing or set to "light". */
 :root{
-  --sectline:#5a5a60; --sectw:1px; --bg:#000000; --band:#141416; --mapbg:#0f0f11; --panel:#2b2b2f; --fg:#f5f5f7; --muted:#b0b0b6; --line:#3a3a3c; --grid:#232326; --roots:#161618;
+  --sectline:#5a5a60; --sectw:1px; --sep:color-mix(in srgb,#f5f5f7 15%,transparent); --bg:#000000; --band:#141416; --mapbg:#0f0f11; --panel:#2b2b2f; --fg:#f5f5f7; --muted:#b0b0b6; --line:#3a3a3c; --grid:#232326; --roots:#161618;
   --fill:#3d3d41; --fill2:#37373a; --scrim:rgb(0 0 0 / .6); --halo:#0f0f11; --ok:#30d158; --accent:#0a84ff; --accent-fg:#ffffff;
   --glass:rgb(44 44 48 / .86); --shadow:0 1px 2px rgb(0 0 0 / .4), 0 10px 30px rgb(0 0 0 / .5);
   --bar:0px; --gutter:16px;
@@ -44,12 +44,12 @@
   --bg:#000000; --band:#141416; --mapbg:#0f0f11; --panel:#2b2b2f; --fg:#f5f5f7; --muted:#b0b0b6; --line:#3a3a3c; --grid:#232326; --roots:#161618;
   --fill:#3d3d41; --fill2:#37373a; --scrim:rgb(0 0 0 / .6); --halo:#0f0f11; --ok:#30d158; --accent:#0a84ff; --accent-fg:#ffffff;
   --glass:rgb(44 44 48 / .86); --shadow:0 1px 2px rgb(0 0 0 / .4), 0 10px 30px rgb(0 0 0 / .5);
-  --node-s:72%; --node-l:64%; --sectline:#5a5a60; --sectw:1px; color-scheme:dark}}
+  --node-s:72%; --node-l:64%; --sectline:#5a5a60; --sectw:1px; --sep:color-mix(in srgb,#f5f5f7 15%,transparent); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#000000; --band:#141416; --mapbg:#0f0f11; --panel:#2b2b2f; --fg:#f5f5f7; --muted:#b0b0b6; --line:#3a3a3c; --grid:#232326; --roots:#161618;
   --fill:#3d3d41; --fill2:#37373a; --scrim:rgb(0 0 0 / .6); --halo:#0f0f11; --ok:#30d158; --accent:#0a84ff; --accent-fg:#ffffff;
   --glass:rgb(44 44 48 / .86); --shadow:0 1px 2px rgb(0 0 0 / .4), 0 10px 30px rgb(0 0 0 / .5);
-  --node-s:72%; --node-l:64%; --sectline:#5a5a60; --sectw:1px; color-scheme:dark}
+  --node-s:72%; --node-l:64%; --sectline:#5a5a60; --sectw:1px; --sep:color-mix(in srgb,#f5f5f7 15%,transparent); color-scheme:dark}
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;padding:0;background:var(--mapbg);color:var(--fg);font-family:var(--f-body);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;letter-spacing:-.005em;overflow:hidden}
@@ -195,7 +195,18 @@ aside h3,.pcard h3.sec{font:600 var(--t-head)/var(--t-head-lh) var(--f-body);let
 .modeup:focus-visible{outline:2px solid color-mix(in srgb,var(--accent) 60%,transparent);outline-offset:2px;border-radius:4px}
 @media (max-width:899px){ .modeup{font-size:var(--t-sub);padding:0 0 0 12px;margin:0} }
 .modewhy{margin:6px 0 14px;font-size:var(--t-sub);line-height:var(--t-sub-lh);color:var(--muted);max-width:60ch}
-.picks{display:flex;flex-direction:column;gap:8px}
+/* One grouped block, the way a list reads in Music or Settings: a single shaded
+   ground, rows flush inside it, and a hairline between rows that starts where the
+   text starts rather than cutting the whole width. Scoped to .picks because the
+   featured row carries .pick too and stays its own card. */
+.picks{display:flex;flex-direction:column;gap:0;background:var(--fill2);border-radius:14px;
+  --seplead:33px}   /* 16 padding + 8 dot + 9 gap: the separator lines up with the title */
+.picks>.pick{position:relative;background:transparent;border-radius:0}
+.picks>.pick:first-child{border-radius:14px 14px 0 0}
+.picks>.pick:last-child{border-radius:0 0 14px 14px}
+.picks>.pick+.pick::after{content:"";position:absolute;left:var(--seplead);right:16px;top:0;
+  height:.5px;background:var(--sep);pointer-events:none}
+.picks>.pick:hover::after,.picks>.pick:hover+.pick::after{opacity:0}
 .pick{all:unset;display:grid;grid-template-columns:auto 1fr auto;column-gap:9px;align-items:baseline;
   box-sizing:border-box;width:100%;min-height:var(--tap);padding:12px 16px;border-radius:14px;cursor:pointer;
   background:var(--fill2);transition:background .15s}
@@ -217,7 +228,7 @@ aside h3,.pcard h3.sec{font:600 var(--t-head)/var(--t-head-lh) var(--f-body);let
 .legend small{margin-left:auto;font:400 var(--t-foot) var(--f-mono);color:var(--muted)}
 .empty{color:var(--muted);font-size:var(--t-sub);margin:0}
 
-.sect{margin-top:28px}
+
 .secbody[hidden]{display:none}
 .secbody{padding-bottom:2px}
 button.showmore{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:var(--tap);margin-top:8px;padding:0;border:0;background:none;color:var(--link);font:400 var(--t-body)/var(--t-body-lh) var(--f-body);text-align:left;cursor:pointer}
@@ -379,9 +390,10 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line);
 .shuf:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
 .shuf svg{width:18px;height:18px}
 /* the methodology stays one tap away instead of ending the panel */
-.aboutwrap{margin-top:14px;border-top:.5px solid var(--line);padding-top:4px}
+.aboutwrap{margin-top:28px;padding:0 16px;background:var(--fill2);border-radius:14px}
+.aboutwrap[open]{padding-bottom:16px}
 .aboutwrap summary{display:flex;align-items:center;justify-content:space-between;gap:8px;
-  list-style:none;cursor:pointer;min-height:var(--tap);padding:0 2px;border-radius:9px;
+  list-style:none;cursor:pointer;min-height:var(--tap);padding:0;border-radius:9px;
   font:400 var(--t-body)/var(--t-body-lh) var(--f-body);color:var(--fg)}
 .aboutwrap summary::-webkit-details-marker{display:none}
 .aboutwrap summary:hover{color:var(--fg)}
@@ -531,7 +543,7 @@ body.searching #bottomSearch{display:block}
 #bottomSearch .search input{background-color:var(--glass);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);box-shadow:0 0 0 .5px rgb(0 0 0 / .14),0 10px 30px rgb(0 0 0 / .22)}
 .zoom{bottom:calc(16px + env(safe-area-inset-bottom,0px))}
 #panelBody{max-width:720px}
-.about{margin-top:18px;padding-top:14px;border-top:.5px solid var(--line)}
+.about{margin-top:12px;padding-top:0}
 .about p{margin:0 0 10px;font-size:var(--t-sub);color:var(--muted);line-height:var(--t-sub-lh)}
 .about .stats{font-family:var(--f-mono);font-size:var(--t-foot);line-height:var(--t-foot-lh);color:var(--muted);margin:0 0 12px;font-variant-numeric:tabular-nums}
 @media (max-width:899px){ .zoom{bottom:calc(14px + env(safe-area-inset-bottom,0px))} }
@@ -552,6 +564,7 @@ aside#panel.tinted{
   --panel:var(--tint); --fg:var(--ink); --accent:var(--acc); --accent-fg:var(--tint);
   --muted:color-mix(in srgb,var(--ink) 72%,var(--tint));
   --line:color-mix(in srgb,var(--ink) 30%,var(--tint));
+  --sep:color-mix(in srgb,var(--ink) 16%,transparent);
   --sectline:color-mix(in srgb,var(--ink) 38%,var(--tint)); --sectw:1px;
   --fill:color-mix(in srgb,var(--acc) 20%,var(--tint));
   --fill2:color-mix(in srgb,var(--acc) 13%,var(--tint));
@@ -615,8 +628,8 @@ body:not(.open) aside#panel{width:var(--sidew);cursor:pointer}
 @media (prefers-reduced-motion:reduce){ aside#panel{transition:none} }
 
 .secttl{font:700 var(--t-title3)/var(--t-title3-lh) var(--f-body);letter-spacing:-.02em;text-transform:none;color:var(--fg);margin:0 0 12px}
-.sect{margin-top:16px;padding:14px 0 2px;border-top:var(--sectw,.5px) solid var(--sectline,var(--line))}
-.sect:first-child{border-top:var(--sectw,.5px) solid var(--sectline,var(--line));padding-top:14px}
+.sect{margin-top:32px;padding:0}
+.sect:first-child{margin-top:20px}
 
 /* ---- scrollbar rides the panel edge: pad the contents, not the panel ---- */
 :root{--ppad:18px}
@@ -631,7 +644,7 @@ aside#panel{padding-left:0;padding-right:0}
 #pbar{display:none;align-items:center;gap:10px;flex:none;padding:0 var(--ppad) 10px}
 body.pscrolled #pbar{display:none}
 
-body.pscrolled #panelBody{border-top:.5px solid var(--line)}
+
 #pbar[hidden]{display:none}
 #pbarTxt{flex:1;min-width:0}
 #pbarTitle{display:block;font:700 15px var(--f-body);letter-spacing:-.015em;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -874,7 +887,7 @@ a.wk.pl:hover,a.wk.sp:hover{background:color-mix(in srgb,var(--ink,var(--fg)) 84
 .svcinline:hover{color:color-mix(in srgb,var(--ink,var(--link)) 80%,var(--fg))}
 .svcinline .svcchev{width:14px;height:14px;opacity:.8}
 /* the section is framed: a rule above the heading, another below the options */
-.sect-listen{margin-top:8px;padding:10px 0 14px;border-bottom:var(--sectw,.5px) solid var(--sectline,var(--line))}
+.sect-listen{margin-top:20px;padding:0}
 .sect-listen .secthead{margin-bottom:10px}
 .sect-listen .secthead .svc{flex:none;display:flex;min-width:0}
 

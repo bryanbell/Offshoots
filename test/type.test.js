@@ -57,6 +57,24 @@ const readTaps=(p,scope,tap)=>p.evaluate(([sc,t])=>{
   return [...seen.values()];
 },[scope,tap]);
 
+
+// A full-bleed rule across the panel is the thing being replaced: grouping is done with
+// a shaded block and, inside a list, a hairline inset to where the text starts.
+const readRules=(p)=>p.evaluate(()=>{
+  const body=document.getElementById("panelBody");
+  const w=body.getBoundingClientRect().width, out=[];
+  body.querySelectorAll("*").forEach(e=>{
+    if(e.closest(".navrow")) return;              // the sticky header's hairline is a scroll cue
+    const cs=getComputedStyle(e), r=e.getBoundingClientRect();
+    if(!r.width) return;
+    const t=parseFloat(cs.borderTopWidth)||0, b=parseFloat(cs.borderBottomWidth)||0;
+    if((t>0||b>0) && r.width >= w*0.9)
+      out.push({cls:(e.className||e.tagName).toString().split(" ")[0]||e.tagName,
+                px:Math.max(t,b), width:Math.round(r.width)});
+  });
+  return out;
+});
+
 (async()=>{
   const b=await chromium.launch();
   let bad=0;
@@ -86,6 +104,34 @@ const readTaps=(p,scope,tap)=>p.evaluate(([sc,t])=>{
     await p.goto(URL); await p.waitForTimeout(900);
     if(open){ await p.click("#grab").catch(()=>{}); await p.waitForTimeout(700); }
     check(name+" overview", await readType(p,"#panelBody"), await readTaps(p,"#panelBody",TAP));
+
+    const rules=await readRules(p);
+    say(name+": no full-bleed rules across the panel"
+      +(rules.length?" — "+rules.map(r=>r.cls+" "+r.px+"px").join(", "):""), rules.length===0);
+    if(rules.length) bad++;
+
+    // open a list and confirm it is one grouped block with inset separators
+    await p.click('[data-mk="coffee"]').catch(()=>{});
+    await p.waitForTimeout(700);
+    const grp=await p.evaluate(()=>{
+      const ps=document.querySelector(".picks"); if(!ps) return null;
+      const rows=[...ps.children];
+      const sep=rows.length>1?getComputedStyle(rows[1],"::after"):null;
+      return {rows:rows.length, groupBg:getComputedStyle(ps).backgroundColor,
+        radius:parseFloat(getComputedStyle(ps).borderTopLeftRadius),
+        firstHasSep:rows.length?getComputedStyle(rows[0],"::after").content!=="none"
+          && parseFloat(getComputedStyle(rows[0],"::after").height)>0:false,
+        sepLeft:sep?parseFloat(sep.left):-1, sepH:sep?parseFloat(sep.height):-1};
+    });
+    if(!grp){ say(name+": the pick list opened", false); bad++; }
+    else {
+      const ok = grp.rows===12 && grp.radius>=10
+        && !/rgba\(0, 0, 0, 0\)/.test(grp.groupBg)
+        && grp.sepLeft>=24 && grp.sepH>0 && grp.sepH<=1 && !grp.firstHasSep;
+      say(name+": "+grp.rows+" rows in one block, radius "+grp.radius
+        +", hairline "+grp.sepH+"px inset "+grp.sepLeft+"px, none above the first row", ok);
+      if(!ok) bad++;
+    }
 
     // 2. a menu, which is where the uppercase section header lived
     await p.click('[data-menu="fams"]').catch(()=>{});
