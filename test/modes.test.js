@@ -64,6 +64,31 @@ const Dk={width:1280,height:900};
   await p.click('[data-mk="focus"]'); await p.waitForTimeout(400);
   await p.screenshot({path:__dirname+"/screens/m-focus.png"});
 
+  // picking a mode brings its list to the top of the sheet. The scroller is #panelBody:
+  // #panel is overflow:hidden, and scrolling that moved nothing for as long as it existed.
+  p=await fresh(b,M);
+  await p.click("#grab").catch(()=>{}); await p.waitForTimeout(500);
+  const sTop=()=>p.evaluate(()=>document.getElementById("panelBody").scrollTop);
+  const listAt=()=>p.evaluate(()=>{const b=document.getElementById("panelBody").getBoundingClientRect(),
+    o=document.querySelector(".modeout").getBoundingClientRect(); return Math.round(o.top-b.top);});
+  say("the sheet starts at its top", (await sTop())===0);
+  await p.click('[data-mk="winddown"]'); await p.waitForTimeout(900);
+  say("picking a mode scrolls the sheet ("+(await sTop())+"px)", (await sTop())>40);
+  say("and leaves the list "+(await listAt())+"px from the top", Math.abs((await listAt())-8)<=5);
+  // the heading repeats the chip's icon
+  const same=await p.evaluate(()=>{const h=document.querySelector(".modettl .mi svg"),
+    c=document.querySelector('[data-mk="winddown"] .mi svg');
+    return !!h && !!c && h.innerHTML===c.innerHTML;});
+  say("the heading carries the chip's own icon", same);
+  say("the heading still reads as text", (await p.$eval(".modettl",e=>e.textContent.trim()))==="Winding down");
+  await p.click('[data-mk="cocktails"]'); await p.waitForTimeout(900);
+  say("switching modes scrolls again, to "+(await listAt())+"px", Math.abs((await listAt())-8)<=5);
+  // and from a minimised sheet, which opens first
+  p=await fresh(b,M);
+  await p.click('[data-mk="party"]'); await p.waitForTimeout(1200);
+  say("a chip tapped while minimised opens the sheet", await p.$eval("body",e=>e.classList.contains("open")));
+  say("and still lands on the list ("+(await listAt())+"px)", Math.abs((await listAt())-8)<=7);
+
   // ---- desktop ----
   const d=await fresh(b,Dk);
   await d.click('[data-mk="sit"]'); await d.waitForTimeout(300);

@@ -836,12 +836,14 @@ function modePicks(m){
   }).join("");
 }
 // twelve chips fill a phone screen, so the picks can open out of sight below them
+// Bring the chosen mode's list to the top of the sheet. #panel is overflow:hidden and
+// never scrolled, which is why the earlier version of this moved nothing at all: the
+// scroller is #panelBody.
 function showMode(){
-  const pn=$("panel"), o=pn&&pn.querySelector(".modeout");
+  const body=$("panelBody"), o=body&&body.querySelector(".modeout");
   if(!o) return;
-  const pr=pn.getBoundingClientRect(), or=o.getBoundingClientRect();
-  if(or.top < pr.bottom-60) return;                    // already in view, leave the scroll alone
-  pn.scrollTo({top: pn.scrollTop + (or.top-pr.top) - 12, behavior: reduce?"auto":"smooth"});
+  const br=body.getBoundingClientRect(), or=o.getBoundingClientRect();
+  body.scrollTo({top: body.scrollTop + (or.top-br.top) - 8, behavior: reduce?"auto":"smooth"});
 }
 // Families and influence as menus rather than two walls of chips. Same navwrap/navmenu
 // machinery as the From and Led to buttons, so they portal, flip and close identically.
@@ -922,7 +924,7 @@ function modeSect(){
   if(typeof MODES==="undefined") return "";
   const chips=MODES.map(m=>`<button type="button" class="chip modechip${MODE===m[0]?" on":""}" data-mk="${esc(m[0])}" aria-pressed="${MODE===m[0]}"><i class="mi">${MODEICON[m[0]]||""}</i><i class="nm">${esc(m[1])}</i></button>`).join("");
   const m=MODE&&MODES.find(x=>x[0]===MODE);
-  const out=m?`<div class="modeout"><h4 class="modettl">${esc(m[2])}</h4><p class="modewhy">${esc(m[3])}</p><div class="picks">${modePicks(m)}</div></div>`:"";
+  const out=m?`<div class="modeout"><h4 class="modettl"><i class="mi">${MODEICON[m[0]]||""}</i>${esc(m[2])}</h4><p class="modewhy">${esc(m[3])}</p><div class="picks">${modePicks(m)}</div></div>`:"";
   return sect("modes","What do you need it to do?",`<div class="chips modechips">${chips}</div>${out}`,
               `<span class="sectaside">${MODES.length} ways in</span>`);
 }

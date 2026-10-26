@@ -150,7 +150,10 @@ aside h3,.pcard h3.sec{font:600 11px var(--f-body);letter-spacing:.06em;text-tra
 .modechip::before{display:none}
 .modechip.on{background:var(--fg);color:var(--bg)}
 .modeout{margin-top:10px}
-.modettl{margin:0;font:600 13px var(--f-body);color:var(--fg)}
+/* the heading repeats the chip's icon, so the list you scrolled to names its own chip */
+.modettl{margin:0;font:600 13px var(--f-body);color:var(--fg);display:flex;align-items:center;gap:7px}
+.modettl .mi{flex:none;display:flex;width:15px;height:15px}
+.modettl .mi svg{width:100%;height:100%}
 .modewhy{margin:3px 0 9px;font-size:13px;line-height:1.45;color:var(--muted);max-width:60ch}
 .picks{display:flex;flex-direction:column;gap:4px}
 .pick{all:unset;display:grid;grid-template-columns:auto 1fr auto;column-gap:9px;align-items:baseline;
