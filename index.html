@@ -2359,6 +2359,7 @@ function pushTrail(){
 }
 let GOINGBACK=false;
 function goBack(){
+  closeNav();
   const v=TRAIL.pop(); if(!v) return;
   GOINGBACK=true;
   try{
@@ -2751,6 +2752,7 @@ function closeNav(except){
   document.querySelectorAll(".navmenu").forEach(m=>{
     const w=m._home||m.parentNode;
     if(w===except) return;
+    if(m.parentNode===document.body && w && !w.isConnected){ m.remove(); return; }
     const b=w&&w.querySelector(".navbtn");
     m.hidden=true; if(b) b.setAttribute("aria-expanded","false");
     clearNav(m);
@@ -2826,6 +2828,7 @@ $("chart").addEventListener("click",e=>{
   if(state.sel) clearSel();
 });
 function clearSel(){
+  closeNav();
   if(state.sel && !GOINGBACK) pushTrail();
   state.sel=null;
   const svg=$("chart"); svg.classList.remove("sel");

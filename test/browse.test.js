@@ -100,6 +100,25 @@ const vis=async(p,sel)=>p.$eval(sel,e=>{const r=e.getBoundingClientRect();
   say("the menu ground is lighter than its type ("+look.bg+")", look.lighter);
   say("dark type on it reads at "+look.ratio+":1", look.ratio>=4.5);
 
+  // an open menu must not survive a navigation. It is portaled to <body>, so when the
+  // panel is rebuilt underneath it there is nothing left to close it: select() closed
+  // menus and clearSel did not, which left one stranded on the way back to the map.
+  for(const [name,act] of [
+    ["back to the map", async q=>{ await q.click("#panelBack"); }],
+    ["back to a style", async q=>{ await q.click('.navmenu:not([hidden]) [data-go]'); await q.waitForTimeout(600);
+                                   await q.click('[data-menu="from"]'); await q.waitForTimeout(350);
+                                   await q.click("#panelBack"); }],
+  ]){
+    const q=await b.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+    await q.goto(URL+"#punk"); await q.waitForTimeout(900);
+    await q.click('[data-menu="led"]'); await q.waitForTimeout(400);
+    await act(q); await q.waitForTimeout(800);
+    const r=await q.evaluate(()=>({open:[...document.querySelectorAll(".navmenu")].filter(m=>!m.hidden).length,
+      onBody:document.querySelectorAll("body > .navmenu").length}));
+    say(name+" closes an open menu ("+r.open+" open, "+r.onBody+" left on body)", r.open===0 && r.onBody===0);
+    await q.close();
+  }
+
   // the From and Led to menus, at the narrowest width the app is used at
   for(const [kind,vp] of [["from",{width:320,height:700}],["led",{width:320,height:700}],
                           ["from",{width:390,height:844}],["led",{width:390,height:844}]]){
