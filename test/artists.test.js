@@ -59,6 +59,34 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
         panel:Math.max(...keys.map(k=>(ART[k]||[]).length))};});
     say("roster covers "+sizes.styles+" styles and "+sizes.names+" artists", sizes.names>1500);
     say("and the panel still lists at most "+sizes.panel+" per style", sizes.panel<=5);
+
+    // track titles, ranked below everything else
+    const quiet=async t=>{ await p.fill("#bottomSearch input",t); await p.waitForTimeout(350);
+      return p.evaluate(()=>{ const r=document.querySelector("#bottomSearch .results");
+        return r.hidden?[]:[...r.querySelectorAll("li")].map(x=>x.querySelector("span").textContent); }); };
+    for(const [song,style] of [["Blue Monday","Synth-Pop"],["Good Vibrations","California Sound"],
+        ["Planet Rock","Detroit Techno"]]){
+      const r=await quiet(song);
+      say('"'+song+'" finds '+style+" ("+(r.join(", ")||"nothing")+")", r.includes(style));
+    }
+    // Electro's note already names 'Planet Rock', so that row reads as a note; the rows
+    // that matched only on a title are the ones that quote it
+    const sline=await p.evaluate(()=>{ const li=[...document.querySelectorAll("#bottomSearch .results li")]
+      .find(x=>x.querySelector("span").textContent==="Detroit Techno");
+      return li?li.querySelector("small").textContent:""; });
+    say("and quotes the title that matched ("+sline+")", /\u201c.*\u201d/.test(sline));
+    // a word in a title on most playlists must not outrank a name or a note
+    const you=await quiet("you");
+    say('"you" leads with the name match ('+you.slice(0,2).join(", ")+")", you[0]==="Youth Crew");
+    const songy=await p.evaluate(()=>Object.values(SONGS).filter(v=>v.some(t=>/you/i.test(t))).length);
+    say("  though "+songy+" styles have it in a title", songy>50);
+    // and a three-letter query does not reach titles at all
+    const three=await p.evaluate(()=>Object.values(SONGS).filter(v=>v.some(t=>/the/i.test(t))).length);
+    await quiet("the");
+    const quoted=await p.evaluate(()=>[...document.querySelectorAll("#bottomSearch .results li button small")]
+      .filter(e=>/\u201c/.test(e.textContent)).length);
+    say('the '+three+' styles matching "the" only in a title are not offered ('+quoted+' quoted rows)',
+      three>0 && quoted===0);
     await p.close(); }
 
   await b.close();

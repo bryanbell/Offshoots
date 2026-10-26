@@ -1,8 +1,9 @@
 (function(){
 const FAM = {}; FAMS.forEach((f,i)=>FAM[f[0]]={key:f[0],name:f[1],h:f[2],short:f[3]||f[1],i,
   c:(typeof FAMMAP!=="undefined"&&FAMMAP[f[0]])||`hsl(${f[2]} 72% 64%)`});
-const nodes = DATA.map(d=>({id:d[0],name:d[1],year:d[2],fam:d[3],parents:d[4]?d[4].split(" "):[],note:d[5]||"",disp:d[6]||String(d[2]),children:[],artists:(typeof ART!=="undefined"&&ART[d[0]])||[],sources:d[7]||[],roster:(typeof ROSTER!=="undefined"&&ROSTER[d[0]])||[],done:(typeof PLAY!=="undefined"&&!!PLAY[d[0]])}));
-nodes.forEach(n=>n.search=(n.note+" "+n.artists.join(" ")+" "+n.roster.join(" ")).toLowerCase());
+const nodes = DATA.map(d=>({id:d[0],name:d[1],year:d[2],fam:d[3],parents:d[4]?d[4].split(" "):[],note:d[5]||"",disp:d[6]||String(d[2]),children:[],artists:(typeof ART!=="undefined"&&ART[d[0]])||[],sources:d[7]||[],roster:(typeof ROSTER!=="undefined"&&ROSTER[d[0]])||[],songs:(typeof SONGS!=="undefined"&&SONGS[d[0]])||[],done:(typeof PLAY!=="undefined"&&!!PLAY[d[0]])}));
+nodes.forEach(n=>{ n.search=(n.note+" "+n.artists.join(" ")+" "+n.roster.join(" ")).toLowerCase();
+  n.songsearch=n.songs.join(" | ").toLowerCase(); });
 // Apple Music artist links: start as a search URL, upgrade to the artist page once the iTunes Search API resolves an ID (cached).
 let AMID={}; try{ AMID=JSON.parse(localStorage.getItem("amid")||"{}") }catch(e){}
 // On Apple devices use the music:// scheme so the Music app opens directly (no browser tab / in-app browser pane).
@@ -1083,14 +1084,20 @@ document.addEventListener("click",e=>{ const a=e.target.closest("a.wk:not(.pl):n
 const q=$("q"), res=$("res"); let hits=[], act=0;
 function find(t){
   t=t.trim().toLowerCase(); if(!t) return [];
-  const score=n=>{ const nm=n.name.toLowerCase(); if(nm.startsWith(t)) return 0; if(nm.includes(t)) return 1; if(n.search.includes(t)) return 2; return 9; };
+  // a title match is worth less than a name, a note or an artist, and is not tried at all
+  // on a short query, where a word like "you" would match most of the playlists at once
+  const score=n=>{ const nm=n.name.toLowerCase(); if(nm.startsWith(t)) return 0; if(nm.includes(t)) return 1;
+    if(n.search.includes(t)) return 2; if(t.length>=4 && n.songsearch.includes(t)) return 3; return 9; };
   return nodes.map(n=>[score(n),n]).filter(a=>a[0]<9).sort((a,b)=>a[0]-b[0]||a[1].year-b[1].year).slice(0,8).map(a=>a[1]);
 }
 function hitLine(n){ const t=q.value.trim().toLowerCase(), has=x=>x.toLowerCase().includes(t);
   // name the artist that matched, whether it is one of the three on the panel or
   // one of the deeper playlist names, so the row says why it is in the list
   const m=n.artists.find(has)||n.roster.find(has);
-  return (m && !n.note.toLowerCase().includes(t)) ? m+" · "+n.note : n.note; }
+  if(m && !n.note.toLowerCase().includes(t)) return m+" · "+n.note;
+  // nothing else matched, so it was a track title: quote it, since a bare title reads as a note
+  const sg = t.length>=4 && !n.note.toLowerCase().includes(t) && n.songs.find(has);
+  return sg ? "\u201c"+sg+"\u201d · "+n.note : n.note; }
 function renderHits(){
   if(!hits.length){ res.hidden=true; return; }
   res.innerHTML = hits.map((n,i)=>`<li><button class="${i===act?"act":""}" data-go="${n.id}" role="option"><span>${esc(n.name)}</span><small>${n.year<1950?esc(n.disp):n.year} · ${esc(hitLine(n))}</small></button></li>`).join("");
