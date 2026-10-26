@@ -19,6 +19,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("start-here sits above the modes", order.indexOf("sect-feat")===1 && order.indexOf("sect-modes")===2);
   say("map hint demoted below browse", order.indexOf("ovhint")>order.indexOf("browse"));
 
+  const nFams=await p.evaluate(()=>typeof FAMS!=="undefined"?FAMS.length:-1);
   // ---- 2: the hero now talks about listening ----
   say("tagline", await p.$eval(".ovcard .tag",e=>e.textContent));
   say("meta", await p.$eval(".ovmeta",e=>e.textContent));
@@ -70,7 +71,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("families offered", fams.length+" — "+fams.slice(0,3).join(", "));
   const sum=await p.$$eval('.navmenu[data-br="pl"] [data-plbr] small',e=>e.reduce((s,x)=>s+ +x.textContent,0));
   say("family counts add up to the total ("+sum+")", sum===nPlay);
-  say("fewer families than the Families menu (only listenable ones)", fams.length<=17);
+  say("fewer families than the Families menu (only listenable ones)", fams.length<=nFams);
   await p.click('.navmenu[data-br="pl"] [data-plbr]'); await p.waitForTimeout(300);
   const rows=await p.$$('.navmenu[data-br="pl"] [data-go]');
   say("drilled into a family", rows.length>0);
@@ -82,7 +83,6 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   await p.click('[data-menu="fams"]'); await p.waitForTimeout(300);
   // read the expected count from the page: this assertion went stale the moment a
   // family was added, and a literal here says nothing about whether the menu is right
-  const nFams=await p.evaluate(()=>typeof FAMS!=="undefined"?FAMS.length:-1);
   say("Families still lists all "+nFams,
       nFams>0 && (await p.$$('.navmenu[data-br="fams"] [data-fambr]')).length===nFams);
   await p.keyboard.press("Escape"); await p.waitForTimeout(200);
