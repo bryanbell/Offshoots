@@ -154,6 +154,15 @@ aside h3,.pcard h3.sec{font:600 11px var(--f-body);letter-spacing:.06em;text-tra
 .modettl{margin:0;font:600 13px var(--f-body);color:var(--fg);display:flex;align-items:center;gap:7px}
 .modettl .mi{flex:none;display:flex;width:15px;height:15px}
 .modettl .mi svg{width:100%;height:100%}
+.modettl .mtx{min-width:0;flex:1 1 auto}
+/* the chips are scrolled off the top by the time this list is in view, so the heading
+   carries the way back to them */
+.modeup{all:unset;box-sizing:border-box;flex:none;display:grid;place-items:center;
+  width:30px;height:30px;margin:-6px -6px -6px 0;border-radius:999px;cursor:pointer;color:var(--muted)}
+.modeup svg{width:17px;height:17px}
+.modeup:hover{background:var(--fill);color:var(--fg)}
+.modeup:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+@media (max-width:899px){ .modeup{width:36px;height:36px;margin:-9px -8px -9px 0} .modeup svg{width:18px;height:18px} }
 .modewhy{margin:3px 0 9px;font-size:13px;line-height:1.45;color:var(--muted);max-width:60ch}
 .picks{display:flex;flex-direction:column;gap:4px}
 .pick{all:unset;display:grid;grid-template-columns:auto 1fr auto;column-gap:9px;align-items:baseline;

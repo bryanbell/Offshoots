@@ -81,6 +81,24 @@ const Dk={width:1280,height:900};
     return !!h && !!c && h.innerHTML===c.innerHTML;});
   say("the heading carries the chip's own icon", same);
   say("the heading still reads as text", (await p.$eval(".modettl",e=>e.textContent.trim()))==="Winding down");
+  // and a way back up, since the chips are off the top by the time the list is in view
+  const deep=await sTop();
+  say("the heading carries a back button", await p.evaluate(()=>!!document.querySelector(".modettl .modeup")));
+  const ub=await p.evaluate(()=>{const r=document.querySelector(".modeup").getBoundingClientRect();
+    return [Math.round(r.width),Math.round(r.height)];});
+  say("its tap target is "+ub[0]+"x"+ub[1], ub[0]>=30&&ub[1]>=30);
+  await p.click(".modeup"); await p.waitForTimeout(900);
+  say("it scrolls back up, "+deep+" -> "+(await sTop()), (await sTop())<deep);
+  say("the chips are on screen again", await p.evaluate(()=>{
+    const b=document.getElementById("panelBody").getBoundingClientRect(),
+      c=document.querySelector(".modechips").getBoundingClientRect();
+    return c.top>=b.top-1 && c.top<b.bottom;}));
+  say("the mode stayed open", (await p.$eval(".modettl .mtx",e=>e.textContent.trim()))==="Winding down");
+  say("and its chip is still lit", (await p.$eval(".modechip.on",e=>e.textContent.trim()))==="Wind down");
+  say("the heading does not overflow the sheet", await p.evaluate(()=>{
+    const b=document.getElementById("panelBody");
+    return b.scrollWidth<=b.clientWidth+1;}));
+
   await p.click('[data-mk="cocktails"]'); await p.waitForTimeout(900);
   say("switching modes scrolls again, to "+(await listAt())+"px", Math.abs((await listAt())-8)<=5);
   // and from a minimised sheet, which opens first
