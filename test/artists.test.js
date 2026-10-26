@@ -33,5 +33,33 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   say("Future Garage lists Fred again..", fg.includes("Fred again.."));
   say("  alongside "+fg.join(", "), fg.length>=3);
 
+  // the playlist roster: search reaches every artist on a style's playlist, while the
+  // panel still shows only the handful ART names
+  { const p=await ctx.newPage();
+    await p.goto(URL); await p.waitForTimeout(900);
+    await p.$eval("#mapSearch",e=>e.click()); await p.waitForTimeout(300);
+    const find=async t=>{ await p.fill("#bottomSearch input",t); await p.waitForTimeout(350);
+      return p.$$eval("#bottomSearch .results li",e=>e.map(x=>x.innerText.split("\n")[0])); };
+    // none of these four is in ART, so each one fails before the roster exists
+    for(const [name,style] of [["Marshall Jefferson","Chicago House"],["Patti Page","Traditional Pop"],
+        ["Doug Carn","Spiritual Jazz"],["Bush Tetras","No Wave"]]){
+      const r=await find(name);
+      say(name+" finds "+style+" ("+(r.join(", ")||"nothing")+")", r.includes(style));
+    }
+    // and a name on several playlists returns each of those styles
+    const th=await find("Talking Heads");
+    say("Talking Heads returns "+th.length+" styles ("+th.join(", ")+")", th.length>=3);
+    // the row says which artist matched, so the hit does not look arbitrary
+    const line=await p.$eval("#bottomSearch .results li button small",e=>e.textContent);
+    say("the row names the artist ("+line+")", /Talking Heads/.test(line));
+    // the panel is unchanged: still the short curated list, not the whole playlist
+    const sizes=await p.evaluate(()=>{
+      const A=ROSTER, keys=Object.keys(A);
+      return {styles:keys.length, names:keys.reduce((n,k)=>n+A[k].length,0),
+        panel:Math.max(...keys.map(k=>(ART[k]||[]).length))};});
+    say("roster covers "+sizes.styles+" styles and "+sizes.names+" artists", sizes.names>1500);
+    say("and the panel still lists at most "+sizes.panel+" per style", sizes.panel<=5);
+    await p.close(); }
+
   await b.close();
 })();
