@@ -1,0 +1,112 @@
+// Type and tap targets on the panels.
+//
+// The panel used to carry twenty different font sizes, most of them under 13px, plus
+// three all-caps labels with letter-spacing, and controls as short as 28px. None of
+// that is how iOS sets text. This suite pins the result so it cannot drift back:
+//
+//   - nothing readable is under 13px (SF's Footnote, the smallest step Apple ships)
+//   - no all-caps tracked micro-labels
+//   - anything you tap clears 44pt
+//
+// It measures what is painted rather than reading the stylesheet, so a rule that loses
+// the cascade still fails here. That matters: a higher-specificity `all:unset` silently
+// cancelled the panel title's height once.
+//
+// It walks three surfaces, not one. An earlier version only walked the root panel, and
+// the all-caps check passed against the very CSS it was written to catch, because every
+// all-caps label lived in the style panel and the menus.
+const {chromium}=require("playwright");
+const URL="file://"+__dirname+"/../index.html";
+const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typeof v!=="boolean"?": "+v:""));
+
+const MIN_TYPE=13, TAP=44;
+// decorative glyphs and counters are not reading copy, so they are exempt by name
+const EXEMPT="\\b(cnt|vt|ck|dot|sw|mi|cv|shg|upchev|svcchev|pkgo|plgo)\\b";
+
+const readType=(p,scope)=>p.evaluate(([ex,sc])=>{
+  const re=new RegExp(ex), out=[];
+  document.querySelectorAll(sc+" *").forEach(e=>{
+    if(e.children.length || !e.textContent.trim()) return;
+    const cs=getComputedStyle(e);
+    if(cs.display==="none"||cs.visibility==="hidden"||!e.getClientRects().length) return;
+    const cls=(e.className||e.tagName).toString();
+    if(re.test(cls)) return;
+    out.push({cls:cls.split(" ")[0]||e.tagName, size:parseFloat(cs.fontSize),
+      tt:cs.textTransform, txt:e.textContent.trim().slice(0,18)});
+  });
+  return out;
+},[EXEMPT,scope]);
+
+const readTaps=(p,scope,tap)=>p.evaluate(([sc,t])=>{
+  const out=[];
+  document.querySelectorAll(sc+" button, "+sc+" a, "+sc+" summary").forEach(e=>{
+    const r=e.getBoundingClientRect(), d=getComputedStyle(e).display;
+    if(!r.height || d==="none") return;
+    // a link set inline in running prose flows with the text; the 44pt floor is for
+    // discrete controls, not for a phrase inside a paragraph
+    if(e.tagName==="A" && d==="inline") return;
+    const after=getComputedStyle(e,"::after");       // a control may expand its own hit area
+    let h=r.height;
+    if(after.content!=="none" && after.position==="absolute"){
+      const inset=parseFloat(after.top);
+      if(!isNaN(inset) && inset<0) h += -inset*2;
+    }
+    if(h+0.5 < t) out.push({cls:(e.className||e.tagName).toString().split(" ")[0]||e.tagName, h:Math.round(h)});
+  });
+  const seen=new Map(); out.forEach(o=>{ if(!seen.has(o.cls)) seen.set(o.cls,o); });
+  return [...seen.values()];
+},[scope,tap]);
+
+(async()=>{
+  const b=await chromium.launch();
+  let bad=0;
+  const check=(label,type,taps)=>{
+    const small=type.filter(t=>t.size<MIN_TYPE);
+    say(label+": "+type.length+" strings, none under "+MIN_TYPE+"px"
+      +(small.length?" — "+[...new Set(small.map(t=>t.cls+" "+t.size+"px"))].join(", "):""), small.length===0);
+    if(small.length) bad++;
+    const caps=type.filter(t=>t.tt==="uppercase");
+    say(label+": no all-caps labels"
+      +(caps.length?" — "+[...new Set(caps.map(t=>t.cls+' "'+t.txt+'"'))].join(", "):""), caps.length===0);
+    if(caps.length) bad++;
+    if(taps){
+      say(label+": every control clears "+TAP+"pt"
+        +(taps.length?" — "+taps.map(t=>t.cls+" "+t.h+"px").join(", "):""), taps.length===0);
+      if(taps.length) bad++;
+    }
+  };
+
+  for(const [name,vp,mob,open] of [["phone",{width:390,height:844},true,true],
+                                   ["tablet",{width:834,height:1112},true,true],
+                                   ["desktop",{width:1440,height:900},false,false]]){
+    const ctx=await b.newContext({viewport:vp,isMobile:mob,hasTouch:mob,deviceScaleFactor:2});
+
+    // 1. the overview
+    let p=await ctx.newPage();
+    await p.goto(URL); await p.waitForTimeout(900);
+    if(open){ await p.click("#grab").catch(()=>{}); await p.waitForTimeout(700); }
+    check(name+" overview", await readType(p,"#panelBody"), await readTaps(p,"#panelBody",TAP));
+
+    // 2. a menu, which is where the uppercase section header lived
+    await p.click('[data-menu="fams"]').catch(()=>{});
+    await p.waitForTimeout(400);
+    const menu=await p.$(".navmenu:not([hidden])");
+    if(menu){
+      check(name+" menu", await readType(p,".navmenu:not([hidden])"),
+                          await readTaps(p,".navmenu:not([hidden])",TAP));
+    } else say(name+" menu: opened", false), bad++;
+    await p.close();
+
+    // 3. a style panel, on a fresh page: hash navigation on a loaded page does not select
+    p=await ctx.newPage();
+    await p.goto(URL+"#shoegaze"); await p.waitForTimeout(1100);
+    if(open){ await p.click("#grab").catch(()=>{}); await p.waitForTimeout(700); }
+    const got=await p.$eval(".pcard .mn",e=>e.textContent).catch(()=>null);
+    say(name+" style panel opened on Shoegaze", got==="Shoegaze");
+    if(got!=="Shoegaze") bad++;
+    check(name+" style", await readType(p,"#panelBody"), await readTaps(p,"#panelBody",TAP));
+    await p.close();
+  }
+  await b.close();
+  process.exit(bad?1:0);
+})();

@@ -24,6 +24,21 @@
   --node-s:72%; --node-l:64%; color-scheme:dark;
   --f-body:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
   --f-mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  /* SF's own steps, at the default Large setting. Every panel rule picks one of these
+     rather than inventing a size: the panel used to hold twenty different sizes, most
+     of them under 13px, and the small ones were genuinely hard to read. */
+  --t-title1:28px; --t-title1-lh:34px;
+  --t-title2:22px; --t-title2-lh:28px;
+  --t-title3:20px; --t-title3-lh:25px;
+  --t-head:17px;   --t-head-lh:22px;
+  --t-body:17px;   --t-body-lh:22px;
+  --t-call:16px;   --t-call-lh:21px;
+  --t-sub:15px;    --t-sub-lh:20px;
+  --t-foot:13px;   --t-foot-lh:18px;
+  --t-cap:12px;    --t-cap-lh:16px;
+  --link:#5aa9ff;   /* accent is 3.87:1 here; this clears AA on the panel and on cards */
+  /* 44pt is the floor for anything you tap */
+  --tap:44px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#000000; --band:#141416; --mapbg:#0f0f11; --panel:#2b2b2f; --fg:#f5f5f7; --muted:#b0b0b6; --line:#3a3a3c; --grid:#232326; --roots:#161618;
@@ -44,7 +59,7 @@ button{font-family:inherit}
 #app{position:fixed;inset:0}
 /* top bar */
 #indexView{padding-bottom:calc(90px + env(safe-area-inset-bottom,0px))}
-.tabs button,.seg button{font:500 13px var(--f-body);padding:6px 14px;border:0;border-radius:999px;background:transparent;color:var(--fg);cursor:pointer;transition:background .15s,box-shadow .15s}
+.tabs button,.seg button{font:500 var(--t-sub)/var(--t-sub-lh) var(--f-body);padding:0 14px;min-height:var(--tap);border:0;border-radius:999px;background:transparent;color:var(--fg);cursor:pointer;transition:background .15s,box-shadow .15s}
 .tabs button[aria-pressed="true"],.seg button[aria-pressed="true"]{background:var(--panel);box-shadow:0 1px 3px rgb(0 0 0 / .12),0 0 0 .5px rgb(0 0 0 / .04);font-weight:600}
 .seg{display:inline-flex;gap:2px;padding:2px;border-radius:999px;background:var(--fill)}
 .tabs button[aria-pressed="true"],.seg button[aria-pressed="true"]{background:#636366}
@@ -57,7 +72,7 @@ button{font-family:inherit}
 .results{position:absolute;z-index:30;left:0;right:0;top:calc(100% + 6px);background:var(--panel);border-radius:12px;margin:0;padding:5px;list-style:none;box-shadow:var(--shadow)}
 .results li button{all:unset;display:flex;gap:8px;align-items:baseline;width:100%;box-sizing:border-box;padding:8px 10px;border-radius:8px;cursor:pointer}
 .results li button:hover,.results li button.act{background:var(--fill2)}
-.results small{color:var(--muted);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.results small{color:var(--muted);font-size:var(--t-foot);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 button:focus-visible,.chip:focus-visible,.link:focus-visible{outline:0;box-shadow:0 0 0 3.5px color-mix(in srgb,var(--accent) 35%,transparent)}
 /* map */
 .mapbox{position:absolute;inset:0;background:var(--mapbg)}
@@ -124,26 +139,26 @@ svg{display:block}
 /* details panel */
 .phead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 .close{display:none;flex:none;width:30px;height:30px;border-radius:50%;border:0;background:var(--fill);color:var(--muted);font-size:17px;line-height:1;cursor:pointer}
-.eyebrow{display:flex;align-items:center;gap:7px;font-size:11.5px;letter-spacing:.01em;color:var(--muted);font-weight:600}
+.eyebrow{display:flex;align-items:center;gap:7px;font-size:var(--t-foot);letter-spacing:0;color:var(--muted);font-weight:600}
 .eyebrow .sw{width:9px;height:9px;border-radius:50%;background:var(--c)}
 aside h2{font-weight:700;font-size:28px;line-height:1.1;letter-spacing:-.022em;margin:8px 0 4px;text-wrap:balance}
-.yr{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
-.note{margin:10px 0 6px;font-size:14.5px;line-height:1.45}
-.artists{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:baseline;margin:0 0 14px;font-size:13.5px}
-.artists span{font-size:11px;letter-spacing:.02em;color:var(--muted);font-weight:600;margin-right:2px}
+.yr{font-family:var(--f-mono);font-size:var(--t-sub);color:var(--muted)}
+.note{margin:12px 0 8px;font-size:var(--t-body);line-height:var(--t-body-lh)}
+.artists{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:baseline;margin:0 0 16px;font-size:var(--t-body);line-height:var(--t-body-lh)}
+.artists span{font-size:var(--t-foot);letter-spacing:0;color:var(--muted);font-weight:600;margin-right:2px}
 .artists b{font-weight:500}
 .artists b:not(:last-child)::after{content:" ·";color:var(--muted)}
 .seg{margin-bottom:6px}
-.seg button{padding:5px 11px;font-size:12.5px}
-aside h3,.pcard h3.sec{font:600 11px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:18px 0 9px}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{display:inline-flex;align-items:center;gap:6px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;min-width:0;max-width:100%;font:500 12px var(--f-body);padding:5px 10px 5px 9px;border-radius:999px;border:0;background:var(--fill2);color:var(--fg);cursor:pointer;transition:background .15s}
+.seg button{padding:0 14px;min-height:var(--tap);font-size:var(--t-sub)}
+aside h3,.pcard h3.sec{font:600 var(--t-head)/var(--t-head-lh) var(--f-body);letter-spacing:-.01em;text-transform:none;color:var(--fg);margin:24px 0 10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:8px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;min-width:0;max-width:100%;min-height:var(--tap);box-sizing:border-box;font:500 var(--t-sub)/var(--t-sub-lh) var(--f-body);padding:0 16px;border-radius:999px;border:0;background:var(--fill2);color:var(--fg);cursor:pointer;transition:background .15s}
 .chip::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:var(--c)}
 .chip>i.nm{font-style:normal;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .chip:hover{background:var(--fill)}
 /* listening modes */
-.sectaside{font:500 11px var(--f-mono);color:var(--muted);opacity:.75}
-.modechip{gap:7px;padding:6px 12px 6px 10px}
+.sectaside{font:400 var(--t-foot)/var(--t-foot-lh) var(--f-body);color:var(--muted);opacity:1}
+.modechip{gap:8px;padding:0 16px}
 .modechip{--lvc:#9aa0a6}
 .modechip.lv1{--lvc:#7aa2f7}
 .modechip.lv2{--lvc:#5bbda4}
@@ -155,15 +170,15 @@ aside h3,.pcard h3.sec{font:600 11px var(--f-body);letter-spacing:.06em;text-tra
 .modechip:hover{background:color-mix(in srgb,var(--lvc) 26%,var(--fill2))}
 .modechip.on{background:var(--fg);box-shadow:none}
 .modechip.on .mi{color:var(--lvc);opacity:1}
-.modechip .mi{flex:none;display:flex;width:15px;height:15px;opacity:.8;color:var(--lvc)}
+.modechip .mi{flex:none;display:flex;width:18px;height:18px;opacity:.85;color:var(--lvc)}
 .modechip .mi svg{width:100%;height:100%}
 .modechip.on .mi{opacity:1}
 .modechip::before{display:none}
 .modechip.on{background:var(--fg);color:var(--bg)}
-.modeout{margin-top:10px}
+.modeout{margin-top:20px}
 /* the heading repeats the chip's icon, so the list you scrolled to names its own chip */
-.modettl{margin:0;font:600 13px var(--f-body);color:var(--fg);display:flex;align-items:center;gap:7px}
-.modettl .mi{flex:none;display:flex;width:15px;height:15px}
+.modettl{margin:0;font:700 var(--t-title3)/var(--t-title3-lh) var(--f-body);letter-spacing:-.02em;color:var(--fg);display:flex;align-items:center;gap:8px}
+.modettl .mi{flex:none;display:flex;width:20px;height:20px}
 .modettl .mi svg{width:100%;height:100%}
 .modettl .mtx{min-width:0;flex:1 1 auto}
 /* the chips are scrolled off the top by the time this list is in view, so the heading
@@ -171,51 +186,51 @@ aside h3,.pcard h3.sec{font:600 11px var(--f-body);letter-spacing:.06em;text-tra
 /* the same underlined-text treatment the service picker uses, rather than a second
    round button competing with the share and play marks */
 .modeup{all:unset;box-sizing:border-box;flex:none;display:inline-flex;align-items:center;gap:4px;
-  cursor:pointer;color:var(--muted);font:500 12px var(--f-body);
-  padding:6px 0 6px 10px;margin:-6px 0;
+  cursor:pointer;color:var(--muted);font:500 var(--t-sub)/var(--t-sub-lh) var(--f-body);
+  min-height:var(--tap);padding:0 0 0 12px;margin:0;
   text-decoration:underline;text-underline-offset:3px;
   text-decoration-color:color-mix(in srgb,var(--fg) 30%,transparent)}
 .modeup .upchev{flex:none;width:12px;height:12px;opacity:.75}
 .modeup:hover{color:var(--fg);text-decoration-color:var(--fg)}
 .modeup:focus-visible{outline:2px solid color-mix(in srgb,var(--accent) 60%,transparent);outline-offset:2px;border-radius:4px}
-@media (max-width:899px){ .modeup{font-size:12.5px;padding:9px 0 9px 12px;margin:-9px 0} }
-.modewhy{margin:3px 0 9px;font-size:13px;line-height:1.45;color:var(--muted);max-width:60ch}
-.picks{display:flex;flex-direction:column;gap:4px}
+@media (max-width:899px){ .modeup{font-size:var(--t-sub);padding:0 0 0 12px;margin:0} }
+.modewhy{margin:6px 0 14px;font-size:var(--t-sub);line-height:var(--t-sub-lh);color:var(--muted);max-width:60ch}
+.picks{display:flex;flex-direction:column;gap:8px}
 .pick{all:unset;display:grid;grid-template-columns:auto 1fr auto;column-gap:9px;align-items:baseline;
-  box-sizing:border-box;width:100%;padding:10px 13px;border-radius:14px;cursor:pointer;
+  box-sizing:border-box;width:100%;min-height:var(--tap);padding:12px 16px;border-radius:14px;cursor:pointer;
   background:var(--fill2);transition:background .15s}
 .pick:hover,.pick:focus-visible{background:var(--fill)}
 .pick:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
 .pick::before{content:"";grid-row:1;align-self:center;width:8px;height:8px;border-radius:50%;background:var(--c)}
-.pknm{grid-column:2;font:600 13.5px var(--f-body);color:var(--fg)}
+.pknm{grid-column:2;font:600 var(--t-head)/var(--t-head-lh) var(--f-body);letter-spacing:-.01em;color:var(--fg)}
 /* the same round play mark the artist chips carry, so "playable" looks the same everywhere */
 .pkgo{grid-column:2;display:inline-grid;place-items:center;margin-left:7px;vertical-align:-1px;
   color:color-mix(in srgb,var(--fg) 55%,transparent)}
-.pkgo svg{width:10px;height:10px}
+.pkgo svg{width:12px;height:12px}
 .pick:hover .pkgo{color:var(--fg)}
-.pkfam{grid-column:3;grid-row:1;font:500 10px var(--f-mono);color:var(--muted);white-space:nowrap}
-.pkwhy{grid-column:2/4;font-size:12.5px;line-height:1.35;color:var(--muted);margin-top:2px}
-.chip span{flex:none;font-family:var(--f-mono);font-size:10px;color:var(--muted)}
-.legend{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px;font-size:12.5px}
+.pkfam{grid-column:3;grid-row:1;font:500 var(--t-foot) var(--f-mono);color:var(--muted);white-space:nowrap}
+.pkwhy{grid-column:2/4;font-size:var(--t-sub);line-height:var(--t-sub-lh);color:var(--muted);margin-top:3px}
+.chip span{flex:none;font-family:var(--f-mono);font-size:var(--t-foot);color:var(--muted)}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;font-size:var(--t-sub);line-height:var(--t-sub-lh)}
 .legend span{display:flex;align-items:center;gap:7px;min-width:0}
 .legend i{flex:none;width:9px;height:9px;border-radius:50%;background:var(--c)}
-.legend small{margin-left:auto;font:400 11px var(--f-mono);color:var(--muted)}
-.empty{color:var(--muted);font-size:12.5px;margin:0}
+.legend small{margin-left:auto;font:400 var(--t-foot) var(--f-mono);color:var(--muted)}
+.empty{color:var(--muted);font-size:var(--t-sub);margin:0}
 
-.sect{margin-top:6px}
+.sect{margin-top:28px}
 .secbody[hidden]{display:none}
 .secbody{padding-bottom:2px}
-button.showmore{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;margin-top:11px;padding:4px 0;border:0;background:none;color:var(--accent);font:600 12px var(--f-body);text-align:left;cursor:pointer}
+button.showmore{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:var(--tap);margin-top:8px;padding:0;border:0;background:none;color:var(--link);font:400 var(--t-body)/var(--t-body-lh) var(--f-body);text-align:left;cursor:pointer}
 button.showmore:hover{text-decoration:underline}
-button.showmore svg{width:13px;height:13px;transition:transform .2s}
+button.showmore svg{width:16px;height:16px;transition:transform .2s}
 button.showmore[aria-expanded="true"] svg{transform:rotate(180deg)}
-.srcs{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12.5px}
+.srcs{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:var(--t-sub);line-height:var(--t-sub-lh)}
 a.am{color:inherit;text-decoration:none;transition:color .15s,background .15s}
 a.am:hover{color:var(--accent)}
 .srcs a{color:var(--accent);text-decoration:none}
 .srcs a:hover{text-decoration:underline}
 .ck{font-style:normal;font-weight:700;color:var(--ok)}
-.tally{font-size:12px;color:var(--muted);margin:16px 0 0;font-variant-numeric:tabular-nums}
+.tally{font-size:var(--t-foot);line-height:var(--t-foot-lh);color:var(--muted);margin:16px 0 0;font-variant-numeric:tabular-nums}
 #scrim,/* phones and narrow windows */
 @media (max-width:899px){
 
@@ -226,35 +241,27 @@ a.am:hover{color:var(--accent)}
   .zoom{bottom:calc(14px + env(safe-area-inset-bottom,0px));right:12px}
   #scroller{padding-bottom:0}
   aside h2{font-size:32px}
-  .note{font-size:15.5px}
-  .artists{font-size:15px}
-  .chip{font-size:12.5px;padding:7px 11px 7px 9px}
-  .chip span{font-size:10.5px}
-  .seg button{font-size:14px;padding:7px 12px}
+  .note{font-size:var(--t-body)}
+  .artists{font-size:var(--t-body)}
+  .chip{font-size:var(--t-sub);padding:0 16px}
+  .chip span{font-size:var(--t-foot)}
+  .seg button{font-size:var(--t-sub);padding:0 14px}
       .zoom{bottom:calc(14px + env(safe-area-inset-bottom,0px))}
   }
 @media (max-width:699px){ .lane{--lf:11px}
   .chips{gap:8px}
-  .chips{gap:7px}
-  .chip{font-size:12.5px;min-height:30px;padding:5px 11px 5px 9px;position:relative}
-  .chip::after{content:"";position:absolute;inset:-6px;border-radius:inherit}   /* tap area stays ~42px */
-  .chip::before{width:8px;height:8px}
+  /* at 17px the title wants the whole width, so the family and year take their own
+     line rather than squeezing the name onto two */
+  .pick{grid-template-columns:auto 1fr}
+  .pkfam{grid-column:2;grid-row:2;margin-top:3px}
+  .pkwhy{grid-column:2;grid-row:3}
   .chip:active{background:var(--fill)}
-  .modechip{min-height:34px;padding:7px 13px 7px 11px;gap:8px}
-  .modechip .mi{width:16px;height:16px}
-  .brbtn{height:38px;padding:0 13px}
-  .brlbl{font-size:14px}
+  .chip::before{width:9px;height:9px}
   .brmenu{min-width:272px}
-  .pick{padding:11px 13px}
-  .pknm{font-size:15px}
-  .pkwhy{font-size:13px}
-  .pkfam{font-size:10.5px}
-  .modewhy{font-size:13.5px}
-  .chip span{font-size:10.5px}
-  .who a.am{gap:6px;padding:6px 11px 6px 9px;font-size:13px}
-  .who a.am svg{width:13px;height:13px}
-  a.wk{padding:8px 12px;gap:7px}
- a.wk span{font-size:12.5px}
+  .who a.am{gap:7px;min-height:var(--tap);padding:0 14px;font-size:var(--t-sub)}
+  .who a.am svg{width:16px;height:16px}
+  a.wk{min-height:var(--tap);padding:0 16px;gap:8px}
+  a.wk span{font-size:var(--t-sub)}
 }
 @media (hover:none) and (pointer:coarse){ .zoom{display:none} }
 @media (prefers-reduced-motion:reduce){#chart .e,#chart .n,aside,.tabs button,.seg button,.chip{transition:none}}
@@ -290,10 +297,10 @@ body:not(.open) #panelBody{overflow:visible}
 .more .note{margin-top:16px}
 body.open .more{display:block}
 #ptoggle{display:none}
-#pclose{display:grid;position:absolute;top:12px;right:12px;z-index:3;width:28px;height:28px;border:0;border-radius:50%;background:var(--fill);color:var(--fg);cursor:pointer;place-items:center}
+#pclose{display:grid;position:absolute;top:10px;right:10px;z-index:3;width:var(--tap);height:var(--tap);border:0;border-radius:50%;background:var(--fill);color:var(--fg);cursor:pointer;place-items:center}
 body:not(.open) #pclose{transform:rotate(180deg)}
 #pclose:hover{background:color-mix(in srgb,var(--fill) 75%,var(--fg))}
-#pclose svg{width:14px;height:14px}
+#pclose svg{width:17px;height:17px}
 .pcard .mn{padding-right:0}
 body:not(.open) aside{cursor:pointer;width:min(215px,23vw)}
 body:not(.open) .pcard .my{display:block;white-space:normal;overflow:visible}
@@ -302,14 +309,14 @@ body:not(.open) .pcard .meta{align-items:flex-start;gap:6px}
 @media (max-width:699px){ body:not(.open) aside{left:auto;width:min(50vw,230px)} }
 body:not(.open) aside{cursor:pointer}
 body:not(.open) aside:hover{background:var(--panel)}
-.pcnt{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;font:500 12.5px var(--f-body);color:var(--muted)}
+.pcnt{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;font:400 var(--t-sub)/var(--t-sub-lh) var(--f-body);color:var(--muted)}
 .pcnt svg{width:15px;height:15px;flex:none}
 body.open .pcnt{display:none}
 .pcard{margin:0}
 /* the open state once drew a rule under the card; the spacing for it drifted the
    whole sheet down by 18px after the rule itself was dropped */
-.pcard .mn{display:block;font-weight:700;font-size:18px;letter-spacing:-.018em;line-height:1.2;margin:0 0 1px}
-.navrow{position:sticky;top:0;z-index:35;display:grid;grid-template-columns:1fr minmax(0,1.5fr) 1fr;
+.pcard .mn{display:block;font-weight:600;font-size:var(--t-head);letter-spacing:-.014em;line-height:var(--t-head-lh);margin:0 0 1px}
+.navrow{position:sticky;top:0;z-index:35;display:grid;--navside:118px;grid-template-columns:var(--navside) minmax(0,1fr) var(--navside);
   align-items:center;gap:8px;margin:0;padding:6px 0 7px;background:transparent;
   transition:background .18s}
 .navrow .navback{justify-self:start}
@@ -319,26 +326,26 @@ body.open .pcnt{display:none}
   border-radius:999px;background:color-mix(in srgb,var(--acc,var(--fg)) 14%,transparent)}
 .navpair .navwrap{position:relative;display:flex}
 .navpair .navbtn{background:transparent;border-radius:0}
-.navpair .nav-from .navbtn{border-radius:999px 0 0 999px;padding-left:11px}
-.navpair .nav-led .navbtn{border-radius:0 999px 999px 0;padding-right:11px}
+.navpair .nav-from .navbtn{border-radius:999px 0 0 999px;padding-left:12px}
+.navpair .nav-led .navbtn{border-radius:0 999px 999px 0;padding-right:12px}
 .navpair .nav-led{border-left:1px solid color-mix(in srgb,var(--acc,var(--fg)) 22%,transparent)}
 .navpair .navbtn:hover:not(:disabled){background:color-mix(in srgb,var(--acc,var(--fg)) 16%,transparent)}
 /* back takes the left slot the From button used to hold, and keeps it empty when there
    is nothing behind you, so the title stays where it is either way */
-.navback{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:5px;
-  min-width:34px;max-width:min(30vw,124px);height:34px;padding:0 11px 0 9px;
+.navback{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:6px;
+  min-width:var(--tap);max-width:min(32vw,136px);height:var(--tap);padding:0 16px 0 13px;
   border-radius:999px;cursor:pointer;color:var(--fg);background:var(--fill2)}
 .navback .bklbl{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  font:600 12px var(--f-body)}
-.navback .bkmap{display:none;width:17px;height:17px;flex:none}
+  font:500 var(--t-sub)/var(--t-sub-lh) var(--f-body)}
+.navback .bkmap{display:none;width:20px;height:20px;flex:none}
 .navback.tomap .bklbl{display:none}
 .navback.tomap .bkmap{display:block}
-.navback.tomap{padding:0 11px}
+.navback.tomap{padding:0 12px}
 .navback[hidden]{display:grid;visibility:hidden;pointer-events:none}
-.navback svg{width:17px;height:17px}
+.navback svg{width:20px;height:20px}
 .navback:hover{background:var(--fill)}
 .navback:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
-@media (max-width:899px){ .navback{min-width:38px;height:38px} .navback svg{width:18px;height:18px} .navback .bklbl{font-size:12.5px} }
+@media (max-width:899px){ .navback{min-width:var(--tap);height:var(--tap)} .navback svg{width:20px;height:20px} .navback .bklbl{font-size:var(--t-sub)} }
 /* on the overview the row has no empty slot to hold, so the button simply goes away */
 .ovback[hidden]{display:none}
 .ovback{align-self:center;margin-right:2px}
@@ -352,13 +359,14 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line);
 .navttl .mn{margin:0}
 .navttl .my{justify-content:center}
 .navwrap{position:relative;flex:none}
-.navbtn{display:flex;align-items:center;gap:4px;height:30px;padding:0 9px;border:0;border-radius:999px;cursor:pointer;
+.navbtn{display:flex;align-items:center;gap:4px;height:var(--tap);padding:0 10px;border:0;border-radius:999px;cursor:pointer;
   background:color-mix(in srgb,var(--acc,var(--fg)) 14%,transparent);color:var(--fg);
-  font:600 12px var(--f-body);transition:background .15s}
+  font:500 var(--t-sub)/var(--t-sub-lh) var(--f-body);transition:background .15s}
 .navbtn:hover:not(:disabled){background:color-mix(in srgb,var(--acc,var(--fg)) 24%,transparent)}
 .navbtn:disabled{opacity:.35;cursor:default}
-.navbtn .cv{width:14px;height:14px;flex:none}
-.navbtn .ct{font:600 12px var(--f-mono);font-style:normal;opacity:.8}
+.navbtn .cv{width:16px;height:16px;flex:none}
+.navbtn .ct{font:600 var(--t-foot) var(--f-mono);font-style:normal;opacity:.85;
+  min-width:2ch;text-align:center;font-variant-numeric:tabular-nums}
 /* browse menus in the overview */
 .browse{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 2px}
 /* the featured row: one concrete thing to listen to, with a re-roll beside it */
@@ -373,19 +381,19 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line);
 /* the methodology stays one tap away instead of ending the panel */
 .aboutwrap{margin-top:14px;border-top:.5px solid var(--line);padding-top:4px}
 .aboutwrap summary{display:flex;align-items:center;justify-content:space-between;gap:8px;
-  list-style:none;cursor:pointer;padding:9px 2px;border-radius:9px;
-  font:600 13px var(--f-body);color:var(--muted)}
+  list-style:none;cursor:pointer;min-height:var(--tap);padding:0 2px;border-radius:9px;
+  font:400 var(--t-body)/var(--t-body-lh) var(--f-body);color:var(--fg)}
 .aboutwrap summary::-webkit-details-marker{display:none}
 .aboutwrap summary:hover{color:var(--fg)}
-.aboutwrap summary .cv{flex:none;width:14px;height:14px;transition:transform .18s}
+.aboutwrap summary .cv{flex:none;width:16px;height:16px;transition:transform .18s}
 .aboutwrap[open] summary .cv{transform:rotate(180deg)}
 .aboutwrap .about{margin-top:2px}
 @media (prefers-reduced-motion:reduce){ .aboutwrap summary .cv{transition:none} }
 .nav-br .navmenu{left:0}
-.brbtn{height:34px;padding:0 11px;gap:7px;background:var(--fill2)}
+.brbtn{height:var(--tap);padding:0 16px;gap:8px;background:var(--fill2)}
 .brbtn:hover:not(:disabled){background:var(--fill)}
-.brlbl{font:600 13px var(--f-body)}
-.brbtn .cv{width:13px;height:13px;opacity:.65}
+.brlbl{font:500 var(--t-sub)/var(--t-sub-lh) var(--f-body)}
+.brbtn .cv{width:15px;height:15px;opacity:.7}
 .brmenu{min-width:252px}
 .brback{position:sticky;top:-5px;z-index:1;background:var(--panel);
   box-shadow:0 .5px 0 var(--line);border-radius:9px 9px 0 0;color:var(--muted)}
@@ -393,13 +401,13 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line);
 .brback .bk{flex:none;display:flex;width:14px;height:14px;opacity:.8}
 .brback .bk .cv{width:14px;height:14px}
 .ovcard .phead{gap:12px;margin:0 0 8px}
-.pcard.ovcard .appicon{width:38px;height:38px;border-radius:9px}
-@media (max-width:899px){ .pcard.ovcard .appicon{width:36px;height:36px;border-radius:9px} }
-.ovcard .mn{font-size:17px;margin:0 0 2px}
-.ovcard .tag{margin:0;font-size:12.5px}
-.ovmeta{margin:3px 0 0;font:500 11.5px var(--f-mono);color:var(--muted)}
+.pcard.ovcard .appicon{width:52px;height:52px;border-radius:12px}
+@media (max-width:899px){ .pcard.ovcard .appicon{width:48px;height:48px;border-radius:11px} }
+.ovcard .mn{font-size:var(--t-title1);line-height:var(--t-title1-lh);letter-spacing:-.026em;margin:0 0 2px}
+.ovcard .tag{margin:0;font-size:var(--t-sub);line-height:var(--t-sub-lh)}
+.ovmeta{margin:6px 0 0;font:500 var(--t-foot)/var(--t-foot-lh) var(--f-mono);color:var(--muted)}
 .ovhint{margin:0 0 2px}
-.navhd{padding:6px 9px 7px;font:600 10.5px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--mmut)}
+.navhd{padding:8px 12px;font:600 var(--t-foot)/var(--t-foot-lh) var(--f-body);letter-spacing:0;text-transform:none;color:var(--mmut)}
 .navmenu{--mbg:#f5f5f7; --mfg:#1a1a1c; --mmut:#6a6a70;
   position:absolute;z-index:40;top:calc(100% + 6px);min-width:210px;max-width:min(300px,70vw);
   max-height:min(52vh,380px);overflow:auto;overscroll-behavior:contain;padding:5px;
@@ -409,19 +417,19 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line);
 .nav-led .navmenu{right:0}
 .navmenu[hidden]{display:none}
 body > .navmenu{z-index:70}
-.navmenu button{all:unset;display:flex;align-items:center;gap:9px;width:100%;box-sizing:border-box;
-  min-height:38px;padding:8px 10px;border-radius:11px;cursor:pointer;color:var(--mfg);font:500 13.5px var(--f-body)}
+.navmenu button{all:unset;display:flex;align-items:center;gap:10px;width:100%;box-sizing:border-box;
+  min-height:var(--tap);padding:9px 12px;border-radius:11px;cursor:pointer;color:var(--mfg);font:400 var(--t-body)/var(--t-body-lh) var(--f-body)}
 .navmenu button:hover{background:rgb(0 0 0 / .07)}
 .navmenu button:focus-visible{background:rgb(0 0 0 / .07)}
-.navmenu .dot{flex:none;width:7px;height:7px;border-radius:50%}
+.navmenu .dot{flex:none;width:9px;height:9px;border-radius:50%}
 .navmenu .nm{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.navmenu small{flex:none;font:500 11px var(--f-mono);color:var(--mmut)}
+.navmenu small{flex:none;font:500 var(--t-foot) var(--f-mono);color:var(--mmut)}
 @media (max-width:899px){
-  .navbtn{height:36px;padding:0 11px}
+  .navbtn{height:var(--tap);padding:0 11px}
   .navmenu{min-width:244px;max-width:min(330px,82vw);padding:6px}
   .navmenu button{min-height:46px;padding:10px 12px;font-size:15px;gap:11px}
   .navmenu .dot{width:8px;height:8px}
-  .navmenu small{font-size:12px}
+  .navmenu small{font-size:var(--t-foot)}
   .navhd{padding:8px 12px 8px}
 }
 @media (max-width:420px){ .navttl .mn{font-size:16px} }
@@ -430,14 +438,14 @@ body > .navmenu{z-index:70}
 .pcard .appicon{flex:none;width:56px;height:56px;border-radius:14px;display:block;background:#181818}
 @media (max-width:899px){.pcard .appicon{width:48px;height:48px;border-radius:12px}}
 .pcard .phead .tag{margin:0}
-.pcard .tag{margin:1px 0 9px;font:400 13px/1.4 var(--f-body);color:var(--muted);max-width:40em}
+.pcard .tag{margin:2px 0 10px;font:400 var(--t-sub)/var(--t-sub-lh) var(--f-body);color:var(--muted);max-width:40em}
 .pcard .meta{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0}
-.pcard .my{display:flex;min-width:0;font:500 12px var(--f-mono);color:var(--muted);white-space:nowrap;overflow:hidden}
+.pcard .my{display:flex;min-width:0;font:500 var(--t-sub) var(--f-mono);color:var(--muted);white-space:nowrap;overflow:hidden}
 .pcard .my .fam{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .pcard .my .yr{flex:none;white-space:pre}
-p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:4px 0 9px;font:400 11.5px var(--f-body);color:var(--muted)}
+p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10px;font:400 var(--t-foot)/var(--t-foot-lh) var(--f-body);color:var(--muted)}
 .svc{position:relative;display:inline-flex;align-items:center;gap:5px;border-radius:999px;
-  padding:5px 11px;background-color:var(--fill2);color:var(--fg);font:600 11.5px var(--f-body)}
+  padding:5px 11px;background-color:var(--fill2);color:var(--fg);font:600 var(--t-foot) var(--f-body)}
 .svc .svcchev{width:11px;height:11px;flex:none;opacity:.6}
 .svc select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;
   appearance:none;-webkit-appearance:none;border:0;font:inherit}
@@ -456,7 +464,7 @@ body.open .pcard>h3.sec{display:block}
 body.open .pcard h3.sec:first-of-type{margin-top:17px}
 .who:empty{display:none}
 .who .sep{font-style:normal;opacity:.45;margin:0 2px}
-a.wk{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:8px 15px;border-radius:11px;background:var(--fill);color:var(--fg);text-decoration:none;transition:background .15s,color .15s}
+a.wk{display:inline-flex;align-items:center;gap:8px;min-height:var(--tap);padding:0 16px;border-radius:11px;background:var(--fill);color:var(--fg);text-decoration:none;transition:background .15s,color .15s}
 body:not(.open) .pcard a.wk{display:none}
 a.wk span{font:600 13px var(--f-body);letter-spacing:.01em;line-height:1.3}
 a.wk svg{width:15px;height:15px;flex:none;opacity:.7}
@@ -468,7 +476,7 @@ a.wk.pl{background:#fa233b;color:#fff}
 a.wk.pl svg{opacity:.95}
 a.wk.pl:hover{background:color-mix(in srgb,#fa233b 86%,#000)}
 #expand{flex:none;min-width:34px;height:34px;padding:0 12px;border:0;border-radius:17px;background:var(--fill);color:var(--fg);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:background .15s}
-#expand .lbl{font:500 12.5px var(--f-body);letter-spacing:-.01em;font-variant-numeric:tabular-nums;max-width:min(58vw,330px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#expand .lbl{font:500 var(--t-sub) var(--f-body);letter-spacing:-.01em;font-variant-numeric:tabular-nums;max-width:min(58vw,330px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #expand .lbl .long{display:none}
 #expand .lbl .short{display:inline}
 #expand .lbl b{font-weight:700}
@@ -524,8 +532,8 @@ body.searching #bottomSearch{display:block}
 .zoom{bottom:calc(16px + env(safe-area-inset-bottom,0px))}
 #panelBody{max-width:720px}
 .about{margin-top:18px;padding-top:14px;border-top:.5px solid var(--line)}
-.about p{margin:0 0 8px;font-size:12.5px;color:var(--muted);line-height:1.5}
-.about .stats{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);margin:0 0 10px;font-variant-numeric:tabular-nums}
+.about p{margin:0 0 10px;font-size:var(--t-sub);color:var(--muted);line-height:var(--t-sub-lh)}
+.about .stats{font-family:var(--f-mono);font-size:var(--t-foot);line-height:var(--t-foot-lh);color:var(--muted);margin:0 0 12px;font-variant-numeric:tabular-nums}
 @media (max-width:899px){ .zoom{bottom:calc(14px + env(safe-area-inset-bottom,0px))} }
 
 /* ---- docked layout: left sidebar on desktop, bottom sheet on phones ---- */
@@ -606,7 +614,7 @@ body:not(.open) aside#panel{width:var(--sidew);cursor:pointer}
 }
 @media (prefers-reduced-motion:reduce){ aside#panel{transition:none} }
 
-.secttl{font:600 12.5px var(--f-body);letter-spacing:0;text-transform:none;color:var(--fg);margin:0 0 8px}
+.secttl{font:700 var(--t-title3)/var(--t-title3-lh) var(--f-body);letter-spacing:-.02em;text-transform:none;color:var(--fg);margin:0 0 12px}
 .sect{margin-top:16px;padding:14px 0 2px;border-top:var(--sectw,.5px) solid var(--sectline,var(--line))}
 .sect:first-child{border-top:var(--sectw,.5px) solid var(--sectline,var(--line));padding-top:14px}
 
@@ -627,13 +635,13 @@ body.pscrolled #panelBody{border-top:.5px solid var(--line)}
 #pbar[hidden]{display:none}
 #pbarTxt{flex:1;min-width:0}
 #pbarTitle{display:block;font:700 15px var(--f-body);letter-spacing:-.015em;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#pbarSub{display:block;margin-top:1px;font:500 11.5px var(--f-mono);color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#pbarSub{display:block;margin-top:1px;font:500 var(--t-foot) var(--f-mono);color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 
 /* ---- desktop: artist links match the lineage chips ---- */
 @media (min-width:900px){
   .who{gap:6px}
-  .who a.am{min-height:0;gap:6px;padding:5px 10px 5px 9px;border-radius:999px;font:500 12px var(--f-body);background:var(--fill2)}
+  .who a.am{min-height:var(--tap);gap:8px;padding:0 14px;border-radius:999px;font:500 var(--t-sub) var(--f-body);background:var(--fill2)}
   .who a.am svg{width:12px;height:12px}
 }
 
@@ -660,7 +668,7 @@ a.wk span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* ---- key artists: caption beside the heading, chips in a box, switch on its edge ---- */
 .secthead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px}
 .secthead .secttl{margin:0}
-.sectnote{flex:0 1 auto;min-width:0;font:400 11.5px var(--f-body);color:var(--muted);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sectnote{flex:0 1 auto;min-width:0;font:400 var(--t-foot)/var(--t-foot-lh) var(--f-body);color:var(--muted);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 .secthead .svc{flex:none;white-space:nowrap}
 
@@ -687,22 +695,23 @@ aside#panel{padding-bottom:0}
 
 /* header: bigger title, outlined accent Search button; searching opens the sheet taller */
 #pbarTitle{font-size:18px;letter-spacing:-.02em}
-#pbarSub{font-size:12px}
+#pbarSub{font-size:var(--t-foot)}
 /* the panel title is the share control: tap the name to hand off the link */
 button.navttl,button.ovttl{all:unset;box-sizing:border-box;cursor:pointer;min-width:0;max-width:100%}
+button.ovttl{display:inline-flex;align-items:center;min-height:var(--tap)}
 button.navttl{display:block;text-align:center;overflow:hidden;border-radius:10px;
-  padding:2px 6px;margin:-2px 0;transition:background .15s}
+  min-height:var(--tap);padding:2px 6px;margin:-2px 0;transition:background .15s}
 button.navttl:hover,button.ovttl:hover{background:color-mix(in srgb,var(--fg) 7%,transparent)}
 button.navttl:focus-visible,button.ovttl:focus-visible{outline:0;
   box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
-.ovttl{display:inline-flex;align-items:center;gap:7px;border-radius:9px;padding:1px 6px;margin:0 -6px}
+.ovttl{display:inline-flex;align-items:center;gap:8px;min-height:var(--tap);border-radius:9px;padding:0 6px;margin:0 -6px}
 .ovttl .mn{display:inline-block;margin:0}
 .shg{flex:none;width:11px;height:11px;opacity:.55;vertical-align:-1px}
 /* share moved out of the title and onto the end of the header row: the title still
    fires it, but the glyph now sits where a header action is looked for */
 .ovshare{all:unset;box-sizing:border-box;cursor:pointer;flex:none;display:grid;place-items:center;
-  width:34px;height:34px;border-radius:999px;color:var(--fg);align-self:center}
-.ovshare .shg{width:16px;height:16px;opacity:.5}
+  width:var(--tap);height:var(--tap);border-radius:999px;color:var(--fg);align-self:center}
+.ovshare .shg{width:19px;height:19px;opacity:.55}
 .ovshare:hover{background:color-mix(in srgb,var(--fg) 8%,transparent)}
 .ovshare:hover .shg{opacity:.85}
 .ovshare:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
@@ -713,9 +722,9 @@ button.navttl .my{display:inline-flex;align-items:center;gap:5px}
   /* fill the row rather than float in it: a 50px target at no cost in header height,
      since the negative margins give back exactly the row padding the button takes */
   button.navttl{margin:-6px 0 -7px;padding:6px 8px 7px;border-radius:12px}
-  .ovttl{padding:5px 6px}
-  .ovshare{width:40px;height:40px}
-  .ovshare .shg{width:17px;height:17px}
+  .ovttl{padding:0 6px}
+  .ovshare{width:var(--tap);height:var(--tap)}
+  .ovshare .shg{width:19px;height:19px}
 }
 .navttl.done .shg,.ovttl.done .shg{opacity:0}
 /* the minimised sheet keeps its height for the playlist */
@@ -799,7 +808,7 @@ a.wk.txt:hover{background:none;color:color-mix(in srgb,var(--accent) 80%,#000)}
 
 @media (max-width:899px){
   .who{gap:7px}
-  .who a.am{position:relative;min-height:30px;padding:5px 11px 5px 9px;font-size:12.5px;gap:6px}
+  .who a.am{position:relative;min-height:var(--tap);padding:0 14px;font-size:var(--t-sub);gap:8px}
   .who a.am::after{content:"";position:absolute;inset:-6px;border-radius:inherit}
   .who a.am svg{width:13px;height:13px}
 }
@@ -827,7 +836,7 @@ a.wk.pl:hover,a.wk.sp:hover{background:color-mix(in srgb,var(--ink,var(--fg)) 84
 .svc select option{color:#111;background:#fff}
 
 /* subdivisions inside Listen: quieter than the section heading, not competing with it */
-.subh{font:600 11px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.subh{font:600 var(--t-head)/var(--t-head-lh) var(--f-body);letter-spacing:-.01em;text-transform:none;color:var(--fg);margin:0 0 10px}
 .subh.gap{margin-top:22px}
 .secbody .subh + .who{margin-top:0}
 
@@ -843,12 +852,12 @@ a.wk.pl:hover,a.wk.sp:hover{background:color-mix(in srgb,var(--ink,var(--fg)) 84
 .plrow img.pcov{width:64px;height:64px;flex:none;margin:0;border-radius:9px;aspect-ratio:1;object-fit:cover;
   box-shadow:0 0 0 .5px var(--line),0 1px 3px rgb(0 0 0 / .25)}
 .plrow .pltx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
-.plrow .plttl{font:600 13px var(--f-body);line-height:1.3;overflow:hidden;display:-webkit-box;
+.plrow .plttl{font:600 var(--t-head)/var(--t-head-lh) var(--f-body);letter-spacing:-.01em;overflow:hidden;display:-webkit-box;
   -webkit-line-clamp:2;-webkit-box-orient:vertical}
-.plrow .plsvc{font:500 11.5px var(--f-body);color:var(--muted)}
-.plrow .plgo{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;
+.plrow .plsvc{font:400 var(--t-sub)/var(--t-sub-lh) var(--f-body);color:var(--muted)}
+.plrow .plgo{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;
   background:var(--ink,var(--fg));color:var(--tint,var(--panel))}
-.plrow .plgo svg{width:15px;height:15px;margin-left:1px}
+.plrow .plgo svg{width:17px;height:17px;margin-left:1px}
 /* no playlist on the chosen service yet: the row stays, muted and inert */
 .plrow.off{background:color-mix(in srgb,var(--acc,var(--fg)) 7%,transparent);cursor:default}
 .plrow.off img.pcov{opacity:.5}
@@ -858,12 +867,12 @@ a.wk.pl:hover,a.wk.sp:hover{background:color-mix(in srgb,var(--ink,var(--fg)) 84
 
 /* the service switch fills the row beside "Listen on", three equal thirds */
 .sect-listen .secthead{gap:14px}
-.sect-listen .secttl{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
-.svcinline{padding:0;gap:4px;background-color:transparent;font:inherit;
-  text-decoration:underline;text-underline-offset:3px;
-  text-decoration-color:color-mix(in srgb,var(--fg) 30%,transparent)}
-.svcinline:hover{text-decoration-color:var(--fg)}
-.svcinline .svcchev{width:12px;height:12px;opacity:.75}
+.sect-listen .secttl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:var(--tap)}
+.svcinline{padding:0;gap:5px;background-color:transparent;
+  font:400 var(--t-body)/var(--t-body-lh) var(--f-body);letter-spacing:-.01em;
+  color:var(--ink,var(--link));text-decoration:none}
+.svcinline:hover{color:color-mix(in srgb,var(--ink,var(--link)) 80%,var(--fg))}
+.svcinline .svcchev{width:14px;height:14px;opacity:.8}
 /* the section is framed: a rule above the heading, another below the options */
 .sect-listen{margin-top:8px;padding:10px 0 14px;border-bottom:var(--sectw,.5px) solid var(--sectline,var(--line))}
 .sect-listen .secthead{margin-bottom:10px}

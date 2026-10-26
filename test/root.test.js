@@ -24,7 +24,8 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("tagline", await p.$eval(".ovcard .tag",e=>e.textContent));
   say("meta", await p.$eval(".ovmeta",e=>e.textContent));
   say("playlist count is in the hero", (await p.$eval(".ovmeta",e=>e.textContent)).includes("playlists"));
-  say("icon shrunk", await p.$eval(".appicon",e=>Math.round(e.getBoundingClientRect().width))<=36);
+  const icon=await p.$eval(".appicon",e=>Math.round(e.getBoundingClientRect().width));
+  say("icon is scaled to the title ("+icon+"px)", icon>=44 && icon<=56);
 
   // ---- 1: start-here row ----
   say("one featured row", (await p.$$(".featpick")).length===1);
