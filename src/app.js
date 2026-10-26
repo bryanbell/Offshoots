@@ -403,7 +403,13 @@ function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   const prose = /(?:^|\s)[a-z]+ed\b.*\bin\b/.test(fromNote||"")            // lowercase verb: prose, not a name
     || /\bvia\b|\bfrom\b|\bscene\b|\bera\b|\bstyle\b|\bmusic\b/i.test(fromNote||"");
   const looksLikeArtists = items.length>=1 && !prose && items.every(titleish);
-  n.noteNames = looksLikeArtists ? fromNote.split(",").map(s=>s.trim()).filter(Boolean) : [];
+  // Notes often open with where a style came from: "UK; named by Whistla 2009" or
+  // "Johannesburg; three kicks per bar". The head before the semicolon is usually the
+  // artist list, so that is what this reads, and a place at the front was being drawn as
+  // a key artist. A single-word rule would have been wrong: Nirvana, Prince, Chic, Burial
+  // and 240 others are one word. So the places are named instead.
+  const PLACE=/^(UK|US|USA|US\/UK|Japan|Ghana|Trinidad|Jamaica|Dominican|Rotterdam|Durban|Johannesburg|Lagos|Medellín|Berlin\/Milan|Goa|India|South Africa|1080p)$|-led$/i;
+  n.noteNames = looksLikeArtists ? fromNote.split(",").map(s=>s.trim()).filter(x=>x&&!PLACE.test(x)) : [];
   n.prose = looksLikeArtists ? "" : (n.note||"");
   const whoList = [...new Set([...n.noteNames,...n.artists])];
   n.whoList = whoList;
