@@ -17,7 +17,7 @@
 /* dark is the only palette: these were the light values, now replaced by the dark set,
    so the app can't render light even if data-theme is missing or set to "light". */
 :root{
-  --sectline:#5a5a60; --sectw:1px; --bg:#000000; --band:#141416; --mapbg:#0f0f11; --panel:#1f1f22; --fg:#f5f5f7; --muted:#b0b0b6; --line:#3a3a3c; --grid:#232326; --roots:#161618;
+  --sectline:#5a5a60; --sectw:1px; --bg:#000000; --band:#141416; --mapbg:#0f0f11; --panel:#2b2b2f; --fg:#f5f5f7; --muted:#b0b0b6; --line:#3a3a3c; --grid:#232326; --roots:#161618;
   --fill:#3d3d41; --fill2:#37373a; --scrim:rgb(0 0 0 / .6); --halo:#0f0f11; --ok:#30d158; --accent:#0a84ff; --accent-fg:#ffffff;
   --glass:rgb(44 44 48 / .86); --shadow:0 1px 2px rgb(0 0 0 / .4), 0 10px 30px rgb(0 0 0 / .5);
   --bar:0px; --gutter:16px;
@@ -26,12 +26,12 @@
   --f-mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#000000; --band:#141416; --mapbg:#0f0f11; --panel:#1f1f22; --fg:#f5f5f7; --muted:#b0b0b6; --line:#3a3a3c; --grid:#232326; --roots:#161618;
+  --bg:#000000; --band:#141416; --mapbg:#0f0f11; --panel:#2b2b2f; --fg:#f5f5f7; --muted:#b0b0b6; --line:#3a3a3c; --grid:#232326; --roots:#161618;
   --fill:#3d3d41; --fill2:#37373a; --scrim:rgb(0 0 0 / .6); --halo:#0f0f11; --ok:#30d158; --accent:#0a84ff; --accent-fg:#ffffff;
   --glass:rgb(44 44 48 / .86); --shadow:0 1px 2px rgb(0 0 0 / .4), 0 10px 30px rgb(0 0 0 / .5);
   --node-s:72%; --node-l:64%; --sectline:#5a5a60; --sectw:1px; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#000000; --band:#141416; --mapbg:#0f0f11; --panel:#1f1f22; --fg:#f5f5f7; --muted:#b0b0b6; --line:#3a3a3c; --grid:#232326; --roots:#161618;
+  --bg:#000000; --band:#141416; --mapbg:#0f0f11; --panel:#2b2b2f; --fg:#f5f5f7; --muted:#b0b0b6; --line:#3a3a3c; --grid:#232326; --roots:#161618;
   --fill:#3d3d41; --fill2:#37373a; --scrim:rgb(0 0 0 / .6); --halo:#0f0f11; --ok:#30d158; --accent:#0a84ff; --accent-fg:#ffffff;
   --glass:rgb(44 44 48 / .86); --shadow:0 1px 2px rgb(0 0 0 / .4), 0 10px 30px rgb(0 0 0 / .5);
   --node-s:72%; --node-l:64%; --sectline:#5a5a60; --sectw:1px; color-scheme:dark}
@@ -540,10 +540,10 @@ body:not(.open) aside#panel{width:var(--sidew);cursor:pointer}
   aside#panel{order:1;position:absolute;left:0;right:0;bottom:0;z-index:30;
     flex:0 0 auto;width:auto;height:auto;max-height:70vh;border-left:0;border-top:0;border-radius:16px 16px 0 0;box-shadow:0 -1px 0 var(--line),0 -10px 30px rgb(0 0 0 / .34),0 -3px 10px rgb(0 0 0 / .18);
     padding:2px 16px calc(14px + env(safe-area-inset-bottom,0px));
-    background:color-mix(in srgb,var(--panel) 92%,transparent);
+    background:color-mix(in srgb,var(--panel) 74%,transparent);
     -webkit-backdrop-filter:saturate(150%) blur(30px);backdrop-filter:saturate(150%) blur(30px)}
   /* the family wash goes translucent too, over its own ground rather than the root's */
-  aside#panel.tinted{background:color-mix(in srgb,var(--panel) 92%,transparent)}
+  aside#panel.tinted{background:color-mix(in srgb,var(--panel) 78%,transparent)}
   /* no backdrop-filter support: fall back to the solid ground rather than a see-through sheet */
   @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
     aside#panel{background:var(--panel)}
