@@ -298,10 +298,24 @@ body.open .pcnt{display:none}
 /* the open state once drew a rule under the card; the spacing for it drifted the
    whole sheet down by 18px after the rule itself was dropped */
 .pcard .mn{display:block;font-weight:700;font-size:18px;letter-spacing:-.018em;line-height:1.2;margin:0 0 1px}
-.navrow{position:sticky;top:0;z-index:35;display:grid;grid-template-columns:1fr minmax(0,auto) 1fr;
+.navrow{position:sticky;top:0;z-index:35;display:grid;grid-template-columns:auto minmax(0,1fr) auto;
   align-items:center;gap:8px;margin:0;padding:6px 0 7px;background:var(--panel)}
-.navrow .nav-from{justify-self:start}
-.navrow .nav-led{justify-self:end}
+/* the two lineage menus sit together, so From and Led to read as one pair of directions
+   rather than as two unrelated buttons at opposite ends of the row */
+.navpair{display:flex;align-items:center;gap:6px;justify-self:end}
+.navpair .navwrap{position:relative}
+/* back takes the left slot the From button used to hold, and keeps it empty when there
+   is nothing behind you, so the title stays where it is either way */
+.navback{all:unset;box-sizing:border-box;display:grid;place-items:center;flex:none;
+  width:34px;height:34px;border-radius:999px;cursor:pointer;color:var(--fg);background:var(--fill2)}
+.navback[hidden]{display:grid;visibility:hidden;pointer-events:none}
+.navback svg{width:17px;height:17px}
+.navback:hover{background:var(--fill)}
+.navback:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+@media (max-width:899px){ .navback{width:38px;height:38px} .navback svg{width:18px;height:18px} }
+/* on the overview the row has no empty slot to hold, so the button simply goes away */
+.ovback[hidden]{display:none}
+.ovback{align-self:center;margin-right:2px}
 body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line)}
 .navttl{min-width:0;text-align:center;overflow:hidden}
 .navttl .mn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -456,28 +470,10 @@ aside{display:flex;flex-direction:column;position:absolute;z-index:30;top:calc(e
 #mapHome[hidden]{display:none}
 #mapHome svg{width:18px;height:18px}
 #mapHome:hover{background:#fff}
-#mapBack{position:relative;z-index:24;top:auto;left:auto;
-  display:flex;align-items:center;gap:7px;height:38px;max-width:min(46vw,260px);
-  padding:0 14px 0 11px;border:0;border-radius:999px;cursor:pointer;
-  /* inverted: it has to read instantly against whatever part of the map is behind it */
-  background:var(--fg);color:var(--bg);box-shadow:0 2px 10px rgb(0 0 0 / .4)}
-#mapBack[hidden]{display:none}
-#mapBack svg{flex:none;width:17px;height:17px}
-#mapBack .bklbl{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  font:600 12.5px var(--f-body)}
-/* the map is the one destination with an icon of its own, so it says it that way
-   rather than spelling out a name no style shares */
-#mapBack .bkmap{display:none;width:18px;height:18px}
-#mapBack.tomap .bklbl{display:none}
-#mapBack.tomap .bkmap{display:block}
-#mapBack.tomap{padding:0 12px 0 11px}
-#mapBack:hover{background:#fff}
 body.searching #navpills{display:none}
 @media (max-width:899px){
   #navpills{top:calc(var(--axh,34px) + 10px);left:12px;gap:7px}
-  #mapBack{height:40px;padding:0 13px 0 10px;max-width:46vw}
   #mapHome{width:40px;height:40px}
-  #mapBack .bklbl{font-size:13px}
 }
 #mapSearch:hover{background:color-mix(in srgb,var(--fg) 8%,transparent)}
 body.searching #mapSearch{display:none}
@@ -865,7 +861,6 @@ a.am .amgo{display:none}
       </div>
       <div id="navpills">
         <button id="mapHome" class="glass" type="button" hidden aria-label="Back to the map" title="Back to the map"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.6 7.4 3.6v10.8l-4.6 2z"/><path d="M7.4 3.6 12.6 5.6v10.8L7.4 14.4z"/><path d="M12.6 5.6 17.2 3.6v10.8l-4.6 2z"/></svg></button>
-        <button id="mapBack" class="glass" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg><span class="bklbl"></span><svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.6 7.4 3.6v10.8l-4.6 2z"/><path d="M7.4 3.6 12.6 5.6v10.8L7.4 14.4z"/><path d="M12.6 5.6 17.2 3.6v10.8l-4.6 2z"/></svg></button>
       </div>
       <button id="mapSearch" class="glass" type="button" aria-label="Search styles and artists" title="Search styles and artists"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4 4"/></svg></button>
       <div id="bottomSearch">
@@ -2373,17 +2368,15 @@ function goHome(){
   syncBack();
 }
 function syncBack(){
-  // two or more taps from the map is when walking back stops being reasonable
+  // the root pill stays over the map: it is map-level navigation, and two taps deep is
+  // where walking back one style at a time stops being reasonable
   const hm=$("mapHome");
   if(hm) hm.hidden = stepsHome()<2;
-  const b=$("mapBack"); if(!b) return;
+  // back itself lives in the panel now, where it is not sitting beside a From button
+  const b=$("panelBack"); if(!b) return;
   const l=backLabel();
   b.hidden=!l; if(!l) return;
   b.setAttribute("aria-label",l); b.setAttribute("title",l);
-  const v=TRAIL[TRAIL.length-1];
-  const t=b.querySelector(".bklbl"), toMap=!(v&&v.sel&&byId[v.sel]);
-  if(t) t.textContent = toMap ? "" : byId[v.sel].name;
-  b.classList.toggle("tomap",toMap);
 }
 function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   if(!byId[id]) return;
@@ -2434,10 +2427,17 @@ function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   n.prose = looksLikeArtists ? "" : (n.note||"");
   const whoList = [...new Set([...n.noteNames,...n.artists])];
   n.whoList = whoList;
+  // back on the left, the two lineage menus paired on the right. Back used to float over
+  // the map beside the root pill, where it sat next to a From button that also pointed
+  // left and meant something else entirely.
   PHEAD = `<div class="pcard"><div class="navrow">`
-    + navBtn("from",[...n.parents].sort(byYear))
+    + `<button id="panelBack" class="navback" type="button" hidden aria-label="Back" title="Back">`
+    + `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg></button>`
     + `<button type="button" class="navttl" data-share aria-label="Share this style" title="Share this style"><span class="mn">${esc(n.name)}</span><span class="my"><span class="yr">${n.year<1950?esc(n.disp):"c. "+n.year}</span>${SHAREGLYPH}</span></button>`
+    + `<div class="navpair">`
+    + navBtn("from",[...n.parents].sort(byYear))
     + navBtn("led",[...n.children].sort(byYear))
+    + `</div>`
     + `</div></div>`;
   setExpandLabel("", `${n.parents.length} from · ${n.children.length} led to`, `${n.parents.length} from · ${n.children.length} led to`);
   if(repaint){
@@ -2838,7 +2838,7 @@ function shareSel(){
   } else copy();
 }
 { const sp=$("sheetpull"); if(sp) sp.addEventListener("click",()=>{ restoreSheet(); }); }
-{ const bb=$("mapBack"); if(bb) bb.addEventListener("click",e=>{ e.preventDefault(); goBack(); }); }
+{ const pn=$("panel"); if(pn) pn.addEventListener("click",e=>{ if(e.target.closest("#panelBack")){ e.preventDefault(); e.stopPropagation(); goBack(); } },true); }
 { const hb=$("mapHome"); if(hb) hb.addEventListener("click",e=>{ e.preventDefault(); goHome(); }); }
 // the hardware/browser back gesture should feel the same as the button
 addEventListener("keydown",e=>{
@@ -2983,7 +2983,7 @@ function emptyPanel(){
   syncPull();
   const top=[...nodes].sort((a,b)=>b.children.length-a.children.length||a.year-b.year).slice(0,12);
   const np=playable().length;
-  $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="phead"><img class="appicon" alt="" src="${ICONSRC()}"><div class="phtx"><button type="button" class="ovttl" data-share aria-label="Share this map" title="Share this map"><span class="mn">Offshoots</span></button><p class="tag">Find something to hear, and trace what it grew out of.</p><p class="ovmeta">${nodes.length} styles · ${np} playlists</p></div><button type="button" class="ovshare" data-share aria-label="Share this map" title="Share this map">${SHAREGLYPH}</button></div></div><div class="more">
+  $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="phead"><button id="panelBack" class="navback ovback" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg></button><img class="appicon" alt="" src="${ICONSRC()}"><div class="phtx"><button type="button" class="ovttl" data-share aria-label="Share this map" title="Share this map"><span class="mn">Offshoots</span></button><p class="tag">Find something to hear, and trace what it grew out of.</p><p class="ovmeta">${nodes.length} styles · ${np} playlists</p></div><button type="button" class="ovshare" data-share aria-label="Share this map" title="Share this map">${SHAREGLYPH}</button></div></div><div class="more">
     ${featSect()}
     ${modeSect()}
     ${browseRow()}

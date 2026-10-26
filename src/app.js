@@ -352,17 +352,15 @@ function goHome(){
   syncBack();
 }
 function syncBack(){
-  // two or more taps from the map is when walking back stops being reasonable
+  // the root pill stays over the map: it is map-level navigation, and two taps deep is
+  // where walking back one style at a time stops being reasonable
   const hm=$("mapHome");
   if(hm) hm.hidden = stepsHome()<2;
-  const b=$("mapBack"); if(!b) return;
+  // back itself lives in the panel now, where it is not sitting beside a From button
+  const b=$("panelBack"); if(!b) return;
   const l=backLabel();
   b.hidden=!l; if(!l) return;
   b.setAttribute("aria-label",l); b.setAttribute("title",l);
-  const v=TRAIL[TRAIL.length-1];
-  const t=b.querySelector(".bklbl"), toMap=!(v&&v.sel&&byId[v.sel]);
-  if(t) t.textContent = toMap ? "" : byId[v.sel].name;
-  b.classList.toggle("tomap",toMap);
 }
 function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   if(!byId[id]) return;
@@ -413,10 +411,17 @@ function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   n.prose = looksLikeArtists ? "" : (n.note||"");
   const whoList = [...new Set([...n.noteNames,...n.artists])];
   n.whoList = whoList;
+  // back on the left, the two lineage menus paired on the right. Back used to float over
+  // the map beside the root pill, where it sat next to a From button that also pointed
+  // left and meant something else entirely.
   PHEAD = `<div class="pcard"><div class="navrow">`
-    + navBtn("from",[...n.parents].sort(byYear))
+    + `<button id="panelBack" class="navback" type="button" hidden aria-label="Back" title="Back">`
+    + `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg></button>`
     + `<button type="button" class="navttl" data-share aria-label="Share this style" title="Share this style"><span class="mn">${esc(n.name)}</span><span class="my"><span class="yr">${n.year<1950?esc(n.disp):"c. "+n.year}</span>${SHAREGLYPH}</span></button>`
+    + `<div class="navpair">`
+    + navBtn("from",[...n.parents].sort(byYear))
     + navBtn("led",[...n.children].sort(byYear))
+    + `</div>`
     + `</div></div>`;
   setExpandLabel("", `${n.parents.length} from · ${n.children.length} led to`, `${n.parents.length} from · ${n.children.length} led to`);
   if(repaint){
@@ -817,7 +822,7 @@ function shareSel(){
   } else copy();
 }
 { const sp=$("sheetpull"); if(sp) sp.addEventListener("click",()=>{ restoreSheet(); }); }
-{ const bb=$("mapBack"); if(bb) bb.addEventListener("click",e=>{ e.preventDefault(); goBack(); }); }
+{ const pn=$("panel"); if(pn) pn.addEventListener("click",e=>{ if(e.target.closest("#panelBack")){ e.preventDefault(); e.stopPropagation(); goBack(); } },true); }
 { const hb=$("mapHome"); if(hb) hb.addEventListener("click",e=>{ e.preventDefault(); goHome(); }); }
 // the hardware/browser back gesture should feel the same as the button
 addEventListener("keydown",e=>{
@@ -962,7 +967,7 @@ function emptyPanel(){
   syncPull();
   const top=[...nodes].sort((a,b)=>b.children.length-a.children.length||a.year-b.year).slice(0,12);
   const np=playable().length;
-  $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="phead"><img class="appicon" alt="" src="${ICONSRC()}"><div class="phtx"><button type="button" class="ovttl" data-share aria-label="Share this map" title="Share this map"><span class="mn">Offshoots</span></button><p class="tag">Find something to hear, and trace what it grew out of.</p><p class="ovmeta">${nodes.length} styles · ${np} playlists</p></div><button type="button" class="ovshare" data-share aria-label="Share this map" title="Share this map">${SHAREGLYPH}</button></div></div><div class="more">
+  $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="phead"><button id="panelBack" class="navback ovback" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg></button><img class="appicon" alt="" src="${ICONSRC()}"><div class="phtx"><button type="button" class="ovttl" data-share aria-label="Share this map" title="Share this map"><span class="mn">Offshoots</span></button><p class="tag">Find something to hear, and trace what it grew out of.</p><p class="ovmeta">${nodes.length} styles · ${np} playlists</p></div><button type="button" class="ovshare" data-share aria-label="Share this map" title="Share this map">${SHAREGLYPH}</button></div></div><div class="more">
     ${featSect()}
     ${modeSect()}
     ${browseRow()}

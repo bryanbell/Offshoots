@@ -24,13 +24,12 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   say("glyph on the year line, not the name", await d.$eval(".navttl",e=>
     !!e.querySelector(".my .shg") && !e.querySelector(".mn .shg")));
 
-  // the name must still be centred in the row
-  const c=await d.$eval(".navrow",r=>{ const row=r.getBoundingClientRect();
+  const c=await d.$eval(".navrow",r=>{ const cell=r.querySelector(".navttl").getBoundingClientRect();
     const nm=r.querySelector(".navttl .mn");
     const t=document.createRange(); t.selectNodeContents(nm);
     const tr=t.getBoundingClientRect();
-    return Math.round(((tr.left+tr.right)/2)-((row.left+row.right)/2)); });
-  say("painted name off centre by "+c+"px", Math.abs(c)<=1);
+    return Math.round(((tr.left+tr.right)/2)-((cell.left+cell.right)/2)); });
+  say("painted name off centre in its slot by "+c+"px", Math.abs(c)<=1);
 
   // ---------- sharing ----------
   await d.click(".navttl"); await d.waitForTimeout(250);
@@ -82,15 +81,15 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
     while(bot<innerHeight && hits(bot+1)) bot++;
     return [bot-top, Math.round(r.height)]; });
   say("tap target "+tb[0]+"px tall (box is "+tb[1]+")", tb[0]>=44);
-  // a long name must not let the tap area reach the From / Led to buttons
+  // a long name must not let the tap area reach back on one side or the pair on the other
   await p.goto(URL+"#skapunk"); await p.waitForTimeout(100);
   await p.reload(); await p.waitForTimeout(900);
   await p.click("#grab").catch(()=>{}); await p.waitForTimeout(400);
   const gap=await p.$eval(".navrow",r=>{ const t=r.querySelector(".navttl").getBoundingClientRect();
-    const l=r.querySelector(".nav-from .navbtn").getBoundingClientRect();
-    const g=r.querySelector(".nav-led .navbtn").getBoundingClientRect();
-    return [Math.round(t.left-l.right),Math.round(g.left-t.right),r.querySelector(".navttl .mn").textContent]; });
-  say("longest title clears From by "+gap[0]+"px and Led to by "+gap[1]+"px ("+gap[2]+")", gap[0]>0&&gap[1]>0);
+    const bk=r.querySelector("#panelBack").getBoundingClientRect();
+    const pr=r.querySelector(".navpair").getBoundingClientRect();
+    return [Math.round(t.left-bk.right),Math.round(pr.left-t.right),r.querySelector(".navttl .mn").textContent]; });
+  say("longest title clears back by "+gap[0]+"px and the pair by "+gap[1]+"px ("+gap[2]+")", gap[0]>=0&&gap[1]>=0);
   await p.screenshot({path:__dirname+"/screens/m-sharettl.png"});
 
   // the panel regains the space the footer took

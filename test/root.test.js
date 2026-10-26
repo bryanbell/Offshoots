@@ -52,7 +52,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
     const n=document.querySelector("#chart .n.cur"); if(!n) return false;
     const r=n.getBoundingClientRect(); return r.top>-10 && r.top<innerHeight; }));
   say("without forcing the sheet open", (await mini.$eval("body",e=>e.classList.contains("open")))===false);
-  await mini.click("#mapBack"); await mini.waitForTimeout(600);
+  await mini.click("#panelBack"); await mini.waitForTimeout(600);
   say("back returns to the overview", (await mini.evaluate(()=>location.hash))==="");
   await mini.close();
   say("and the panel has its playlist", (await p.$$(".sect-listen")).length===1);
