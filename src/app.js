@@ -162,7 +162,7 @@ $("stats").textContent = `${nodes.length} styles · ${nodes.filter(n=>n.year<195
 
 const AXH=30, END=2026;
 const BAR=()=>$("spacer").offsetHeight;
-let Z=1; const BASE=.576, ZMIN=.65, ZMAX=3.35; let LOD=false; // Z is shown as %, 100% = BASE scale
+let Z=1; const BASE=.576, ZMIN=.7, ZMAX=3.3; let LOD=false; // Z is shown as %, 100% = BASE scale
 let NARROW, OVERLAY, LABELW, ROOTW, PX, RH, FS, R, PAD, X0, FSMIN, FSMAX;
 function dims(){
   NARROW = innerWidth<700; OVERLAY = innerWidth<900;
@@ -1144,23 +1144,23 @@ q.addEventListener("keydown",e=>{ if(e.key==="Escape"){ e.stopPropagation(); clo
 // ---------- zoom ----------
 function updZoom(){ const pct=Math.round(Z*100)+"%"; $("zreset").textContent=pct; $("zin").disabled=Z>=ZMAX; $("zout").disabled=Z<=ZMIN; $("zreset2").hidden = Math.abs(Z-1)<.001; $("zpct").textContent=pct; }
 function setZoom(z){
-  z=Math.min(ZMAX,Math.max(ZMIN,Math.round(z*20)/20)); if(z===Z) return;
+  z=Math.min(ZMAX,Math.max(ZMIN,Math.round(z*10)/10)); if(z===Z) return;
   const fx=(scroller.scrollLeft+scroller.clientWidth/2)/W, fy=(scroller.scrollTop+scroller.clientHeight/2)/(H+AXH+BAR());
   Z=z; render(); if(state.sel) select(state.sel,{scroll:false,repaint:false});
   scroller.scrollLeft=fx*W-scroller.clientWidth/2; scroller.scrollTop=fy*(H+AXH+BAR())-scroller.clientHeight/2;
   updZoom();
 }
-$("zin").onclick=()=>setZoom(Z+.05);
-$("zout").onclick=()=>setZoom(Z-.05);
+$("zin").onclick=()=>setZoom(Z+.1);
+$("zout").onclick=()=>setZoom(Z-.1);
 $("zreset").onclick=()=>setZoom(1);
 $("zreset2").onclick=()=>setZoom(1);
-scroller.addEventListener("keydown",e=>{ if(e.key==="+"||e.key==="="){setZoom(Z+.05);e.preventDefault();} else if(e.key==="-"){setZoom(Z-.05);e.preventDefault();} else if(e.key==="0"){setZoom(1);e.preventDefault();} });
-scroller.addEventListener("wheel",e=>{ if(e.ctrlKey){ e.preventDefault(); setZoom(Z+(e.deltaY<0?.05:-.05)); } },{passive:false});
+scroller.addEventListener("keydown",e=>{ if(e.key==="+"||e.key==="="){setZoom(Z+.1);e.preventDefault();} else if(e.key==="-"){setZoom(Z-.1);e.preventDefault();} else if(e.key==="0"){setZoom(1);e.preventDefault();} });
+scroller.addEventListener("wheel",e=>{ if(e.ctrlKey){ e.preventDefault(); setZoom(Z+(e.deltaY<0?.1:-.1)); } },{passive:false});
 // pinch-to-zoom (touch): scale about the midpoint, snapping to 5% steps
 let pinch=null;
 const dist=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
 scroller.addEventListener("touchstart",e=>{ if(e.touches.length===2){ const r=scroller.getBoundingClientRect(); const mx=(e.touches[0].clientX+e.touches[1].clientX)/2-r.left, my=(e.touches[0].clientY+e.touches[1].clientY)/2-r.top; pinch={d0:dist(e.touches),z0:Z,fx:(scroller.scrollLeft+mx)/W,fy:(scroller.scrollTop+my)/(H+AXH+BAR()),mx,my}; e.preventDefault(); } },{passive:false});
-scroller.addEventListener("touchmove",e=>{ if(!pinch||e.touches.length!==2) return; e.preventDefault(); const z=Math.min(ZMAX,Math.max(ZMIN,Math.round(pinch.z0*dist(e.touches)/pinch.d0*20)/20)); if(z!==Z){ Z=z; render(); if(state.sel) select(state.sel,{scroll:false,repaint:false}); scroller.scrollLeft=pinch.fx*W-pinch.mx; scroller.scrollTop=pinch.fy*(H+AXH+BAR())-pinch.my; updZoom(); } },{passive:false});
+scroller.addEventListener("touchmove",e=>{ if(!pinch||e.touches.length!==2) return; e.preventDefault(); const z=Math.min(ZMAX,Math.max(ZMIN,Math.round(pinch.z0*dist(e.touches)/pinch.d0*10)/10)); if(z!==Z){ Z=z; render(); if(state.sel) select(state.sel,{scroll:false,repaint:false}); scroller.scrollLeft=pinch.fx*W-pinch.mx; scroller.scrollTop=pinch.fy*(H+AXH+BAR())-pinch.my; updZoom(); } },{passive:false});
 scroller.addEventListener("touchend",e=>{ if(e.touches.length<2) pinch=null; });
 scroller.addEventListener("touchcancel",()=>{ pinch=null; });
 // iOS Safari fires gesture events for pinch; stop the page itself from zooming
