@@ -94,8 +94,23 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("about starts closed", (await p.$eval(".aboutwrap",e=>e.open))===false);
   const shut=await p.$eval(".aboutwrap",e=>Math.round(e.getBoundingClientRect().height));
   say("collapsed about is "+shut+"px (summary only)", shut<60);
-  await p.click(".aboutwrap summary"); await p.waitForTimeout(300);
-  say("opens on tap", await p.$eval(".aboutwrap",e=>e.open));
+  // About is the last thing in the panel, so opening it laid the text out below the
+  // fold and the tap looked like it had done nothing at all.
+  const abState=()=>p.evaluate(()=>{
+    const b=document.getElementById("panelBody"), d=document.querySelector(".aboutwrap"),
+          t=d.querySelector(".about"), br=b.getBoundingClientRect();
+    return {open:d.open, top:Math.round(d.getBoundingClientRect().top-br.top),
+      textTop:t?Math.round(t.getBoundingClientRect().top-br.top):null,
+      h:b.clientHeight, atEnd:Math.round(b.scrollHeight-b.clientHeight-b.scrollTop)<=1};
+  });
+  const abBefore=await abState();
+  await p.click(".aboutwrap summary"); await p.waitForTimeout(900);
+  const abAfter=await abState();
+  say("opens on tap", abAfter.open);
+  say("it started "+abBefore.top+"px down, past the fold", abBefore.top > abBefore.h*0.6);
+  say("opening scrolls it up to "+abAfter.top+"px", abAfter.top < abBefore.top - 100);
+  say("as far up as the panel can go"+(abAfter.atEnd?" (scroller at its end)":""),
+      abAfter.top <= 12 || abAfter.atEnd);
   say("stats line inside", await p.$eval(".aboutwrap .stats",e=>e.textContent));
   say("families stated once", (await p.$eval("#panelBody",e=>e.textContent)).split("families").length-1);
 

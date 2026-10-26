@@ -3043,6 +3043,20 @@ function showChips(){
   const br=body.getBoundingClientRect(), hr=head.getBoundingClientRect();
   body.scrollTo({top: Math.max(0, body.scrollTop + (hr.top-br.top) - 8), behavior: reduce?"auto":"smooth"});
 }
+// About is the last thing in the panel, so opening it laid the text out below the fold
+// and the tap looked like it had done nothing. Bring the row up to the top of the panel
+// so the text you just asked for is the text you are looking at.
+// toggle does not bubble, so this has to listen on the capture phase.
+document.addEventListener("toggle",e=>{
+  const d=e.target;
+  if(!d.classList || !d.classList.contains("aboutwrap") || !d.open) return;
+  const body=$("panelBody"); if(!body) return;
+  requestAnimationFrame(()=>{
+    const br=body.getBoundingClientRect(), dr=d.getBoundingClientRect();
+    body.scrollTo({top: Math.max(0, body.scrollTop + (dr.top-br.top) - 8), behavior: reduce?"auto":"smooth"});
+  });
+},true);
+
 // Families and influence as menus rather than two walls of chips. Same navwrap/navmenu
 // machinery as the From and Led to buttons, so they portal, flip and close identically.
 const TOPN=24;
