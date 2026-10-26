@@ -19,7 +19,10 @@ const {chromium}=require("playwright");
 const URL="file://"+__dirname+"/../index.html";
 const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typeof v!=="boolean"?": "+v:""));
 
-const MIN_TYPE=13, TAP=44;
+// Touch and pointer are different tiers, so the floors differ. A phone and an iPad
+// hold iOS's 17pt Body and 44pt targets; a desktop sidebar steps down one notch the
+// way macOS does. Both are asserted, so neither tier can quietly drift.
+const TIERS={touch:{minType:13,tap:44}, pointer:{minType:12,tap:36}};
 // decorative glyphs and counters are not reading copy, so they are exempt by name
 const EXEMPT="\\b(cnt|vt|ck|dot|sw|mi|cv|shg|upchev|svcchev|pkgo|plgo)\\b";
 
@@ -78,9 +81,10 @@ const readRules=(p)=>p.evaluate(()=>{
 (async()=>{
   const b=await chromium.launch();
   let bad=0;
+  let TIER=TIERS.touch;
   const check=(label,type,taps)=>{
-    const small=type.filter(t=>t.size<MIN_TYPE);
-    say(label+": "+type.length+" strings, none under "+MIN_TYPE+"px"
+    const small=type.filter(t=>t.size<TIER.minType);
+    say(label+": "+type.length+" strings, none under "+TIER.minType+"px"
       +(small.length?" — "+[...new Set(small.map(t=>t.cls+" "+t.size+"px"))].join(", "):""), small.length===0);
     if(small.length) bad++;
     const caps=type.filter(t=>t.tt==="uppercase");
@@ -88,22 +92,23 @@ const readRules=(p)=>p.evaluate(()=>{
       +(caps.length?" — "+[...new Set(caps.map(t=>t.cls+' "'+t.txt+'"'))].join(", "):""), caps.length===0);
     if(caps.length) bad++;
     if(taps){
-      say(label+": every control clears "+TAP+"pt"
+      say(label+": every control clears "+TIER.tap+"pt"
         +(taps.length?" — "+taps.map(t=>t.cls+" "+t.h+"px").join(", "):""), taps.length===0);
       if(taps.length) bad++;
     }
   };
 
-  for(const [name,vp,mob,open] of [["phone",{width:390,height:844},true,true],
-                                   ["tablet",{width:834,height:1112},true,true],
-                                   ["desktop",{width:1440,height:900},false,false]]){
+  for(const [name,vp,mob,open,tierName] of [["phone",{width:390,height:844},true,true,"touch"],
+                                   ["tablet",{width:834,height:1112},true,true,"touch"],
+                                   ["desktop",{width:1440,height:900},false,false,"pointer"]]){
+    TIER=TIERS[tierName];
     const ctx=await b.newContext({viewport:vp,isMobile:mob,hasTouch:mob,deviceScaleFactor:2});
 
     // 1. the overview
     let p=await ctx.newPage();
     await p.goto(URL); await p.waitForTimeout(900);
     if(open){ await p.click("#grab").catch(()=>{}); await p.waitForTimeout(700); }
-    check(name+" overview", await readType(p,"#panelBody"), await readTaps(p,"#panelBody",TAP));
+    check(name+" overview", await readType(p,"#panelBody"), await readTaps(p,"#panelBody",TIER.tap));
 
     const rules=await readRules(p);
     say(name+": no full-bleed rules across the panel"
@@ -139,7 +144,7 @@ const readRules=(p)=>p.evaluate(()=>{
     const menu=await p.$(".navmenu:not([hidden])");
     if(menu){
       check(name+" menu", await readType(p,".navmenu:not([hidden])"),
-                          await readTaps(p,".navmenu:not([hidden])",TAP));
+                          await readTaps(p,".navmenu:not([hidden])",TIER.tap));
     } else say(name+" menu: opened", false), bad++;
     await p.close();
 
@@ -150,7 +155,7 @@ const readRules=(p)=>p.evaluate(()=>{
     const got=await p.$eval(".pcard .mn",e=>e.textContent).catch(()=>null);
     say(name+" style panel opened on Shoegaze", got==="Shoegaze");
     if(got!=="Shoegaze") bad++;
-    check(name+" style", await readType(p,"#panelBody"), await readTaps(p,"#panelBody",TAP));
+    check(name+" style", await readType(p,"#panelBody"), await readTaps(p,"#panelBody",TIER.tap));
     await p.close();
   }
   await b.close();

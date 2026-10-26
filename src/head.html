@@ -902,6 +902,40 @@ a.am .amgo{display:none}
 .who a.am:hover .amgo{background:var(--ink,var(--fg));color:var(--tint,var(--panel))}
 @media (max-width:899px){ .who a.am{gap:8px;padding-right:6px} .who a.am .amgo{width:20px;height:20px}
   .who a.am .amgo svg{width:11px;height:11px} }
+
+/* ---- pointer tier ----------------------------------------------------------
+   A phone is held at arm's length; a sidebar on a desktop is read at desk
+   distance with a mouse. iOS sets Body at 17 for the first case and macOS sets
+   it at 13 for the second, so carrying the touch scale straight across makes a
+   400px sidebar look shouted. Every step drops one notch and controls come down
+   to a pointer height. Nothing below is a new size: it is the same scale, moved.
+   Declared last so it wins over the base tokens without touching them. */
+@media (min-width:900px) and (hover:hover) and (pointer:fine){
+  :root{
+    --t-title1:22px; --t-title1-lh:28px;
+    --t-title2:20px; --t-title2-lh:25px;
+    --t-title3:17px; --t-title3-lh:22px;
+    --t-head:15px;   --t-head-lh:20px;
+    --t-body:15px;   --t-body-lh:20px;
+    --t-call:14px;   --t-call-lh:19px;
+    --t-sub:13px;    --t-sub-lh:18px;
+    --t-foot:12px;   --t-foot-lh:16px;
+    --t-cap:11px;    --t-cap-lh:14px;
+    --tap:36px;
+  }
+  /* the app icon is sized against the title, which just got smaller */
+  .pcard.ovcard .appicon{width:40px;height:40px;border-radius:10px}
+  /* the separator still has to start where the title starts */
+  .picks{--seplead:31px}
+  .picks>.pick+.pick::after{right:14px}
+  .pick{padding:10px 14px}
+  .chip,.modechip{padding:0 13px}
+  .plrow .plgo{width:34px;height:34px}
+  .plrow .plgo svg{width:15px;height:15px}
+  .plrow img.pcov,.plrow .pcovph{width:56px;height:56px}
+  .who a.am .amgo{width:20px;height:20px}
+}
+
 </style>
 <div id="app">
   <div id="treeView">
