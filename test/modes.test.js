@@ -64,6 +64,34 @@ const Dk={width:1280,height:900};
   await p.click('[data-mk="focus"]'); await p.waitForTimeout(400);
   await p.screenshot({path:__dirname+"/screens/m-focus.png"});
 
+  // every mode carries how loud it is, and the chip takes its colour from that. The
+  // ramp has to read in order, so the five levels are five distinct colours.
+  p=await fresh(b,M);
+  await p.click("#grab").catch(()=>{}); await p.waitForTimeout(500);
+  const lv=await p.evaluate(()=>[...document.querySelectorAll(".modechip")].map(c=>{
+    const cs=getComputedStyle(c);
+    return {name:c.querySelector(".nm").textContent, lv:c.dataset.lv,
+      bg:cs.backgroundColor, fg:cs.color, icon:getComputedStyle(c.querySelector(".mi")).color};}));
+  say("every chip is rated 1 to 5", lv.length>0 && lv.every(c=>/^[1-5]$/.test(c.lv)));
+  const grounds=new Set(lv.map(c=>c.bg)), icons=new Set(lv.map(c=>c.icon));
+  say("the five levels are five grounds ("+grounds.size+")", grounds.size===5);
+  say("and five icon colours ("+icons.size+")", icons.size===5);
+  const lumi=c=>{const [r,g,bl]=c.match(/[\d.]+/g).slice(0,3).map(Number).map(v=>{v/=255;
+    return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4);}); return .2126*r+.7152*g+.0722*bl;};
+  const ratio=(a,b)=>(Math.max(lumi(a),lumi(b))+.05)/(Math.min(lumi(a),lumi(b))+.05);
+  const worst=Math.min(...lv.map(c=>ratio(c.fg,c.bg)));
+  say("the faintest label on its own chip reads at "+worst.toFixed(2)+":1", worst>=4.5);
+  // the ramp must run cool to hot, not be five arbitrary colours
+  const byLv={}; lv.forEach(c=>byLv[c.lv]=c.icon);
+  const hue=c=>{let [r,g,b]=c.match(/[\d.]+/g).slice(0,3).map(Number).map(v=>v/255);
+    const mx=Math.max(r,g,b), mn=Math.min(r,g,b), d=mx-mn;
+    if(!d) return 0;
+    let h = mx===r ? ((g-b)/d)%6 : mx===g ? (b-r)/d+2 : (r-g)/d+4;
+    h*=60; return h<0?h+360:h;};
+  const ramp=[1,2,3,4,5].map(n=>Math.round(hue(byLv[n])));
+  say("the hue falls from blue to red ["+ramp.join(" ")+"]",
+    ramp.every((v,i)=>i===0||v<ramp[i-1]) && ramp[0]>180 && ramp[4]<30);
+
   // picking a mode brings its list to the top of the sheet. The scroller is #panelBody:
   // #panel is overflow:hidden, and scrolling that moved nothing for as long as it existed.
   p=await fresh(b,M);

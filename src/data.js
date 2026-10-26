@@ -819,7 +819,7 @@ const MODES = [
     ["drone","One sustained note you stop noticing, then miss"],
     ["deephouse","A soft four-four you can leave on all afternoon"],
     ["westcoast_jazz","Unhurried and unshowy, written for the room"],
-    ["hauntology","Half-remembered library music, pleasantly out of focus"]]],
+    ["hauntology","Half-remembered library music, pleasantly out of focus"]],2],
 
   ["restless","Can't settle","When nothing will go in",
    "The usual advice is something quieter. It often works the other way round: dense and relentless gives the restless part something to hold, and heavy repetition keeps novelty low so nothing new can hijack you. Studies adding steady noise find it lifts people who are easily distracted and does nothing for people who are not.",
@@ -834,7 +834,7 @@ const MODES = [
     ["mathrock","Intricate and wordless, something to chew on"],
     ["bebop","Too fast and too busy to drift away from"],
     ["bluegrass","Relentless and instrumental, with no gaps to fall into"],
-    ["jamgrass","Long instrumental runs and nothing to follow"]]],
+    ["jamgrass","Long instrumental runs and nothing to follow"]],3],
   ["workout","Workout","Lifting and intervals",
    "Effort that comes in bursts rather than a steady hour. Loud, repetitive and front-loaded, so the hardest ten seconds of a set always has something behind it. Distance running and riding want the opposite of this: see Miles.",
    [["house","Four-on-the-floor at 120–128 — the original treadmill tempo"],
@@ -848,7 +848,7 @@ const MODES = [
     ["crunk","Shouted call-and-response for the last rep"],
     ["speedmetal","Double kick used as a metronome"],
     ["hiphouse","Rapping over a house beat, which is as efficient as it sounds"],
-    ["gqom","Heavy and lurching — hard to coast through"]]],
+    ["gqom","Heavy and lurching — hard to coast through"]],5],
 
   ["miles","Miles","Running or riding",
    "An hour at one effort, not ten sets. Cadence is the thing: runners land near 160–180 steps a minute, so 130–140 BPM meets every other footfall and 170ish meets each one. Long forms, few drops and little dynamic range, so nothing yanks you off your pace or asks to be listened to while you are also breathing.",
@@ -863,7 +863,7 @@ const MODES = [
     ["afrobeat","Fifteen-minute grooves that go the distance"],
     ["afrohouse","Percussion that never quite resolves"],
     ["boombap","90 BPM half-time is 180 steps a minute"],
-    ["powermetal","A gallop holds a hill better than a drop"]]],
+    ["powermetal","A gallop holds a hill better than a drop"]],4],
 
   ["winddown","Wind down","Winding down",
    "Slow tempos, soft attacks and space between the notes. Getting under your own resting pulse is most of the trick.",
@@ -878,7 +878,7 @@ const MODES = [
     ["spiritual","Searching, patient, warm"],
     ["neosoul","Live drums and nowhere to be"],
     ["hypnagogic","Pop heard through a wall, half asleep"],
-    ["lofihouse","Dance music with the lights off"]]],
+    ["lofihouse","Dance music with the lights off"]],1],
 
   ["party","Party","A room full of people",
    "A floor beat people can find without counting, choruses that arrive early, and enough familiarity that nobody has to work at it.",
@@ -893,7 +893,7 @@ const MODES = [
     ["bounce","New Orleans call-and-response, no slow songs"],
     ["cumbia","The one rhythm that works at every age in the room"],
     ["amapiano","South African house with a log drum and infinite patience"],
-    ["eurodance","Enormous, unembarrassed, everybody knows the chorus"]]],
+    ["eurodance","Enormous, unembarrassed, everybody knows the chorus"]],5],
 
   ["houseparty","House party","Shouting along, drink in hand",
    "Party is a dance floor and a DJ. This is the other kind: a living room with the furniture pushed back, where recognition beats taste and the measure of a song is whether thirty people can yell the words at it. Ordered oldest to newest, so the back half is what currently gets played, and it carries two styles built around a drop for the point in the night when the room wants one.",
@@ -908,7 +908,7 @@ const MODES = [
     ["corridostumbados","Twelve-string and trap drums, and everyone sings it"],
     ["rage","Mosh music, and the current default"],
     ["jerseyclubrap","Bed squeak, kick run, no let-up"],
-    ["newjerk","Dances first, song second"]]],
+    ["newjerk","Dances first, song second"]],5],
 
   ["driving","Driving","On the road",
    "Road music keeps a mid-tempo groove going without needing you to follow it, and it has to scale — a chorus competes with a windshield.",
@@ -923,7 +923,7 @@ const MODES = [
     ["gfunk","Windows down, nothing urgent"],
     ["stoner","Riffs long enough to outlast the next exit"],
     ["roots_rock","Unfussy and built to last four hours"],
-    ["hardrock","Loud enough to beat the road noise"]]],
+    ["hardrock","Loud enough to beat the road noise"]],3],
 
   ["dinner","Dinner","Cooking or eating",
    "Present without demanding. Groove-forward, warm in timbre and even in volume, so it holds the room between conversations.",
@@ -938,7 +938,7 @@ const MODES = [
     ["citypop","Expensive-sounding Tokyo evening music"],
     ["jazz_early","Cheerful, busy, never in the way"],
     ["western_swing","A dance band that fits in a kitchen"],
-    ["acidjazz","Groove with the volume knob at four"]]],
+    ["acidjazz","Groove with the volume knob at four"]],2],
 
   ["cocktails","Cocktails","People standing and talking",
    "Dinner holds a seated table together. This is the other job: everyone is upright, moving between conversations, and talking over it. Brighter and more rhythmic than Dinner, well short of Party, and written to be half-heard.",
@@ -953,7 +953,7 @@ const MODES = [
     ["soul","Warmth everybody already knows"],
     ["worldbeat","Bright and hard to place"],
     ["jazzrap","Loose enough to talk over"],
-    ["chicano_rock","Lift, without clearing the furniture"]]],
+    ["chicano_rock","Lift, without clearing the furniture"]],2],
 
   ["gaming","Gaming","Playing something",
    "A mood held for hours without competing for the hand-eye part of your brain: loops, sequences and a tempo that stays put. A good share of it descends from the sound chips that scored games in the first place.",
@@ -968,7 +968,7 @@ const MODES = [
     ["hardtechno","For the part where you keep dying"],
     ["djent","Rhythm puzzles at high volume"],
     ["futurebass","Bright, large and friendly"],
-    ["witchhouse","Slow and ominous, for the part with the fog"]]],
+    ["witchhouse","Slow and ominous, for the part with the fog"]],3],
 
   ["chores","Getting it done","Chores and admin",
    "Nothing here has to be followed. It wants to be familiar, mid-tempo and forgiving of being half-ignored, so losing a minute to the washing machine costs nothing. A workout locks to a cadence and a party needs the room; this needs neither.",
@@ -983,7 +983,7 @@ const MODES = [
     ["yacht","Immaculate production, zero stakes"],
     ["blueeyed","Soul with the edges smoothed for radio"],
     ["southern_soul","A horn section doing the heavy lifting"],
-    ["skapunk","Too cheerful to let a chore feel like one"]]],
+    ["skapunk","Too cheerful to let a chore feel like one"]],3],
   ["lift","Lift the mood","Changing how you feel",
    "Major keys, chords that change often, and more than one voice singing at once. Steering mood is the most common reason people reach for music at all.",
    [["motown","Three minutes engineered for joy"],
@@ -997,7 +997,7 @@ const MODES = [
     ["soca","Carnival music, which has exactly one job"],
     ["kpop","Maximalist on purpose"],
     ["sunshine","Harmony stacked until it glows"],
-    ["nudisco","Disco rebuilt by people who missed it"]]],
+    ["nudisco","Disco rebuilt by people who missed it"]],3],
 
   ["hype","Walk in tall","Before you walk in",
    "Swagger rather than speed. Front-loaded, brash and certain of itself, for the three minutes before the thing rather than during it. Workout is led by tempo and Burn it off is anger; this is neither.",
@@ -1012,7 +1012,7 @@ const MODES = [
     ["numetal","Bottom-heavy and sure it is right"],
     ["funkmetal","A strut with distortion on it"],
     ["crossover","Short, fast, chin out"],
-    ["groove","Slower than thrash and twice as heavy"]]],
+    ["groove","Slower than thrash and twice as heavy"]],4],
   ["burn","Burn it off","Anger with nowhere to go",
    "Anger wants volume, distortion and a tempo above your pulse. Playing it through tends to work better than reaching for something calming first.",
    [["hardcore","Two minutes, no chorus, full volume"],
@@ -1026,7 +1026,22 @@ const MODES = [
     ["industrial_metal","Machines losing their temper"],
     ["crust","Filthy, political, fast"],
     ["beatdown","Written around the heaviest ten seconds"],
-    ["horrorcore","Rap that goes somewhere unpleasant on purpose"]]],
+    ["horrorcore","Rap that goes somewhere unpleasant on purpose"]],5],
+
+  ["nightcap","Nightcap","Alone, late, nothing to do",
+   "Not sad, which is Sit with it, and not on the way to sleep, which is Wind down. Slow, worn-in and adult, with room between the notes and nobody to talk to. Anything that would make you check the time is out.",
+   [["delta","One voice, one guitar, at two in the morning"],
+    ["texas_blues","A long slow one, no hurry to finish"],
+    ["honkytonk","Written at the bar it is played in"],
+    ["cool","Unhurried, and keeping its voice down"],
+    ["swamp_blues","Humid, unbothered, half-asleep"],
+    ["postbop","After hours, when the room has thinned out"],
+    ["soul_blues","Grown and unbothered about proving it"],
+    ["outlaw","Whiskey country, and it knows it"],
+    ["quiet_storm","The late shift on the radio"],
+    ["neobop","Standards played straight at one in the morning"],
+    ["blues_revival","The guitar taking its time"],
+    ["altcountry","Closing time, in song form"]],1],
 
   ["sit","Sit with it","Something heavy",
    "Sad music is reliably one of the most pleasurable kinds there is: slow, minor, a single voice close to the microphone, the feeling rehearsed at a safe distance.",
@@ -1041,7 +1056,7 @@ const MODES = [
     ["screamo","The point where words stop working"],
     ["blackgaze","Despair with the beauty left in"],
     ["countrypolitan","Nashville strings over a genuinely bad week"],
-    ["emorap","Sadness said plainly over a trap beat"]]],
+    ["emorap","Sadness said plainly over a trap beat"]],1],
 
   ["onmind","On your mind","Someone's on your mind",
    "Not being with someone: thinking about them. High major keys, a voice close and a little nervous, and words in the second person about something that has not been said yet. A great deal of pop exists to sell this one feeling.",
@@ -1056,7 +1071,7 @@ const MODES = [
     ["altpop","Pop written at two in the morning"],
     ["bedroompop","Recorded alone, about someone else"],
     ["pluggnb","The loop learns to yearn"],
-    ["hyperpop","Everything at once, which is about right"]]],
+    ["hyperpop","Everything at once, which is about right"]],2],
   ["together","With someone","Being with people",
    "The third thing the research keeps finding, after mood and self-reflection: music as a way of being with someone. Slow enough to talk over, or shared enough that everyone already knows it.",
    [["doowop","Four people on a corner, no instruments required"],
@@ -1070,7 +1085,7 @@ const MODES = [
     ["wallofsound","Teenage romance at symphony scale"],
     ["baroquepop","Harpsichords and longing"],
     ["merengue","Fast, two-step, nobody sits down"],
-    ["brill","Professional songwriters, amateur feelings"]]],
+    ["brill","Professional songwriters, amateur feelings"]],2],
 
   ["family","Family's over","Three generations in one room",
    "Weighted toward whoever is oldest, since they are the one least likely to meet the others halfway, and chosen so nobody younger has to sit through it politely. Songs with a shape people can sing along to even when they do not know the record.",
@@ -1085,7 +1100,7 @@ const MODES = [
     ["chicago_blues","Grown-up music that a kid still feels"],
     ["folkrevival","Built for singing together, not performing"],
     ["neotrad","Old-sounding on purpose, so it reads as timeless"],
-    ["latin_rock","Percussion gets the youngest ones moving"]]],
+    ["latin_rock","Percussion gets the youngest ones moving"]],3],
 
   ["deep","Listen properly","Nothing else running",
    "Wide dynamic range and long forms that only pay off if you give them the whole stretch. This is the one that rewards headphones and an hour.",
@@ -1100,7 +1115,7 @@ const MODES = [
     ["post_metal","Heavy music built like a symphony"],
     ["idm","Rhythm as a puzzle"],
     ["thirdstream","Jazz and the concert hall, arguing"],
-    ["tape","The studio itself used as the instrument"]]],
+    ["tape","The studio itself used as the instrument"]],1],
 
   ["roots","Go to the source","Where it all starts",
    "The far left of the map: styles that cohered before 1950, drawn as hollow dots that are easy to scroll past. Nearly everything else on the map descends from this handful, so it is the layer that explains the rest.",
@@ -1115,6 +1130,6 @@ const MODES = [
     ["danzon","Cuba's ballroom, parent to half the Latin map"],
     ["corrido","News and legend sung on the border"],
     ["conjunto","Accordion and bajo sexto, a whole tradition"],
-    ["mambo","The big-band answer from Havana"]]]
+    ["mambo","The big-band answer from Havana"]],2]
 ];
 if (typeof module !== "undefined") module.exports = {FAMS, DATA, ART, DONE, PLAY, SPLAY, DESC, COVER, PTITLE, FAMSKIN, FAMMAP, MODES};

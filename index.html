@@ -144,7 +144,18 @@ aside h3,.pcard h3.sec{font:600 11px var(--f-body);letter-spacing:.06em;text-tra
 /* listening modes */
 .sectaside{font:500 11px var(--f-mono);color:var(--muted);opacity:.75}
 .modechip{gap:7px;padding:6px 12px 6px 10px}
-.modechip .mi{flex:none;display:flex;width:15px;height:15px;opacity:.8}
+.modechip{--lvc:#9aa0a6}
+.modechip.lv1{--lvc:#7aa2f7}
+.modechip.lv2{--lvc:#5bbda4}
+.modechip.lv3{--lvc:#e8c24a}
+.modechip.lv4{--lvc:#ee8f4e}
+.modechip.lv5{--lvc:#e2604a}
+.modechip{background:color-mix(in srgb,var(--lvc) 15%,var(--fill2));
+  box-shadow:inset 0 0 0 .5px color-mix(in srgb,var(--lvc) 26%,transparent)}
+.modechip:hover{background:color-mix(in srgb,var(--lvc) 26%,var(--fill2))}
+.modechip.on{background:var(--fg);box-shadow:none}
+.modechip.on .mi{color:var(--lvc);opacity:1}
+.modechip .mi{flex:none;display:flex;width:15px;height:15px;opacity:.8;color:var(--lvc)}
 .modechip .mi svg{width:100%;height:100%}
 .modechip.on .mi{opacity:1}
 .modechip::before{display:none}
@@ -1738,7 +1749,7 @@ const MODES = [
     ["drone","One sustained note you stop noticing, then miss"],
     ["deephouse","A soft four-four you can leave on all afternoon"],
     ["westcoast_jazz","Unhurried and unshowy, written for the room"],
-    ["hauntology","Half-remembered library music, pleasantly out of focus"]]],
+    ["hauntology","Half-remembered library music, pleasantly out of focus"]],2],
 
   ["restless","Can't settle","When nothing will go in",
    "The usual advice is something quieter. It often works the other way round: dense and relentless gives the restless part something to hold, and heavy repetition keeps novelty low so nothing new can hijack you. Studies adding steady noise find it lifts people who are easily distracted and does nothing for people who are not.",
@@ -1753,7 +1764,7 @@ const MODES = [
     ["mathrock","Intricate and wordless, something to chew on"],
     ["bebop","Too fast and too busy to drift away from"],
     ["bluegrass","Relentless and instrumental, with no gaps to fall into"],
-    ["jamgrass","Long instrumental runs and nothing to follow"]]],
+    ["jamgrass","Long instrumental runs and nothing to follow"]],3],
   ["workout","Workout","Lifting and intervals",
    "Effort that comes in bursts rather than a steady hour. Loud, repetitive and front-loaded, so the hardest ten seconds of a set always has something behind it. Distance running and riding want the opposite of this: see Miles.",
    [["house","Four-on-the-floor at 120–128 — the original treadmill tempo"],
@@ -1767,7 +1778,7 @@ const MODES = [
     ["crunk","Shouted call-and-response for the last rep"],
     ["speedmetal","Double kick used as a metronome"],
     ["hiphouse","Rapping over a house beat, which is as efficient as it sounds"],
-    ["gqom","Heavy and lurching — hard to coast through"]]],
+    ["gqom","Heavy and lurching — hard to coast through"]],5],
 
   ["miles","Miles","Running or riding",
    "An hour at one effort, not ten sets. Cadence is the thing: runners land near 160–180 steps a minute, so 130–140 BPM meets every other footfall and 170ish meets each one. Long forms, few drops and little dynamic range, so nothing yanks you off your pace or asks to be listened to while you are also breathing.",
@@ -1782,7 +1793,7 @@ const MODES = [
     ["afrobeat","Fifteen-minute grooves that go the distance"],
     ["afrohouse","Percussion that never quite resolves"],
     ["boombap","90 BPM half-time is 180 steps a minute"],
-    ["powermetal","A gallop holds a hill better than a drop"]]],
+    ["powermetal","A gallop holds a hill better than a drop"]],4],
 
   ["winddown","Wind down","Winding down",
    "Slow tempos, soft attacks and space between the notes. Getting under your own resting pulse is most of the trick.",
@@ -1797,7 +1808,7 @@ const MODES = [
     ["spiritual","Searching, patient, warm"],
     ["neosoul","Live drums and nowhere to be"],
     ["hypnagogic","Pop heard through a wall, half asleep"],
-    ["lofihouse","Dance music with the lights off"]]],
+    ["lofihouse","Dance music with the lights off"]],1],
 
   ["party","Party","A room full of people",
    "A floor beat people can find without counting, choruses that arrive early, and enough familiarity that nobody has to work at it.",
@@ -1812,7 +1823,7 @@ const MODES = [
     ["bounce","New Orleans call-and-response, no slow songs"],
     ["cumbia","The one rhythm that works at every age in the room"],
     ["amapiano","South African house with a log drum and infinite patience"],
-    ["eurodance","Enormous, unembarrassed, everybody knows the chorus"]]],
+    ["eurodance","Enormous, unembarrassed, everybody knows the chorus"]],5],
 
   ["houseparty","House party","Shouting along, drink in hand",
    "Party is a dance floor and a DJ. This is the other kind: a living room with the furniture pushed back, where recognition beats taste and the measure of a song is whether thirty people can yell the words at it. Ordered oldest to newest, so the back half is what currently gets played, and it carries two styles built around a drop for the point in the night when the room wants one.",
@@ -1827,7 +1838,7 @@ const MODES = [
     ["corridostumbados","Twelve-string and trap drums, and everyone sings it"],
     ["rage","Mosh music, and the current default"],
     ["jerseyclubrap","Bed squeak, kick run, no let-up"],
-    ["newjerk","Dances first, song second"]]],
+    ["newjerk","Dances first, song second"]],5],
 
   ["driving","Driving","On the road",
    "Road music keeps a mid-tempo groove going without needing you to follow it, and it has to scale — a chorus competes with a windshield.",
@@ -1842,7 +1853,7 @@ const MODES = [
     ["gfunk","Windows down, nothing urgent"],
     ["stoner","Riffs long enough to outlast the next exit"],
     ["roots_rock","Unfussy and built to last four hours"],
-    ["hardrock","Loud enough to beat the road noise"]]],
+    ["hardrock","Loud enough to beat the road noise"]],3],
 
   ["dinner","Dinner","Cooking or eating",
    "Present without demanding. Groove-forward, warm in timbre and even in volume, so it holds the room between conversations.",
@@ -1857,7 +1868,7 @@ const MODES = [
     ["citypop","Expensive-sounding Tokyo evening music"],
     ["jazz_early","Cheerful, busy, never in the way"],
     ["western_swing","A dance band that fits in a kitchen"],
-    ["acidjazz","Groove with the volume knob at four"]]],
+    ["acidjazz","Groove with the volume knob at four"]],2],
 
   ["cocktails","Cocktails","People standing and talking",
    "Dinner holds a seated table together. This is the other job: everyone is upright, moving between conversations, and talking over it. Brighter and more rhythmic than Dinner, well short of Party, and written to be half-heard.",
@@ -1872,7 +1883,7 @@ const MODES = [
     ["soul","Warmth everybody already knows"],
     ["worldbeat","Bright and hard to place"],
     ["jazzrap","Loose enough to talk over"],
-    ["chicano_rock","Lift, without clearing the furniture"]]],
+    ["chicano_rock","Lift, without clearing the furniture"]],2],
 
   ["gaming","Gaming","Playing something",
    "A mood held for hours without competing for the hand-eye part of your brain: loops, sequences and a tempo that stays put. A good share of it descends from the sound chips that scored games in the first place.",
@@ -1887,7 +1898,7 @@ const MODES = [
     ["hardtechno","For the part where you keep dying"],
     ["djent","Rhythm puzzles at high volume"],
     ["futurebass","Bright, large and friendly"],
-    ["witchhouse","Slow and ominous, for the part with the fog"]]],
+    ["witchhouse","Slow and ominous, for the part with the fog"]],3],
 
   ["chores","Getting it done","Chores and admin",
    "Nothing here has to be followed. It wants to be familiar, mid-tempo and forgiving of being half-ignored, so losing a minute to the washing machine costs nothing. A workout locks to a cadence and a party needs the room; this needs neither.",
@@ -1902,7 +1913,7 @@ const MODES = [
     ["yacht","Immaculate production, zero stakes"],
     ["blueeyed","Soul with the edges smoothed for radio"],
     ["southern_soul","A horn section doing the heavy lifting"],
-    ["skapunk","Too cheerful to let a chore feel like one"]]],
+    ["skapunk","Too cheerful to let a chore feel like one"]],3],
   ["lift","Lift the mood","Changing how you feel",
    "Major keys, chords that change often, and more than one voice singing at once. Steering mood is the most common reason people reach for music at all.",
    [["motown","Three minutes engineered for joy"],
@@ -1916,7 +1927,7 @@ const MODES = [
     ["soca","Carnival music, which has exactly one job"],
     ["kpop","Maximalist on purpose"],
     ["sunshine","Harmony stacked until it glows"],
-    ["nudisco","Disco rebuilt by people who missed it"]]],
+    ["nudisco","Disco rebuilt by people who missed it"]],3],
 
   ["hype","Walk in tall","Before you walk in",
    "Swagger rather than speed. Front-loaded, brash and certain of itself, for the three minutes before the thing rather than during it. Workout is led by tempo and Burn it off is anger; this is neither.",
@@ -1931,7 +1942,7 @@ const MODES = [
     ["numetal","Bottom-heavy and sure it is right"],
     ["funkmetal","A strut with distortion on it"],
     ["crossover","Short, fast, chin out"],
-    ["groove","Slower than thrash and twice as heavy"]]],
+    ["groove","Slower than thrash and twice as heavy"]],4],
   ["burn","Burn it off","Anger with nowhere to go",
    "Anger wants volume, distortion and a tempo above your pulse. Playing it through tends to work better than reaching for something calming first.",
    [["hardcore","Two minutes, no chorus, full volume"],
@@ -1945,7 +1956,22 @@ const MODES = [
     ["industrial_metal","Machines losing their temper"],
     ["crust","Filthy, political, fast"],
     ["beatdown","Written around the heaviest ten seconds"],
-    ["horrorcore","Rap that goes somewhere unpleasant on purpose"]]],
+    ["horrorcore","Rap that goes somewhere unpleasant on purpose"]],5],
+
+  ["nightcap","Nightcap","Alone, late, nothing to do",
+   "Not sad, which is Sit with it, and not on the way to sleep, which is Wind down. Slow, worn-in and adult, with room between the notes and nobody to talk to. Anything that would make you check the time is out.",
+   [["delta","One voice, one guitar, at two in the morning"],
+    ["texas_blues","A long slow one, no hurry to finish"],
+    ["honkytonk","Written at the bar it is played in"],
+    ["cool","Unhurried, and keeping its voice down"],
+    ["swamp_blues","Humid, unbothered, half-asleep"],
+    ["postbop","After hours, when the room has thinned out"],
+    ["soul_blues","Grown and unbothered about proving it"],
+    ["outlaw","Whiskey country, and it knows it"],
+    ["quiet_storm","The late shift on the radio"],
+    ["neobop","Standards played straight at one in the morning"],
+    ["blues_revival","The guitar taking its time"],
+    ["altcountry","Closing time, in song form"]],1],
 
   ["sit","Sit with it","Something heavy",
    "Sad music is reliably one of the most pleasurable kinds there is: slow, minor, a single voice close to the microphone, the feeling rehearsed at a safe distance.",
@@ -1960,7 +1986,7 @@ const MODES = [
     ["screamo","The point where words stop working"],
     ["blackgaze","Despair with the beauty left in"],
     ["countrypolitan","Nashville strings over a genuinely bad week"],
-    ["emorap","Sadness said plainly over a trap beat"]]],
+    ["emorap","Sadness said plainly over a trap beat"]],1],
 
   ["onmind","On your mind","Someone's on your mind",
    "Not being with someone: thinking about them. High major keys, a voice close and a little nervous, and words in the second person about something that has not been said yet. A great deal of pop exists to sell this one feeling.",
@@ -1975,7 +2001,7 @@ const MODES = [
     ["altpop","Pop written at two in the morning"],
     ["bedroompop","Recorded alone, about someone else"],
     ["pluggnb","The loop learns to yearn"],
-    ["hyperpop","Everything at once, which is about right"]]],
+    ["hyperpop","Everything at once, which is about right"]],2],
   ["together","With someone","Being with people",
    "The third thing the research keeps finding, after mood and self-reflection: music as a way of being with someone. Slow enough to talk over, or shared enough that everyone already knows it.",
    [["doowop","Four people on a corner, no instruments required"],
@@ -1989,7 +2015,7 @@ const MODES = [
     ["wallofsound","Teenage romance at symphony scale"],
     ["baroquepop","Harpsichords and longing"],
     ["merengue","Fast, two-step, nobody sits down"],
-    ["brill","Professional songwriters, amateur feelings"]]],
+    ["brill","Professional songwriters, amateur feelings"]],2],
 
   ["family","Family's over","Three generations in one room",
    "Weighted toward whoever is oldest, since they are the one least likely to meet the others halfway, and chosen so nobody younger has to sit through it politely. Songs with a shape people can sing along to even when they do not know the record.",
@@ -2004,7 +2030,7 @@ const MODES = [
     ["chicago_blues","Grown-up music that a kid still feels"],
     ["folkrevival","Built for singing together, not performing"],
     ["neotrad","Old-sounding on purpose, so it reads as timeless"],
-    ["latin_rock","Percussion gets the youngest ones moving"]]],
+    ["latin_rock","Percussion gets the youngest ones moving"]],3],
 
   ["deep","Listen properly","Nothing else running",
    "Wide dynamic range and long forms that only pay off if you give them the whole stretch. This is the one that rewards headphones and an hour.",
@@ -2019,7 +2045,7 @@ const MODES = [
     ["post_metal","Heavy music built like a symphony"],
     ["idm","Rhythm as a puzzle"],
     ["thirdstream","Jazz and the concert hall, arguing"],
-    ["tape","The studio itself used as the instrument"]]],
+    ["tape","The studio itself used as the instrument"]],1],
 
   ["roots","Go to the source","Where it all starts",
    "The far left of the map: styles that cohered before 1950, drawn as hollow dots that are easy to scroll past. Nearly everything else on the map descends from this handful, so it is the layer that explains the rest.",
@@ -2034,7 +2060,7 @@ const MODES = [
     ["danzon","Cuba's ballroom, parent to half the Latin map"],
     ["corrido","News and legend sung on the border"],
     ["conjunto","Accordion and bajo sexto, a whole tradition"],
-    ["mambo","The big-band answer from Havana"]]]
+    ["mambo","The big-band answer from Havana"]],2]
 ];
 (function(){
 const FAM = {}; FAMS.forEach((f,i)=>FAM[f[0]]={key:f[0],name:f[1],h:f[2],short:f[3]||f[1],i,
@@ -3002,10 +3028,10 @@ function browseRow(){
     + browseBtn("top","Most influential",TOPN,"The "+TOPN+" styles that led to the most",topMenuHtml())
     + `</div>`, '<span class="sectaside">every style</span>');
 }
-const MODEICON={"focus":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"10\" r=\"6.8\"/><circle cx=\"10\" cy=\"10\" r=\"2.4\"/></svg>","workout":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.4 7.4v5.2\"/><path d=\"M15.6 7.4v5.2\"/><path d=\"M7 6v8\"/><path d=\"M13 6v8\"/><path d=\"M7 10h6\"/></svg>","miles":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2.4 10.4h3.1l1.7-4.6 2.9 9.1 2-4.5h5.5\"/></svg>","winddown":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M16.2 12.3A6.7 6.7 0 0 1 7.7 3.8a6.9 6.9 0 1 0 8.5 8.5z\"/></svg>","party":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"11.6\" r=\"5.4\"/><path d=\"M10 6.2V3\"/><path d=\"M4.7 10.4h10.6\"/><path d=\"M10 6.2V17\"/></svg>","houseparty":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5.1 4.4h9.8l-1.2 12.1a.9.9 0 0 1-.9.8H7.2a.9.9 0 0 1-.9-.8z\"/><path d=\"M5.6 9.2h8.8\"/></svg>","driving":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.2 12.6h13.6\"/><path d=\"M4.8 12.6l1.3-4.1a1.7 1.7 0 0 1 1.6-1.2h4.6a1.7 1.7 0 0 1 1.6 1.2l1.3 4.1\"/><circle cx=\"6.6\" cy=\"14\" r=\"1.5\"/><circle cx=\"13.4\" cy=\"14\" r=\"1.5\"/></svg>","dinner":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6.4 3v4.6\"/><path d=\"M9.1 3v4.6\"/><path d=\"M7.75 7.6V17\"/><path d=\"M14.4 3c1.5 1.7 1.5 5.3 0 6.6V17\"/></svg>","cocktails":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.6 4.4h12.8L10 10.9z\"/><path d=\"M10 10.9v5.1\"/><path d=\"M7.2 16h5.6\"/></svg>","gaming":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2.6\" y=\"6.6\" width=\"14.8\" height=\"8.8\" rx=\"4.1\"/><path d=\"M6.6 9.8v2.4\"/><path d=\"M5.4 11h2.4\"/><circle cx=\"13.4\" cy=\"10.5\" r=\".95\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"15.1\" cy=\"12.4\" r=\".95\" fill=\"currentColor\" stroke=\"none\"/></svg>","lift":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"10\" r=\"3.5\"/><path d=\"M10 2.4v1.7\"/><path d=\"M10 15.9v1.7\"/><path d=\"M2.4 10h1.7\"/><path d=\"M15.9 10h1.7\"/><path d=\"M4.6 4.6l1.2 1.2\"/><path d=\"M14.2 14.2l1.2 1.2\"/><path d=\"M15.4 4.6l-1.2 1.2\"/><path d=\"M5.8 14.2l-1.2 1.2\"/></svg>","burn":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 2.6c3 3.4 5.1 5.6 5.1 8.5a5.1 5.1 0 0 1-10.2 0c0-1.6.6-2.9 1.7-4.1.5 1.1 1.2 1.7 2 1.9C8.2 6.7 8.8 4.7 10 2.6z\"/></svg>","sit":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6.4 12.3a3.2 3.2 0 0 1 .4-6.4 4.3 4.3 0 0 1 8.1 1.4 2.7 2.7 0 0 1-.5 5\"/><path d=\"M7.6 14.8v2.1\"/><path d=\"M11 14.8v2.7\"/><path d=\"M14.3 14.8v2.1\"/></svg>","together":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"7.3\" cy=\"7.4\" r=\"2.4\"/><circle cx=\"13.5\" cy=\"8.3\" r=\"2\"/><path d=\"M3 16.6a4.4 4.4 0 0 1 8.7 0\"/><path d=\"M12.7 12.7a3.8 3.8 0 0 1 4.3 3.9\"/></svg>","family":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2.6 10.2 10 4.1l7.4 6.1\"/><path d=\"M4.6 9v7.3h10.8V9\"/><path d=\"M8.3 16.3v-3.5h3.4v3.5\"/></svg>","deep":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.2 13v-2.6a5.8 5.8 0 0 1 11.6 0V13\"/><path d=\"M4.2 12.3h1.5a1.4 1.4 0 0 1 1.4 1.4v1.6a1.4 1.4 0 0 1-1.4 1.4h-.9a.6.6 0 0 1-.6-.6z\"/><path d=\"M15.8 12.3h-1.5a1.4 1.4 0 0 0-1.4 1.4v1.6a1.4 1.4 0 0 0 1.4 1.4h.9a.6.6 0 0 0 .6-.6z\"/></svg>","restless":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7.6 2.8h4.8l3.1 14.4H4.5z\"/><path d=\"M4.9 13.9h10.2\"/><path d=\"M10 14.2 13 4.6\"/></svg>","chores":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7.3 3.1l1.15 3.05L11.5 7.3 8.45 8.45 7.3 11.5 6.15 8.45 3.1 7.3l3.05-1.15z\"/><path d=\"M14.1 10.6l.72 1.9 1.9.72-1.9.72-.72 1.9-.72-1.9-1.9-.72 1.9-.72z\"/></svg>","hype":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M11.6 2.4L5.2 11h4.1l-.9 6.6L14.8 9h-4.1z\"/></svg>","roots":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 17.2V8.6\"/><path d=\"M10 10.8C10 7.7 7.5 5.3 4.5 5.3c0 3.1 2.5 5.5 5.5 5.5z\"/><path d=\"M10 8.9c0-2.7 2.2-4.8 4.9-4.8 0 2.7-2.2 4.8-4.9 4.8z\"/></svg>","onmind":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M16.6 10.9a2.9 2.9 0 0 1-2.9 2.9H8.4l-3.9 3.1V6.4a2.9 2.9 0 0 1 2.9-2.9h6.3a2.9 2.9 0 0 1 2.9 2.9z\"/><circle cx=\"7.6\" cy=\"8.6\" r=\".85\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"10.5\" cy=\"8.6\" r=\".85\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"13.4\" cy=\"8.6\" r=\".85\" fill=\"currentColor\" stroke=\"none\"/></svg>"};
+const MODEICON={"focus":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"10\" r=\"6.8\"/><circle cx=\"10\" cy=\"10\" r=\"2.4\"/></svg>","workout":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.4 7.4v5.2\"/><path d=\"M15.6 7.4v5.2\"/><path d=\"M7 6v8\"/><path d=\"M13 6v8\"/><path d=\"M7 10h6\"/></svg>","miles":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2.4 10.4h3.1l1.7-4.6 2.9 9.1 2-4.5h5.5\"/></svg>","winddown":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M16.2 12.3A6.7 6.7 0 0 1 7.7 3.8a6.9 6.9 0 1 0 8.5 8.5z\"/></svg>","party":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"11.6\" r=\"5.4\"/><path d=\"M10 6.2V3\"/><path d=\"M4.7 10.4h10.6\"/><path d=\"M10 6.2V17\"/></svg>","houseparty":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5.1 4.4h9.8l-1.2 12.1a.9.9 0 0 1-.9.8H7.2a.9.9 0 0 1-.9-.8z\"/><path d=\"M5.6 9.2h8.8\"/></svg>","driving":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.2 12.6h13.6\"/><path d=\"M4.8 12.6l1.3-4.1a1.7 1.7 0 0 1 1.6-1.2h4.6a1.7 1.7 0 0 1 1.6 1.2l1.3 4.1\"/><circle cx=\"6.6\" cy=\"14\" r=\"1.5\"/><circle cx=\"13.4\" cy=\"14\" r=\"1.5\"/></svg>","dinner":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6.4 3v4.6\"/><path d=\"M9.1 3v4.6\"/><path d=\"M7.75 7.6V17\"/><path d=\"M14.4 3c1.5 1.7 1.5 5.3 0 6.6V17\"/></svg>","cocktails":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.6 4.4h12.8L10 10.9z\"/><path d=\"M10 10.9v5.1\"/><path d=\"M7.2 16h5.6\"/></svg>","nightcap":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.8 5.2h10.4l-1 10.1a1 1 0 0 1-1 .9H6.8a1 1 0 0 1-1-.9z\"/><path d=\"M5.4 10.6h9.2\"/></svg>","gaming":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2.6\" y=\"6.6\" width=\"14.8\" height=\"8.8\" rx=\"4.1\"/><path d=\"M6.6 9.8v2.4\"/><path d=\"M5.4 11h2.4\"/><circle cx=\"13.4\" cy=\"10.5\" r=\".95\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"15.1\" cy=\"12.4\" r=\".95\" fill=\"currentColor\" stroke=\"none\"/></svg>","lift":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"10\" r=\"3.5\"/><path d=\"M10 2.4v1.7\"/><path d=\"M10 15.9v1.7\"/><path d=\"M2.4 10h1.7\"/><path d=\"M15.9 10h1.7\"/><path d=\"M4.6 4.6l1.2 1.2\"/><path d=\"M14.2 14.2l1.2 1.2\"/><path d=\"M15.4 4.6l-1.2 1.2\"/><path d=\"M5.8 14.2l-1.2 1.2\"/></svg>","burn":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 2.6c3 3.4 5.1 5.6 5.1 8.5a5.1 5.1 0 0 1-10.2 0c0-1.6.6-2.9 1.7-4.1.5 1.1 1.2 1.7 2 1.9C8.2 6.7 8.8 4.7 10 2.6z\"/></svg>","sit":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6.4 12.3a3.2 3.2 0 0 1 .4-6.4 4.3 4.3 0 0 1 8.1 1.4 2.7 2.7 0 0 1-.5 5\"/><path d=\"M7.6 14.8v2.1\"/><path d=\"M11 14.8v2.7\"/><path d=\"M14.3 14.8v2.1\"/></svg>","together":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"7.3\" cy=\"7.4\" r=\"2.4\"/><circle cx=\"13.5\" cy=\"8.3\" r=\"2\"/><path d=\"M3 16.6a4.4 4.4 0 0 1 8.7 0\"/><path d=\"M12.7 12.7a3.8 3.8 0 0 1 4.3 3.9\"/></svg>","family":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2.6 10.2 10 4.1l7.4 6.1\"/><path d=\"M4.6 9v7.3h10.8V9\"/><path d=\"M8.3 16.3v-3.5h3.4v3.5\"/></svg>","deep":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.2 13v-2.6a5.8 5.8 0 0 1 11.6 0V13\"/><path d=\"M4.2 12.3h1.5a1.4 1.4 0 0 1 1.4 1.4v1.6a1.4 1.4 0 0 1-1.4 1.4h-.9a.6.6 0 0 1-.6-.6z\"/><path d=\"M15.8 12.3h-1.5a1.4 1.4 0 0 0-1.4 1.4v1.6a1.4 1.4 0 0 0 1.4 1.4h.9a.6.6 0 0 0 .6-.6z\"/></svg>","restless":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7.6 2.8h4.8l3.1 14.4H4.5z\"/><path d=\"M4.9 13.9h10.2\"/><path d=\"M10 14.2 13 4.6\"/></svg>","chores":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7.3 3.1l1.15 3.05L11.5 7.3 8.45 8.45 7.3 11.5 6.15 8.45 3.1 7.3l3.05-1.15z\"/><path d=\"M14.1 10.6l.72 1.9 1.9.72-1.9.72-.72 1.9-.72-1.9-1.9-.72 1.9-.72z\"/></svg>","hype":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M11.6 2.4L5.2 11h4.1l-.9 6.6L14.8 9h-4.1z\"/></svg>","roots":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 17.2V8.6\"/><path d=\"M10 10.8C10 7.7 7.5 5.3 4.5 5.3c0 3.1 2.5 5.5 5.5 5.5z\"/><path d=\"M10 8.9c0-2.7 2.2-4.8 4.9-4.8 0 2.7-2.2 4.8-4.9 4.8z\"/></svg>","onmind":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M16.6 10.9a2.9 2.9 0 0 1-2.9 2.9H8.4l-3.9 3.1V6.4a2.9 2.9 0 0 1 2.9-2.9h6.3a2.9 2.9 0 0 1 2.9 2.9z\"/><circle cx=\"7.6\" cy=\"8.6\" r=\".85\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"10.5\" cy=\"8.6\" r=\".85\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"13.4\" cy=\"8.6\" r=\".85\" fill=\"currentColor\" stroke=\"none\"/></svg>"};
 function modeSect(){
   if(typeof MODES==="undefined") return "";
-  const chips=MODES.map(m=>`<button type="button" class="chip modechip${MODE===m[0]?" on":""}" data-mk="${esc(m[0])}" aria-pressed="${MODE===m[0]}"><i class="mi">${MODEICON[m[0]]||""}</i><i class="nm">${esc(m[1])}</i></button>`).join("");
+  const chips=MODES.map(m=>`<button type="button" class="chip modechip lv${m[5]||3}${MODE===m[0]?" on":""}" data-mk="${esc(m[0])}" data-lv="${m[5]||3}" aria-pressed="${MODE===m[0]}"><i class="mi">${MODEICON[m[0]]||""}</i><i class="nm">${esc(m[1])}</i></button>`).join("");
   const m=MODE&&MODES.find(x=>x[0]===MODE);
   const out=m?`<div class="modeout"><h4 class="modettl"><i class="mi">${MODEICON[m[0]]||""}</i><span class="mtx">${esc(m[2])}</span><button type="button" class="modeup" data-modeup title="Back to the ways in"><svg class="upchev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5 8 5.5l4 4"/></svg>All ways in</button></h4><p class="modewhy">${esc(m[3])}</p><div class="picks">${modePicks(m)}</div></div>`:"";
   return sect("modes","What do you need it to do?",`<div class="chips modechips">${chips}</div>${out}`,

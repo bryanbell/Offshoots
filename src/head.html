@@ -144,7 +144,18 @@ aside h3,.pcard h3.sec{font:600 11px var(--f-body);letter-spacing:.06em;text-tra
 /* listening modes */
 .sectaside{font:500 11px var(--f-mono);color:var(--muted);opacity:.75}
 .modechip{gap:7px;padding:6px 12px 6px 10px}
-.modechip .mi{flex:none;display:flex;width:15px;height:15px;opacity:.8}
+.modechip{--lvc:#9aa0a6}
+.modechip.lv1{--lvc:#7aa2f7}
+.modechip.lv2{--lvc:#5bbda4}
+.modechip.lv3{--lvc:#e8c24a}
+.modechip.lv4{--lvc:#ee8f4e}
+.modechip.lv5{--lvc:#e2604a}
+.modechip{background:color-mix(in srgb,var(--lvc) 15%,var(--fill2));
+  box-shadow:inset 0 0 0 .5px color-mix(in srgb,var(--lvc) 26%,transparent)}
+.modechip:hover{background:color-mix(in srgb,var(--lvc) 26%,var(--fill2))}
+.modechip.on{background:var(--fg);box-shadow:none}
+.modechip.on .mi{color:var(--lvc);opacity:1}
+.modechip .mi{flex:none;display:flex;width:15px;height:15px;opacity:.8;color:var(--lvc)}
 .modechip .mi svg{width:100%;height:100%}
 .modechip.on .mi{opacity:1}
 .modechip::before{display:none}
