@@ -779,6 +779,8 @@ $("panel").addEventListener("click",e=>{
   const g0=e.target.closest("[data-go]");
   if(g0){ closeNav(); select(g0.dataset.go); panelTop(); return; }
   if(!OPEN && OVERLAY){ if(!e.target.closest("a")) setOpen(true); return; }   // only the minimised sheet is tap-to-open
+  { const ac=e.target.closest("[data-aboutcopy]");
+    if(ac){ copyAbout(ac); return; } }
   if(e.target.closest("[data-share]")){ shareSel(); return; }
   if(e.target.closest("[data-close]")){ closePanel(); return; }
   const m=e.target.closest("[data-mode]"); if(m){ state.mode=m.dataset.mode; select(state.sel,{scroll:false}); }
@@ -805,11 +807,32 @@ function clearSel(){
 // ---------- sharing ----------
 // every style has a URL: the page plus #id, which boot() already reads back
 function styleURL(id){ return location.origin + location.pathname + location.search + "#" + encodeURIComponent(id); }
+// "about" is the one hash that is not a style id
+const ABOUT_HASH="about";
+function aboutURL(){ return location.origin + location.pathname + location.search + "#" + ABOUT_HASH; }
+function openAbout(scroll){
+  const d=document.querySelector(".aboutwrap"); if(!d) return false;
+  if(!d.open) d.open=true;            // the toggle listener does the scrolling
+  else if(scroll) d.dispatchEvent(new Event("toggle"));
+  return true;
+}
 function setHash(id){
   const want = id ? "#"+encodeURIComponent(id) : "";
   if((location.hash||"") === want) return;
   // replace, not push: selecting styles shouldn't fill the back button
   try{ history.replaceState(null,"",want || location.pathname+location.search); }catch(e){ if(id) location.hash=want; }
+}
+function copyAbout(btn){
+  const url=aboutURL(), lbl=btn.querySelector(".lbl");
+  const flash=t=>{ if(!lbl) return; if(btn._was==null) btn._was=lbl.textContent;
+    btn.classList.add("done"); lbl.textContent=t;
+    clearTimeout(btn._t); btn._t=setTimeout(()=>{ btn.classList.remove("done");
+      if(btn._was!=null){ lbl.textContent=btn._was; btn._was=null; } },1600); };
+  const fallback=()=>{ const ta=document.createElement("textarea"); ta.value=url; ta.setAttribute("readonly","");
+    ta.style.cssText="position:fixed;top:0;left:0;opacity:0"; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); flash("Link copied"); }catch(e){ flash("Copy failed"); } ta.remove(); };
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(()=>flash("Link copied"),fallback);
+  else fallback();
 }
 function shareSel(){
   const id=state.sel, n=id?byId[id]:null;
@@ -1014,7 +1037,8 @@ function emptyPanel(){
     <p>Each playlist runs in chronological order, and the first few tracks are deliberately not the style proper. They are the records that pushed it into being, or the earliest examples of it, cut before anyone had a name for it.</p>
     <p>So a playlist starts just outside its own style and arrives at it, which is the same move the map makes. If the opening tracks sound like something else, that is the point: that is what it grew out of.</p>
     <h4 class="subh">Reading the map</h4>
-    <p>A play triangle inside a dot marks a style with a playlist, linked in its panel. Hollow dots are pre-1950 roots. Bigger names led to more styles, and zoomed out, the ones that led nowhere show as plain dots.</p></div></details></div>`;
+    <p>A play triangle inside a dot marks a style with a playlist, linked in its panel. Hollow dots are pre-1950 roots. Bigger names led to more styles, and zoomed out, the ones that led nowhere show as plain dots.</p>
+    <button type="button" class="aboutcopy" data-aboutcopy><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 11.6a3.2 3.2 0 0 0 4.6 0l2.6-2.6a3.2 3.2 0 0 0-4.6-4.6l-1 1"/><path d="M11.6 8.4a3.2 3.2 0 0 0-4.6 0L4.4 11a3.2 3.2 0 0 0 4.6 4.6l1-1"/></svg><span class="lbl">Copy a link to this</span></button></div></details></div>`;
 }
 
 
@@ -1165,7 +1189,12 @@ addEventListener("resize",()=>{ clearTimeout(rt); rt=setTimeout(()=>{
 function boot(){
   lastW=innerWidth; lastH=innerHeight; render(); updZoom();
   const h=(location.hash||"").slice(1);
-  if(byId[h]) select(h,{smooth:false});
+  if(h===ABOUT_HASH){
+    emptyPanel(); scroller.scrollLeft=0; scroller.scrollTop=0; syncPeek();
+    setOpen(true);                       // the sheet is closed on a phone by default
+    setTimeout(()=>openAbout(true),420); // after the sheet has finished opening
+  }
+  else if(byId[h]) select(h,{smooth:false});
   else { emptyPanel(); scroller.scrollLeft = 0; scroller.scrollTop = 0; syncPeek(); }
 }
 (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(boot,boot);

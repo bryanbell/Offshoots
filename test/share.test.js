@@ -124,6 +124,35 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   // the panel regains the space the footer took
   const gained=await p.$eval("#panel",e=>Math.round(e.getBoundingClientRect().height));
   say("open panel height", gained);
+  // ---------- About has a URL of its own ----------
+  // #about is the one hash that is not a style id, so it has to survive boot and land
+  // on the open section rather than on an empty overview.
+  const ab=await fresh(b,M);
+  await ab.click("#grab").catch(()=>{});
+  await ab.waitForTimeout(600);
+  await ab.click(".aboutwrap summary"); await ab.waitForTimeout(800);
+  say("About carries a copy control", (await ab.$$("[data-aboutcopy]")).length===1);
+  await ab.click("[data-aboutcopy]"); await ab.waitForTimeout(400);
+  const copied=await ab.evaluate(()=>window.__copied.slice(-1)[0]||"");
+  say("it copies a #about link ("+copied.split("/").pop()+")", /#about$/.test(copied));
+  say("and says so", (await ab.$eval(".aboutcopy .lbl",e=>e.textContent))==="Link copied");
+  await ab.close();
+
+  // follow that link cold, the way someone receiving it would
+  const al=await fresh(b,M,"#about");
+  await al.waitForTimeout(1500);
+  const land=await al.evaluate(()=>{
+    const d=document.querySelector(".aboutwrap"), body=document.getElementById("panelBody");
+    return {open:d.open, sheet:document.body.classList.contains("open"),
+      top:Math.round(d.getBoundingClientRect().top-body.getBoundingClientRect().top),
+      hash:location.hash};});
+  say("the link opens the sheet", land.sheet);
+  say("with About expanded", land.open);
+  say("scrolled to it ("+land.top+"px from the top)", land.top<=16);
+  say("and keeps the hash", land.hash==="#about");
+  say("no errors following it", al._errs.length===0 ? true : al._errs.join(" | "));
+  await al.close();
+
   say("no page errors", p._errs.length===0 ? true : p._errs.join(" | "));
   say("no desktop errors", d._errs.length===0 ? true : d._errs.join(" | "));
 
