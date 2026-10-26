@@ -335,7 +335,7 @@ function stepsHome(){
 }
 function goHome(){
   if(!state.sel) return;
-  pushTrail();                       // jumping out is a move, so back can still come here
+  TRAIL.length=0;                    // home is a reset, not another step: back goes with it
   if(typeof MODE!=="undefined") MODE=null;
   GOINGBACK=true;
   try{ clearSel(); } finally { GOINGBACK=false; }

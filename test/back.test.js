@@ -90,13 +90,17 @@ const hash=p=>p.evaluate(()=>location.hash);
     return [Math.round(h.width),Math.round(h.height),Math.round(h.right),Math.round(b.left)];});
   say("tap target "+hb[0]+"x"+hb[1], hb[0]>=40&&hb[1]>=40);
   say("sits left of back ("+hb[2]+" vs "+hb[3]+")", hb[2]<=hb[3]);
-  const from=await hash(p);
   await p.click("#mapHome"); await p.waitForTimeout(600);
   say("one tap lands on the map", (await hash(p))==="" && (await p.$eval(".ovcard .mn",e=>e.textContent))==="Offshoots");
   say("and hides itself again", (await home(p))===false);
-  say("back still returns to where you jumped from", await label(p));
-  await p.click("#mapBack"); await p.waitForTimeout(600);
-  say("which it does ("+from+")", (await hash(p))===from);
+  // home is a reset: the walk that led here is gone, so back goes too
+  say("back is cleared away with it", (await shown(p))===false);
+  // and the trail really is empty, not merely hidden: the next move starts from the map
+  await p.click("#grab").catch(()=>{}); await p.waitForTimeout(400);
+  await p.click('[data-mk="winddown"]'); await p.waitForTimeout(500);
+  await p.click(".picks .pick"); await p.waitForTimeout(600);
+  say("the next step starts a fresh trail", await label(p));
+  say("not the walk from before", (await label(p))==="Back to the map");
   say("no page errors", p._errs.length===0 ? true : p._errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
 
   await b.close();
