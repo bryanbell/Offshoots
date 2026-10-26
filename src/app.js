@@ -158,7 +158,7 @@ const TOUCH = matchMedia("(hover:none) and (pointer:coarse)").matches;
 const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const $ = id=>document.getElementById(id);
 const statsEl=document.createElement("span"); statsEl.id="stats"; statsEl.hidden=true; document.body.appendChild(statsEl);
-$("stats").textContent = `${nodes.filter(n=>n.year>=1950).length} styles since 1950 · ${nodes.filter(n=>n.year<1950).length} pre-1950 roots · ${nEdges} lineage links · ${FAMS.length} families`;
+$("stats").textContent = `${nodes.length} styles · ${nodes.filter(n=>n.year<1950).length} of them pre-1950 roots · ${nEdges} lineage links · ${FAMS.length} families`;
 
 const AXH=30, END=2026;
 const BAR=()=>$("spacer").offsetHeight;
@@ -953,7 +953,7 @@ function featLine(n){
   const d=(typeof DESC!=="undefined"&&DESC[n.id])||"";
   if(d){ const s=d.split(/(?<=[.!?])\s/)[0]; return s.length>96?s.slice(0,93).trim()+"…":s; }
   const who=(typeof ART!=="undefined"&&ART[n.id])||[];
-  return who.length?who.slice(0,3).join(", "):"A School of Listening playlist";
+  return who.length?who.slice(0,3).join(", "):"A playlist for this style";
 }
 function featSect(){
   const n=featPick(); if(!n) return "";
@@ -995,15 +995,23 @@ function emptyPanel(){
   syncPull();
   const top=[...nodes].sort((a,b)=>b.children.length-a.children.length||a.year-b.year).slice(0,12);
   const np=playable().length;
+  const withSrc=DATA.filter(r=>Array.isArray(r[7])&&r[7].length).length;
   $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="phead"><button id="panelBack" class="navback ovback" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg></button><div class="phtx"><button type="button" class="ovttl" data-share aria-label="Share this map" title="Share this map"><span class="mn">Offshoots</span></button><p class="tag">Find something to hear, and trace what it grew out of.</p><p class="ovmeta">${nodes.length} styles · ${np} playlists</p></div><button type="button" class="ovshare" data-share aria-label="Share this map" title="Share this map">${SHAREGLYPH}</button></div></div><div class="more">
     ${featSect()}
     ${modeSect()}
     ${browseRow()}
     <p class="note ovhint">Or tap any style on the map to trace where it came from and what it led to.</p>
     <details class="aboutwrap"><summary><span>About this map</span><svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg></summary>
-    <div class="about"><div class="abouthd"><img class="appicon" alt="" src="${ICONSRC()}"><p class="stats">${$("stats").textContent}</p></div>
-    <p>Named styles and scenes North American listeners could buy, hear on radio or stream from 1950 to today, each linked to the styles it grew out of. Bigger names led to more styles. A play triangle in the dot marks styles with a School of Listening playlist, linked in the panel. Zoomed out, styles that led nowhere show as dots. Hollow dots are pre-1950 roots.</p>
-    <p>Years mark when a style cohered into a named, recorded scene, not its earliest precursor. "Came from" lists the direct stylistic parents, not every influence. Styles from elsewhere are included when they charted in North America or seeded scenes here. Boundaries and dates are contested; treat each link as the consensus reading. Styles with a "Sources" list were checked against the linked pages; the rest were compiled from general knowledge.</p></div></details></div>`;
+    <div class="about"><div class="abouthd"><img class="appicon" alt="" src="${ICONSRC()}"><p class="stats">${$("stats").textContent} · ${np} with a playlist</p></div>
+    <h4 class="subh">What it is for</h4>
+    <p>Every style here is placed at the year it cohered into a named, recorded scene, and joined to the styles it grew out of. Time runs left to right, so following a line backwards shows you what a sound is made of.</p>
+    <p>It is not trying to settle anything. It is trying to make the inheritance visible, so you can get from a record you already love to the thing it came out of, and hear why they are related.</p>
+    <h4 class="subh">Where it comes from</h4>
+    <p>This was compiled by hand, not pulled from a database. Styles, years and parentage come from the general music-historical record: scene histories, discographies, reference works and critical writing, cross-checked where accounts disagree. ${withSrc} entries carry a Sources list naming the pages they were checked against. The others stand on that general reading and are not individually cited.</p>
+    <p>A link means one style is a direct stylistic parent of another, not every influence on it and not merely something it shared a decade with. Years mark when a scene cohered, not its earliest precursor. Styles from elsewhere appear when they charted here or seeded scenes here.</p>
+    <p>Boundaries, dates and parentage are all contested, and a lineage is a reading rather than a fact. Take each link as the consensus view and the map as an argument you are free to disagree with.</p>
+    <h4 class="subh">Reading the map</h4>
+    <p>A play triangle inside a dot marks a style with a playlist, linked in its panel. Hollow dots are pre-1950 roots. Bigger names led to more styles, and zoomed out, the ones that led nowhere show as plain dots.</p></div></details></div>`;
 }
 
 
