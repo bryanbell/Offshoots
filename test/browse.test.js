@@ -86,8 +86,34 @@ const vis=async(p,sel)=>p.$eval(sel,e=>{const r=e.getBoundingClientRect();
   say("largest family (68) scrolls inside the menu",
       await d.$eval('.navmenu[data-br="fams"]',e=>e.scrollHeight>e.clientHeight+5));
   const db=await d.$eval('.navmenu[data-br="fams"]',e=>{const r=e.getBoundingClientRect();
-    return r.top>=0 && r.bottom<=innerHeight && r.right<=innerWidth;});
-  say("desktop menu inside the viewport", db);
+    return {top:Math.round(r.top),bottom:Math.round(r.bottom),left:Math.round(r.left),right:Math.round(r.right),
+      vw:innerWidth,vh:innerHeight};});
+  say("desktop menu inside the viewport", db.top>=0&&db.bottom<=db.vh&&db.left>=0&&db.right<=db.vw);
+  // a popover, not a tinted extension of the panel: light ground, dark type
+  const look=await d.$eval('.navmenu[data-br="fams"]',e=>{const cs=getComputedStyle(e);
+    const lum=c=>{const [r,g,b]=c.match(/[\d.]+/g).slice(0,3).map(Number).map(v=>{v/=255;
+      return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4);}); return .2126*r+.7152*g+.0722*b;};
+    const item=getComputedStyle(e.querySelector("button")).color;
+    const L1=lum(cs.backgroundColor), L2=lum(item);
+    return {bg:cs.backgroundColor, lighter:L1>L2,
+      ratio:+(((Math.max(L1,L2)+.05)/(Math.min(L1,L2)+.05))).toFixed(2)};});
+  say("the menu ground is lighter than its type ("+look.bg+")", look.lighter);
+  say("dark type on it reads at "+look.ratio+":1", look.ratio>=4.5);
+
+  // the From and Led to menus, at the narrowest width the app is used at
+  for(const [kind,vp] of [["from",{width:320,height:700}],["led",{width:320,height:700}],
+                          ["from",{width:390,height:844}],["led",{width:390,height:844}]]){
+    const q=await b.newPage({viewport:vp,isMobile:true,hasTouch:true});
+    await q.goto(URL+"#disco"); await q.waitForTimeout(900);
+    await q.click("#grab").catch(()=>{}); await q.waitForTimeout(400);
+    await q.click(`[data-menu="${kind}"]`); await q.waitForTimeout(450);
+    const r=await q.evaluate(()=>{const m=[...document.querySelectorAll(".navmenu")].find(x=>!x.hidden);
+      if(!m) return null; const x=m.getBoundingClientRect();
+      return {l:Math.round(x.left),r:Math.round(x.right),vw:innerWidth};});
+    say(kind+" menu at "+vp.width+"px stays on screen ("+(r?r.l+" to "+r.r:"missing")+")",
+      !!r && r.l>=0 && r.r<=r.vw);
+    await q.close();
+  }
   await d.screenshot({path:__dirname+"/screens/d-fams.png"});
   say("no desktop page errors", d._errs.length===0 ? true : d._errs.join(" | "));
 

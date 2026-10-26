@@ -702,8 +702,12 @@ function placeNav(btn,m){
           m.style.maxHeight=Math.max(150,Math.round(above))+"px"; }
   else  { m.style.top=Math.round(b.bottom+gap)+"px"; m.style.bottom="auto";
           m.style.maxHeight=Math.max(150,Math.round(below))+"px"; }
-  if(led){ m.style.right=Math.round(innerWidth-b.right)+"px"; m.style.left="auto"; }
-  else   { m.style.left=Math.round(b.left)+"px"; m.style.right="auto"; }
+  m.style.right="auto";
+  m.style.left="0px";                       // measure at a known origin before placing
+  const w=m.offsetWidth;
+  const want = led ? b.right-w : b.left;    // the pair's own edge, where there is room
+  const max = innerWidth-edge-w, min = edge;
+  m.style.left=Math.round(max<min ? min : Math.min(Math.max(want,min),max))+"px";
 }
 function closeNav(except){
   document.querySelectorAll(".navmenu").forEach(m=>{

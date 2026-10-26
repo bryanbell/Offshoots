@@ -388,20 +388,23 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line);
 .ovcard .tag{margin:0;font-size:12.5px}
 .ovmeta{margin:3px 0 0;font:500 11.5px var(--f-mono);color:var(--muted)}
 .ovhint{margin:0 0 2px}
-.navhd{padding:6px 9px 7px;font:600 10.5px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.navmenu{position:absolute;z-index:40;top:calc(100% + 6px);min-width:210px;max-width:min(300px,70vw);
+.navhd{padding:6px 9px 7px;font:600 10.5px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--mmut)}
+.navmenu{--mbg:#f5f5f7; --mfg:#1a1a1c; --mmut:#6a6a70;
+  position:absolute;z-index:40;top:calc(100% + 6px);min-width:210px;max-width:min(300px,70vw);
   max-height:min(52vh,380px);overflow:auto;overscroll-behavior:contain;padding:5px;
-  background:var(--panel);border-radius:12px;box-shadow:0 0 0 .5px var(--line),0 12px 32px rgb(0 0 0 / .4)}
+  background:var(--mbg);color:var(--mfg);border-radius:12px;
+  box-shadow:0 0 0 .5px rgb(0 0 0 / .18),0 12px 32px rgb(0 0 0 / .45)}
 .nav-from .navmenu{left:0}
 .nav-led .navmenu{right:0}
 .navmenu[hidden]{display:none}
-body > .navmenu{color:var(--fg);background:var(--panel);z-index:70}
+body > .navmenu{z-index:70}
 .navmenu button{all:unset;display:flex;align-items:center;gap:9px;width:100%;box-sizing:border-box;
-  min-height:38px;padding:8px 10px;border-radius:11px;cursor:pointer;color:var(--fg);font:500 13.5px var(--f-body)}
-.navmenu button:hover{background:color-mix(in srgb,var(--fg) 9%,transparent)}
+  min-height:38px;padding:8px 10px;border-radius:11px;cursor:pointer;color:var(--mfg);font:500 13.5px var(--f-body)}
+.navmenu button:hover{background:rgb(0 0 0 / .07)}
+.navmenu button:focus-visible{background:rgb(0 0 0 / .07)}
 .navmenu .dot{flex:none;width:7px;height:7px;border-radius:50%}
 .navmenu .nm{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.navmenu small{flex:none;font:500 11px var(--f-mono);color:var(--muted)}
+.navmenu small{flex:none;font:500 11px var(--f-mono);color:var(--mmut)}
 @media (max-width:899px){
   .navbtn{height:36px;padding:0 11px}
   .navmenu{min-width:244px;max-width:min(330px,82vw);padding:6px}
@@ -2737,8 +2740,12 @@ function placeNav(btn,m){
           m.style.maxHeight=Math.max(150,Math.round(above))+"px"; }
   else  { m.style.top=Math.round(b.bottom+gap)+"px"; m.style.bottom="auto";
           m.style.maxHeight=Math.max(150,Math.round(below))+"px"; }
-  if(led){ m.style.right=Math.round(innerWidth-b.right)+"px"; m.style.left="auto"; }
-  else   { m.style.left=Math.round(b.left)+"px"; m.style.right="auto"; }
+  m.style.right="auto";
+  m.style.left="0px";                       // measure at a known origin before placing
+  const w=m.offsetWidth;
+  const want = led ? b.right-w : b.left;    // the pair's own edge, where there is room
+  const max = innerWidth-edge-w, min = edge;
+  m.style.left=Math.round(max<min ? min : Math.min(Math.max(want,min),max))+"px";
 }
 function closeNav(except){
   document.querySelectorAll(".navmenu").forEach(m=>{
