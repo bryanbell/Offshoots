@@ -46,6 +46,14 @@ const hash=p=>p.evaluate(()=>location.hash);
   say("retraced in reverse order", seen.join()===want.join() ? true : "wanted "+want.join(" "));
   say("a deep link still offers one step out to the map", await shown(p));
   say("that last step says", await label(p));
+  // the map destination shows its icon rather than a name
+  const tm=await p.evaluate(()=>{const b=document.getElementById("mapBack");
+    return {cls:b.classList.contains("tomap"), txt:b.querySelector(".bklbl").textContent,
+      icon:getComputedStyle(b.querySelector(".bkmap")).display!=="none",
+      lbl:getComputedStyle(b.querySelector(".bklbl")).display!=="none"};});
+  say("the map icon is shown, not the words", tm.cls&&tm.icon&&!tm.lbl&&tm.txt==="");
+  say("but it still says where it goes", (await label(p))==="Back to the map");
+  say("home is hidden here, so there is no pair of map icons", (await p.$eval("#mapHome",e=>!e.hidden))===false);
   await p.click("#mapBack"); await p.waitForTimeout(550);
   say("and lands on the unselected map", (await hash(p))==="" && (await p.$eval(".ovcard .mn",e=>e.textContent))==="Offshoots");
   say("hidden once the trail runs out", (await shown(p))===false);
@@ -84,6 +92,9 @@ const hash=p=>p.evaluate(()=>location.hash);
   await p.click('[data-menu="led"]'); await p.waitForTimeout(350);
   await p.click(`.navmenu:not([hidden]) [data-go="${hwalk[0]}"]`); await p.waitForTimeout(550);
   say("home appears two styles deep", await home(p));
+  say("and back names the style, so the two read differently",
+    await p.evaluate(()=>{const b=document.getElementById("mapBack");
+      return !b.classList.contains("tomap") && b.querySelector(".bklbl").textContent.length>0;}));
   say("it says", await p.$eval("#mapHome",e=>e.getAttribute("title")));
   const hb=await p.evaluate(()=>{const h=document.getElementById("mapHome").getBoundingClientRect(),
     b=document.getElementById("mapBack").getBoundingClientRect();

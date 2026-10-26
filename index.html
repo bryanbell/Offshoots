@@ -448,6 +448,12 @@ aside{display:flex;flex-direction:column;position:absolute;z-index:30;top:calc(e
 #mapBack svg{flex:none;width:17px;height:17px}
 #mapBack .bklbl{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   font:600 12.5px var(--f-body)}
+/* the map is the one destination with an icon of its own, so it says it that way
+   rather than spelling out a name no style shares */
+#mapBack .bkmap{display:none;width:18px;height:18px}
+#mapBack.tomap .bklbl{display:none}
+#mapBack.tomap .bkmap{display:block}
+#mapBack.tomap{padding:0 12px 0 11px}
 #mapBack:hover{background:#fff}
 body.searching #navpills{display:none}
 @media (max-width:899px){
@@ -828,7 +834,7 @@ a.am .amgo{display:none}
       </div>
       <div id="navpills">
         <button id="mapHome" class="glass" type="button" hidden aria-label="Back to the map" title="Back to the map"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.6 7.4 3.6v10.8l-4.6 2z"/><path d="M7.4 3.6 12.6 5.6v10.8L7.4 14.4z"/><path d="M12.6 5.6 17.2 3.6v10.8l-4.6 2z"/></svg></button>
-        <button id="mapBack" class="glass" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg><span class="bklbl"></span></button>
+        <button id="mapBack" class="glass" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg><span class="bklbl"></span><svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.6 7.4 3.6v10.8l-4.6 2z"/><path d="M7.4 3.6 12.6 5.6v10.8L7.4 14.4z"/><path d="M12.6 5.6 17.2 3.6v10.8l-4.6 2z"/></svg></button>
       </div>
       <button id="mapSearch" class="glass" type="button" aria-label="Search styles and artists" title="Search styles and artists"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4 4"/></svg></button>
       <div id="bottomSearch">
@@ -2274,8 +2280,9 @@ function syncBack(){
   b.hidden=!l; if(!l) return;
   b.setAttribute("aria-label",l); b.setAttribute("title",l);
   const v=TRAIL[TRAIL.length-1];
-  const t=b.querySelector(".bklbl");
-  if(t) t.textContent = v&&v.sel&&byId[v.sel] ? byId[v.sel].name : "The map";
+  const t=b.querySelector(".bklbl"), toMap=!(v&&v.sel&&byId[v.sel]);
+  if(t) t.textContent = toMap ? "" : byId[v.sel].name;
+  b.classList.toggle("tomap",toMap);
 }
 function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   if(!byId[id]) return;

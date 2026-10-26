@@ -350,8 +350,9 @@ function syncBack(){
   b.hidden=!l; if(!l) return;
   b.setAttribute("aria-label",l); b.setAttribute("title",l);
   const v=TRAIL[TRAIL.length-1];
-  const t=b.querySelector(".bklbl");
-  if(t) t.textContent = v&&v.sel&&byId[v.sel] ? byId[v.sel].name : "The map";
+  const t=b.querySelector(".bklbl"), toMap=!(v&&v.sel&&byId[v.sel]);
+  if(t) t.textContent = toMap ? "" : byId[v.sel].name;
+  b.classList.toggle("tomap",toMap);
 }
 function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   if(!byId[id]) return;
