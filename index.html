@@ -413,8 +413,6 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line);
 .brback .bk{flex:none;display:flex;width:14px;height:14px;opacity:.8}
 .brback .bk .cv{width:14px;height:14px}
 .ovcard .phead{gap:12px;margin:0 0 8px}
-.pcard.ovcard .appicon{width:52px;height:52px;border-radius:12px}
-@media (max-width:899px){ .pcard.ovcard .appicon{width:48px;height:48px;border-radius:11px} }
 .ovcard .mn{font-size:var(--t-title1);line-height:var(--t-title1-lh);letter-spacing:-.026em;margin:0 0 2px}
 .ovcard .tag{margin:0;font-size:var(--t-sub);line-height:var(--t-sub-lh)}
 .ovmeta{margin:6px 0 0;font:500 var(--t-foot)/var(--t-foot-lh) var(--f-mono);color:var(--muted)}
@@ -447,8 +445,6 @@ body > .navmenu{z-index:70}
 @media (max-width:420px){ .navttl .mn{font-size:16px} }
 .pcard .phead{display:flex;align-items:center;gap:13px;margin:2px 0 10px}
 .pcard .phead .phtx{min-width:0;flex:1 1 auto}
-.pcard .appicon{flex:none;width:56px;height:56px;border-radius:14px;display:block;background:#181818}
-@media (max-width:899px){.pcard .appicon{width:48px;height:48px;border-radius:12px}}
 .pcard .phead .tag{margin:0}
 .pcard .tag{margin:2px 0 10px;font:400 var(--t-sub)/var(--t-sub-lh) var(--f-body);color:var(--muted);max-width:40em}
 .pcard .meta{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0}
@@ -544,6 +540,14 @@ body.searching #bottomSearch{display:block}
 .zoom{bottom:calc(16px + env(safe-area-inset-bottom,0px))}
 #panelBody{max-width:720px}
 .about{margin-top:12px;padding-top:0}
+/* the app's own icon sits with the stats line inside About, the way it does in an
+   about box, rather than taking the top of the panel */
+.abouthd{display:flex;align-items:center;gap:12px;margin:0 0 12px}
+.abouthd .appicon{flex:none;width:44px;height:44px;border-radius:11px;display:block;background:#181818}
+.abouthd .stats{margin:0}
+@media (min-width:900px) and (hover:hover) and (pointer:fine){
+  .abouthd .appicon{width:38px;height:38px;border-radius:9px}
+}
 .about p{margin:0 0 10px;font-size:var(--t-sub);color:var(--muted);line-height:var(--t-sub-lh)}
 .about .stats{font-family:var(--f-mono);font-size:var(--t-foot);line-height:var(--t-foot-lh);color:var(--muted);margin:0 0 12px;font-variant-numeric:tabular-nums}
 @media (max-width:899px){ .zoom{bottom:calc(14px + env(safe-area-inset-bottom,0px))} }
@@ -923,8 +927,6 @@ a.am .amgo{display:none}
     --t-cap:11px;    --t-cap-lh:14px;
     --tap:36px;
   }
-  /* the app icon is sized against the title, which just got smaller */
-  .pcard.ovcard .appicon{width:40px;height:40px;border-radius:10px}
   /* the separator still has to start where the title starts */
   .picks{--seplead:31px}
   .picks>.pick+.pick::after{right:14px}
@@ -2594,6 +2596,7 @@ function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
 
 // ---------- panel open / close ----------
 let OPEN=false;
+function ICONSRC(){const l=document.querySelector('link[rel="apple-touch-icon"]')||document.querySelector('link[rel="icon"]');return l?l.href:"";}
 function setExpandLabel(name,tail,shortTail){ const b=$("expand"); b.dataset.name=name; b.dataset.tail=tail||""; b.dataset.stail=shortTail===undefined?(tail||""):shortTail; b.title=(name+(tail?" · "+tail:"")); if(!OPEN) paintExpand(); }
 function paintExpand(){ const b=$("expand"), l=b.querySelector(".lbl"); if(!l) return;
   if(OPEN){ l.innerHTML="Close"; return; }
@@ -3008,7 +3011,6 @@ function setTint(fam){
   else { el.style.removeProperty("--tint"); el.style.removeProperty("--ink"); el.style.removeProperty("--acc"); }
   el.classList.toggle("tinted",!!s);
 }
-function ICONSRC(){const l=document.querySelector('link[rel="apple-touch-icon"]')||document.querySelector('link[rel="icon"]');return l?l.href:"";}
 // ---------- listening modes ----------
 // a way in for people who know what they want the music to DO but not what to call it
 let MODE=null;
@@ -3131,13 +3133,13 @@ function emptyPanel(){
   syncPull();
   const top=[...nodes].sort((a,b)=>b.children.length-a.children.length||a.year-b.year).slice(0,12);
   const np=playable().length;
-  $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="phead"><button id="panelBack" class="navback ovback" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg></button><img class="appicon" alt="" src="${ICONSRC()}"><div class="phtx"><button type="button" class="ovttl" data-share aria-label="Share this map" title="Share this map"><span class="mn">Offshoots</span></button><p class="tag">Find something to hear, and trace what it grew out of.</p><p class="ovmeta">${nodes.length} styles · ${np} playlists</p></div><button type="button" class="ovshare" data-share aria-label="Share this map" title="Share this map">${SHAREGLYPH}</button></div></div><div class="more">
+  $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="phead"><button id="panelBack" class="navback ovback" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg></button><div class="phtx"><button type="button" class="ovttl" data-share aria-label="Share this map" title="Share this map"><span class="mn">Offshoots</span></button><p class="tag">Find something to hear, and trace what it grew out of.</p><p class="ovmeta">${nodes.length} styles · ${np} playlists</p></div><button type="button" class="ovshare" data-share aria-label="Share this map" title="Share this map">${SHAREGLYPH}</button></div></div><div class="more">
     ${featSect()}
     ${modeSect()}
     ${browseRow()}
     <p class="note ovhint">Or tap any style on the map to trace where it came from and what it led to.</p>
     <details class="aboutwrap"><summary><span>About this map</span><svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg></summary>
-    <div class="about"><p class="stats">${$("stats").textContent}</p>
+    <div class="about"><div class="abouthd"><img class="appicon" alt="" src="${ICONSRC()}"><p class="stats">${$("stats").textContent}</p></div>
     <p>Named styles and scenes North American listeners could buy, hear on radio or stream from 1950 to today, each linked to the styles it grew out of. Bigger names led to more styles. A play triangle in the dot marks styles with a School of Listening playlist, linked in the panel. Zoomed out, styles that led nowhere show as dots. Hollow dots are pre-1950 roots.</p>
     <p>Years mark when a style cohered into a named, recorded scene, not its earliest precursor. "Came from" lists the direct stylistic parents, not every influence. Styles from elsewhere are included when they charted in North America or seeded scenes here. Boundaries and dates are contested; treat each link as the consensus reading. Styles with a "Sources" list were checked against the linked pages; the rest were compiled from general knowledge.</p></div></details></div>`;
 }

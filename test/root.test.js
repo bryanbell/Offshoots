@@ -24,8 +24,10 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("tagline", await p.$eval(".ovcard .tag",e=>e.textContent));
   say("meta", await p.$eval(".ovmeta",e=>e.textContent));
   say("playlist count is in the hero", (await p.$eval(".ovmeta",e=>e.textContent)).includes("playlists"));
-  const icon=await p.$eval(".appicon",e=>Math.round(e.getBoundingClientRect().width));
-  say("icon is scaled to the title ("+icon+"px)", icon>=44 && icon<=56);
+  // the app icon left the header and moved into About, so check both ends of that:
+  // a bare .appicon count would now find the one inside the collapsed details
+  say("no app icon in the header", (await p.$$(".phead .appicon")).length===0);
+  say("it moved into About", (await p.$$(".aboutwrap .abouthd .appicon")).length===1);
 
   // ---- 1: start-here row ----
   say("one featured row", (await p.$$(".featpick")).length===1);

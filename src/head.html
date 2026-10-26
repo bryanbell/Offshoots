@@ -413,8 +413,6 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line);
 .brback .bk{flex:none;display:flex;width:14px;height:14px;opacity:.8}
 .brback .bk .cv{width:14px;height:14px}
 .ovcard .phead{gap:12px;margin:0 0 8px}
-.pcard.ovcard .appicon{width:52px;height:52px;border-radius:12px}
-@media (max-width:899px){ .pcard.ovcard .appicon{width:48px;height:48px;border-radius:11px} }
 .ovcard .mn{font-size:var(--t-title1);line-height:var(--t-title1-lh);letter-spacing:-.026em;margin:0 0 2px}
 .ovcard .tag{margin:0;font-size:var(--t-sub);line-height:var(--t-sub-lh)}
 .ovmeta{margin:6px 0 0;font:500 var(--t-foot)/var(--t-foot-lh) var(--f-mono);color:var(--muted)}
@@ -447,8 +445,6 @@ body > .navmenu{z-index:70}
 @media (max-width:420px){ .navttl .mn{font-size:16px} }
 .pcard .phead{display:flex;align-items:center;gap:13px;margin:2px 0 10px}
 .pcard .phead .phtx{min-width:0;flex:1 1 auto}
-.pcard .appicon{flex:none;width:56px;height:56px;border-radius:14px;display:block;background:#181818}
-@media (max-width:899px){.pcard .appicon{width:48px;height:48px;border-radius:12px}}
 .pcard .phead .tag{margin:0}
 .pcard .tag{margin:2px 0 10px;font:400 var(--t-sub)/var(--t-sub-lh) var(--f-body);color:var(--muted);max-width:40em}
 .pcard .meta{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0}
@@ -544,6 +540,14 @@ body.searching #bottomSearch{display:block}
 .zoom{bottom:calc(16px + env(safe-area-inset-bottom,0px))}
 #panelBody{max-width:720px}
 .about{margin-top:12px;padding-top:0}
+/* the app's own icon sits with the stats line inside About, the way it does in an
+   about box, rather than taking the top of the panel */
+.abouthd{display:flex;align-items:center;gap:12px;margin:0 0 12px}
+.abouthd .appicon{flex:none;width:44px;height:44px;border-radius:11px;display:block;background:#181818}
+.abouthd .stats{margin:0}
+@media (min-width:900px) and (hover:hover) and (pointer:fine){
+  .abouthd .appicon{width:38px;height:38px;border-radius:9px}
+}
 .about p{margin:0 0 10px;font-size:var(--t-sub);color:var(--muted);line-height:var(--t-sub-lh)}
 .about .stats{font-family:var(--f-mono);font-size:var(--t-foot);line-height:var(--t-foot-lh);color:var(--muted);margin:0 0 12px;font-variant-numeric:tabular-nums}
 @media (max-width:899px){ .zoom{bottom:calc(14px + env(safe-area-inset-bottom,0px))} }
@@ -923,8 +927,6 @@ a.am .amgo{display:none}
     --t-cap:11px;    --t-cap-lh:14px;
     --tap:36px;
   }
-  /* the app icon is sized against the title, which just got smaller */
-  .pcard.ovcard .appicon{width:40px;height:40px;border-radius:10px}
   /* the separator still has to start where the title starts */
   .picks{--seplead:31px}
   .picks>.pick+.pick::after{right:14px}
