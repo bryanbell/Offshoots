@@ -23,6 +23,20 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
 // hold iOS's 17pt Body and 44pt targets; a desktop sidebar steps down one notch the
 // way macOS does. Both are asserted, so neither tier can quietly drift.
 const TIERS={touch:{minType:13,tap:44}, pointer:{minType:12,tap:36}};
+
+// The map is its own typographic problem: 460 labels competing for one canvas. Label
+// size used to be derived from the zoom scale, which put 139 of them under 9px and the
+// smallest at 7.9px. They sit in a legible band now and do not move with zoom, so the
+// floor is the thing worth pinning. Measured on what is painted, across the whole map
+// rather than one sample, because the sizes vary per node.
+const MAP_FLOOR={touch:11, pointer:11.5};
+const readMap=(p)=>p.evaluate(()=>{
+  const px=e=>parseFloat(getComputedStyle(e).fontSize);
+  const labels=[...document.querySelectorAll("#chart .n text:not(.halo)")].map(px).sort((a,b)=>a-b);
+  const one=s=>{const e=document.querySelector(s); return e?+px(e).toFixed(1):null;};
+  return {n:labels.length, min:+labels[0].toFixed(1), max:+labels[labels.length-1].toFixed(1),
+    axis:one("#axis text"), lane:one(".lane .vt"), count:one(".lane .cnt")};
+});
 // decorative glyphs and counters are not reading copy, so they are exempt by name
 const EXEMPT="\\b(cnt|vt|ck|dot|sw|mi|cv|shg|upchev|svcchev|pkgo|plgo)\\b";
 
@@ -138,6 +152,18 @@ const readRules=(p)=>p.evaluate(()=>{
       if(!ok) bad++;
     }
 
+    // the map itself
+    const mp=await readMap(p);
+    const floor=MAP_FLOOR[tierName];
+    say(name+" map: all "+mp.n+" labels at or above "+floor+"px ("+mp.min+" to "+mp.max+")",
+        mp.n>400 && mp.min>=floor-0.01);
+    say(name+" map: the labels still have a range ("+mp.min+" to "+mp.max+")", mp.max-mp.min>=2);
+    const chrome=[["axis",mp.axis],["lane name",mp.lane],["lane count",mp.count]].filter(([,v])=>v!==null);
+    const smallChrome=chrome.filter(([,v])=>v<11);
+    say(name+" map: axis, lane and count all at or above 11px ("
+        +chrome.map(([k,v])=>k+" "+v).join(", ")+")", smallChrome.length===0);
+    if(!(mp.n>400 && mp.min>=floor-0.01) || mp.max-mp.min<2 || smallChrome.length) bad++;
+
     // 2. a menu, which is where the uppercase section header lived
     await p.click('[data-menu="fams"]').catch(()=>{});
     await p.waitForTimeout(400);
@@ -147,7 +173,6 @@ const readRules=(p)=>p.evaluate(()=>{
                           await readTaps(p,".navmenu:not([hidden])",TIER.tap));
     } else say(name+" menu: opened", false), bad++;
     await p.close();
-
     // 3. a style panel, on a fresh page: hash navigation on a loaded page does not select
     p=await ctx.newPage();
     await p.goto(URL+"#shoegaze"); await p.waitForTimeout(1100);

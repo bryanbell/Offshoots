@@ -163,12 +163,19 @@ $("stats").textContent = `${nodes.length} styles · ${nodes.filter(n=>n.year<195
 const AXH=30, END=2026;
 const BAR=()=>$("spacer").offsetHeight;
 let Z=1; const BASE=.576, ZMIN=.65, ZMAX=3.35; let LOD=false; // Z is shown as %, 100% = BASE scale
-let NARROW, OVERLAY, LABELW, ROOTW, PX, RH, FS, R, PAD, X0;
+let NARROW, OVERLAY, LABELW, ROOTW, PX, RH, FS, R, PAD, X0, FSMIN, FSMAX;
 function dims(){
   NARROW = innerWidth<700; OVERLAY = innerWidth<900;
   LABELW = NARROW?36:40; ROOTW = NARROW?280:340; PX = NARROW?38:34;
   RH = NARROW?25:21; FS = NARROW?13:12; R = NARROW?5:4.5; PAD = NARROW?7:9; X0 = LABELW+18;
   const k=Z*BASE; RH*=k; FS*=k; R*=k; PAD*=k; X0=LABELW+18*k;
+  // Label size is held in a legible band and does not move with zoom. It used to be
+  // FS*scale, which put 139 of the 460 labels under 9px and the smallest at 7.9px on a
+  // desktop. 11px is the smallest size Apple sets text at, so that is the floor; the
+  // hubs still read as hubs because the band keeps the same ranking. Density when you
+  // zoom out is the LOD's job, not the type's: a map label stays readable and the map
+  // drops labels instead, which is what Maps does.
+  FSMIN = NARROW?11:11.5; FSMAX = NARROW?14:14.5;
   // The year scale was a fixed number of pixels per year, so on a wide window it ran
   // out before the canvas did and left dead space to the right of the last year.
   // Work out what 100% has to mean for this viewport so the span reaches the edge.
@@ -195,7 +202,9 @@ function layout(avail){
     const list = nodes.filter(n=>n.fam===k).sort((a,b)=>a.year-b.year||a.name.localeCompare(b.name));
     const ends=[], rowH=[];
     list.forEach(n=>{
-      n.fs = FS*n.sc; n.r = R*(1+.5*(n.sc-1));
+      // n.sc runs 1.15 to 2.10, so (n.sc-1.15)/0.95 is sqrt(children/CMAX): the same
+      // ranking the dots use, mapped onto the band rather than onto zero
+      n.fs = FSMIN + (FSMAX-FSMIN)*((n.sc-1.15)/0.95); n.r = R*(1+.5*(n.sc-1));
       mctx.font = `${n.bold?600:400} ${n.fs}px 'IBM Plex Sans', system-ui, sans-serif`;
       n.x = xOf(n.year);
       n.lod = LOD && n.children.length===0;           // leaf drawn as a dot only at overview zoom
