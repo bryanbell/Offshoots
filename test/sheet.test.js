@@ -143,6 +143,18 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   say("dragging up does not shrink it", Math.min(...up)>=(R[1]-R[0])-2);
   await p.mouse.up(); await p.waitForTimeout(600);
 
+  // nothing in the card may sit at a different offset in one state than the other, or the
+  // contents slide under the finger as the sheet moves
+  const offsets=()=>p.evaluate(()=>{const pa=document.getElementById("panel").getBoundingClientRect();
+    const o={}; [".pcard",".ovttl",".tag",".ovmeta",".sect"].forEach(s=>{const e=document.querySelector(s);
+      if(e) o[s]=+(e.getBoundingClientRect().top-pa.top).toFixed(2);}); return o;});
+  await p.goto(URL); await p.waitForTimeout(900);
+  const shut=await offsets();
+  await p.click("#grab"); await p.waitForTimeout(800);
+  const wide=await offsets();
+  const moved=Object.keys(shut).filter(k=>Math.abs(shut[k]-wide[k])>0.5);
+  say("the card holds its position in both states"+(moved.length?" ("+moved.map(k=>k+" "+shut[k]+" -> "+wide[k]).join(", ")+")":""), moved.length===0);
+
   say("no page errors", errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
   await b.close();
 })();

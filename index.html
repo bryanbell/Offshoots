@@ -278,7 +278,8 @@ body:not(.open) aside:hover{background:var(--panel)}
 .pcnt svg{width:15px;height:15px;flex:none}
 body.open .pcnt{display:none}
 .pcard{margin:0}
-body.open .pcard{margin:0 0 4px}
+/* the open state once drew a rule under the card; the spacing for it drifted the
+   whole sheet down by 18px after the rule itself was dropped */
 .pcard .mn{display:block;font-weight:700;font-size:18px;letter-spacing:-.018em;line-height:1.2;margin:0 0 1px}
 .navrow{position:sticky;top:0;z-index:35;display:grid;grid-template-columns:1fr minmax(0,auto) 1fr;
   align-items:center;gap:8px;margin:0;padding:6px 0 7px;background:var(--panel)}
@@ -388,7 +389,6 @@ body.open .pcard>h3.sec{display:block}
 .who a.am svg{width:14px;height:14px;flex:none;opacity:.55}
 .who a.am span{min-width:0;overflow-wrap:break-word}
 
-body.open .pcard{padding-bottom:14px;border-bottom:.5px solid var(--line)}
 body.open .pcard h3.sec:first-of-type{margin-top:17px}
 .who:empty{display:none}
 .who .sep{font-style:normal;opacity:.45;margin:0 2px}
@@ -551,7 +551,6 @@ body:not(.open) aside#panel{width:var(--sidew);cursor:pointer}
 .secttl{font:600 12.5px var(--f-body);letter-spacing:0;text-transform:none;color:var(--fg);margin:0 0 8px}
 .sect{margin-top:16px;padding:14px 0 2px;border-top:var(--sectw,.5px) solid var(--sectline,var(--line))}
 .sect:first-child{border-top:var(--sectw,.5px) solid var(--sectline,var(--line));padding-top:14px}
-body.open .pcard{border-bottom:0}
 
 /* ---- scrollbar rides the panel edge: pad the contents, not the panel ---- */
 :root{--ppad:18px}
