@@ -632,7 +632,14 @@ button.navttl:focus-visible,button.ovttl:focus-visible{outline:0;
 .ovttl{display:inline-flex;align-items:center;gap:7px;border-radius:9px;padding:1px 6px;margin:0 -6px}
 .ovttl .mn{display:inline-block;margin:0}
 .shg{flex:none;width:11px;height:11px;opacity:.55;vertical-align:-1px}
-.ovttl .shg{width:13px;height:13px}
+/* share moved out of the title and onto the end of the header row: the title still
+   fires it, but the glyph now sits where a header action is looked for */
+.ovshare{all:unset;box-sizing:border-box;cursor:pointer;flex:none;display:grid;place-items:center;
+  width:34px;height:34px;border-radius:999px;color:var(--fg);align-self:center}
+.ovshare .shg{width:16px;height:16px;opacity:.5}
+.ovshare:hover{background:color-mix(in srgb,var(--fg) 8%,transparent)}
+.ovshare:hover .shg{opacity:.85}
+.ovshare:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
 button.navttl .my{display:inline-flex;align-items:center;gap:5px}
 .shg{display:inline-block}
 .navttl.done .mn,.ovttl.done .mn{color:var(--acc,var(--fg))}
@@ -641,6 +648,8 @@ button.navttl .my{display:inline-flex;align-items:center;gap:5px}
      since the negative margins give back exactly the row padding the button takes */
   button.navttl{margin:-6px 0 -7px;padding:6px 8px 7px;border-radius:12px}
   .ovttl{padding:5px 6px}
+  .ovshare{width:40px;height:40px}
+  .ovshare .shg{width:17px;height:17px}
 }
 .navttl.done .shg,.ovttl.done .shg{opacity:0}
 /* the minimised sheet keeps its height for the playlist */
@@ -2781,7 +2790,7 @@ function emptyPanel(){
   syncPull();
   const top=[...nodes].sort((a,b)=>b.children.length-a.children.length||a.year-b.year).slice(0,12);
   const np=playable().length;
-  $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="phead"><img class="appicon" alt="" src="${ICONSRC()}"><div class="phtx"><button type="button" class="ovttl" data-share aria-label="Share this map" title="Share this map"><span class="mn">Offshoots</span>${SHAREGLYPH}</button><p class="tag">Find something to hear, and trace what it grew out of.</p><p class="ovmeta">${nodes.length} styles · ${np} playlists</p></div></div></div><div class="more">
+  $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="phead"><img class="appicon" alt="" src="${ICONSRC()}"><div class="phtx"><button type="button" class="ovttl" data-share aria-label="Share this map" title="Share this map"><span class="mn">Offshoots</span></button><p class="tag">Find something to hear, and trace what it grew out of.</p><p class="ovmeta">${nodes.length} styles · ${np} playlists</p></div><button type="button" class="ovshare" data-share aria-label="Share this map" title="Share this map">${SHAREGLYPH}</button></div></div><div class="more">
     ${featSect()}
     ${modeSect()}
     ${browseRow()}

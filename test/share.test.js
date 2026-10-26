@@ -49,6 +49,22 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   say("overview title confirms", await d.$eval(".ovttl .mn",e=>e.textContent));
   await d.waitForTimeout(1700);
   say("overview name comes back", await d.$eval(".ovttl .mn",e=>e.textContent)==="Offshoots");
+  // the glyph lives at the end of the header row now, not beside the name
+  say("no glyph inside the title", (await d.$$eval(".ovttl .shg",e=>e.length))===0);
+  const ob=await d.evaluate(()=>{const s=document.querySelector(".ovshare").getBoundingClientRect(),
+    h=document.querySelector(".ovcard .phead").getBoundingClientRect(),
+    t=document.querySelector(".ovttl").getBoundingClientRect();
+    return [Math.round(h.right-s.right),Math.round(s.left-t.right),Math.round(s.height),
+      Math.abs(Math.round((s.top+s.height/2)-(h.top+h.height/2)))];});
+  say("sits at the header's right edge ("+ob[0]+"px)", ob[0]<=1);
+  say("clear of the title by "+ob[1]+"px", ob[1]>0);
+  say("centred on the header, off by "+ob[3]+"px", ob[3]<=1);
+  say("tap target "+ob[2]+"px", ob[2]>=34);
+  await d.evaluate(()=>{window.__copied.length=0;});
+  await d.click(".ovshare"); await d.waitForTimeout(250);
+  const u2=await d.evaluate(()=>window.__copied[0]||"");
+  say("the moved glyph still shares", !!u2 && !u2.includes("#") ? true : u2||"nothing copied");
+  await d.waitForTimeout(1700);
 
   // ---------- mobile: minimised sheet still expands on a title tap ----------
   let p=await fresh(b,M,"#disco");
