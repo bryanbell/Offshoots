@@ -522,43 +522,69 @@ function syncPull(){ const el=$("sheetpull"); if(!el) return; const l=el.querySe
   if(tint&&ink){ el.style.setProperty("--pullbg",tint); el.style.setProperty("--pullfg",ink); }
   else { el.style.removeProperty("--pullbg"); el.style.removeProperty("--pullfg"); } }
 function sheetMin(){ return MINH || 170; }
-function sheetMax(){ return Math.round(innerHeight*0.5); }
+// the ceiling has to be the height the open state actually uses, or dragging up from an
+// open sheet pulls it down to the ceiling instead
+function sheetMax(){ return Math.round(innerHeight*0.7); }
 (function(){
-  const g=$("grab"), el=$("panel"); if(!g||!el) return;
-  let y0=0, h0=0, moved=0, t0=0, active=false;
+  const g=$("grab"), el=$("panel"); if(!el) return;
+  let y0=0, h0=0, t0=0, active=false, tapToggles=false;
   const measureMin=()=>{ if(!OPEN && OVERLAY) MINH=el.offsetHeight; };
   addEventListener("load",measureMin); setTimeout(measureMin,300);
-  g.addEventListener("pointerdown",e=>{
-    if(!OVERLAY) return;
-    active=true; DRAGGING=false; y0=e.clientY; h0=el.offsetHeight; moved=0; t0=Date.now();
-    g.setPointerCapture(e.pointerId);
-  });
-  g.addEventListener("pointermove",e=>{
+
+  // one gesture, two places to start it: the handle, and the card's header, which is the
+  // part of an open sheet a thumb lands on. A drag from the header must not also fire the
+  // share button underneath it, so the click after a real drag is swallowed.
+  function begin(e,toggles){
+    if(!OVERLAY || active) return;
+    active=true; DRAGGING=false; tapToggles=toggles;
+    y0=e.clientY; h0=el.offsetHeight; t0=Date.now();
+    addEventListener("pointermove",move,{passive:false});
+    addEventListener("pointerup",end); addEventListener("pointercancel",end);
+  }
+  function move(e){
     if(!active) return;
-    const dy=y0-e.clientY; moved=Math.abs(dy);
-    if(!DRAGGING && moved<4) return;
+    const dy=y0-e.clientY;
+    if(!DRAGGING && Math.abs(dy)<4) return;
     if(!DRAGGING){ DRAGGING=true; document.body.classList.add("dragging"); }
-    e.preventDefault();
+    if(e.cancelable) e.preventDefault();
     const floor = dismissable() ? 0 : sheetMin();
     el.style.height=Math.max(floor, Math.min(sheetMax(), h0+dy))+"px";
-  });
-  const end=e=>{
+  }
+  function end(e){
     if(!active) return; active=false;
+    removeEventListener("pointermove",move); removeEventListener("pointerup",end); removeEventListener("pointercancel",end);
     const dt=Date.now()-t0, dy=y0-e.clientY;
     const hNow=el.offsetHeight;
     document.body.classList.remove("dragging");
+    if(!DRAGGING){                                   // a tap, not a drag
+      el.style.height="";
+      if(tapToggles) setOpen(!OPEN);                 // the header lets its own click through
+      DRAGGING=false; return;
+    }
+    DRAGGING=false;
+    swallowClick();
+    const flick = dt<260 && Math.abs(dy)>24;                   // quick flick wins over position
     // the inline height stays on until setOpen has read it, so the snap continues
     // from where the finger let go instead of starting over from the CSS value
-    if(!DRAGGING){ el.style.height=""; setOpen(!OPEN); DRAGGING=false; return; }   // a tap, not a drag
-    DRAGGING=false;
-    const flick = dt<260 && Math.abs(dy)>24;                   // quick flick wins over position
     if(dismissable() && (flick ? dy<0 : hNow < sheetMin()*0.62)){ el.style.height=""; dismissSheet(); return; }
     const open = flick ? dy>0 : hNow > (sheetMin()+sheetMax())/2;
     setOpen(open);
-  };
-  g.addEventListener("pointerup",end);
-  g.addEventListener("pointercancel",end);
-  g.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); setOpen(!OPEN); } });
+  }
+  function swallowClick(){
+    const eat=ev=>{ ev.preventDefault(); ev.stopPropagation(); };
+    addEventListener("click",eat,true);
+    setTimeout(()=>removeEventListener("click",eat,true),0);
+  }
+  if(g){
+    g.addEventListener("pointerdown",e=>{ begin(e,true); });
+    g.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); setOpen(!OPEN); } });
+  }
+  // delegated, because the card is rebuilt on every selection
+  el.addEventListener("pointerdown",e=>{
+    if(!OPEN || e.target.closest("#grab")) return;
+    if(!e.target.closest(".pcard .phead")) return;
+    begin(e,false);
+  });
 })();
 document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ if(!$("wikiwrap").hidden){ closeWiki(); return; } if(OPEN) closePanel(); else if(state.sel&&document.activeElement!==$("q")) clearSel(); } });
 

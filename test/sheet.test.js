@@ -104,6 +104,45 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   const back=await p.evaluate(()=>Math.round(document.getElementById("panel").getBoundingClientRect().height));
   say("reversed mid-animation, it settles at "+back+"px", Math.abs(back-(R[1]-R[0]))<=2);
 
+  // dragging the card's header, which is where a thumb lands on an open sheet.
+  // pause matters: a quick flick down closes whatever the distance, so a short drag meant
+  // to spring back has to be slow enough not to read as one.
+  const hgt=()=>p.evaluate(()=>Math.round(document.getElementById("panel").getBoundingClientRect().height));
+  const drag=async(x,y,dy,steps,release=true,pause=0)=>{
+    await p.mouse.move(x,y); await p.mouse.down();
+    const seen=[];
+    for(let i=1;i<=steps;i++){ await p.mouse.move(x,y+dy*i/steps); seen.push(await hgt()); if(pause) await p.waitForTimeout(pause); }
+    if(release) await p.mouse.up();
+    return seen; };
+  await ensure(); await p.waitForTimeout(500);
+  const hd=await p.evaluate(()=>{const r=document.querySelector(".pcard .phead").getBoundingClientRect();
+    return [Math.round(r.left+r.width/2),Math.round(r.top+r.height/2)];});
+  const follow=await drag(hd[0],hd[1],170,8,false);
+  say("the sheet follows the finger from the header", new Set(follow).size>=5);
+  await p.mouse.up(); await p.waitForTimeout(700);
+  say("released past halfway it minimises", (await open())===false);
+  await ensure(); await p.waitForTimeout(500);
+  await drag(hd[0],hd[1],40,5,true,90); await p.waitForTimeout(700);
+  say("a short slow drag springs back open", await open());
+  await drag(hd[0],hd[1],45,4); await p.waitForTimeout(700);
+  say("a quick flick down closes it even at 45px", (await open())===false);
+  // the header sits on top of the share button: a tap must share, a drag must not
+  await ensure(); await p.waitForTimeout(500);
+  await p.evaluate(()=>{window.__copied=[];navigator.clipboard.writeText=async t=>{window.__copied.push(t)};});
+  await p.click(".ovttl"); await p.waitForTimeout(400);
+  say("tapping the title still shares", await p.evaluate(()=>window.__copied.length===1));
+  say("and the sheet stayed open", await open());
+  await p.evaluate(()=>{window.__copied=[];});
+  const ttl=await p.evaluate(()=>{const r=document.querySelector(".ovttl").getBoundingClientRect(); return [Math.round(r.left+r.width/2),Math.round(r.top+r.height/2)];});
+  await drag(ttl[0],ttl[1],170,8); await p.waitForTimeout(700);
+  say("dragging from the title does not fire share", await p.evaluate(()=>window.__copied.length===0));
+  say("it minimised instead", (await open())===false);
+  // the drag ceiling has to match the open height, or dragging up pulls the sheet down
+  await ensure(); await p.waitForTimeout(500);
+  const up=await drag(hd[0],hd[1],-60,5,false);
+  say("dragging up does not shrink it", Math.min(...up)>=(R[1]-R[0])-2);
+  await p.mouse.up(); await p.waitForTimeout(600);
+
   say("no page errors", errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
   await b.close();
 })();

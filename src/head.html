@@ -540,6 +540,8 @@ body:not(.open) aside#panel{width:var(--sidew);cursor:pointer}
   #grab:active{cursor:grabbing}
   #grab:active::before,#grab:focus-visible::before{background:var(--muted)}
   #pclose{display:none}
+  /* the header drags the sheet, so the browser must not claim the vertical gesture first */
+  body.open .pcard .phead{touch-action:none}
   /* the height is driven in pixels from script, since auto will not interpolate */
   aside#panel{transition:height .34s cubic-bezier(.32,.72,0,1)}
   body.dragging aside#panel{transition:none}
