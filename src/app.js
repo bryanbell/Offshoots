@@ -278,10 +278,20 @@ const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // center a node in the part of the map that is actually visible:
 // the lane strip is pinned at the left, the toolbar and axis sit over the top
+// How much of the map the floating sheet covers. Zero on desktop, where the panel is a
+// docked column beside the map rather than over it.
+function sheetCover(){
+  if(!OVERLAY) return 0;
+  const el=$("panel");
+  if(!el || document.body.classList.contains("sheetgone")) return 0;
+  const r=el.getBoundingClientRect(), s=scroller.getBoundingClientRect();
+  return Math.max(0, Math.round(s.bottom - r.top));
+}
 function centerOn(n,smooth,onlyIfNeeded){
   const padL = LABELW, padT = BAR()+AXH;
   const availW = Math.max(40, scroller.clientWidth - padL);
-  const availH = Math.max(40, scroller.clientHeight - padT);
+  // centre in the band still showing, not in the scroller, or the style lands behind the sheet
+  const availH = Math.max(40, scroller.clientHeight - padT - sheetCover());
   if(onlyIfNeeded){
     // a tap on the map shouldn't slide the map out from under the next tap:
     // leave it alone while the style sits in the middle of what's visible
@@ -453,7 +463,7 @@ function setOpen(v){
   setOpenNow(v);
   if(glide) glideSheet(from);
 }
-function setOpenNow(v){ closeNav(); OPEN=v; setTimeout(sizeCard,0); if(OVERLAY && state.sel) setTimeout(()=>{ if(state.sel) select(state.sel,{scroll:true,smooth:!reduce,repaint:false}) },260); $("panel").classList.toggle("open",v); document.body.classList.toggle("open",v); $("expand").setAttribute("aria-expanded",v); $("expand").setAttribute("aria-label",v?"Hide details":"Show details"); $("pclose").setAttribute("aria-label",v?"Collapse details":"Expand details"); { const g=$("grab"); if(g){ g.setAttribute("aria-expanded",String(v)); g.setAttribute("aria-label",v?"Collapse details":"Expand details"); } } paintExpand(); if(v) $("panel").scrollTop=0; }
+function setOpenNow(v){ closeNav(); OPEN=v; setTimeout(sizeCard,0); setTimeout(syncMapPad,0); setTimeout(syncMapPad,380); if(OVERLAY && state.sel) setTimeout(()=>{ if(state.sel) select(state.sel,{scroll:true,smooth:!reduce,repaint:false}) },260); $("panel").classList.toggle("open",v); document.body.classList.toggle("open",v); $("expand").setAttribute("aria-expanded",v); $("expand").setAttribute("aria-label",v?"Hide details":"Show details"); $("pclose").setAttribute("aria-label",v?"Collapse details":"Expand details"); { const g=$("grab"); if(g){ g.setAttribute("aria-expanded",String(v)); g.setAttribute("aria-label",v?"Collapse details":"Expand details"); } } paintExpand(); if(v) $("panel").scrollTop=0; }
 function openPanel(){ setOpen(true); }
 function closePanel(){ setOpen(false); }
 function syncPeek(){}
@@ -549,6 +559,7 @@ function sheetMax(){ return Math.round(innerHeight*0.7); }
     if(e.cancelable) e.preventDefault();
     const floor = dismissable() ? 0 : sheetMin();
     el.style.height=Math.max(floor, Math.min(sheetMax(), h0+dy))+"px";
+    syncMapPad();
   }
   function end(e){
     if(!active) return; active=false;
@@ -1074,7 +1085,12 @@ let RENDERED=false;
 // timeout from setOpen and would otherwise restore the 46vh cap before the first frame,
 // clamping the closing animation to its end state instantly.
 function sizeCard(){ const el=$("panel"); if(el && !GLIDING) el.style.maxHeight=""; }
-function SRES(){ return 24; }   // the search bar lives in the panel now; the map only needs breathing room
+// breathing room under the map, plus whatever the floating sheet covers, so the lowest
+// styles can still be scrolled up into the open band
+function SRES(){ return 24 + sheetCover(); }
+// the map used to be resized by the sheet, so its ResizeObserver kept this honest. Now
+// that the sheet floats, nothing observes the change and the padding has to be told.
+function syncMapPad(){ const i=$("inner"); if(i) i.style.paddingBottom=SRES()+"px"; }
 function render(){ RENDERED=true; dims(); LOD = Z<0.9; $("chart").classList.toggle("lod",LOD); fit(); const res=SRES(); $("inner").style.paddingBottom=res+"px"; layout(scroller.clientHeight-AXH-BAR()-res); draw(); }
 let lastW=0,lastH=0,rt;
 // the panel is docked, so opening or closing it changes the map viewport: re-lay out when that happens

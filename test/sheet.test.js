@@ -155,6 +155,38 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   const moved=Object.keys(shut).filter(k=>Math.abs(shut[k]-wide[k])>0.5);
   say("the card holds its position in both states"+(moved.length?" ("+moved.map(k=>k+" "+shut[k]+" -> "+wide[k]).join(", ")+")":""), moved.length===0);
 
+  // the sheet floats over the map rather than docking under it, which is what gives the
+  // frosted ground something to blur. The map therefore keeps its height, and two things
+  // that used to come free from that resize now have to be maintained by hand.
+  await p.goto(URL); await p.waitForTimeout(1000);
+  const geo=()=>p.evaluate(()=>{const pan=document.getElementById("panel").getBoundingClientRect();
+    const s=document.getElementById("scroller").getBoundingClientRect();
+    return {overlap:Math.round(Math.min(s.bottom,pan.bottom)-Math.max(s.top,pan.top)), mapH:Math.round(s.height)};});
+  const g1=await geo();
+  say("the map runs behind the sheet ("+g1.overlap+"px)", g1.overlap>100);
+  const frost=await p.evaluate(()=>{const cs=getComputedStyle(document.getElementById("panel"));
+    return [cs.backdropFilter||cs.webkitBackdropFilter||"none", cs.backgroundColor];});
+  say("its ground is frosted: "+frost[0], /blur/.test(frost[0]));
+  say("and translucent: "+frost[1], /rgba|\/ 0\./.test(frost[1]));
+  await p.click("#grab"); await p.waitForTimeout(900);
+  const g2=await geo();
+  say("opening no longer resizes the map ("+g1.mapH+" -> "+g2.mapH+")", g1.mapH===g2.mapH);
+  // 1. a style chosen with the sheet open must land in the band still showing
+  await p.click('[data-mk="winddown"]'); await p.waitForTimeout(900);
+  await p.click(".picks .pick"); await p.waitForTimeout(1200);
+  const cur=await p.evaluate(()=>{const n=document.querySelector("#chart .n.cur");
+    if(!n) return null; const r=n.getBoundingClientRect(), pan=document.getElementById("panel").getBoundingClientRect();
+    return {gap:Math.round(pan.top-r.bottom), top:Math.round(r.top)};});
+  say("the chosen style sits "+(cur?cur.gap:"?")+"px clear of the sheet", !!cur && cur.gap>0 && cur.top>0);
+  // 2. the lowest styles must still be scrollable out from under it
+  await p.evaluate(()=>{const s=document.getElementById("scroller"); s.scrollTop=s.scrollHeight;});
+  await p.waitForTimeout(500);
+  const low=await p.evaluate(()=>{const ns=[...document.querySelectorAll("#chart .n")];
+    const last=ns.map(n=>[n,n.getBoundingClientRect()]).sort((a,b)=>b[1].top-a[1].top)[0];
+    const pan=document.getElementById("panel").getBoundingClientRect();
+    return {id:last[0].dataset.id, clear:Math.round(pan.top-last[1].bottom)};});
+  say("at the end of the map, "+low.id+" still clears the sheet by "+low.clear+"px", low.clear>0);
+
   say("no page errors", errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
   await b.close();
 })();

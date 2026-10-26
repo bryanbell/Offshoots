@@ -534,8 +534,20 @@ body:not(.open) aside#panel{width:var(--sidew);cursor:pointer}
   :root{--sidew:auto}
   #app{flex-direction:column}
   #bar{left:14px}
-  aside#panel{order:1;flex:0 0 auto;width:auto;height:auto;max-height:70vh;border-left:0;border-top:0;border-radius:16px 16px 0 0;box-shadow:0 -1px 0 var(--line),0 -10px 30px rgb(0 0 0 / .16),0 -3px 10px rgb(0 0 0 / .08);
-    padding:2px 16px calc(14px + env(safe-area-inset-bottom,0px))}
+  /* the sheet floats over the map rather than docking under it, so the lines of the
+     map carry on behind the frosted ground. The map keeps its full height and stops
+     relaying out every time the sheet opens; centerOn subtracts the covered band. */
+  aside#panel{order:1;position:absolute;left:0;right:0;bottom:0;z-index:30;
+    flex:0 0 auto;width:auto;height:auto;max-height:70vh;border-left:0;border-top:0;border-radius:16px 16px 0 0;box-shadow:0 -1px 0 var(--line),0 -10px 30px rgb(0 0 0 / .34),0 -3px 10px rgb(0 0 0 / .18);
+    padding:2px 16px calc(14px + env(safe-area-inset-bottom,0px));
+    background:color-mix(in srgb,var(--panel) 92%,transparent);
+    -webkit-backdrop-filter:saturate(150%) blur(30px);backdrop-filter:saturate(150%) blur(30px)}
+  /* a tinted style panel keeps its family ground opaque: the wash is the point there */
+  aside#panel.tinted{background:var(--panel);-webkit-backdrop-filter:none;backdrop-filter:none}
+  /* no backdrop-filter support: fall back to the solid ground rather than a see-through sheet */
+  @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+    aside#panel{background:var(--panel)}
+  }
   body.open aside#panel{height:70vh}
   body:not(.open) aside#panel{height:auto;max-height:46vh;width:auto}
   body:not(.open) #panelBody{overflow:hidden;flex:0 1 auto}
