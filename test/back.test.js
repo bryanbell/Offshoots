@@ -118,5 +118,43 @@ const hash=p=>p.evaluate(()=>location.hash);
   say("not the walk from before", (await label(p))==="Back to the map");
   say("no page errors", p._errs.length===0 ? true : p._errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
 
+  // the three pieces of map chrome sit on one line, and the search surfaces are light
+  const D={width:1440,height:900};
+  for(const [name,vp] of [["phone",M],["desktop",D]]){
+    p=await fresh(b,vp);
+    // the sheet covers the zoom control on a phone, so press it directly
+    await p.$eval("#zin",e=>e.click()); await p.waitForTimeout(500);
+    const btnTop=await p.$eval("#mapSearch",e=>Math.round(e.getBoundingClientRect().top));
+    await p.$eval("#mapSearch",e=>e.click()); await p.waitForTimeout(400);
+    await p.fill("#bottomSearch input","blues"); await p.waitForTimeout(400);
+    const m=await p.evaluate(()=>{
+      const box=s=>{const e=document.querySelector(s); if(!e) return null;
+        const r=e.getBoundingClientRect(); return {t:Math.round(r.top),h:Math.round(r.height),cx:Math.round(r.left+r.width/2)};};
+      const lum=s=>{const e=document.querySelector(s); if(!e) return {};
+        const c=getComputedStyle(e), f=v=>{const n=(v.match(/[\d.]+/g)||[0,0,0]).slice(0,3).map(Number);
+          return (0.2126*n[0]+0.7152*n[1]+0.0722*n[2])/255;};
+        return {bg:f(c.backgroundColor), fg:f(c.color)};};
+      const sw=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sidew"))||0;
+      return {zoom:box("#zreset2"), search:box("#bottomSearch input"),
+        z:lum("#zreset2"), s:lum("#bottomSearch input"), r:lum("#bottomSearch .results"),
+        hits:document.querySelectorAll("#bottomSearch .results li").length,
+        vw:innerWidth, sidew:sw};
+    });
+    const tops=[m.zoom.t,m.search.t,btnTop];
+    say(name+" zoom pill, search field and search button share a top "+tops.join("/"),
+      Math.max(...tops)-Math.min(...tops)<=2);
+    say(name+" zoom pill is dark on light "+m.z.bg.toFixed(2)+"/"+m.z.fg.toFixed(2),
+      m.z.bg>.85 && m.z.fg<.2);
+    say(name+" search field is dark on light "+m.s.bg.toFixed(2)+"/"+m.s.fg.toFixed(2),
+      m.s.bg>.85 && m.s.fg<.2);
+    say(name+" results are dark on light "+m.r.bg.toFixed(2)+"/"+m.r.fg.toFixed(2)+" ("+m.hits+" hits)",
+      m.hits>0 && m.r.bg>.85 && m.r.fg<.2);
+    // centred on the map, which on a desktop is the viewport minus the sidebar
+    const centre=Math.round((m.vw-m.sidew)/2);
+    say(name+" zoom pill is centred on the map ("+m.zoom.cx+" vs "+centre+")",
+      Math.abs(m.zoom.cx-centre)<=3);
+    say(name+" no page errors", p._errs.length===0 ? true : p._errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
+  }
+
   await b.close();
 })();

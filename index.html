@@ -37,6 +37,7 @@
   --t-foot:13px;   --t-foot-lh:18px;
   --t-cap:12px;    --t-cap-lh:16px;
   --link:#5aa9ff;   /* accent is 3.87:1 here; this clears AA on the panel and on cards */
+  --lite:#f5f5f7; --lite-fg:#1a1a1c; --lite-mut:#6a6a70;   /* the inverted surfaces */
   /* 44pt is the floor for anything you tap */
   --tap:44px;
 }
@@ -69,10 +70,10 @@ button{font-family:inherit}
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%2386868b' stroke-width='2' stroke-linecap='round'><circle cx='8.5' cy='8.5' r='5.5'/><path d='M13 13l4 4'/></svg>");background-repeat:no-repeat;background-position:15px center;background-size:17px}
 .search input::placeholder{color:var(--muted)}
 .search input:focus-visible{outline:0;box-shadow:0 0 0 .5px rgb(0 0 0 / .10),0 0 0 4px color-mix(in srgb,var(--accent) 35%,transparent)}
-.results{position:absolute;z-index:30;left:0;right:0;top:calc(100% + 6px);background:var(--panel);border-radius:12px;margin:0;padding:5px;list-style:none;box-shadow:var(--shadow)}
+.results{position:absolute;z-index:30;left:0;right:0;top:calc(100% + 6px);background:var(--lite);color:var(--lite-fg);border-radius:12px;margin:0;padding:5px;list-style:none;box-shadow:0 0 0 .5px rgb(0 0 0 / .18),0 12px 32px rgb(0 0 0 / .45)}
 .results li button{all:unset;display:flex;gap:8px;align-items:baseline;width:100%;box-sizing:border-box;padding:8px 10px;border-radius:8px;cursor:pointer}
-.results li button:hover,.results li button.act{background:var(--fill2)}
-.results small{color:var(--muted);font-size:var(--t-foot);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.results li button:hover,.results li button.act{background:rgb(0 0 0 / .07)}
+.results small{color:var(--lite-mut);font-size:var(--t-foot);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 button:focus-visible,.chip:focus-visible,.link:focus-visible{outline:0;box-shadow:0 0 0 3.5px color-mix(in srgb,var(--accent) 35%,transparent)}
 /* map */
 .mapbox{position:absolute;inset:0;background:var(--mapbg)}
@@ -246,7 +247,7 @@ a.am:hover{color:var(--accent)}
 @media (max-width:899px){
 
 
-  #bottomSearch .search input{background-color:var(--glass);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);box-shadow:0 0 0 .5px rgb(0 0 0 / .14),0 10px 30px rgb(0 0 0 / .28),0 0 0 4px color-mix(in srgb,var(--accent) 14%,transparent)}
+  #bottomSearch .search input{background-color:var(--lite);color:var(--lite-fg);-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:0 0 0 .5px rgb(0 0 0 / .14),0 10px 30px rgb(0 0 0 / .32),0 0 0 4px color-mix(in srgb,var(--accent) 22%,transparent)}
   #bottomSearch .search{width:100%}
   #bottomSearch .results{top:calc(100% + 6px);bottom:auto;max-height:min(60vh,420px);overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
   .zoom{bottom:calc(14px + env(safe-area-inset-bottom,0px));right:12px}
@@ -494,10 +495,15 @@ a.wk.pl:hover{background:color-mix(in srgb,#fa233b 86%,#000)}
 #expand .lbl .long{display:none}
 @media (min-width:560px){ #expand{padding:0 12px 0 14px} #expand .lbl .long{display:inline-block} #expand .lbl .short{display:none} }
 #expand:hover{background:color-mix(in srgb,var(--fill) 75%,var(--fg))}
-#zreset2{flex:none;height:38px;padding:0 12px 0 10px;border:0;border-radius:999px;box-shadow:0 6px 22px rgb(0 0 0 / .16),0 0 0 .5px var(--line);background:var(--glass);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);color:var(--fg);cursor:pointer;display:inline-flex;align-items:center;gap:6px;font:600 12px var(--f-mono);transition:background .15s}
+#zreset2{position:fixed;z-index:41;top:calc(var(--axh,34px) + 12px);left:50%;transform:translateX(-50%);
+  flex:none;height:38px;padding:0 13px 0 11px;border:0;border-radius:999px;
+  box-shadow:0 2px 10px rgb(0 0 0 / .4);background:var(--lite);color:var(--lite-fg);
+  cursor:pointer;display:inline-flex;align-items:center;gap:6px;font:600 var(--t-foot) var(--f-mono);transition:background .15s}
+@media (min-width:900px){ #zreset2{left:calc((100vw - var(--sidew)) / 2)} }
+@media (max-width:899px){ #zreset2{top:calc(var(--axh,34px) + 10px)} }
 #zreset2[hidden]{display:none}
 #zreset2 svg{width:15px;height:15px}
-#zreset2:hover{background:color-mix(in srgb,var(--fill) 80%,var(--fg))}
+#zreset2:hover{background:#fff}
 #expand svg{width:16px;height:16px;transition:transform .25s}
 body.open #expand svg{transform:rotate(180deg)}
 
@@ -528,7 +534,8 @@ body.searching #navpills{display:none}
 #mapSearch:hover{background:#fff}
 body.searching #mapSearch{display:none}
 @media (max-width:899px){ #mapSearch{top:calc(var(--axh,34px) + 10px);right:12px;width:40px;height:40px} }
-#bottomSearch{position:fixed;z-index:60;left:50%;right:auto;transform:translateX(-50%);width:min(520px,calc(100vw - 2*var(--gutter)));top:12px;bottom:auto;display:none}
+#bottomSearch{position:fixed;z-index:60;left:50%;right:auto;transform:translateX(-50%);width:min(520px,calc(100vw - 2*var(--gutter)));top:calc(var(--axh,34px) + 12px);bottom:auto;display:none}
+@media (max-width:899px){ #bottomSearch{top:calc(var(--axh,34px) + 10px)} }
 /* on a wide screen the panel is a sidebar, so centring on the viewport pushed the
    field under it: centre on the map instead */
 @media (min-width:900px){
@@ -537,7 +544,10 @@ body.searching #mapSearch{display:none}
 }
 body.searching #bottomSearch{display:block}
 #bottomSearch .results{top:calc(100% + 6px);bottom:auto;max-height:min(60vh,420px);overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-#bottomSearch .search input{background-color:var(--glass);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);box-shadow:0 0 0 .5px rgb(0 0 0 / .14),0 10px 30px rgb(0 0 0 / .22)}
+#bottomSearch .search input{background-color:var(--lite);color:var(--lite-fg);
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+  box-shadow:0 0 0 .5px rgb(0 0 0 / .14),0 10px 30px rgb(0 0 0 / .32)}
+#bottomSearch .search input::placeholder{color:var(--lite-mut)}
 .zoom{bottom:calc(16px + env(safe-area-inset-bottom,0px))}
 #panelBody{max-width:720px}
 .about{margin-top:12px;padding-top:0}
@@ -618,8 +628,8 @@ body:not(.open) aside#panel{width:var(--sidew);cursor:pointer}
 
 /* ---- search docked at the top of the panel ---- */
 
-#bottomSearch .search input{height:40px;font-size:15px;padding:0 14px 0 38px;background-color:var(--fill2);-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:0 0 0 .5px var(--line);background-position:13px center;background-size:16px}
-#bottomSearch .search input:focus-visible{box-shadow:0 0 0 .5px var(--line),0 0 0 4px color-mix(in srgb,var(--accent) 30%,transparent)}
+#bottomSearch .search input{height:40px;font-size:15px;padding:0 14px 0 38px;background-color:var(--lite);color:var(--lite-fg);-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:0 0 0 .5px rgb(0 0 0 / .14),0 6px 20px rgb(0 0 0 / .3);background-position:13px center;background-size:16px}
+#bottomSearch .search input:focus-visible{box-shadow:0 0 0 .5px rgb(0 0 0 / .14),0 0 0 4px color-mix(in srgb,var(--accent) 35%,transparent)}
 #bottomSearch .results{top:calc(100% + 6px);bottom:auto;max-height:min(46vh,340px);overflow:auto;overscroll-behavior:contain}
 
 
