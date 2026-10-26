@@ -542,8 +542,8 @@ body:not(.open) aside#panel{width:var(--sidew);cursor:pointer}
     padding:2px 16px calc(14px + env(safe-area-inset-bottom,0px));
     background:color-mix(in srgb,var(--panel) 92%,transparent);
     -webkit-backdrop-filter:saturate(150%) blur(30px);backdrop-filter:saturate(150%) blur(30px)}
-  /* a tinted style panel keeps its family ground opaque: the wash is the point there */
-  aside#panel.tinted{background:var(--panel);-webkit-backdrop-filter:none;backdrop-filter:none}
+  /* the family wash goes translucent too, over its own ground rather than the root's */
+  aside#panel.tinted{background:color-mix(in srgb,var(--panel) 92%,transparent)}
   /* no backdrop-filter support: fall back to the solid ground rather than a see-through sheet */
   @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
     aside#panel{background:var(--panel)}

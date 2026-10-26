@@ -171,6 +171,18 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   await p.click("#grab"); await p.waitForTimeout(900);
   const g2=await geo();
   say("opening no longer resizes the map ("+g1.mapH+" -> "+g2.mapH+")", g1.mapH===g2.mapH);
+  // a tinted style panel frosts over its own family ground, not the root's.
+  // On a fresh page: a hash change on a page already loaded is a same-document
+  // navigation, so the app does not re-select and the panel never tints.
+  const tp=await ctx.newPage();
+  await tp.goto(URL+"#disco"); await tp.waitForTimeout(1200);
+  const tint=await tp.evaluate(()=>{const el=document.getElementById("panel"), cs=getComputedStyle(el);
+    return {tinted:el.classList.contains("tinted"), bg:cs.backgroundColor,
+      bf:cs.backdropFilter||cs.webkitBackdropFilter||"none",
+      ground:el.style.getPropertyValue("--tint").trim()};});   // set inline, per selection
+  say("the style panel is tinted ("+tint.ground+")", tint.tinted && !!tint.ground);
+  say("and frosted over it", /blur/.test(tint.bf) && /rgba|\/ 0\./.test(tint.bg));
+  await tp.close();
   // 1. a style chosen with the sheet open must land in the band still showing
   await p.click('[data-mk="winddown"]'); await p.waitForTimeout(900);
   await p.click(".picks .pick"); await p.waitForTimeout(1200);
