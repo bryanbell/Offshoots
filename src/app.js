@@ -934,7 +934,7 @@ function modeSect(){
   if(typeof MODES==="undefined") return "";
   const chips=MODES.map(m=>`<button type="button" class="chip modechip${MODE===m[0]?" on":""}" data-mk="${esc(m[0])}" aria-pressed="${MODE===m[0]}"><i class="mi">${MODEICON[m[0]]||""}</i><i class="nm">${esc(m[1])}</i></button>`).join("");
   const m=MODE&&MODES.find(x=>x[0]===MODE);
-  const out=m?`<div class="modeout"><h4 class="modettl"><i class="mi">${MODEICON[m[0]]||""}</i><span class="mtx">${esc(m[2])}</span><button type="button" class="modeup" data-modeup aria-label="Back to the ways in" title="Back to the ways in"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.4 12.4 10 7.8l4.6 4.6"/></svg></button></h4><p class="modewhy">${esc(m[3])}</p><div class="picks">${modePicks(m)}</div></div>`:"";
+  const out=m?`<div class="modeout"><h4 class="modettl"><i class="mi">${MODEICON[m[0]]||""}</i><span class="mtx">${esc(m[2])}</span><button type="button" class="modeup" data-modeup title="Back to the ways in"><svg class="upchev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5 8 5.5l4 4"/></svg>All ways in</button></h4><p class="modewhy">${esc(m[3])}</p><div class="picks">${modePicks(m)}</div></div>`:"";
   return sect("modes","What do you need it to do?",`<div class="chips modechips">${chips}</div>${out}`,
               `<span class="sectaside">${MODES.length} ways in</span>`);
 }

@@ -80,13 +80,17 @@ const Dk={width:1280,height:900};
     c=document.querySelector('[data-mk="winddown"] .mi svg');
     return !!h && !!c && h.innerHTML===c.innerHTML;});
   say("the heading carries the chip's own icon", same);
-  say("the heading still reads as text", (await p.$eval(".modettl",e=>e.textContent.trim()))==="Winding down");
+  say("the heading still reads as text", (await p.$eval(".modettl .mtx",e=>e.textContent.trim()))==="Winding down");
   // and a way back up, since the chips are off the top by the time the list is in view
   const deep=await sTop();
   say("the heading carries a back button", await p.evaluate(()=>!!document.querySelector(".modettl .modeup")));
-  const ub=await p.evaluate(()=>{const r=document.querySelector(".modeup").getBoundingClientRect();
-    return [Math.round(r.width),Math.round(r.height)];});
-  say("its tap target is "+ub[0]+"x"+ub[1], ub[0]>=30&&ub[1]>=30);
+  say("it is labelled", (await p.$eval(".modeup",e=>e.textContent.trim()))==="All ways in");
+  // an underlined link like the service picker, not another round button
+  const ub=await p.evaluate(()=>{const e=document.querySelector(".modeup"), cs=getComputedStyle(e), r=e.getBoundingClientRect();
+    return {h:Math.round(r.height), dec:cs.textDecorationLine, bg:cs.backgroundColor};});
+  say("no pill behind it ("+ub.bg+")", /rgba\(0, 0, 0, 0\)|transparent/.test(ub.bg));
+  say("underlined like the service picker", ub.dec==="underline");
+  say("still "+ub.h+"px tall to tap", ub.h>=30);
   await p.click(".modeup"); await p.waitForTimeout(900);
   say("it scrolls back up, "+deep+" -> "+(await sTop()), (await sTop())<deep);
   say("the chips are on screen again", await p.evaluate(()=>{
@@ -98,6 +102,13 @@ const Dk={width:1280,height:900};
   say("the heading does not overflow the sheet", await p.evaluate(()=>{
     const b=document.getElementById("panelBody");
     return b.scrollWidth<=b.clientWidth+1;}));
+  // the longest heading has to live beside the label without clipping
+  await p.click('[data-mk="family"]'); await p.waitForTimeout(700);
+  const fit=await p.evaluate(()=>{const t=document.querySelector(".modettl .mtx"), u=document.querySelector(".modeup");
+    return {clipped:t.scrollWidth>t.clientWidth+1,
+      gap:Math.round(u.getBoundingClientRect().left-t.getBoundingClientRect().right)};});
+  say("the longest heading is not clipped, "+fit.gap+"px clear of the label", !fit.clipped&&fit.gap>=4);
+  await p.click('[data-mk="winddown"]'); await p.waitForTimeout(700);
 
   await p.click('[data-mk="cocktails"]'); await p.waitForTimeout(900);
   say("switching modes scrolls again, to "+(await listAt())+"px", Math.abs((await listAt())-8)<=5);
