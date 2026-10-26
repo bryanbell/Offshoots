@@ -1,5 +1,4 @@
 const FAMS = [
-  ["global","Global imports",200,"Global"],
   ["blues","Blues",215,"Blues"],
   ["jazz","Jazz",25,"Jazz"],
   ["rnb","R&B",345,"R&B"],
@@ -14,6 +13,7 @@ const FAMS = [
   ["metal","Metal",235,"Metal"],
   ["elec","Electronic & Dance",185,"Electronic"],
   ["exp","Western art music & experimental",265,"Art music"],
+  ["global","Global imports",200,"Global"],
   ["latin","Latin",168,"Latin"],
   ["carib","Caribbean",118,"Caribbean"],
   ["gospel","Gospel & Christian",45,"Gospel"]

@@ -99,6 +99,12 @@ const hash=p=>p.evaluate(()=>location.hash);
     return [Math.round(h.width),Math.round(h.height),Math.round(h.right),Math.round(s.left)];});
   say("tap target "+hb[0]+"x"+hb[1], hb[0]>=40&&hb[1]>=40);
   say("clear of the search button ("+hb[2]+" vs "+hb[3]+")", hb[2]<hb[3]);
+  // it used to sit at a fixed inset and cover the family label in the lane strip
+  const strip=await p.evaluate(()=>{
+    const pill=document.getElementById("mapHome").getBoundingClientRect(),
+          lane=document.querySelector(".lane").getBoundingClientRect();
+    return Math.round(pill.left-lane.right);});
+  say("clear of the lane strip ("+strip+"px)", strip>=6);
   await p.click("#mapHome"); await p.waitForTimeout(600);
   say("one tap lands on the map", (await hash(p))==="" && (await p.$eval(".ovcard .mn",e=>e.textContent))==="Offshoots");
   say("and hides itself again", (await home(p))===false);
