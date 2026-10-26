@@ -108,6 +108,12 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
     return {text:l.textContent, ellipsis:getComputedStyle(l).textOverflow};});
   say("back is labelled \""+bk.text+"\"", bk.text.length>0);
   say("and overflows with an ellipsis", bk.ellipsis==="ellipsis");
+  // the sticky row must not paint a ground denser than the sheet it sits on: at full
+  // opacity over a 74-78% sheet it drew a lighter box across the whole header
+  const hdr=await p.evaluate(()=>{const n=getComputedStyle(document.querySelector(".navrow")).backgroundColor;
+    return {row:n, scrolled:document.body.classList.contains("pscrolled")};});
+  say("the header has no ground of its own at rest ("+hdr.row+")",
+    /rgba\(0, 0, 0, 0\)|transparent/.test(hdr.row) || hdr.scrolled);
   await p.screenshot({path:__dirname+"/screens/m-sharettl.png"});
 
   // the panel regains the space the footer took

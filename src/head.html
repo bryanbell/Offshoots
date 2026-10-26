@@ -299,7 +299,8 @@ body.open .pcnt{display:none}
    whole sheet down by 18px after the rule itself was dropped */
 .pcard .mn{display:block;font-weight:700;font-size:18px;letter-spacing:-.018em;line-height:1.2;margin:0 0 1px}
 .navrow{position:sticky;top:0;z-index:35;display:grid;grid-template-columns:auto minmax(0,1fr) auto;
-  align-items:center;gap:8px;margin:0;padding:6px 0 7px;background:var(--panel)}
+  align-items:center;gap:8px;margin:0;padding:6px 0 7px;background:transparent;
+  transition:background .18s}
 /* From and Led to as one segmented control: a single pill split by a hairline, the way
    two related directions are usually grouped, rather than two separate buttons */
 .navpair{display:flex;align-items:stretch;justify-self:end;flex:none;
@@ -325,7 +326,10 @@ body.open .pcnt{display:none}
 /* on the overview the row has no empty slot to hold, so the button simply goes away */
 .ovback[hidden]{display:none}
 .ovback{align-self:center;margin-right:2px}
-body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line)}
+body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line);
+  background:color-mix(in srgb,var(--panel) 82%,transparent);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+@media (prefers-reduced-motion:reduce){ .navrow{transition:none} }
 .navttl{min-width:0;text-align:center;overflow:hidden}
 .navttl .mn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .navttl .mn{margin:0}
