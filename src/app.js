@@ -429,14 +429,20 @@ $("expand").onclick=()=>setOpen(!OPEN);
 // on phones the sheet reacts to scrolling: swipe up to open it, pull down past the top to put it away
 (function(){
   const el=$("panel"), body=$("panelBody"); if(!el||!body) return;
-  let y0=0, armed=false;
+  let y0=0, x0=0;
   const atTop=()=> body.scrollTop<=0;
-  el.addEventListener("touchstart",e=>{ y0=e.touches[0].clientY; armed=atTop(); },{passive:true});
+  el.addEventListener("touchstart",e=>{ y0=e.touches[0].clientY; x0=e.touches[0].clientX; },{passive:true});
   el.addEventListener("touchmove",e=>{
     if(!OVERLAY || DRAGGING || e.target.closest("#grab")) return;
-    const dy=e.touches[0].clientY-y0;                 // positive = finger moving down
-    if(!OPEN && dy<-20){ setOpen(true); y0=e.touches[0].clientY; }
-    else if(OPEN && armed && atTop() && dy>64){ setOpen(false); y0=e.touches[0].clientY; }
+    const t=e.touches[0], dy=t.clientY-y0;            // positive = finger moving down
+    if(!OPEN){ if(dy<-20){ setOpen(true); y0=t.clientY; } return; }
+    // a sideways swipe over a row of chips is not a pull
+    if(Math.abs(t.clientX-x0) > Math.abs(dy)) return;
+    // while there is still content above, the pull scrolls instead: keep the reference under
+    // the finger so the distance is measured from the moment the top is actually reached,
+    // and one continuous pull from halfway down the sheet still closes it
+    if(!atTop()){ y0=t.clientY; return; }
+    if(dy>44){ setOpen(false); y0=t.clientY; }
   },{passive:true});
   // trackpads and mice get the same behaviour in a narrow window
   let acc=0, t=0;
