@@ -178,14 +178,29 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     if(!n) return null; const r=n.getBoundingClientRect(), pan=document.getElementById("panel").getBoundingClientRect();
     return {gap:Math.round(pan.top-r.bottom), top:Math.round(r.top)};});
   say("the chosen style sits "+(cur?cur.gap:"?")+"px clear of the sheet", !!cur && cur.gap>0 && cur.top>0);
-  // 2. the lowest styles must still be scrollable out from under it
-  await p.evaluate(()=>{const s=document.getElementById("scroller"); s.scrollTop=s.scrollHeight;});
-  await p.waitForTimeout(500);
-  const low=await p.evaluate(()=>{const ns=[...document.querySelectorAll("#chart .n")];
-    const last=ns.map(n=>[n,n.getBoundingClientRect()]).sort((a,b)=>b[1].top-a[1].top)[0];
-    const pan=document.getElementById("panel").getBoundingClientRect();
-    return {id:last[0].dataset.id, clear:Math.round(pan.top-last[1].bottom)};});
-  say("at the end of the map, "+low.id+" still clears the sheet by "+low.clear+"px", low.clear>0);
+  // 2. the end of the map must come out from under it, in every state the sheet can be
+  // in. The clearance has to beat the sheet's 30px shadow too, or the last lane sits in
+  // the shadow and reads as stuck underneath however far you scroll.
+  const SHADOW=30;
+  const bottomGap=async()=>{
+    await p.evaluate(()=>{const s=document.getElementById("scroller"); s.scrollTop=s.scrollHeight;});
+    await p.waitForTimeout(450);
+    return p.evaluate(()=>{const pan=document.getElementById("panel").getBoundingClientRect();
+      const band=[...document.querySelectorAll("#chart .band")].map(x=>x.getBoundingClientRect()).sort((a,b)=>b.bottom-a.bottom)[0];
+      const node=[...document.querySelectorAll("#chart .n")].map(x=>x.getBoundingClientRect()).sort((a,b)=>b.bottom-a.bottom)[0];
+      return {lane:Math.round(pan.top-band.bottom), style:Math.round(pan.top-node.bottom)};});
+  };
+  const open1=await bottomGap();
+  say("with the sheet open, the last lane clears it by "+open1.lane+"px", open1.lane>SHADOW);
+  await p.click("#grab"); await p.waitForTimeout(900);
+  const shut1=await bottomGap();
+  say("minimised, the same ("+shut1.lane+"px lane, "+shut1.style+"px style)", shut1.lane>SHADOW && shut1.style>SHADOW);
+  // and at a height the user dragged it to, which no setOpen reports
+  await p.mouse.move(195,R[1]-160); await p.mouse.down();
+  for(let i=1;i<=8;i++){ await p.mouse.move(195,R[1]-160-i*9); await p.waitForTimeout(40); }
+  await p.mouse.up(); await p.waitForTimeout(900);
+  const drag1=await bottomGap();
+  say("and at a dragged height ("+drag1.lane+"px)", drag1.lane>SHADOW);
 
   say("no page errors", errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
   await b.close();

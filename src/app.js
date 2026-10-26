@@ -1085,12 +1085,22 @@ let RENDERED=false;
 // timeout from setOpen and would otherwise restore the 46vh cap before the first frame,
 // clamping the closing animation to its end state instantly.
 function sizeCard(){ const el=$("panel"); if(el && !GLIDING) el.style.maxHeight=""; }
-// breathing room under the map, plus whatever the floating sheet covers, so the lowest
-// styles can still be scrolled up into the open band
-function SRES(){ return 24 + sheetCover(); }
+// Breathing room under the map, plus whatever the floating sheet covers, so the lowest
+// styles can still be scrolled up into the open band. The room has to clear the sheet's
+// shadow as well as the sheet: that shadow reaches 30px up, so 24px of clearance left the
+// last lane sitting in it and reading as stuck underneath.
+function SRES(){ return (OVERLAY?56:24) + sheetCover(); }
 // the map used to be resized by the sheet, so its ResizeObserver kept this honest. Now
 // that the sheet floats, nothing observes the change and the padding has to be told.
 function syncMapPad(){ const i=$("inner"); if(i) i.style.paddingBottom=SRES()+"px"; }
+// The map used to be resized by the sheet, so one ResizeObserver on the scroller kept
+// everything in step. The sheet floats now and the scroller never changes, so watch the
+// sheet itself: this covers the first paint, a drag to a height of its own, a rotation
+// and a mobile toolbar sliding away.
+if(window.ResizeObserver){
+  const pel=$("panel");
+  if(pel) new ResizeObserver(()=>{ syncMapPad(); }).observe(pel);
+}
 function render(){ RENDERED=true; dims(); LOD = Z<0.9; $("chart").classList.toggle("lod",LOD); fit(); const res=SRES(); $("inner").style.paddingBottom=res+"px"; layout(scroller.clientHeight-AXH-BAR()-res); draw(); }
 let lastW=0,lastH=0,rt;
 // the panel is docked, so opening or closing it changes the map viewport: re-lay out when that happens
