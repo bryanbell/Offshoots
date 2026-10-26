@@ -152,5 +152,27 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   const d=await fresh(b,Dk);
   await d.screenshot({path:__dirname+"/screens/r-d-root.png"});
   say("no desktop errors", d._errs.filter(x=>!/Failed to load/.test(x)).length===0);
+
+  // ---- the map fills a wide window ----
+  // The year scale is a fixed number of pixels per year, so past a certain width it ran
+  // out before the canvas did and left dead space to the right of the last year. Both
+  // ends are checked: it must fill when there is room, and must still overflow and
+  // scroll when there is not, or the fix would be shrinking the map on normal screens.
+  const span=async q=>q.evaluate(()=>{
+    const sc=document.getElementById("scroller"), ch=document.getElementById("chart");
+    return {sc:sc.clientWidth, chart:Math.round(ch.getBoundingClientRect().width)};});
+  for(const w of [2560,3440]){
+    const wide=await fresh(b,{width:w,height:1000});
+    const m=await span(wide);
+    const gap=m.sc-m.chart;
+    say("at "+w+"px the map reaches the edge (chart "+m.chart+" vs "+m.sc+")", gap<=8);
+    say("  and no errors there", wide._errs.filter(x=>!/Failed to load/.test(x)).length===0);
+    await wide.close();
+  }
+  const narrow=await fresh(b,{width:1440,height:1000});
+  const nm=await span(narrow);
+  say("at 1440px it still overflows and scrolls ("+nm.chart+" vs "+nm.sc+")", nm.chart>nm.sc);
+  await narrow.close();
+
   await b.close();
 })();
