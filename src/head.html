@@ -109,8 +109,7 @@ svg{display:block}
 #chart .n .hit{fill:transparent}
 #chart .n circle{fill:var(--c);stroke:var(--mapbg);stroke-width:1.5}
 #chart .n .ply{fill:var(--c);stroke:none;pointer-events:none}
-#chart .n.root circle{fill:var(--mapbg);stroke:var(--c);stroke-width:2}
-#chart .n.has:not(.root) circle{fill:var(--mapbg);stroke:none}   /* a disc behind the triangle so it doesn't read as an arrowhead on a line */
+#chart .n.has circle{fill:var(--mapbg);stroke:none}   /* a disc behind the triangle so it doesn't read as an arrowhead on a line */
 #chart .n text{fill:var(--fg);font-family:var(--f-body);font-size:var(--fs,12px);font-weight:500;letter-spacing:-.01em;stroke:none}
 #chart .n text.halo{fill:none;stroke:var(--halo);stroke-width:.32em;stroke-linejoin:round;stroke-opacity:.75;pointer-events:none}
 #chart .n.root text{font-style:italic;font-weight:400}

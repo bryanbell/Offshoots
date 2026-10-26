@@ -109,8 +109,7 @@ svg{display:block}
 #chart .n .hit{fill:transparent}
 #chart .n circle{fill:var(--c);stroke:var(--mapbg);stroke-width:1.5}
 #chart .n .ply{fill:var(--c);stroke:none;pointer-events:none}
-#chart .n.root circle{fill:var(--mapbg);stroke:var(--c);stroke-width:2}
-#chart .n.has:not(.root) circle{fill:var(--mapbg);stroke:none}   /* a disc behind the triangle so it doesn't read as an arrowhead on a line */
+#chart .n.has circle{fill:var(--mapbg);stroke:none}   /* a disc behind the triangle so it doesn't read as an arrowhead on a line */
 #chart .n text{fill:var(--fg);font-family:var(--f-body);font-size:var(--fs,12px);font-weight:500;letter-spacing:-.01em;stroke:none}
 #chart .n text.halo{fill:none;stroke:var(--halo);stroke-width:.32em;stroke-linejoin:round;stroke-opacity:.75;pointer-events:none}
 #chart .n.root text{font-style:italic;font-weight:400}
@@ -2433,9 +2432,8 @@ function draw(){
   }));
   s+=`</g><g id="nodes">`;
   nodes.forEach(n=>{
-    s+=`<g class="n${n.year<1950?' root':''}${n.lod?' leaf':''}${n.done?' has':''}" data-id="${n.id}" style="--c:${FAM[n.fam].c}" transform="translate(${n.x},${n.y})"><title>${esc(n.name)} (${esc(n.disp)})</title><rect class="hit" x="${-n.r-4}" y="${-n.rh/2}" width="${n.w+n.r*2+14}" height="${n.rh}"/><circle r="${(n.done?(n.year<1950?n.r*1.3:n.r*1.95):n.r).toFixed(2)}"/>${n.done?(n.year<1950
-      ? `<path class="ply" d="M${(-n.r*.42).toFixed(2)} ${(-n.r*.72).toFixed(2)}L${(n.r*.78).toFixed(2)} 0L${(-n.r*.42).toFixed(2)} ${(n.r*.72).toFixed(2)}Z"/>`
-      : `<path class="ply" d="M${(-n.r*.85).toFixed(2)} ${(-n.r*1.1).toFixed(2)}L${(n.r*1.15).toFixed(2)} 0L${(-n.r*.85).toFixed(2)} ${(n.r*1.1).toFixed(2)}Z"/>`):""}<text class="halo" aria-hidden="true" x="${n.r+5}" y="${n.fs*.36}" style="font-size:${n.fs.toFixed(1)}px${n.bold?";font-weight:600":""}">${esc(n.name)}</text><text x="${n.r+5}" y="${n.fs*.36}" style="font-size:${n.fs.toFixed(1)}px${n.bold?";font-weight:600":""}">${esc(n.name)}</text></g>`;
+    s+=`<g class="n${n.year<1950?' root':''}${n.lod?' leaf':''}${n.done?' has':''}" data-id="${n.id}" style="--c:${FAM[n.fam].c}" transform="translate(${n.x},${n.y})"><title>${esc(n.name)} (${esc(n.disp)})</title><rect class="hit" x="${-n.r-4}" y="${-n.rh/2}" width="${n.w+n.r*2+14}" height="${n.rh}"/><circle r="${(n.done?n.r*1.95:n.r).toFixed(2)}"/>${n.done
+      ? `<path class="ply" d="M${(-n.r*.85).toFixed(2)} ${(-n.r*1.1).toFixed(2)}L${(n.r*1.15).toFixed(2)} 0L${(-n.r*.85).toFixed(2)} ${(n.r*1.1).toFixed(2)}Z"/>`:""}<text class="halo" aria-hidden="true" x="${n.r+5}" y="${n.fs*.36}" style="font-size:${n.fs.toFixed(1)}px${n.bold?";font-weight:600":""}">${esc(n.name)}</text><text x="${n.r+5}" y="${n.fs*.36}" style="font-size:${n.fs.toFixed(1)}px${n.bold?";font-weight:600":""}">${esc(n.name)}</text></g>`;
   });
   s+=`</g>`;
   const svg=$("chart"); svg.setAttribute("width",W); svg.setAttribute("height",H); svg.setAttribute("viewBox",`0 0 ${W} ${H}`); svg.style.setProperty("--fs",FS+"px"); svg.innerHTML=s;
@@ -3216,7 +3214,7 @@ function emptyPanel(){
     <p>Each playlist runs in chronological order, and the first few tracks are deliberately not the style proper. They are the records that pushed it into being, or the earliest examples of it, cut before anyone had a name for it.</p>
     <p>So a playlist starts just outside its own style and arrives at it, which is the same move the map makes. If the opening tracks sound like something else, that is the point: that is what it grew out of.</p>
     <h4 class="subh">Reading the map</h4>
-    <p>A play triangle inside a dot marks a style with a playlist, linked in its panel. Hollow dots are pre-1950 roots. Bigger names led to more styles, and zoomed out, the ones that led nowhere show as plain dots.</p>
+    <p>A play triangle inside a dot marks a style with a playlist, linked in its panel. The bigger the name, the more styles grew out of it. Everything before 1950 sits left of the divider, on its own compressed scale, and is set in italic. Zoomed out, the styles that led nowhere show as plain dots.</p>
     <button type="button" class="aboutcopy" data-aboutcopy><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 11.6a3.2 3.2 0 0 0 4.6 0l2.6-2.6a3.2 3.2 0 0 0-4.6-4.6l-1 1"/><path d="M11.6 8.4a3.2 3.2 0 0 0-4.6 0L4.4 11a3.2 3.2 0 0 0 4.6 4.6l1-1"/></svg><span class="lbl">Copy a link to this</span></button></div></details></div>`;
 }
 

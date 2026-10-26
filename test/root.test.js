@@ -153,6 +153,28 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   await d.screenshot({path:__dirname+"/screens/r-d-root.png"});
   say("no desktop errors", d._errs.filter(x=>!/Failed to load/.test(x)).length===0);
 
+  // ---- one mark, one meaning ----
+  // Fill used to say "before 1950" left of the divider and "has a playlist" right of
+  // it, so the same visual property meant two different things depending on where you
+  // were on the x-axis. Era is already carried by position and by the italic label.
+  const marks=await d.evaluate(()=>{
+    const of=g=>{ if(!g) return null; const c=g.querySelector("circle"), cs=getComputedStyle(c);
+      return {fill:cs.fill, stroke:cs.stroke, tri:!!g.querySelector(".ply")}; };
+    const same=(a,b)=>a&&b&&a.fill===b.fill&&a.stroke===b.stroke&&a.tri===b.tri;
+    return {
+      rings:[...document.querySelectorAll("#chart .n circle")]
+              .filter(c=>parseFloat(getComputedStyle(c).strokeWidth)>=2).length,
+      playMatches: same(of(document.querySelector(".n.root.has")),
+                        of(document.querySelector(".n:not(.root).has"))),
+      plainMatches: same(of(document.querySelector(".n.root:not(.has)")),
+                         of(document.querySelector(".n:not(.root):not(.has)"))),
+      rootsItalic: getComputedStyle(document.querySelector(".n.root text:not(.halo)")).fontStyle==="italic"
+    };});
+  say("no hollow rings left on the map ("+marks.rings+")", marks.rings===0);
+  say("a pre-1950 style with a playlist is marked like any other", marks.playMatches);
+  say("and one without is marked like any other", marks.plainMatches);
+  say("era is still carried by the italic label", marks.rootsItalic);
+
   // ---- the map fills a wide window ----
   // The year scale is a fixed number of pixels per year, so past a certain width it ran
   // out before the canvas did and left dead space to the right of the last year. Both
