@@ -978,7 +978,7 @@ const MODES = [
     ["souljazz","Organ groove at low volume, warm from the first bar"],
     ["neosoul","Live, unhurried, and good at any volume"],
     ["westcoast_jazz","Written for a room rather than a stage"],
-    ["jazzrap","Rhythm with the aggression taken out of it"],
+    ["singer_songwriter","One voice and a guitar, and nobody minds overhearing it"],
     ["acidjazz","A backdrop that holds up if someone does listen"],
     ["retro_soul","Familiar-sounding without being anyone's specific memory"],
     ["citypop","Polished and slightly foreign, which suits a counter"],
