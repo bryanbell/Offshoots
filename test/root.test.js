@@ -111,6 +111,15 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("opening scrolls it up to "+abAfter.top+"px", abAfter.top < abBefore.top - 100);
   say("as far up as the panel can go"+(abAfter.atEnd?" (scroller at its end)":""),
       abAfter.top <= 12 || abAfter.atEnd);
+
+  // the last block used to sit flush against the panel's bottom edge
+  const tail=await p.evaluate(()=>{
+    const b=document.getElementById("panelBody");
+    b.scrollTop=b.scrollHeight;
+    const last=b.lastElementChild.lastElementChild||b.lastElementChild;
+    return Math.round(b.getBoundingClientRect().bottom-last.getBoundingClientRect().bottom);
+  });
+  say("air below the last block ("+tail+"px)", tail>=12);
   say("stats line inside", await p.$eval(".aboutwrap .stats",e=>e.textContent));
   say("families stated once", (await p.$eval("#panelBody",e=>e.textContent)).split("families").length-1);
 

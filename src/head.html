@@ -638,7 +638,8 @@ body:not(.open) aside#panel{width:var(--sidew);cursor:pointer}
 /* ---- scrollbar rides the panel edge: pad the contents, not the panel ---- */
 :root{--ppad:18px}
 aside#panel{padding-left:0;padding-right:0}
-#panelBody{padding:0 var(--ppad)}
+#panelBody{padding:0 var(--ppad) calc(var(--ppad) + env(safe-area-inset-bottom,0px))}
+@media (max-width:899px){ body:not(.open) #panelBody{padding-bottom:0} }
 
 #grab{margin-left:0;margin-right:0}
 #pclose{right:var(--ppad)}
