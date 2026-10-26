@@ -40,6 +40,7 @@ function playLabel(n){
   if(t&&c) return "";
   return t ? "Start by listening to" : "Start with this playlist";
 }
+const OPENGO=`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.9 10.1 10.2 5.8"/><path d="M6.4 5.6h4.2v4.2"/></svg>`;
 const PLAYGO=`<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M5.6 3.4l6.2 4.1a.6.6 0 0 1 0 1l-6.2 4.1a.6.6 0 0 1-.9-.5V3.9a.6.6 0 0 1 .9-.5z"/></svg>`;
 // one row: art left, labels middle, play button right. paintPlay() repoints it at the
 // selected service, or marks it unavailable while keeping the row in place.
@@ -52,7 +53,7 @@ function plist(n){
     + ` data-ap="${ap?esc("https://music.apple.com"+ap):""}" data-spid="${esc(sp)}" data-style="${esc(n.name)}">`
     + cover(n.id,n)
     + `<span class="pltx"><b class="plttl">${esc(t)}</b><span class="plsvc"></span></span>`
-    + `<span class="plgo">${PLAYGO}</span></a>`;
+    + `<span class="plgo">${OPENGO}</span></a>`;
 }
 function paintPlay(){
   document.querySelectorAll("#panelBody a.plrow").forEach(a=>{
@@ -93,7 +94,7 @@ const spHref = name=>`https://open.spotify.com/search/${encodeURIComponent(name)
 const qbHref = name=>`https://www.qobuz.com/us-en/search?q=${encodeURIComponent(name)}`;
 const svcHref = name=> SVC==="spotify" ? spHref(name) : SVC==="qobuz" ? qbHref(name) : amHref(name);
 const svcName = ()=> SVC==="spotify" ? "Spotify" : SVC==="qobuz" ? "Qobuz" : "Apple Music";
-const am = name=>`<a class="am" href="${svcHref(name)}" data-name="${esc(name)}" target="_blank" rel="noopener" title="Open ${esc(name)} in ${svcName()}" aria-label="${esc(name)}, open in ${svcName()}"><span>${esc(name)}</span><i class="amgo" aria-hidden="true">${PLAYGO}</i></a>`;
+const am = name=>`<a class="am" href="${svcHref(name)}" data-name="${esc(name)}" target="_blank" rel="noopener" title="Open ${esc(name)} in ${svcName()}" aria-label="${esc(name)}, open in ${svcName()}"><span>${esc(name)}</span><i class="amgo" aria-hidden="true">${OPENGO}</i></a>`;
 function setSvc(s){
   SVC=s; try{ localStorage.setItem("svc",s) }catch(e){}
   document.querySelectorAll("a.am[data-name]").forEach(x=>{ x.href=svcHref(x.dataset.name); x.title="Open in "+svcName(); });

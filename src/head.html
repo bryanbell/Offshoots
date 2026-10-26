@@ -870,7 +870,7 @@ a.wk.pl:hover,a.wk.sp:hover{background:color-mix(in srgb,var(--ink,var(--fg)) 84
 .plrow .plsvc{font:400 var(--t-sub)/var(--t-sub-lh) var(--f-body);color:var(--muted)}
 .plrow .plgo{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;
   background:var(--ink,var(--fg));color:var(--tint,var(--panel))}
-.plrow .plgo svg{width:17px;height:17px;margin-left:1px}
+.plrow .plgo svg{width:17px;height:17px}
 /* no playlist on the chosen service yet: the row stays, muted and inert */
 .plrow.off{background:color-mix(in srgb,var(--acc,var(--fg)) 7%,transparent);cursor:default}
 .plrow.off img.pcov{opacity:.5}
@@ -898,10 +898,10 @@ a.am .amgo{display:none}
 .who a.am .amgo{display:grid;place-items:center;flex:none;width:22px;height:22px;border-radius:50%;
   background:color-mix(in srgb,var(--ink,var(--fg)) 22%,transparent);color:var(--fg);
   transition:background .15s,color .15s}
-.who a.am .amgo svg{width:11px;height:11px;margin-left:1px;opacity:1}
+.who a.am .amgo svg{width:12px;height:12px;opacity:1}
 .who a.am:hover .amgo{background:var(--ink,var(--fg));color:var(--tint,var(--panel))}
 @media (max-width:899px){ .who a.am{gap:8px;padding-right:6px} .who a.am .amgo{width:20px;height:20px}
-  .who a.am .amgo svg{width:10px;height:10px} }
+  .who a.am .amgo svg{width:11px;height:11px} }
 </style>
 <div id="app">
   <div id="treeView">
