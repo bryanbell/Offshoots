@@ -391,17 +391,17 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line);
 .shuf:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
 .shuf svg{width:18px;height:18px}
 /* the methodology stays one tap away instead of ending the panel */
-.aboutwrap{margin-top:28px;padding:0 16px;background:var(--fill2);border-radius:14px}
-.aboutwrap[open]{padding-bottom:16px}
-.aboutwrap summary{display:flex;align-items:center;justify-content:space-between;gap:8px;
+.fold{margin-top:28px;padding:0 16px;background:var(--fill2);border-radius:14px}
+.fold[open]{padding-bottom:16px}
+.fold summary{display:flex;align-items:center;justify-content:space-between;gap:8px;
   list-style:none;cursor:pointer;min-height:var(--tap);padding:0;border-radius:9px;
   font:400 var(--t-body)/var(--t-body-lh) var(--f-body);color:var(--fg)}
-.aboutwrap summary::-webkit-details-marker{display:none}
-.aboutwrap summary:hover{color:var(--fg)}
-.aboutwrap summary .cv{flex:none;width:16px;height:16px;transition:transform .18s}
-.aboutwrap[open] summary .cv{transform:rotate(180deg)}
-.aboutwrap .about{margin-top:2px}
-@media (prefers-reduced-motion:reduce){ .aboutwrap summary .cv{transition:none} }
+.fold summary::-webkit-details-marker{display:none}
+.fold summary:hover{color:var(--fg)}
+.fold summary .cv{flex:none;width:16px;height:16px;transition:transform .18s}
+.fold[open] summary .cv{transform:rotate(180deg)}
+.fold .about{margin-top:2px}
+@media (prefers-reduced-motion:reduce){ .fold summary .cv{transition:none} }
 .nav-br .navmenu{left:0}
 .brbtn{height:var(--tap);padding:0 16px;gap:8px;background:var(--fill2)}
 .brbtn:hover:not(:disabled){background:var(--fill)}
@@ -540,7 +540,7 @@ body.searching #mapSearch{display:none}
    field under it: centre on the map instead */
 @media (min-width:900px){
   #bottomSearch{left:calc((100vw - var(--sidew)) / 2);
-    width:min(520px,calc(100vw - var(--sidew) - 2*var(--gutter)))}
+    width:min(720px,calc(100vw - var(--sidew) - 2*var(--gutter)))}
 }
 body.searching #bottomSearch{display:block}
 #bottomSearch .results{top:calc(100% + 6px);bottom:auto;max-height:min(60vh,420px);overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
@@ -568,6 +568,14 @@ body.searching #bottomSearch{display:block}
   .abouthd .appicon{width:60px;height:60px;border-radius:14px}
 }
 .about p{margin:0 0 10px;font-size:var(--t-sub);color:var(--muted);line-height:var(--t-sub-lh)}
+.about .steps{margin:0 0 14px;padding-left:22px;font-size:var(--t-sub);color:var(--muted);line-height:var(--t-sub-lh)}
+.about .steps li{margin:0 0 7px;padding-left:2px}
+.about .steps li:last-child{margin-bottom:0}
+.about .steps li::marker{color:var(--mut2,var(--muted));font-variant-numeric:tabular-nums}
+.about .steps b{font-weight:600;color:var(--fg)}
+.fold + .fold{margin-top:10px}
+.installwrap .subh{margin-top:18px}
+.installwrap .subh:first-child{margin-top:0}
 .about .stats{font-family:var(--f-mono);font-size:var(--t-foot);line-height:var(--t-foot-lh);color:var(--muted);margin:0 0 12px;font-variant-numeric:tabular-nums}
 @media (max-width:899px){ .zoom{bottom:calc(14px + env(safe-area-inset-bottom,0px))} }
 

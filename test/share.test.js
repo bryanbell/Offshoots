@@ -131,11 +131,21 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   await ab.click("#grab").catch(()=>{});
   await ab.waitForTimeout(600);
   await ab.click(".aboutwrap summary"); await ab.waitForTimeout(800);
-  say("About carries a copy control", (await ab.$$("[data-aboutcopy]")).length===1);
-  await ab.click("[data-aboutcopy]"); await ab.waitForTimeout(400);
+  say("About carries a copy control", (await ab.$$(".aboutwrap [data-aboutcopy]")).length===1);
+  await ab.click(".aboutwrap [data-aboutcopy]"); await ab.waitForTimeout(400);
   const copied=await ab.evaluate(()=>window.__copied.slice(-1)[0]||"");
   say("it copies a #about link ("+copied.split("/").pop()+")", /#about$/.test(copied));
-  say("and says so", (await ab.$eval(".aboutcopy .lbl",e=>e.textContent))==="Link copied");
+  say("and says so", (await ab.$eval(".aboutwrap .aboutcopy .lbl",e=>e.textContent))==="Link copied");
+  // the install fold sits below it and carries a link of its own, not About's
+  say("install sits below About", await ab.$eval(".aboutwrap",e=>
+    e.compareDocumentPosition(document.querySelector(".installwrap"))===Node.DOCUMENT_POSITION_FOLLOWING));
+  await ab.click(".installwrap summary"); await ab.waitForTimeout(700);
+  say("its heading", await ab.$eval(".installwrap summary span",e=>e.textContent));
+  say("a section per platform", (await ab.$$eval(".installwrap .subh",e=>e.map(x=>x.textContent))).join(" / "));
+  say("each one with numbered steps", (await ab.$$(".installwrap .steps")).length>=4);
+  await ab.click(".installwrap [data-aboutcopy]"); await ab.waitForTimeout(400);
+  const icop=await ab.evaluate(()=>window.__copied.slice(-1)[0]||"");
+  say("it copies a #install link ("+icop.split("/").pop()+")", /#install$/.test(icop));
   await ab.close();
 
   // follow that link cold, the way someone receiving it would
@@ -152,6 +162,23 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   say("and keeps the hash", land.hash==="#about");
   say("no errors following it", al._errs.length===0 ? true : al._errs.join(" | "));
   await al.close();
+
+  // and that link lands the same way About's does
+  const il=await fresh(b,M,"#install");
+  await il.waitForTimeout(1500);
+  const iland=await il.evaluate(()=>{
+    const d=document.querySelector(".installwrap"), body=document.getElementById("panelBody");
+    return {open:d.open, about:document.querySelector(".aboutwrap").open,
+      sheet:document.body.classList.contains("open"),
+      top:Math.round(d.getBoundingClientRect().top-body.getBoundingClientRect().top),
+      hash:location.hash};});
+  say("#install opens the sheet", iland.sheet);
+  say("with the install fold expanded", iland.open);
+  say("and About left alone", iland.about===false);
+  say("scrolled to it ("+iland.top+"px from the top)", iland.top<=16);
+  say("and keeps the hash", iland.hash==="#install");
+  say("no errors following it", il._errs.length===0 ? true : il._errs.join(" | "));
+  await il.close();
 
   say("no page errors", p._errs.length===0 ? true : p._errs.join(" | "));
   say("no desktop errors", d._errs.length===0 ? true : d._errs.join(" | "));

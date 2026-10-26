@@ -823,10 +823,11 @@ function clearSel(){
 // every style has a URL: the page plus #id, which boot() already reads back
 function styleURL(id){ return location.origin + location.pathname + location.search + "#" + encodeURIComponent(id); }
 // "about" is the one hash that is not a style id
-const ABOUT_HASH="about";
-function aboutURL(){ return location.origin + location.pathname + location.search + "#" + ABOUT_HASH; }
-function openAbout(scroll){
-  const d=document.querySelector(".aboutwrap"); if(!d) return false;
+const ABOUT_HASH="about", INSTALL_HASH="install";
+const FOLDS={[ABOUT_HASH]:".aboutwrap", [INSTALL_HASH]:".installwrap"};
+function foldURL(hash){ return location.origin + location.pathname + location.search + "#" + hash; }
+function openAbout(scroll,hash){
+  const d=document.querySelector(FOLDS[hash||ABOUT_HASH]); if(!d) return false;
   if(!d.open) d.open=true;            // the toggle listener does the scrolling
   else if(scroll) d.dispatchEvent(new Event("toggle"));
   return true;
@@ -838,7 +839,7 @@ function setHash(id){
   try{ history.replaceState(null,"",want || location.pathname+location.search); }catch(e){ if(id) location.hash=want; }
 }
 function copyAbout(btn){
-  const url=aboutURL(), lbl=btn.querySelector(".lbl");
+  const url=foldURL(btn.dataset.aboutcopy||ABOUT_HASH), lbl=btn.querySelector(".lbl");
   const flash=t=>{ if(!lbl) return; if(btn._was==null) btn._was=lbl.textContent;
     btn.classList.add("done"); lbl.textContent=t;
     clearTimeout(btn._t); btn._t=setTimeout(()=>{ btn.classList.remove("done");
@@ -935,7 +936,7 @@ function showChips(){
 // toggle does not bubble, so this has to listen on the capture phase.
 document.addEventListener("toggle",e=>{
   const d=e.target;
-  if(!d.classList || !d.classList.contains("aboutwrap") || !d.open) return;
+  if(!d.classList || !d.classList.contains("fold") || !d.open) return;
   const body=$("panelBody"); if(!body) return;
   requestAnimationFrame(()=>{
     const br=body.getBoundingClientRect(), dr=d.getBoundingClientRect();
@@ -1039,7 +1040,7 @@ function emptyPanel(){
     ${modeSect()}
     ${browseRow()}
     <p class="note ovhint">Or tap any style on the map to trace where it came from and what it led to.</p>
-    <details class="aboutwrap"><summary><span>About this map</span><svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg></summary>
+    <details class="fold aboutwrap"><summary><span>About this map</span><svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg></summary>
     <div class="about"><div class="abouthd"><img class="appicon" alt="" src="${ICONSRC()}"><p class="stats">${$("stats").textContent} · ${np} with a playlist</p></div>
     <h4 class="subh">What it is for</h4>
     <p>Every style here is placed at the year it cohered into a named, recorded scene, and joined to the styles it grew out of. Time runs left to right, so following a line backwards shows you what a sound is made of.</p>
@@ -1053,7 +1054,7 @@ function emptyPanel(){
     <p>So a playlist starts just outside its own style and arrives at it, which is the same move the map makes. If the opening tracks sound like something else, that is the point: that is what it grew out of.</p>
     <h4 class="subh">Reading the map</h4>
     <p>A play triangle inside a dot marks a style with a playlist, linked in its panel. The bigger the name, the more styles grew out of it. Everything before 1950 sits left of the divider, on its own compressed scale, and is set in italic. Zoomed out, the styles that led nowhere show as plain dots.</p>
-    <button type="button" class="aboutcopy" data-aboutcopy><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 11.6a3.2 3.2 0 0 0 4.6 0l2.6-2.6a3.2 3.2 0 0 0-4.6-4.6l-1 1"/><path d="M11.6 8.4a3.2 3.2 0 0 0-4.6 0L4.4 11a3.2 3.2 0 0 0 4.6 4.6l1-1"/></svg><span class="lbl">Copy a link to this</span></button></div></details></div>`;
+    <button type="button" class="aboutcopy" data-aboutcopy="about"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 11.6a3.2 3.2 0 0 0 4.6 0l2.6-2.6a3.2 3.2 0 0 0-4.6-4.6l-1 1"/><path d="M11.6 8.4a3.2 3.2 0 0 0-4.6 0L4.4 11a3.2 3.2 0 0 0 4.6 4.6l1-1"/></svg><span class="lbl">Copy a link to this</span></button></div></details><details class="fold installwrap"><summary><span>How to install it</span><svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg></summary><div class="about"><p>Offshoots is a web page, so there is nothing to download and no app store. Every platform below can pin it to a home screen or dock, where it opens full screen with no browser chrome around it.</p><h4 class="subh">iPhone and iPad</h4><ol class="steps"><li>Open this page in <b>Safari</b>. Chrome and Firefox on iOS cannot do this.</li><li>Tap the <b>Share</b> button, the square with an arrow coming out of it.</li><li>Scroll down the list and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li></ol><h4 class="subh">Android</h4><ol class="steps"><li>Open this page in <b>Chrome</b>.</li><li>Tap the <b>three dots</b> at the top right.</li><li>Tap <b>Add to Home screen</b>, then <b>Install</b> or <b>Add</b>. Samsung Internet and Firefox have the same item in their own menus.</li></ol><h4 class="subh">Mac</h4><ol class="steps"><li>In <b>Safari</b>, choose <b>File &rsaquo; Add to Dock</b>, then <b>Add</b>. It lands in the Dock and opens in its own window.</li><li>In <b>Chrome</b>, the same thing is under the three dots at <b>Cast, Save and Share &rsaquo; Install page as app</b>.</li></ol><h4 class="subh">Windows</h4><ol class="steps"><li>In <b>Edge</b> or <b>Chrome</b>, look for the <b>install icon</b> at the right-hand end of the address bar, a monitor with an arrow in it, and click it.</li><li>No icon there? Open the <b>three dots</b> menu and choose <b>Apps &rsaquo; Install this site as an app</b> in Edge, or <b>Cast, Save and Share &rsaquo; Install page as app</b> in Chrome.</li><li>Tick <b>Pin to taskbar</b> when it offers, and it behaves like any other app.</li></ol><h4 class="subh">What you get</h4><p>The whole map is a single file, so once it has loaded it keeps working without a connection. The playlist links still need one, since those open Apple Music or Spotify.</p><button type="button" class="aboutcopy" data-aboutcopy="install"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 11.6a3.2 3.2 0 0 0 4.6 0l2.6-2.6a3.2 3.2 0 0 0-4.6-4.6l-1 1"/><path d="M11.6 8.4a3.2 3.2 0 0 0-4.6 0L4.4 11a3.2 3.2 0 0 0 4.6 4.6l1-1"/></svg><span class="lbl">Copy a link to this</span></button></div></details></div>`;
 }
 
 
@@ -1204,10 +1205,10 @@ addEventListener("resize",()=>{ clearTimeout(rt); rt=setTimeout(()=>{
 function boot(){
   lastW=innerWidth; lastH=innerHeight; render(); updZoom();
   const h=(location.hash||"").slice(1);
-  if(h===ABOUT_HASH){
+  if(FOLDS[h]){
     emptyPanel(); scroller.scrollLeft=0; scroller.scrollTop=0; syncPeek();
-    setOpen(true);                       // the sheet is closed on a phone by default
-    setTimeout(()=>openAbout(true),420); // after the sheet has finished opening
+    setOpen(true);                         // the sheet is closed on a phone by default
+    setTimeout(()=>openAbout(true,h),420); // after the sheet has finished opening
   }
   else if(byId[h]) select(h,{smooth:false});
   else { emptyPanel(); scroller.scrollLeft = 0; scroller.scrollTop = 0; syncPeek(); }
