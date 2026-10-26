@@ -510,7 +510,8 @@ aside{display:flex;flex-direction:column;position:absolute;z-index:30;top:calc(e
 
 .close{display:none}
 #mapSearch{position:absolute;z-index:24;top:calc(var(--axh,34px) + 12px);right:16px;display:grid;place-items:center;
-  width:42px;height:42px;border:0;border-radius:50%;color:var(--fg);cursor:pointer;transition:background .15s}
+  width:42px;height:42px;border:0;border-radius:50%;cursor:pointer;transition:background .15s;
+  background:var(--fg);color:var(--bg);box-shadow:0 2px 10px rgb(0 0 0 / .4)}
 #mapSearch svg{width:18px;height:18px}
 /* the way out of a lineage you have walked four taps into */
 #navpills{position:absolute;z-index:24;top:calc(var(--axh,34px) + 12px);left:16px;display:flex;align-items:center;gap:8px}
@@ -524,7 +525,7 @@ body.searching #navpills{display:none}
   #navpills{top:calc(var(--axh,34px) + 10px);left:12px;gap:7px}
   #mapHome{width:40px;height:40px}
 }
-#mapSearch:hover{background:color-mix(in srgb,var(--fg) 8%,transparent)}
+#mapSearch:hover{background:#fff}
 body.searching #mapSearch{display:none}
 @media (max-width:899px){ #mapSearch{top:calc(var(--axh,34px) + 10px);right:12px;width:40px;height:40px} }
 #bottomSearch{position:fixed;z-index:60;left:50%;right:auto;transform:translateX(-50%);width:min(520px,calc(100vw - 2*var(--gutter)));top:12px;bottom:auto;display:none}

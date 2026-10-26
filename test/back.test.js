@@ -49,7 +49,8 @@ const hash=p=>p.evaluate(()=>location.hash);
   say("that last step says", await label(p));
   // back lives in the panel now, so it is a plain arrow with the destination in its title
   say("it still says where it goes", (await label(p))==="Back to the map");
-  say("home is hidden here, so only one way out is offered", (await p.$eval("#mapHome",e=>!e.hidden))===false);
+  // the map pill now shows wherever a style is selected, so a deep link offers both
+  say("home is offered here too, beside the step back", (await p.$eval("#mapHome",e=>!e.hidden))===true);
   await p.click("#panelBack"); await p.waitForTimeout(550);
   say("and lands on the unselected map", (await hash(p))==="" && (await p.$eval(".ovcard .mn",e=>e.textContent))==="Offshoots");
   say("hidden once the trail runs out", (await shown(p))===false);
@@ -78,19 +79,19 @@ const hash=p=>p.evaluate(()=>location.hash);
   say("back tap target "+boxes.back[2]+"px", boxes.back[2]>=34);
   say("no page errors", p._errs.length===0 ? true : p._errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
 
-  // the home pill: a shortcut only worth showing once back has become a walk
+  // the home pill: shown whenever you are not on the unselected root
   const home=q=>q.$eval("#mapHome",e=>!e.hidden&&getComputedStyle(e).display!=="none");
   p=await fresh(b,M);
   say("home hidden on the map itself", (await home(p))===false);
   await p.click("#grab").catch(()=>{}); await p.waitForTimeout(400);
   await p.click('[data-mk="winddown"]'); await p.waitForTimeout(500);
   await p.click(".picks .pick"); await p.waitForTimeout(600);
-  say("home still hidden one step out", (await home(p))===false);
+  say("home shown one step out", await home(p));
   const hwalk=["hardcore","thrash"];
   p=await fresh(b,M,"#punk");
   await p.click('[data-menu="led"]'); await p.waitForTimeout(350);
   await p.click(`.navmenu:not([hidden]) [data-go="${hwalk[0]}"]`); await p.waitForTimeout(550);
-  say("home appears two styles deep", await home(p));
+  say("home still there two styles deep", await home(p));
   say("and back names the style it returns to", /^Back to /.test(await label(p)));
   say("it says", await p.$eval("#mapHome",e=>e.getAttribute("title")));
   const hb=await p.evaluate(()=>{const h=document.getElementById("mapHome").getBoundingClientRect(),

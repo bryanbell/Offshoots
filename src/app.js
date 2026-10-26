@@ -340,11 +340,6 @@ function backLabel(){
 }
 // back presses needed to reach the overview. The map may not be in the trail at all,
 // which happens on a shared link, and that is exactly when the shortcut earns its place.
-function stepsHome(){
-  if(!state.sel) return 0;
-  for(let i=TRAIL.length-1;i>=0;i--) if(!TRAIL[i].sel) return TRAIL.length-i;
-  return TRAIL.length+1;
-}
 function goHome(){
   if(!state.sel) return;
   TRAIL.length=0;                    // home is a reset, not another step: back goes with it
@@ -354,10 +349,10 @@ function goHome(){
   syncBack();
 }
 function syncBack(){
-  // the root pill stays over the map: it is map-level navigation, and two taps deep is
-  // where walking back one style at a time stops being reasonable
+  // the root pill stays over the map whenever you are not looking at the unselected
+  // root, so there is always one tap back to the whole picture
   const hm=$("mapHome");
-  if(hm) hm.hidden = stepsHome()<2;
+  if(hm) hm.hidden = !state.sel;
   // back itself lives in the panel now, where it is not sitting beside a From button
   const b=$("panelBack"); if(!b) return;
   const l=backLabel();
