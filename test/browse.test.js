@@ -25,7 +25,7 @@ const vis=async(p,sel)=>p.$eval(sel,e=>{const r=e.getBoundingClientRect();
   await p.click('[data-menu="fams"]'); await p.waitForTimeout(350);
   say("families menu portaled to body", (await p.$$('body > .navmenu[data-br="fams"]')).length===1);
   say("menu on screen", await vis(p,'.navmenu[data-br="fams"]'));
-  say("16 family rows", (await p.$$(".navmenu[data-br=\"fams\"] [data-fambr]")).length===16);
+  say("one row per family", (await p.$$(".navmenu[data-br=\"fams\"] [data-fambr]")).length===17);
   say("first row", (await p.$eval(".navmenu[data-br=\"fams\"] [data-fambr]",e=>e.textContent.replace(/\s+/g," ").trim())));
   const mb=await p.$eval('.navmenu[data-br="fams"]',e=>{const r=e.getBoundingClientRect();
     return [Math.round(r.top),Math.round(r.height),Math.round(r.left),Math.round(r.width)];});
@@ -43,7 +43,7 @@ const vis=async(p,sel)=>p.$eval(sel,e=>{const r=e.getBoundingClientRect();
 
   // back out
   await p.click(".brback"); await p.waitForTimeout(250);
-  say("back to families", (await p.$$(".navmenu[data-br=\"fams\"] [data-fambr]")).length===16 && (await p.$$(".brback")).length===0);
+  say("back to families", (await p.$$(".navmenu[data-br=\"fams\"] [data-fambr]")).length===17 && (await p.$$(".brback")).length===0);
 
   // drill in again and pick a style
   await p.click('.navmenu [data-fambr="jazz"]'); await p.waitForTimeout(250);
@@ -62,7 +62,7 @@ const vis=async(p,sel)=>p.$eval(sel,e=>{const r=e.getBoundingClientRect();
   await p.click('.navmenu [data-fambr="metal"]'); await p.waitForTimeout(250);
   await p.keyboard.press("Escape"); await p.waitForTimeout(250);
   await p.click('[data-menu="fams"]'); await p.waitForTimeout(250);
-  say("reopens at the family list", (await p.$$(".navmenu[data-br=\"fams\"] [data-fambr]")).length===16);
+  say("reopens at the family list", (await p.$$(".navmenu[data-br=\"fams\"] [data-fambr]")).length===17);
 
   // the influence menu
   await p.click('[data-menu="top"]'); await p.waitForTimeout(300);
@@ -81,7 +81,7 @@ const vis=async(p,sel)=>p.$eval(sel,e=>{const r=e.getBoundingClientRect();
   // ---------- desktop ----------
   const d=await fresh(b,Dk);
   await d.click('[data-menu="fams"]'); await d.waitForTimeout(300);
-  say("desktop families menu", (await d.$$(".navmenu[data-br=\"fams\"] [data-fambr]")).length===16);
+  say("desktop families menu", (await d.$$(".navmenu[data-br=\"fams\"] [data-fambr]")).length===17);
   await d.click('.navmenu [data-fambr="elec"]'); await d.waitForTimeout(300);
   say("largest family (68) scrolls inside the menu",
       await d.$eval('.navmenu[data-br="fams"]',e=>e.scrollHeight>e.clientHeight+5));

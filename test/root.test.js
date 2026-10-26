@@ -70,7 +70,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("families offered", fams.length+" — "+fams.slice(0,3).join(", "));
   const sum=await p.$$eval('.navmenu[data-br="pl"] [data-plbr] small',e=>e.reduce((s,x)=>s+ +x.textContent,0));
   say("family counts add up to the total ("+sum+")", sum===nPlay);
-  say("fewer families than the Families menu (only listenable ones)", fams.length<=16);
+  say("fewer families than the Families menu (only listenable ones)", fams.length<=17);
   await p.click('.navmenu[data-br="pl"] [data-plbr]'); await p.waitForTimeout(300);
   const rows=await p.$$('.navmenu[data-br="pl"] [data-go]');
   say("drilled into a family", rows.length>0);
@@ -80,7 +80,11 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("back to the family list", (await p.$$('.navmenu[data-br="pl"] [data-plbr]')).length===fams.length);
   await p.keyboard.press("Escape"); await p.waitForTimeout(200);
   await p.click('[data-menu="fams"]'); await p.waitForTimeout(300);
-  say("Families still lists all 16", (await p.$$('.navmenu[data-br="fams"] [data-fambr]')).length===16);
+  // read the expected count from the page: this assertion went stale the moment a
+  // family was added, and a literal here says nothing about whether the menu is right
+  const nFams=await p.evaluate(()=>typeof FAMS!=="undefined"?FAMS.length:-1);
+  say("Families still lists all "+nFams,
+      nFams>0 && (await p.$$('.navmenu[data-br="fams"] [data-fambr]')).length===nFams);
   await p.keyboard.press("Escape"); await p.waitForTimeout(200);
 
   // ---- 5: about disclosure ----
@@ -114,7 +118,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
     const lo=r.filter(x=>x.classList.contains("b2")).map(px);
     return {n:r.length, hiMin:Math.min(...hi), loMax:Math.max(...lo)};
   });
-  say("every lane is banded", bands.n===16);
+  say("every lane is banded ("+bands.n+")", bands.n===nFams);
   say("low rows all darker than high rows", bands.loMax < bands.hiMin);
   say("no mobile errors", p._errs.filter(x=>!/Failed to load/.test(x)).length===0);
 
