@@ -298,9 +298,10 @@ body.open .pcnt{display:none}
 /* the open state once drew a rule under the card; the spacing for it drifted the
    whole sheet down by 18px after the rule itself was dropped */
 .pcard .mn{display:block;font-weight:700;font-size:18px;letter-spacing:-.018em;line-height:1.2;margin:0 0 1px}
-.navrow{position:sticky;top:0;z-index:35;display:grid;grid-template-columns:auto minmax(0,1fr) auto;
+.navrow{position:sticky;top:0;z-index:35;display:grid;grid-template-columns:1fr minmax(0,1.5fr) 1fr;
   align-items:center;gap:8px;margin:0;padding:6px 0 7px;background:transparent;
   transition:background .18s}
+.navrow .navback{justify-self:start}
 /* From and Led to as one segmented control: a single pill split by a hairline, the way
    two related directions are usually grouped, rather than two separate buttons */
 .navpair{display:flex;align-items:stretch;justify-self:end;flex:none;
@@ -318,6 +319,10 @@ body.open .pcnt{display:none}
   border-radius:999px;cursor:pointer;color:var(--fg);background:var(--fill2)}
 .navback .bklbl{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   font:600 12px var(--f-body)}
+.navback .bkmap{display:none;width:17px;height:17px;flex:none}
+.navback.tomap .bklbl{display:none}
+.navback.tomap .bkmap{display:block}
+.navback.tomap{padding:0 11px}
 .navback[hidden]{display:grid;visibility:hidden;pointer-events:none}
 .navback svg{width:17px;height:17px}
 .navback:hover{background:var(--fill)}
@@ -331,6 +336,7 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line);
   -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
 @media (prefers-reduced-motion:reduce){ .navrow{transition:none} }
 .navttl{min-width:0;text-align:center;overflow:hidden}
+.navrow .navttl .mn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .navttl .mn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .navttl .mn{margin:0}
 .navttl .my{justify-content:center}
@@ -2390,9 +2396,10 @@ function syncBack(){
   const l=backLabel();
   b.hidden=!l; if(!l) return;
   b.setAttribute("aria-label",l); b.setAttribute("title",l);
+  const v=TRAIL[TRAIL.length-1], toMap=!(v&&v.sel&&byId[v.sel]);
   const t=b.querySelector(".bklbl");
-  if(t){ const v=TRAIL[TRAIL.length-1];
-    t.textContent = v&&v.sel&&byId[v.sel] ? byId[v.sel].name : "The map"; }
+  if(t) t.textContent = toMap ? "" : byId[v.sel].name;
+  b.classList.toggle("tomap",toMap);
 }
 function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   if(!byId[id]) return;
@@ -2449,7 +2456,8 @@ function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   PHEAD = `<div class="pcard"><div class="navrow">`
     + `<button id="panelBack" class="navback" type="button" hidden aria-label="Back" title="Back">`
     + `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg>`
-    + `<span class="bklbl"></span></button>`
+    + `<span class="bklbl"></span>`
+    + `<svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.6 7.4 3.6v10.8l-4.6 2z"/><path d="M7.4 3.6 12.6 5.6v10.8L7.4 14.4z"/><path d="M12.6 5.6 17.2 3.6v10.8l-4.6 2z"/></svg></button>`
     + `<button type="button" class="navttl" data-share aria-label="Share this style" title="Share this style"><span class="mn">${esc(n.name)}</span><span class="my"><span class="yr">${n.year<1950?esc(n.disp):"c. "+n.year}</span>${SHAREGLYPH}</span></button>`
     + `<div class="navpair">`
     + navBtn("from",[...n.parents].sort(byYear))

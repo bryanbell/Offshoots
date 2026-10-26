@@ -24,12 +24,12 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   say("glyph on the year line, not the name", await d.$eval(".navttl",e=>
     !!e.querySelector(".my .shg") && !e.querySelector(".mn .shg")));
 
-  const c=await d.$eval(".navrow",r=>{ const cell=r.querySelector(".navttl").getBoundingClientRect();
+  const c=await d.$eval(".navrow",r=>{ const row=r.getBoundingClientRect();
     const nm=r.querySelector(".navttl .mn");
     const t=document.createRange(); t.selectNodeContents(nm);
     const tr=t.getBoundingClientRect();
-    return Math.round(((tr.left+tr.right)/2)-((cell.left+cell.right)/2)); });
-  say("painted name off centre in its slot by "+c+"px", Math.abs(c)<=1);
+    return Math.round(((tr.left+tr.right)/2)-((row.left+row.right)/2)); });
+  say("painted name off centre in the row by "+c+"px", Math.abs(c)<=1);
 
   // ---------- sharing ----------
   await d.click(".navttl"); await d.waitForTimeout(250);
@@ -106,8 +106,13 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   // back carries its destination, and gives it up rather than crowding the title
   const bk=await p.$eval("#panelBack",e=>{const l=e.querySelector(".bklbl");
     return {text:l.textContent, ellipsis:getComputedStyle(l).textOverflow};});
-  say("back is labelled \""+bk.text+"\"", bk.text.length>0);
-  say("and overflows with an ellipsis", bk.ellipsis==="ellipsis");
+  const toMap=await p.$eval("#panelBack",e=>({cls:e.classList.contains("tomap"),
+    icon:getComputedStyle(e.querySelector(".bkmap")).display!=="none",
+    lbl:getComputedStyle(e.querySelector(".bklbl")).display!=="none", text:e.querySelector(".bklbl").textContent}));
+  say("going back to the map shows the glyph, never the words",
+    toMap.cls && toMap.icon && !toMap.lbl && toMap.text==="");
+  say("and still says where it goes", (await p.$eval("#panelBack",e=>e.getAttribute("title")))==="Back to the map");
+  say("the label overflows with an ellipsis when it is a style", bk.ellipsis==="ellipsis");
   // the sticky row must not paint a ground denser than the sheet it sits on: at full
   // opacity over a 74-78% sheet it drew a lighter box across the whole header
   const hdr=await p.evaluate(()=>{const n=getComputedStyle(document.querySelector(".navrow")).backgroundColor;

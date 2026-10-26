@@ -361,9 +361,10 @@ function syncBack(){
   const l=backLabel();
   b.hidden=!l; if(!l) return;
   b.setAttribute("aria-label",l); b.setAttribute("title",l);
+  const v=TRAIL[TRAIL.length-1], toMap=!(v&&v.sel&&byId[v.sel]);
   const t=b.querySelector(".bklbl");
-  if(t){ const v=TRAIL[TRAIL.length-1];
-    t.textContent = v&&v.sel&&byId[v.sel] ? byId[v.sel].name : "The map"; }
+  if(t) t.textContent = toMap ? "" : byId[v.sel].name;
+  b.classList.toggle("tomap",toMap);
 }
 function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   if(!byId[id]) return;
@@ -420,7 +421,8 @@ function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   PHEAD = `<div class="pcard"><div class="navrow">`
     + `<button id="panelBack" class="navback" type="button" hidden aria-label="Back" title="Back">`
     + `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg>`
-    + `<span class="bklbl"></span></button>`
+    + `<span class="bklbl"></span>`
+    + `<svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.6 7.4 3.6v10.8l-4.6 2z"/><path d="M7.4 3.6 12.6 5.6v10.8L7.4 14.4z"/><path d="M12.6 5.6 17.2 3.6v10.8l-4.6 2z"/></svg></button>`
     + `<button type="button" class="navttl" data-share aria-label="Share this style" title="Share this style"><span class="mn">${esc(n.name)}</span><span class="my"><span class="yr">${n.year<1950?esc(n.disp):"c. "+n.year}</span>${SHAREGLYPH}</span></button>`
     + `<div class="navpair">`
     + navBtn("from",[...n.parents].sort(byYear))
