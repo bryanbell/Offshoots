@@ -90,6 +90,24 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
     const pr=r.querySelector(".navpair").getBoundingClientRect();
     return [Math.round(t.left-bk.right),Math.round(pr.left-t.right),r.querySelector(".navttl .mn").textContent]; });
   say("longest title clears back by "+gap[0]+"px and the pair by "+gap[1]+"px ("+gap[2]+")", gap[0]>=0&&gap[1]>=0);
+  // the pair is one segmented control: a single pill, split by a hairline, chevrons not arrows
+  const seg=await p.$eval(".navpair",e=>{const cs=getComputedStyle(e);
+    const f=e.querySelector(".nav-from .navbtn").getBoundingClientRect();
+    const l=e.querySelector(".nav-led .navbtn").getBoundingClientRect();
+    const divider=getComputedStyle(e.querySelector(".nav-led")).borderLeftWidth;
+    return {bg:cs.backgroundColor, radius:parseFloat(cs.borderTopLeftRadius),
+      touching:Math.round(l.left-f.right), divider,
+      halves:[getComputedStyle(e.querySelector(".nav-from .navbtn")).backgroundColor,
+              getComputedStyle(e.querySelector(".nav-led .navbtn")).backgroundColor]};});
+  say("one pill carries both halves", !/rgba\(0, 0, 0, 0\)/.test(seg.bg) && seg.radius>=14);
+  say("the halves are flush ("+seg.touching+"px) and share a "+seg.divider+" divider",
+    seg.touching<=1 && parseFloat(seg.divider)>0);
+  say("neither half paints its own ground", seg.halves.every(c=>/rgba\(0, 0, 0, 0\)/.test(c)));
+  // back carries its destination, and gives it up rather than crowding the title
+  const bk=await p.$eval("#panelBack",e=>{const l=e.querySelector(".bklbl");
+    return {text:l.textContent, ellipsis:getComputedStyle(l).textOverflow};});
+  say("back is labelled \""+bk.text+"\"", bk.text.length>0);
+  say("and overflows with an ellipsis", bk.ellipsis==="ellipsis");
   await p.screenshot({path:__dirname+"/screens/m-sharettl.png"});
 
   // the panel regains the space the footer took

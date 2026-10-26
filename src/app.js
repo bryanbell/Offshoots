@@ -361,6 +361,9 @@ function syncBack(){
   const l=backLabel();
   b.hidden=!l; if(!l) return;
   b.setAttribute("aria-label",l); b.setAttribute("title",l);
+  const t=b.querySelector(".bklbl");
+  if(t){ const v=TRAIL[TRAIL.length-1];
+    t.textContent = v&&v.sel&&byId[v.sel] ? byId[v.sel].name : "The map"; }
 }
 function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   if(!byId[id]) return;
@@ -416,7 +419,8 @@ function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   // left and meant something else entirely.
   PHEAD = `<div class="pcard"><div class="navrow">`
     + `<button id="panelBack" class="navback" type="button" hidden aria-label="Back" title="Back">`
-    + `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg></button>`
+    + `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg>`
+    + `<span class="bklbl"></span></button>`
     + `<button type="button" class="navttl" data-share aria-label="Share this style" title="Share this style"><span class="mn">${esc(n.name)}</span><span class="my"><span class="yr">${n.year<1950?esc(n.disp):"c. "+n.year}</span>${SHAREGLYPH}</span></button>`
     + `<div class="navpair">`
     + navBtn("from",[...n.parents].sort(byYear))
@@ -616,8 +620,8 @@ const chip = (id,extra)=>{ const n=byId[id]; const yr=n.year<1950?n.disp:n.year;
 // a small mark on the year line: enough to read as tappable without pulling the
 // style name off centre, which the grid works hard to keep it on
 const SHAREGLYPH='<svg class="shg" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13V3"/><path d="M6.5 6.5L10 3l3.5 3.5"/><path d="M5 11v5.5h10V11"/></svg>';
-const CHEV={from:'<svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 8H3.4"/><path d="M7.4 3.6L3 8l4.4 4.4"/></svg>',
-             led:'<svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h9.6"/><path d="M8.6 3.6L13 8l-4.4 4.4"/></svg>'};
+const CHEV={from:'<svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3.4L5.4 8l4.6 4.6"/></svg>',
+             led:'<svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.4L10.6 8 6 12.6"/></svg>'};
 function navBtn(kind,ids){
   const label = kind==="from" ? "From" : "Led to";
   const n=ids.length;

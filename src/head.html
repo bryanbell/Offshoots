@@ -300,19 +300,28 @@ body.open .pcnt{display:none}
 .pcard .mn{display:block;font-weight:700;font-size:18px;letter-spacing:-.018em;line-height:1.2;margin:0 0 1px}
 .navrow{position:sticky;top:0;z-index:35;display:grid;grid-template-columns:auto minmax(0,1fr) auto;
   align-items:center;gap:8px;margin:0;padding:6px 0 7px;background:var(--panel)}
-/* the two lineage menus sit together, so From and Led to read as one pair of directions
-   rather than as two unrelated buttons at opposite ends of the row */
-.navpair{display:flex;align-items:center;gap:6px;justify-self:end}
-.navpair .navwrap{position:relative}
+/* From and Led to as one segmented control: a single pill split by a hairline, the way
+   two related directions are usually grouped, rather than two separate buttons */
+.navpair{display:flex;align-items:stretch;justify-self:end;flex:none;
+  border-radius:999px;background:color-mix(in srgb,var(--acc,var(--fg)) 14%,transparent)}
+.navpair .navwrap{position:relative;display:flex}
+.navpair .navbtn{background:transparent;border-radius:0}
+.navpair .nav-from .navbtn{border-radius:999px 0 0 999px;padding-left:11px}
+.navpair .nav-led .navbtn{border-radius:0 999px 999px 0;padding-right:11px}
+.navpair .nav-led{border-left:1px solid color-mix(in srgb,var(--acc,var(--fg)) 22%,transparent)}
+.navpair .navbtn:hover:not(:disabled){background:color-mix(in srgb,var(--acc,var(--fg)) 16%,transparent)}
 /* back takes the left slot the From button used to hold, and keeps it empty when there
    is nothing behind you, so the title stays where it is either way */
-.navback{all:unset;box-sizing:border-box;display:grid;place-items:center;flex:none;
-  width:34px;height:34px;border-radius:999px;cursor:pointer;color:var(--fg);background:var(--fill2)}
+.navback{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:5px;
+  min-width:34px;max-width:min(30vw,124px);height:34px;padding:0 11px 0 9px;
+  border-radius:999px;cursor:pointer;color:var(--fg);background:var(--fill2)}
+.navback .bklbl{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font:600 12px var(--f-body)}
 .navback[hidden]{display:grid;visibility:hidden;pointer-events:none}
 .navback svg{width:17px;height:17px}
 .navback:hover{background:var(--fill)}
 .navback:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
-@media (max-width:899px){ .navback{width:38px;height:38px} .navback svg{width:18px;height:18px} }
+@media (max-width:899px){ .navback{min-width:38px;height:38px} .navback svg{width:18px;height:18px} .navback .bklbl{font-size:12.5px} }
 /* on the overview the row has no empty slot to hold, so the button simply goes away */
 .ovback[hidden]{display:none}
 .ovback{align-self:center;margin-right:2px}
