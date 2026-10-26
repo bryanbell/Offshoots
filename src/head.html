@@ -540,7 +540,8 @@ body:not(.open) aside#panel{width:var(--sidew);cursor:pointer}
   #grab:active{cursor:grabbing}
   #grab:active::before,#grab:focus-visible::before{background:var(--muted)}
   #pclose{display:none}
-  aside#panel{transition:height .26s cubic-bezier(.32,.72,0,1)}
+  /* the height is driven in pixels from script, since auto will not interpolate */
+  aside#panel{transition:height .34s cubic-bezier(.32,.72,0,1)}
   body.dragging aside#panel{transition:none}
 }
 @media (prefers-reduced-motion:reduce){ aside#panel{transition:none} }

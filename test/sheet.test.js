@@ -77,6 +77,33 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   await swipe(195,R[1]-40,0,-60); await p.waitForTimeout(400);
   say("a swipe up still opens it", await open());
 
+  // the open/close transition. Sample inside the page on every frame: a Playwright
+  // round-trip is slow enough that an eased 340ms animation can look like a jump.
+  const frames=(act)=>p.evaluate(async (act)=>{
+    const el=document.getElementById("panel"), out=[];
+    let run=true; const tick=()=>{ if(!run) return; out.push(Math.round(el.getBoundingClientRect().height)); requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+    if(act==="grab") document.getElementById("grab").dispatchEvent(new PointerEvent("pointerdown",{bubbles:true,clientY:0,pointerId:1})),
+                     document.getElementById("grab").dispatchEvent(new PointerEvent("pointerup",{bubbles:true,clientY:0,pointerId:1}));
+    await new Promise(r=>setTimeout(r,700)); run=false; return out;
+  },act);
+  const spread=h=>{ const lo=Math.min(...h), hi=Math.max(...h);
+    return [...new Set(h)].filter(v=>v>lo+8&&v<hi-8).length; };
+  await ensure(); await p.waitForTimeout(400);
+  const closing=await frames("grab");
+  say("closing moves through "+spread(closing)+" intermediate heights", spread(closing)>=5);
+  say("it is minimised at the end", (await open())===false);
+  const opening=await frames("grab");
+  say("opening moves through "+spread(opening)+" intermediate heights", spread(opening)>=5);
+  say("it is open at the end", await open());
+  const left=await p.evaluate(()=>{const s=document.getElementById("panel").style; return s.height+"|"+s.maxHeight;});
+  say("no inline height or cap left behind ("+left+")", left==="|");
+  // reversing part way must not strand it at an in-between height
+  await p.click("#grab"); await p.waitForTimeout(110);
+  await p.click("#grab"); await p.waitForTimeout(800);
+  const back=await p.evaluate(()=>Math.round(document.getElementById("panel").getBoundingClientRect().height));
+  say("reversed mid-animation, it settles at "+back+"px", Math.abs(back-(R[1]-R[0]))<=2);
+
   say("no page errors", errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
   await b.close();
 })();

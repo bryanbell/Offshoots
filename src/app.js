@@ -421,7 +421,39 @@ function paintExpand(){ const b=$("expand"), l=b.querySelector(".lbl"); if(!l) r
   const n0=b.dataset.name||"", nm=n0?`<b>${esc(n0)}</b>`:"", sep=n0?" · ":"", t=b.dataset.tail, s=b.dataset.stail;
   l.innerHTML = `<span class="long">${nm}${t?`<span class="ct">${sep}${esc(t)}</span>`:""}</span>`
               + `<span class="short">${nm}${s?`<span class="ct">${sep}${esc(s)}</span>`:""}</span>`; }
-function setOpen(v){ closeNav(); OPEN=v; setTimeout(sizeCard,0); if(OVERLAY && state.sel) setTimeout(()=>{ if(state.sel) select(state.sel,{scroll:true,smooth:!reduce,repaint:false}) },260); $("panel").classList.toggle("open",v); document.body.classList.toggle("open",v); $("expand").setAttribute("aria-expanded",v); $("expand").setAttribute("aria-label",v?"Hide details":"Show details"); $("pclose").setAttribute("aria-label",v?"Collapse details":"Expand details"); { const g=$("grab"); if(g){ g.setAttribute("aria-expanded",String(v)); g.setAttribute("aria-label",v?"Collapse details":"Expand details"); } } paintExpand(); if(v) $("panel").scrollTop=0; }
+// The sheet's two states are height:auto and height:70vh, and no browser interpolates
+// to or from auto, so the CSS transition never ran and the change read as a jump. Measure
+// both ends in pixels, animate between them, then hand the height back to the stylesheet
+// so later content changes still size it.
+let GLIDING=false;
+function glideSheet(from){
+  const el=$("panel"); if(!el) return;
+  el.style.transition="none";
+  el.style.maxHeight=""; el.style.height="";   // let the stylesheet state its target
+  const to=el.offsetHeight;
+  if(Math.abs(to-from)<2){ el.style.transition=""; GLIDING=false; return; }
+  GLIDING=true;
+  // the minimised state caps the sheet at 46vh, which would clamp the open height away
+  // before the first frame and leave nothing to animate. The cap is off for the duration.
+  el.style.maxHeight="none";
+  el.style.height=from+"px";
+  el.getBoundingClientRect();               // flush, so the next value is a change to animate
+  el.style.transition="";
+  requestAnimationFrame(()=>{
+    el.style.height=to+"px";
+    const done=e=>{ if(e.target!==el||e.propertyName!=="height") return;
+      el.removeEventListener("transitionend",done); GLIDING=false; el.style.height=""; el.style.maxHeight=""; };
+    el.addEventListener("transitionend",done);
+    setTimeout(()=>{ el.removeEventListener("transitionend",done); GLIDING=false; el.style.height=""; el.style.maxHeight=""; },600);
+  });
+}
+function setOpen(v){
+  const glide = OVERLAY && !reduce;
+  const from = glide ? Math.round($("panel").getBoundingClientRect().height) : 0;
+  setOpenNow(v);
+  if(glide) glideSheet(from);
+}
+function setOpenNow(v){ closeNav(); OPEN=v; setTimeout(sizeCard,0); if(OVERLAY && state.sel) setTimeout(()=>{ if(state.sel) select(state.sel,{scroll:true,smooth:!reduce,repaint:false}) },260); $("panel").classList.toggle("open",v); document.body.classList.toggle("open",v); $("expand").setAttribute("aria-expanded",v); $("expand").setAttribute("aria-label",v?"Hide details":"Show details"); $("pclose").setAttribute("aria-label",v?"Collapse details":"Expand details"); { const g=$("grab"); if(g){ g.setAttribute("aria-expanded",String(v)); g.setAttribute("aria-label",v?"Collapse details":"Expand details"); } } paintExpand(); if(v) $("panel").scrollTop=0; }
 function openPanel(){ setOpen(true); }
 function closePanel(){ setOpen(false); }
 function syncPeek(){}
@@ -514,11 +546,13 @@ function sheetMax(){ return Math.round(innerHeight*0.5); }
     if(!active) return; active=false;
     const dt=Date.now()-t0, dy=y0-e.clientY;
     const hNow=el.offsetHeight;
-    el.style.height=""; document.body.classList.remove("dragging");
-    if(!DRAGGING){ setOpen(!OPEN); DRAGGING=false; return; }   // a tap, not a drag
+    document.body.classList.remove("dragging");
+    // the inline height stays on until setOpen has read it, so the snap continues
+    // from where the finger let go instead of starting over from the CSS value
+    if(!DRAGGING){ el.style.height=""; setOpen(!OPEN); DRAGGING=false; return; }   // a tap, not a drag
     DRAGGING=false;
     const flick = dt<260 && Math.abs(dy)>24;                   // quick flick wins over position
-    if(dismissable() && (flick ? dy<0 : hNow < sheetMin()*0.62)){ dismissSheet(); return; }
+    if(dismissable() && (flick ? dy<0 : hNow < sheetMin()*0.62)){ el.style.height=""; dismissSheet(); return; }
     const open = flick ? dy>0 : hNow > (sheetMin()+sheetMax())/2;
     setOpen(open);
   };
@@ -998,7 +1032,10 @@ scroller.addEventListener("touchcancel",()=>{ pinch=null; });
 // ---------- boot & resize ----------
 let RENDERED=false;
 // space the floating search bar covers at the bottom, so the last lanes can always be scrolled clear of it
-function sizeCard(){ const el=$("panel"); if(el) el.style.maxHeight=""; }
+// GLIDING guards the inline max-height the sheet animation needs: this runs on a zero
+// timeout from setOpen and would otherwise restore the 46vh cap before the first frame,
+// clamping the closing animation to its end state instantly.
+function sizeCard(){ const el=$("panel"); if(el && !GLIDING) el.style.maxHeight=""; }
 function SRES(){ return 24; }   // the search bar lives in the panel now; the map only needs breathing room
 function render(){ RENDERED=true; dims(); LOD = Z<0.9; $("chart").classList.toggle("lod",LOD); fit(); const res=SRES(); $("inner").style.paddingBottom=res+"px"; layout(scroller.clientHeight-AXH-BAR()-res); draw(); }
 let lastW=0,lastH=0,rt;
