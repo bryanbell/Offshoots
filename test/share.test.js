@@ -114,22 +114,24 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   await p.click("#grab").catch(()=>{}); await p.waitForTimeout(400);
   const gap=await p.$eval(".navrow",r=>{ const t=r.querySelector(".navttl").getBoundingClientRect();
     const bk=r.querySelector("#panelBack").getBoundingClientRect();
-    const pr=r.querySelector(".navpair").getBoundingClientRect();
-    return [Math.round(t.left-bk.right),Math.round(pr.left-t.right),r.querySelector(".navttl .mn").textContent]; });
-  say("longest title clears back by "+gap[0]+"px and the pair by "+gap[1]+"px ("+gap[2]+")", gap[0]>=0&&gap[1]>=0);
-  // the pair is one segmented control: a single pill, split by a hairline, chevrons not arrows
-  const seg=await p.$eval(".navpair",e=>{const cs=getComputedStyle(e);
-    const f=e.querySelector(".nav-from .navbtn").getBoundingClientRect();
-    const l=e.querySelector(".nav-led .navbtn").getBoundingClientRect();
-    const divider=getComputedStyle(e.querySelector(".nav-led")).borderLeftWidth;
+    const x=r.querySelector(".pmin").getBoundingClientRect();
+    return [Math.round(t.left-bk.right),Math.round(x.left-t.right),r.querySelector(".navttl .mn").textContent]; });
+  say("longest title clears back by "+gap[0]+"px and the X by "+gap[1]+"px ("+gap[2]+")", gap[0]>=0&&gap[1]>=0);
+  // From and Led to left the header for the body, as the same grouped list the panel uses
+  // for its other collections: a single card, a row each, hairline between them
+  const seg=await p.$eval(".sect-lineage .listgrp",e=>{const cs=getComputedStyle(e);
+    const rows=[...e.querySelectorAll(".listrow")];
+    const gb=e.getBoundingClientRect();
     return {bg:cs.backgroundColor, radius:parseFloat(cs.borderTopLeftRadius),
-      touching:Math.round(l.left-f.right), divider,
-      halves:[getComputedStyle(e.querySelector(".nav-from .navbtn")).backgroundColor,
-              getComputedStyle(e.querySelector(".nav-led .navbtn")).backgroundColor]};});
-  say("one pill carries both halves", !/rgba\(0, 0, 0, 0\)/.test(seg.bg) && seg.radius>=14);
-  say("the halves are flush ("+seg.touching+"px) and share a "+seg.divider+" divider",
-    seg.touching<=1 && parseFloat(seg.divider)>0);
-  say("neither half paints its own ground", seg.halves.every(c=>/rgba\(0, 0, 0, 0\)/.test(c)));
+      labels:rows.map(r=>r.querySelector(".lrlbl").textContent),
+      full:rows.every(r=>Math.round(r.getBoundingClientRect().width)===Math.round(gb.width)),
+      inHeader:!!e.closest(".navrow"),
+      halves:rows.map(r=>getComputedStyle(r).backgroundColor)};});
+  say("one card carries both directions ("+seg.labels.join(" / ")+")",
+    seg.labels.join("/")==="Came from/Led to" && seg.radius>=10);
+  say("each row spans it, and neither paints its own ground",
+    seg.full && seg.halves.every(c=>/rgba\(0, 0, 0, 0\)/.test(c)));
+  say("and it is in the body, not the header", seg.inHeader===false);
   // back carries its destination, and gives it up rather than crowding the title
   const bk=await p.$eval("#panelBack",e=>{const l=e.querySelector(".bklbl");
     return {text:l.textContent, ellipsis:getComputedStyle(l).textOverflow};});

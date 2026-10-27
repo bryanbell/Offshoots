@@ -130,8 +130,12 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   // Share is a button at the foot of the card, out of the handle's way entirely.
   await ensure(); await p.waitForTimeout(500);
   await p.evaluate(()=>{window.__copied=[];navigator.clipboard.writeText=async t=>{window.__copied.push(t)};});
-  say("no control sits in the drag handle",
-    (await p.$$eval(".ovcard .navrow button",e=>e.filter(b=>!b.hidden).length))===0);
+  // the X sits in the drag handle, so the same tap-versus-drag rule applies to it
+  say("the handle carries the minimise control",
+    (await p.$$eval(".ovcard .navrow button",e=>e.filter(b=>!b.hidden).length))===1);
+  await p.click(".ovcard .pmin"); await p.waitForTimeout(700);
+  say("  tapping it minimises the sheet", (await open())===false);
+  await ensure(); await p.waitForTimeout(500);
   await p.$eval("#panelBody .shbtn.wide",e=>e.scrollIntoView({block:"center"})); await p.waitForTimeout(300);
   await p.click("#panelBody .shbtn.wide"); await p.waitForTimeout(400);
   say("the button at the foot shares", await p.evaluate(()=>window.__copied.length===1));

@@ -127,8 +127,10 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("  flush with the section headings ("+(hdr&&hdr.flush)+"px)", !!hdr && Math.abs(hdr.flush)<=1);
   say("  and bigger than them, "+(hdr&&hdr.size)+" against "+(hdr&&hdr.sectSize),
     !!hdr && hdr.size>=28 && hdr.size>hdr.sectSize);
-  say("  the row above it is empty, "+(hdr&&hdr.rowH)+"px tall",
-    !!hdr && hdr.controls===0 && hdr.rowH<=24);
+  say("  the row above it holds one control, the X", !!hdr && hdr.controls===1);
+  say("  and it is at the right of the row", await p.evaluate(()=>{
+    const r=document.querySelector(".ovcard .navrow"), x=r.querySelector(".pmin");
+    return !!x && Math.round(r.getBoundingClientRect().right-x.getBoundingClientRect().right)<=1; }));
 
   // the ways in are one grouped list, the way a phone app lists collections
   const grp=await p.evaluate(()=>{ const g=document.querySelector(".sect-browse .listgrp");

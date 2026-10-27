@@ -354,6 +354,17 @@ body.open .pcnt{display:none}
 /* back and share share the left track: the row is three columns, and a fourth child
    would push the title out of the middle one */
 .navrow .navleft{justify-self:start;display:flex;align-items:center;gap:8px}
+/* every panel minimises from the same corner, where a card's close control is looked for */
+.pmin{all:unset;box-sizing:border-box;cursor:pointer;justify-self:end;flex:none;
+  display:grid;place-items:center;width:var(--tap);height:var(--tap);border-radius:50%;
+  color:var(--muted);background:var(--fill2);transition:background .15s,color .15s}
+.pmin:hover{background:color-mix(in srgb,var(--fg) 14%,transparent);color:var(--fg)}
+.pmin:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+.pmin svg{width:17px;height:17px}
+/* a sidebar has no smaller state to go to, so the control is not offered there */
+@media (min-width:900px){ .pmin{display:none} }
+/* and the lineage cluster is not part of the peek, which is for the playlist */
+@media (max-width:899px){ body:not(.open) .more > .sect-lineage{display:none} }
 .navrow .navleft .navback{justify-self:auto}
 /* inside the group the hidden back takes no room, so share sits at the left edge when
    there is nothing to go back to. The title does not shift either way: the side tracks
@@ -388,6 +399,9 @@ body.open .pcnt{display:none}
 .listrow .lrct{flex:none;font:400 var(--t-body)/1 var(--f-mono);color:var(--muted);font-style:normal;
   font-variant-numeric:tabular-nums}
 .listrow .lrcv{flex:none;width:15px;height:15px;color:var(--muted);opacity:.7}
+/* a root style has nothing before it, so that row is a statement rather than a control */
+.listrow:disabled{cursor:default;opacity:.45}
+.listrow:disabled:hover{background:transparent}
 /* the one row that is a destination rather than a list keeps the count as a word and
    drops the chevron, since nothing opens */
 .listrow.lrgo .lrct{font-family:var(--f-body);font-size:var(--t-sub)}
@@ -2754,10 +2768,7 @@ function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
     + `<span class="bklbl"></span>`
     + `<svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.6 7.4 3.6v10.8l-4.6 2z"/><path d="M7.4 3.6 12.6 5.6v10.8L7.4 14.4z"/><path d="M12.6 5.6 17.2 3.6v10.8l-4.6 2z"/></svg></button>`
     + `<h2 class="navttl"><span class="mn">${esc(n.name)}</span><span class="my"><span class="yr">${n.year<1950?esc(n.disp):"c. "+n.year}</span></span></h2>`
-    + `<div class="navpair">`
-    + navBtn("from",[...n.parents].sort(byYear))
-    + navBtn("led",[...n.children].sort(byYear))
-    + `</div>`
+    + CLOSEBTN
     + `</div></div>`;
   setExpandLabel("", `${n.parents.length} from · ${n.children.length} led to`, `${n.parents.length} from · ${n.children.length} led to`);
   if(repaint){
@@ -2995,6 +3006,34 @@ function svcPicker(kind){ return `<span class="svc${kind==="inline"?" svcinline"
   + `<option value="spotify"${SVC==="spotify"?" selected":""}>Spotify</option>`
   + `<option value="qobuz"${SVC==="qobuz"?" selected":""}>Qobuz</option>`
   + `</select></span>`; }
+// one control at the top right of every panel: it shrinks the card to its smallest
+// state rather than dismissing it, so the playlist stays in view and the map opens up
+const CLOSEBTN=`<button type="button" class="pmin" data-close aria-label="Minimise this panel" title="Minimise this panel"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5.5 5.5l9 9"/><path d="M14.5 5.5l-9 9"/></svg></button>`;
+
+// From and Led to were a segmented pill in the header, which gave the two directions of
+// the whole map less room than the playlist row. They are the same grouped list the
+// panel uses for its other collections, in the body, under the thing you can listen to.
+function lineageRow(kind,ids){
+  const n=ids.length, label = kind==="from" ? "Came from" : "Led to";
+  const title = n ? `${label}: ${n} ${n===1?"style":"styles"}`
+    : (kind==="from" ? "A root style: nothing before it here" : "Nothing grew out of this one here");
+  const items=ids.map(id=>{ const x=byId[id];
+    return `<button type="button" role="menuitem" data-go="${x.id}"><i class="dot" style="background:${FAM[x.fam].c}"></i><span class="nm">${esc(x.name)}</span><small>${x.year<1950?esc(x.disp):x.year}</small></button>`; }).join("");
+  return `<div class="navwrap nav-${kind}">`
+    + `<button type="button" class="listrow" data-menu="${kind}" aria-haspopup="menu" aria-expanded="false"`
+    + ` title="${esc(title)}" aria-label="${esc(title)}"${n?"":" disabled"}>`
+    + `<i class="lrico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${LINICON[kind]}</svg></i>`
+    + `<span class="lrlbl">${label}</span><em class="lrct">${n}</em>${n?LRCHEV:""}</button>`
+    + (n?`<div class="navmenu" role="menu" hidden>${items}</div>`:"")
+    + `</div>`;
+}
+const LINICON={"from": "<path d=\"M10 16.8V9.2\"/><path d=\"M10 9.2L5.2 4.4\"/><path d=\"M10 9.2l4.8-4.8\"/><circle cx=\"5.2\" cy=\"3.8\" r=\"1.3\"/><circle cx=\"14.8\" cy=\"3.8\" r=\"1.3\"/>", "led": "<path d=\"M10 3.2v7.6\"/><path d=\"M10 10.8l-4.8 4.8\"/><path d=\"M10 10.8l4.8 4.8\"/><circle cx=\"5.2\" cy=\"16.2\" r=\"1.3\"/><circle cx=\"14.8\" cy=\"16.2\" r=\"1.3\"/>"};
+function lineageSect(n){
+  return sect("lineage","",`<div class="listgrp">`
+    + lineageRow("from",[...n.parents].sort(byYear))
+    + lineageRow("led",[...n.children].sort(byYear))
+    + `</div>`);
+}
 function listenSect(n,who,artistsHtml){
   const pb=plist(n);
   if(!pb && !who.length) return "";
@@ -3015,6 +3054,7 @@ function panel(n,anc,desc){
   const artistsHtml = `<div class="who">${who.map(am).join("")}</div>`;
   $("panelBody").innerHTML = PHEAD + `<div class="more">
     ${listenSect(n,who,artistsHtml)}
+    ${lineageSect(n)}
     <p class="note lede wikiline">${about(n)?esc(about(n))+" ":""}${wikiTxt(n)}</p>
     ${n.sources.length?`<h3>Sources</h3><ul class="srcs">${n.sources.map(u=>{let h="";try{h=new URL(u).hostname.replace(/^www\./,"")}catch(e){h=u}return `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(h)}</a></li>`}).join("")}</ul>`:""}
     ${shareBtn(n)}
@@ -3425,7 +3465,7 @@ function emptyPanel(){
   const top=[...nodes].sort((a,b)=>b.children.length-a.children.length||a.year-b.year).slice(0,12);
   const np=playable().length;
   const withSrc=DATA.filter(r=>Array.isArray(r[7])&&r[7].length).length;
-  $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="navrow"><div class="navleft"><button id="panelBack" class="navback" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg><span class="bklbl"></span><svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.4L7.4 3.4v11.2L2.8 16.6z"/><path d="M7.4 3.4l5.2 2v11.2l-5.2-2z"/><path d="M12.6 5.4l4.6-2v11.2l-4.6 2z"/></svg></button></div><div class="navttl navgap" aria-hidden="true"></div></div><h1 class="bigttl"><span class="mn">Explore</span></h1></div><div class="more">
+  $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="navrow"><div class="navleft"><button id="panelBack" class="navback" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg><span class="bklbl"></span><svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.4L7.4 3.4v11.2L2.8 16.6z"/><path d="M7.4 3.4l5.2 2v11.2l-5.2-2z"/><path d="M12.6 5.4l4.6-2v11.2l-4.6 2z"/></svg></button></div><div class="navttl navgap" aria-hidden="true"></div>${CLOSEBTN}</div><h1 class="bigttl"><span class="mn">Explore</span></h1></div><div class="more">
     ${browseRow()}
     ${modeSect()}
     <p class="note ovhint">Or tap any style on the map to trace where it came from and what it led to.</p>

@@ -9,6 +9,10 @@ const shown=p=>p.evaluate(()=>{const e=document.getElementById("panelBack");
   return !!e && !e.hidden && getComputedStyle(e).visibility!=="hidden";});
 const label=p=>p.evaluate(()=>{const e=document.getElementById("panelBack"); return e?e.getAttribute("title"):"";});
 const hash=p=>p.evaluate(()=>location.hash);
+// From and Led to moved out of the header and into the card, so reaching them on a phone
+// means opening the sheet first. The peek is the playlist; the lineage is below it.
+const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains("open")))
+  { await p.click("#grab").catch(()=>{}); await p.waitForTimeout(450); } };
 
 (async()=>{
   const b=await chromium.launch();
@@ -35,7 +39,7 @@ const hash=p=>p.evaluate(()=>location.hash);
   // a chain where every stop still leads somewhere, so the Led to button is never disabled
   const walk=["hardcore","thrash","deathmetal","blackmetal"];
   for(const id of walk){
-    await p.click('[data-menu="led"]'); await p.waitForTimeout(350);
+    await open(p); await p.click('.sect-lineage [data-menu="led"]'); await p.waitForTimeout(350);
     await p.click(`.navmenu:not([hidden]) [data-go="${id}"]`); await p.waitForTimeout(550);
   }
   say("walked", "punk -> "+walk.join(" -> "));
@@ -59,23 +63,43 @@ const hash=p=>p.evaluate(()=>location.hash);
 
   // the trail survives a browse-menu jump too, and empty-space taps
   p=await fresh(b,M,"#disco");
-  await p.click('[data-menu="from"]'); await p.waitForTimeout(350);
+  await open(p); await p.click('.sect-lineage [data-menu="from"]'); await p.waitForTimeout(350);
   await p.click(".navmenu:not([hidden]) [data-go]"); await p.waitForTimeout(550);
   const mid=await hash(p);
-  await p.click("#chart",{position:{x:300,y:120}}).catch(()=>{}); await p.waitForTimeout(500);
+  // an empty-map tap. Not an offset inside #chart: that element is 3000px wide and
+  // scrolled, so an offset into it lands off-screen and Playwright scrolls the map to
+  // reach it, which moves whatever was under the point. And not a hard-coded viewport
+  // point either, since what sits there changes with the layout. Find bare lane ground.
+  // closing the sheet reflows the map, so the point is found again before each tap
+  const bare=async()=>p.evaluate(()=>{
+    for(let y=36;y<240;y+=6) for(let x=110;x<350;x+=8){
+      const e=document.elementFromPoint(x,y);
+      if(e && e.tagName==="rect" && /band/.test(e.getAttribute("class")||"")) return [x,y];
+    } return null; });
+  const tapBare=async()=>{ const pt=await bare(); if(!pt) return false;
+    await p.mouse.click(pt[0],pt[1]); await p.waitForTimeout(500); return true; };
+  // with the sheet open, a tap on the map closes the sheet and stops there: the selection
+  // survives, so the first tap is not the clear. The second one is.
+  say("tapped bare map", await tapBare());
+  say("the first tap only closes the sheet, keeping "+(await hash(p)), (await hash(p))===mid);
+  say("tapped again", await tapBare());
+  say("the second clears to the map", (await hash(p))==="");
   say("clearing to the map is a step too", await shown(p));
   say("its label", await label(p));
   await p.click("#panelBack"); await p.waitForTimeout(550);
   say("back returns to "+mid, (await hash(p))===mid);
 
-  // the row reads back | title | from led, with the two lineage menus together
+  // the row reads back | title | minimise. The lineage pair left it for the card below.
   const boxes=await p.evaluate(()=>{const r=document.querySelector(".navrow").getBoundingClientRect();
-    const g=sel=>{const e=document.querySelector(sel).getBoundingClientRect();
-      return [Math.round(e.left-r.left),Math.round(e.right-r.left),Math.round(e.height)];};
-    return {back:g("#panelBack"), title:g(".navttl"), from:g(".nav-from"), led:g(".nav-led")};});
+    const g=sel=>{const e=document.querySelector(sel); if(!e) return null;
+      const b=e.getBoundingClientRect();
+      return [Math.round(b.left-r.left),Math.round(b.right-r.left),Math.round(b.height)];};
+    return {back:g("#panelBack"), title:g(".navttl"), x:g(".pmin"),
+      width:Math.round(r.width), pair:document.querySelectorAll(".navrow .navwrap").length};});
   say("back is left of the title", boxes.back[1]<=boxes.title[0]);
-  say("From and Led to are paired on the right ("+(boxes.led[0]-boxes.from[1])+"px apart)",
-    boxes.from[0]>boxes.title[1]-1 && boxes.led[0]-boxes.from[1]<=10 && boxes.led[0]>=boxes.from[1]);
+  say("the X is right of it, at the row's edge", boxes.x[0]>=boxes.title[1]-1
+    && boxes.width-boxes.x[1]<=1);
+  say("and nothing else is in the row", boxes.pair===0);
   say("back tap target "+boxes.back[2]+"px", boxes.back[2]>=34);
   say("no page errors", p._errs.length===0 ? true : p._errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
 
@@ -104,7 +128,7 @@ const hash=p=>p.evaluate(()=>location.hash);
   say("home shown one step out", await home(p));
   const hwalk=["hardcore","thrash"];
   p=await fresh(b,M,"#punk");
-  await p.click('[data-menu="led"]'); await p.waitForTimeout(350);
+  await open(p); await p.click('.sect-lineage [data-menu="led"]'); await p.waitForTimeout(350);
   await p.click(`.navmenu:not([hidden]) [data-go="${hwalk[0]}"]`); await p.waitForTimeout(550);
   say("home still there two styles deep", await home(p));
   say("and back names the style it returns to", /^Back to /.test(await label(p)));

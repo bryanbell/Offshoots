@@ -354,6 +354,17 @@ body.open .pcnt{display:none}
 /* back and share share the left track: the row is three columns, and a fourth child
    would push the title out of the middle one */
 .navrow .navleft{justify-self:start;display:flex;align-items:center;gap:8px}
+/* every panel minimises from the same corner, where a card's close control is looked for */
+.pmin{all:unset;box-sizing:border-box;cursor:pointer;justify-self:end;flex:none;
+  display:grid;place-items:center;width:var(--tap);height:var(--tap);border-radius:50%;
+  color:var(--muted);background:var(--fill2);transition:background .15s,color .15s}
+.pmin:hover{background:color-mix(in srgb,var(--fg) 14%,transparent);color:var(--fg)}
+.pmin:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+.pmin svg{width:17px;height:17px}
+/* a sidebar has no smaller state to go to, so the control is not offered there */
+@media (min-width:900px){ .pmin{display:none} }
+/* and the lineage cluster is not part of the peek, which is for the playlist */
+@media (max-width:899px){ body:not(.open) .more > .sect-lineage{display:none} }
 .navrow .navleft .navback{justify-self:auto}
 /* inside the group the hidden back takes no room, so share sits at the left edge when
    there is nothing to go back to. The title does not shift either way: the side tracks
@@ -388,6 +399,9 @@ body.open .pcnt{display:none}
 .listrow .lrct{flex:none;font:400 var(--t-body)/1 var(--f-mono);color:var(--muted);font-style:normal;
   font-variant-numeric:tabular-nums}
 .listrow .lrcv{flex:none;width:15px;height:15px;color:var(--muted);opacity:.7}
+/* a root style has nothing before it, so that row is a statement rather than a control */
+.listrow:disabled{cursor:default;opacity:.45}
+.listrow:disabled:hover{background:transparent}
 /* the one row that is a destination rather than a list keeps the count as a word and
    drops the chevron, since nothing opens */
 .listrow.lrgo .lrct{font-family:var(--f-body);font-size:var(--t-sub)}
