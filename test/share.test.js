@@ -33,7 +33,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   say("share is a labelled button at the foot ("+(sb&&sb.label)+")", !!sb && /Share/.test(sb.label));
   say("  running the full width, "+sb.width+" of "+sb.room, sb.width>=sb.room-48);
   say("  in the flow, not pinned over the text ("+sb.pos+")", sb.pos==="static");
-  say("  above the tally by "+sb.beforeTally+"px", sb.beforeTally>=0);
+  say("  below the tally by "+(-sb.beforeTally)+"px", sb.beforeTally<=0);
   say("  tap target "+sb.tall+"px", sb.tall>=34);
   say("  and it is the only share control on the panel", sb.only===1);
 
@@ -124,13 +124,16 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
     const gb=e.getBoundingClientRect();
     return {bg:cs.backgroundColor, radius:parseFloat(cs.borderTopLeftRadius),
       labels:rows.map(r=>r.querySelector(".lrlbl").textContent),
-      full:rows.every(r=>Math.round(r.getBoundingClientRect().width)===Math.round(gb.width)),
+      widths:rows.map(r=>Math.round(r.getBoundingClientRect().width)), cardW:Math.round(gb.width),
+      sideBySide:(()=>{const a=rows[0].getBoundingClientRect(),b2=rows[1].getBoundingClientRect();
+        return Math.abs(a.top-b2.top)<2 && b2.left>=a.right-1;})(),
       inHeader:!!e.closest(".navrow"),
       halves:rows.map(r=>getComputedStyle(r).backgroundColor)};});
   say("one card carries both directions ("+seg.labels.join(" / ")+")",
     seg.labels.join("/")==="Came from/Led to" && seg.radius>=10);
-  say("each row spans it, and neither paints its own ground",
-    seg.full && seg.halves.every(c=>/rgba\(0, 0, 0, 0\)/.test(c)));
+  say("the two sit side by side, each half the card ("+seg.widths.join(" + ")+" of "+seg.cardW+")",
+    seg.sideBySide && seg.widths.every(w=>Math.abs(w-seg.cardW/2)<=2));
+  say("  and neither paints its own ground", seg.halves.every(c=>/rgba\(0, 0, 0, 0\)/.test(c)));
   say("and it is in the body, not the header", seg.inHeader===false);
   // directly under the title: where a style sits in the map is the first thing the panel
   // says about it, ahead of what you can play

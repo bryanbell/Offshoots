@@ -732,7 +732,8 @@ function lineageRow(kind,ids){
 }
 const LINICON={"from": "<path d=\"M10 16.8V9.2\"/><path d=\"M10 9.2L5.2 4.4\"/><path d=\"M10 9.2l4.8-4.8\"/><circle cx=\"5.2\" cy=\"3.8\" r=\"1.3\"/><circle cx=\"14.8\" cy=\"3.8\" r=\"1.3\"/>", "led": "<path d=\"M10 3.2v7.6\"/><path d=\"M10 10.8l-4.8 4.8\"/><path d=\"M10 10.8l4.8 4.8\"/><circle cx=\"5.2\" cy=\"16.2\" r=\"1.3\"/><circle cx=\"14.8\" cy=\"16.2\" r=\"1.3\"/>"};
 function lineageSect(n){
-  return sect("lineage","",`<div class="listgrp">`
+  // one row, two halves: the directions are a pair and read as one control that way
+  return sect("lineage","",`<div class="listgrp two">`
     + lineageRow("from",[...n.parents].sort(byYear))
     + lineageRow("led",[...n.children].sort(byYear))
     + `</div>`);
@@ -759,9 +760,8 @@ function panel(n,anc,desc){
     ${lineageSect(n)}
     ${listenSect(n,who,artistsHtml)}
     <p class="note lede wikiline">${about(n)?esc(about(n))+" ":""}${wikiTxt(n)}</p>
-    ${n.sources.length?`<h3>Sources</h3><ul class="srcs">${n.sources.map(u=>{let h="";try{h=new URL(u).hostname.replace(/^www\./,"")}catch(e){h=u}return `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(h)}</a></li>`}).join("")}</ul>`:""}
-    ${shareBtn(n)}
-    <p class="tally">${anc.size} ancestor styles · ${desc.size} descendant styles${desc.size?` across ${dfams.size} ${dfams.size===1?"family":"families"}`:""}</p></div>`;
+    <p class="tally">${anc.size} ancestor styles · ${desc.size} descendant styles${desc.size?` across ${dfams.size} ${dfams.size===1?"family":"families"}`:""}</p>
+    ${shareBtn(n)}</div>`;
   paintPlay();
 }
 $("panel").addEventListener("change",e=>{ if(e.target&&e.target.classList.contains("svcsel")) setSvc(e.target.value); });

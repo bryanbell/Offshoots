@@ -174,7 +174,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   // nothing in the card may sit at a different offset in one state than the other, or the
   // contents slide under the finger as the sheet moves
   const offsets=()=>p.evaluate(()=>{const pa=document.getElementById("panel").getBoundingClientRect();
-    const o={}; [".pcard",".ovcard .navttl",".sect-feat",".sect"].forEach(s=>{const e=document.querySelector(s);
+    const o={}; [".pcard",".ovcard .navttl",".sect-browse",".sect"].forEach(s=>{const e=document.querySelector(s);
       if(e) o[s]=+(e.getBoundingClientRect().top-pa.top).toFixed(2);}); return o;});
   await p.goto(URL); await p.waitForTimeout(900);
   const shut=await offsets();
@@ -241,6 +241,25 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   await p.mouse.up(); await p.waitForTimeout(900);
   const drag1=await bottomGap();
   say("and at a dragged height ("+drag1.lane+"px)", drag1.lane>SHADOW);
+
+  // the peek used to hide the lineage row, so everything under it sat higher than it did
+  // once the sheet opened: the playlist jumped down under whatever was reaching for it
+  { const q=await ctx.newPage();
+    await q.goto(URL+"#punk"); await q.waitForTimeout(1100);
+    const where=()=>q.evaluate(()=>{ const pa=document.getElementById("panel").getBoundingClientRect();
+      const o={}; [".sect-lineage",".sect-listen",".plrow"].forEach(s=>{ const e=document.querySelector(s);
+        if(e) o[s]=Math.round(e.getBoundingClientRect().top-pa.top); }); return o; });
+    const peek=await where();
+    await q.click("#grab").catch(()=>{}); await q.waitForTimeout(800);
+    const open=await where();
+    const moved=Object.keys(peek).filter(k=>Math.abs(peek[k]-open[k])>1);
+    say("the playlist is at "+peek[".plrow"]+"px in the peek and "+open[".plrow"]+"px open",
+      peek[".plrow"]===open[".plrow"]);
+    say("  and nothing else shifts either"+(moved.length?" ("+moved.join(", ")+")":""), moved.length===0);
+    say("  because the peek clips the card rather than restacking it",
+      await q.evaluate(()=>{ const l=document.querySelector(".sect-lineage");
+        return !!l && getComputedStyle(l).display!=="none"; }));
+    await q.close(); }
 
   say("no page errors", errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
   await b.close();

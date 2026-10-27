@@ -172,13 +172,13 @@ aside h2{font-weight:700;font-size:28px;line-height:1.1;letter-spacing:-.022em;m
 .seg button{padding:0 14px;min-height:var(--tap);font-size:var(--t-sub)}
 aside h3,.pcard h3.sec{font:600 var(--t-head)/var(--t-head-lh) var(--f-body);letter-spacing:-.01em;text-transform:none;color:var(--fg);margin:24px 0 10px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{display:inline-flex;align-items:center;gap:8px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;min-width:0;max-width:100%;min-height:var(--tap);box-sizing:border-box;font:500 var(--t-sub)/var(--t-sub-lh) var(--f-body);padding:0 16px;border-radius:999px;border:0;background:var(--fill2);color:var(--fg);cursor:pointer;transition:background .15s}
+.chip{display:inline-flex;align-items:center;gap:8px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;min-width:0;max-width:100%;min-height:var(--tap);box-sizing:border-box;font:500 var(--t-sub)/var(--t-sub-lh) var(--f-body);padding:0 14px;border-radius:999px;border:0;background:var(--fill2);color:var(--fg);cursor:pointer;transition:background .15s}
 .chip::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:var(--c)}
 .chip>i.nm{font-style:normal;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .chip:hover{background:var(--fill)}
 /* listening modes */
 .sectaside{font:400 var(--t-foot)/var(--t-foot-lh) var(--f-body);color:var(--muted);opacity:1}
-.modechip{gap:8px;padding:0 16px}
+.modechip{gap:8px;padding:0 14px}
 .modechip{--lvc:#9aa0a6}
 .modechip.lv1{--lvc:#7aa2f7}
 .modechip.lv2{--lvc:#5bbda4}
@@ -369,7 +369,9 @@ body.open .pcnt{display:none}
 .ovcard .pmin{position:absolute;top:0;right:0}
 .ovcard .bigttl{padding-right:calc(var(--tap) + 8px)}
 /* and the lineage cluster is not part of the peek, which is for the playlist */
-@media (max-width:899px){ body:not(.open) .more > .sect-lineage{display:none} }
+/* the peek used to hide this, which moved everything below it up: open the sheet and the
+   playlist jumped down a hundred pixels, under whatever finger was reaching for it. The
+   peek clips the card now rather than restacking it. */
 .navrow .navleft .navback{justify-self:auto}
 /* inside the group the hidden back takes no room, so share sits at the left edge when
    there is nothing to go back to. The title does not shift either way: the side tracks
@@ -392,6 +394,11 @@ body.open .pcnt{display:none}
 .listgrp .navwrap{display:block;position:relative}
 .listgrp .navwrap + .navwrap::after{content:"";position:absolute;left:var(--lrlead);right:0;top:0;
   height:.5px;background:var(--sep);pointer-events:none}
+/* .two puts its pair side by side: the separator turns with them */
+.listgrp.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.listgrp.two .navwrap + .navwrap::after{left:0;right:auto;top:8px;bottom:8px;height:auto;width:.5px}
+.listgrp.two .listrow{padding:0 12px;gap:9px}
+.listgrp.two .lrct{margin-left:auto}
 .listrow{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:13px;
   width:100%;min-height:58px;padding:0 14px;color:var(--fg);transition:background .15s}
 .listrow:hover{background:color-mix(in srgb,var(--fg) 7%,transparent)}
