@@ -175,6 +175,14 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   say("  with the title, back and the X all still hittable",
     stuck.title && stuck.back && stuck.x);
   say("  because the card wraps the content it sticks within", stuck.inCard);
+  // and it is opaque while stuck: the panel is already translucent over the map, so a
+  // translucent header on top of it let the card's own content read through the title
+  const band=await p.evaluate(()=>{ const r=document.querySelector(".navrow");
+    const cs=getComputedStyle(r);
+    const n=(cs.backgroundColor.match(/[\d.]+/g)||[]);
+    return {bg:cs.backgroundColor, alpha:n.length>3?+n[3]:1,
+      scrolled:document.body.classList.contains("pscrolled")}; });
+  say("  and opaque under the title while it is ("+band.bg+")", band.scrolled && band.alpha===1);
   await p.click(".navttl"); await p.waitForTimeout(400);
   const back2=await p.evaluate(()=>{ const t=document.querySelector(".navttl");
     return {exp:t.getAttribute("aria-expanded"), turned:getComputedStyle(t.querySelector(".lrcv")).transform,

@@ -452,9 +452,7 @@ body.open .pcnt{display:none}
 .navback:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
 @media (max-width:899px){ .navback{min-width:var(--tap);height:var(--tap)} .navback svg{width:20px;height:20px} .navback .bklbl{font-size:var(--t-sub)} }
 /* on the overview the row has no empty slot to hold, so the button simply goes away */
-body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line);
-  background:color-mix(in srgb,var(--panel) 82%,transparent);
-  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line);background:var(--panel)}
 @media (prefers-reduced-motion:reduce){ .navrow{transition:none} }
 .navttl{min-width:0;text-align:center;overflow:hidden}
 .navrow .navttl .mn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
