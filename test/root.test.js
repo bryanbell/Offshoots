@@ -16,11 +16,16 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   const order=await p.$eval("#panelBody",e=>[...e.querySelectorAll(".ovcard,.sect-feat,.sect-modes,.browse,.ovhint,.aboutwrap")]
     .map(x=>x.className.split(" ").find(c=>/ovcard|sect-feat|sect-modes|browse|ovhint|aboutwrap/.test(c))));
   say("reading order", order.join(" → "));
-  // the panel names its job. Its sections name theirs, and the two folds, which used to
-  // dangle at the foot of the card, are what Learn means.
+  // the panel is titled, so its sections mostly are not: the list under the title needs no
+  // label, and the two folds say what they are without a heading over them saying it again.
+  // One heading is left, on the chips, because what they sort by is not obvious from them.
   const groups=await p.$$eval("#panelBody .sect .secttl",e=>e.map(x=>x.textContent));
-  say("sections: "+groups.join(" / "), groups.includes("Browse") && groups[groups.length-1]==="Learn");
-  say("  the folds live under Learn", (await p.$$(".sect-learn .fold")).length===2);
+  say("one section heading: "+groups.join(" / "),
+    groups.length===1 && /^Browse by /.test(groups[0]));
+  say("  not Find: these are for when you do not know what you want", !/find/i.test(groups[0]));
+  say("  the folds are still their own section", (await p.$$(".sect-learn .fold")).length===2);
+  say("  with no heading on it", (await p.$$(".sect-learn .secthead")).length===0);
+  say("  and the list under the title has none either", (await p.$$(".sect-browse .secthead")).length===0);
   say("  and none are left loose", (await p.$$eval("#panelBody > .more > .fold",e=>e.length))===0);
   // "Start here" is the style you are handed; the 17 are where the music starts. Both
   // were called start. The list row took the word the axis already prints over that region.
@@ -30,6 +35,10 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
     axis:[...document.querySelectorAll("#axis text")].map(x=>x.textContent).join(" ")}));
   say("nothing on the panel says start ("+starts.heads.join(" / ")+")",
     starts.heads.every(h=>!/start/i.test(h)));
+  say("  nor does the big title or the rows", await p.evaluate(()=>{
+    const t=[document.querySelector(".bigttl").textContent,
+      ...[...document.querySelectorAll(".listgrp .lrlbl")].map(x=>x.textContent)].join(" ");
+    return !/start/i.test(t); }));
   say("  the 17 are "+JSON.stringify(starts.row), starts.row==="Roots");
   say("  which is the axis's own word for that region", /Roots/.test(starts.axis));
 
@@ -151,9 +160,10 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   const menu=await p.evaluate(()=>{ const m=[...document.querySelectorAll(".navmenu")].find(x=>!x.hidden);
     if(!m) return null;
     const items=[...m.querySelectorAll("[data-go]")].map(x=>x.dataset.go);
-    return {head:m.querySelector(".navhd").textContent, n:items.length,
+    return {head:(m.querySelector(".navhd")||{}).textContent||null, n:items.length,
       allRoots:items.every(id=>{ const row=DATA.find(d=>d[0]===id); return !!row && !(row[4]||"").trim(); })}; });
-  say("  the roots row opens a menu headed "+(menu&&'"'+menu.head+'"'), !!menu && menu.head==="Roots");
+  // the row it opens from is directly above it and already says Roots
+  say("  the roots row opens an unheaded menu", !!menu && menu.head===null);
   say("  listing "+(menu&&menu.n)+" styles, every one of them a root", !!menu && menu.allRoots && menu.n===17);
   await p.click(".navmenu:not([hidden]) [data-go]"); await p.waitForTimeout(700);
   say("  and picking one selects it ("+(await p.evaluate(()=>location.hash))+")",
