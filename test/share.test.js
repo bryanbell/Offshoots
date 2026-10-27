@@ -19,10 +19,23 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   // ---------- the old footer is gone ----------
   let d=await fresh(b,Dk,"#disco");
   say("footer button removed", (await d.$$("#pshare, #pfoot")).length===0);
-  say("title is a button", await d.$eval(".navttl",e=>e.tagName==="BUTTON"&&e.hasAttribute("data-share")));
-  say("it says what it does", await d.$eval(".navttl",e=>e.getAttribute("title")));
-  say("glyph on the year line, not the name", await d.$eval(".navttl",e=>
-    !!e.querySelector(".my .shg") && !e.querySelector(".mn .shg")));
+  // the title is a heading again; share is its own button at the foot of the card
+  say("title is a heading", await d.$eval(".navttl",e=>e.tagName==="H2"&&!e.hasAttribute("data-share")));
+  say("with no glyph on it", await d.$eval(".navttl",e=>!e.querySelector(".shg")));
+  const sb=await d.evaluate(()=>{ const w=document.querySelector(".shbtn.wide");
+    if(!w) return null;
+    const r=w.getBoundingClientRect(), body=document.getElementById("panelBody");
+    const tally=document.querySelector(".tally").getBoundingClientRect();
+    return {label:w.querySelector(".shlbl").textContent, pos:getComputedStyle(w).position,
+      width:Math.round(r.width), room:Math.round(body.clientWidth),
+      tall:Math.round(r.height), beforeTally:Math.round(tally.top-r.bottom),
+      only:document.querySelectorAll("#panel [data-share]").length}; });
+  say("share is a labelled button at the foot ("+(sb&&sb.label)+")", !!sb && /Share/.test(sb.label));
+  say("  running the full width, "+sb.width+" of "+sb.room, sb.width>=sb.room-48);
+  say("  in the flow, not pinned over the text ("+sb.pos+")", sb.pos==="static");
+  say("  above the tally by "+sb.beforeTally+"px", sb.beforeTally>=0);
+  say("  tap target "+sb.tall+"px", sb.tall>=34);
+  say("  and it is the only share control on the panel", sb.only===1);
 
   const c=await d.$eval(".navrow",r=>{ const row=r.getBoundingClientRect();
     const nm=r.querySelector(".navttl .mn");
@@ -32,58 +45,63 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   say("painted name off centre in the row by "+c+"px", Math.abs(c)<=1);
 
   // ---------- sharing ----------
-  await d.click(".navttl"); await d.waitForTimeout(250);
+  await d.click(".shbtn.wide"); await d.waitForTimeout(250);
   say("copied the style link", await d.evaluate(()=>window.__copied[0]||""));
-  say("title confirms", await d.$eval(".navttl .mn",e=>e.textContent));
+  say("the button confirms", await d.$eval(".shbtn .shlbl",e=>e.textContent));
+  say("  and the title is left alone", await d.$eval(".navttl .mn",e=>e.textContent)==="Disco");
   await d.waitForTimeout(1700);
-  say("name comes back", await d.$eval(".navttl .mn",e=>e.textContent));
-  say("label restored too", await d.$eval(".navttl",e=>e.getAttribute("title")));
+  say("label comes back", await d.$eval(".shbtn .shlbl",e=>e.textContent));
 
   // overview shares the map
   d=await fresh(b,Dk);
-  say("overview title is a button", await d.$eval(".ovcard .navttl",e=>e.tagName==="BUTTON"));
-  await d.click(".ovcard .navttl"); await d.waitForTimeout(250);
+  // the root has no body text to hang a wide button under, so its share is a round one
+  // in the left track, where back sits on every other panel
+  say("overview title is a heading", await d.$eval(".ovcard .navttl",e=>e.tagName==="H2"));
+  const rb=await d.evaluate(()=>{ const r=document.querySelector(".ovcard .navrow"),
+    sh=r.querySelector(".shbtn.round"), t=r.querySelector(".navttl");
+    if(!sh) return null;
+    const rr=r.getBoundingClientRect(), sr=sh.getBoundingClientRect(), tr=t.getBoundingClientRect();
+    return {left:Math.round(sr.left-rr.left), size:Math.round(sr.width),
+      round:getComputedStyle(sh).borderRadius, labelled:!!sh.querySelector(".shlbl"),
+      centred:Math.abs(Math.round((tr.left+tr.width/2)-(rr.left+rr.width/2))),
+      wide:document.querySelectorAll(".ovcard .shbtn.wide").length,
+      only:document.querySelectorAll(".ovcard [data-share]").length}; });
+  say("round share at the left of the row ("+rb.left+"px in)", rb.left<=1);
+  say("  "+rb.size+"px and circular ("+rb.round+")", rb.size>=36 && /50%|999/.test(rb.round));
+  say("  carrying no label, unlike a style's", rb.labelled===false && rb.wide===0);
+  say("  with the title still centred, off by "+rb.centred+"px", rb.centred<=2);
+  say("  and it is the only share control here", rb.only===1);
+  await d.click(".ovcard .shbtn.round"); await d.waitForTimeout(250);
   const u=await d.evaluate(()=>window.__copied[0]||"");
   say("copied the map link (no #)", !u.includes("#") ? true : u);
-  say("overview title confirms", await d.$eval(".ovcard .navttl .mn",e=>e.textContent));
+  say("  and says so with a tick, having no room for words",
+    await d.$eval(".ovcard .shbtn.round",e=>e.classList.contains("done")
+      && getComputedStyle(e.querySelector(".tick")).display!=="none"
+      && getComputedStyle(e.querySelector(".shg")).display==="none"));
   await d.waitForTimeout(1700);
-  say("overview name comes back", await d.$eval(".ovcard .navttl .mn",e=>e.textContent)==="Offshoots");
-  // the overview uses the same header as a style now: one title button carrying its glyph,
-  // and no separate share button at the end of the row
-  say("the glyph is inside the title", (await d.$$eval(".ovcard .navttl .shg",e=>e.length))===1);
-  say("and there is no second share control", (await d.$$(".ovcard [data-share]")).length===1);
-  const ob=await d.evaluate(()=>{const row=document.querySelector(".ovcard .navrow").getBoundingClientRect(),
-    t=document.querySelector(".ovcard .navttl").getBoundingClientRect(),
-    g=document.querySelector(".ovcard .navttl .shg").getBoundingClientRect();
-    return [Math.abs(Math.round((t.left+t.width/2)-(row.left+row.width/2))),
-      Math.round(t.height), Math.round(g.width)];});
-  say("the title is centred in the row, off by "+ob[0]+"px", ob[0]<=2);
-  say("tap target "+ob[1]+"px", ob[1]>=34);
-  say("glyph "+ob[2]+"px", ob[2]>=14);
+  say("  then goes back to the glyph",
+    await d.$eval(".ovcard .shbtn.round",e=>!e.classList.contains("done")));
   // the title on the map is a heading, not a second way to do the same thing
   const mh=await d.evaluate(()=>{ const h=document.querySelector("#maphead .mh");
     return {tag:h.tagName, share:document.querySelectorAll("#maphead [data-share]").length,
       buttons:document.querySelectorAll("#maphead button, #maphead a").length}; });
   say("the map title is a heading ("+mh.tag+")", mh.tag==="H1");
   say("  with nothing to click on the band", mh.share===0 && mh.buttons===0);
-  say("  so the panel header is the only share control", (await d.$$("[data-share]")).length===1);
+  say("  so the panel is the only place to share from", (await d.$$("[data-share]")).length===1);
 
-  // ---------- mobile: minimised sheet still expands on a title tap ----------
+  // ---------- mobile: the minimised sheet still expands on a title tap ----------
+  // the title no longer shares, so tapping it has one job: open the sheet. The share
+  // button is at the foot of the card, which is only reachable once it is open.
   let p=await fresh(b,M,"#disco");
   say("sheet starts minimised", (await p.$eval("body",e=>e.classList.contains("open")))===false);
   await p.click(".navttl"); await p.waitForTimeout(500);
-  say("tapping the title opens the sheet first", await p.$eval("body",e=>e.classList.contains("open")));
-  say("and did not share yet", (await p.evaluate(()=>window.__copied.length))===0);
-  await p.click(".navttl"); await p.waitForTimeout(300);
-  say("tapping again shares", (await p.evaluate(()=>window.__copied.length))===1);
-  // the ::after overlay does not show up in a bounding box, so probe what a finger would hit
-  const tb=await p.$eval(".navttl",e=>{ const r=e.getBoundingClientRect(), x=Math.round(r.left+r.width/2);
-    const hits=y=>{ const el=document.elementFromPoint(x,y); return !!(el&&el.closest(".navttl")); };
-    let top=Math.round(r.top), bot=Math.round(r.bottom);
-    while(top>0 && hits(top-1)) top--;
-    while(bot<innerHeight && hits(bot+1)) bot++;
-    return [bot-top, Math.round(r.height)]; });
-  say("tap target "+tb[0]+"px tall (box is "+tb[1]+")", tb[0]>=44);
+  say("tapping the title opens the sheet", await p.$eval("body",e=>e.classList.contains("open")));
+  say("and shares nothing by itself", (await p.evaluate(()=>window.__copied.length))===0);
+  await p.$eval(".shbtn.wide",e=>e.scrollIntoView({block:"center"})); await p.waitForTimeout(300);
+  await p.click(".shbtn.wide"); await p.waitForTimeout(300);
+  say("the button at the foot does the sharing", (await p.evaluate(()=>window.__copied.length))===1);
+  const tb=await p.$eval(".shbtn.wide",e=>[Math.round(e.getBoundingClientRect().height)]);
+  say("tap target "+tb[0]+"px tall", tb[0]>=44);
   // a long name must not let the tap area reach back on one side or the pair on the other
   await p.goto(URL+"#skapunk"); await p.waitForTimeout(100);
   await p.reload(); await p.waitForTimeout(900);

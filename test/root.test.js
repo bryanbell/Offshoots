@@ -21,10 +21,21 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
 
   const nFams=await p.evaluate(()=>typeof FAMS!=="undefined"?FAMS.length:-1);
   // ---- 2: the title block describes the map, so it sits on the map ----
-  say("tagline", await p.$eval("#maphead .mtag",e=>e.textContent));
   say("meta", await p.$eval("#maphead .mmeta",e=>e.textContent));
   say("playlist count is on the map", (await p.$eval("#maphead .mmeta",e=>e.textContent)).includes("playlists"));
-  say("and not repeated in the panel", (await p.$$("#panelBody .mtag, #panelBody .mmeta, .ovcard .tag")).length===0);
+  say("and not repeated in the panel", (await p.$$("#panelBody .mmeta, .ovcard .tag")).length===0);
+  // the band is a quiet label now: no blurb, a smaller name, and both set below full strength
+  const quiet=await p.evaluate(()=>{ const t=document.querySelector("#maphead .mh"),
+    m=document.querySelector("#maphead .mmeta"), body=getComputedStyle(document.body);
+    const dim=c=>{ const n=(c.match(/[\d.]+/g)||[]).map(Number);
+      return n.length>3 ? n[3] : /\/\s*([\d.]+)/.test(c) ? +RegExp.$1 : 1; };
+    return {size:parseFloat(getComputedStyle(t).fontSize), blurb:!!document.querySelector("#maphead .mtag"),
+      ttlDim:dim(getComputedStyle(t).color), metaDim:dim(getComputedStyle(m).color),
+      heading:parseFloat(body.getPropertyValue("--t-title1"))||0}; });
+  say("the blurb is gone", quiet.blurb===false);
+  say("  the name is "+quiet.size+"px, smaller than the old title size", quiet.size<=20);
+  say("  and both lines are dimmed ("+quiet.ttlDim+", "+quiet.metaDim+")",
+    quiet.ttlDim<1 && quiet.metaDim<1);
   // it sits above the first lane rather than over it
   const band=await p.evaluate(()=>{ const h=document.getElementById("maphead").getBoundingClientRect(),
     l=document.querySelector(".lane[data-fam]").getBoundingClientRect();
@@ -34,14 +45,14 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   { const q=await b.newPage({viewport:{width:1440,height:900}});
     await q.goto(URL); await q.waitForTimeout(1000);
     const lay=await q.evaluate(()=>{ const t=document.querySelector("#maphead .mh").getBoundingClientRect(),
-      g=document.querySelector("#maphead .mtag").getBoundingClientRect(),
+      g=document.querySelector("#maphead .mmeta").getBoundingClientRect(),
       f=document.querySelector(".lane.fill"), h=document.getElementById("maphead").getBoundingClientRect();
       const fb=f?f.getBoundingClientRect():null;
       return {beside:Math.round(g.left-t.right), sameLine:Math.abs(Math.round(g.top-t.top))<30,
         band:Math.round(h.height), fillTop:fb?Math.round(fb.top):null,
         fillH:fb?Math.round(fb.height):null, bandTop:Math.round(h.top)}; });
-    say("the blurb sits "+lay.beside+"px right of the name, on its line", lay.beside>0 && lay.sameLine);
-    say("  which keeps the band to "+lay.band+"px", lay.band<90);
+    say("the counts sit "+lay.beside+"px right of the name, on its line", lay.beside>0 && lay.sameLine);
+    say("  which keeps the band to "+lay.band+"px", lay.band<=56);
     say("  and the lane strip is filled beside it ("+lay.fillH+"px from "+lay.fillTop+")",
       lay.fillH!==null && Math.abs(lay.fillH-lay.band)<=2 && Math.abs(lay.fillTop-lay.bandTop)<=2);
     // it belongs to the map, so panning the timeline carries it along
@@ -60,7 +71,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
       const over=s=>{ const e=document.querySelector(s); if(!e) return false;
         const r=e.getBoundingClientRect();
         return !(a.right<r.left||a.left>r.right||a.bottom<r.top||a.top>r.bottom); };
-      return {vis:a.width>0, title:over("#maphead .mh"), tag:over("#maphead .mtag"), meta:over("#maphead .mmeta")}; });
+      return {vis:a.width>0, title:over("#maphead .mh"), tag:false, meta:over("#maphead .mmeta")}; });
     say("with a style selected the pills are showing", hit.vis);
     say("  and clear of the title, tagline and counts", !hit.title && !hit.tag && !hit.meta);
     await q.close(); }
@@ -77,13 +88,15 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
     const t=row.querySelector(".navttl"), btn=row.querySelector(".nav-roots .navbtn"),
       rb=row.getBoundingClientRect(), tb=t.getBoundingClientRect();
     return {name:t.querySelector(".mn").textContent, glyph:!!t.querySelector(".shg"),
+      share:!!row.querySelector(".shbtn.round"),
       off:Math.abs(Math.round((tb.left+tb.width/2)-(rb.left+rb.width/2))),
       clipped:t.querySelector(".mn").scrollWidth>t.querySelector(".mn").clientWidth+1,
       count:btn?btn.querySelector(".ct").textContent:null,
       pairs:row.querySelectorAll(".navwrap").length}; });
   say("the root header is the shared one, titled "+(hdr&&hdr.name), !!hdr && hdr.name==="Offshoots");
   say("  centred, off by "+(hdr&&hdr.off)+"px, and not clipped", !!hdr && hdr.off<=2 && hdr.clipped===false);
-  say("  carrying its own share glyph", !!hdr && hdr.glyph);
+  say("  with no glyph on the heading", !!hdr && hdr.glyph===false);
+  say("  and a round share button in the left track", !!hdr && hdr.share);
   say("  with one direction to go, not two", !!hdr && hdr.pairs===1);
   say("  pointing at "+(hdr&&hdr.count)+" first-level styles", !!hdr && +hdr.count>0);
   await p.click(".nav-roots .navbtn"); await p.waitForTimeout(400);

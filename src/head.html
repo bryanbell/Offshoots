@@ -103,10 +103,10 @@ button:focus-visible,.chip:focus-visible,.link:focus-visible{outline:0;box-shado
      them rather than under them. It is a constant indent, not one that appears with the
      pills: the band's height is measured once per render and must not change on selection. */
   padding:14px 72px 16px 72px}
-#maphead .mh{flex:none;margin:0;font:700 var(--t-title1)/1.1 var(--f-body);letter-spacing:-.022em;color:var(--fg)}
-#maphead .mhtx{min-width:0;display:flex;flex-direction:column;gap:2px}
-#maphead .mtag{margin:0;font:400 var(--t-body)/var(--t-body-lh) var(--f-body);color:var(--fg)}
-#maphead .mmeta{margin:0;font:400 var(--t-foot)/1.3 var(--f-mono);color:var(--muted)}
+#maphead .mh{flex:none;margin:0;font:600 var(--t-head)/1.15 var(--f-body);letter-spacing:-.012em;
+  color:color-mix(in srgb,var(--fg) 62%,transparent)}
+#maphead .mmeta{margin:0;font:400 var(--t-foot)/1.3 var(--f-mono);
+  color:color-mix(in srgb,var(--muted) 78%,transparent)}
 @media (max-width:699px){ #maphead{padding:11px 64px 13px 64px} }
 
 .lane{--lf:13px;position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:12px 0 7px 3px;border-radius:0;
@@ -351,6 +351,14 @@ body.open .pcnt{display:none}
   align-items:center;gap:8px;margin:0;padding:6px 0 7px;background:transparent;
   transition:background .18s}
 .navrow .navback{justify-self:start}
+/* back and share share the left track: the row is three columns, and a fourth child
+   would push the title out of the middle one */
+.navrow .navleft{justify-self:start;display:flex;align-items:center;gap:8px}
+.navrow .navleft .navback{justify-self:auto}
+/* inside the group the hidden back takes no room, so share sits at the left edge when
+   there is nothing to go back to. The title does not shift either way: the side tracks
+   are a fixed width. */
+.navrow .navleft .navback[hidden]{display:none}
 /* From and Led to as one segmented control: a single pill split by a hairline, the way
    two related directions are usually grouped, rather than two separate buttons */
 .navpair{display:flex;align-items:stretch;justify-self:end;flex:none;
@@ -392,10 +400,12 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line);
 /* the root title has no year under it, so its glyph sits beside the name instead */
 /* one short button on the right and nothing on the left, so the side tracks that keep a
    style's long name centred are wider than this row needs and were clipping "Offshoots" */
-.ovcard .navrow{--navside:84px}
-.ovcard .navttl{display:inline-flex;align-items:center;justify-content:center;gap:8px}
-.ovcard .navttl .shg{flex:none;width:17px;height:17px;opacity:.55}
-.ovcard .navttl:hover .shg{opacity:.9}
+.ovcard .navrow{--navside:100px}   /* back and share side by side when both show */
+/* beside the share button there is no room for the destination's name, and the two
+   glyphs already say map and back */
+.ovcard .navleft .navback{padding:0 12px;max-width:none}
+.ovcard .navleft .navback .bklbl{display:none}
+
 .navwrap{position:relative;flex:none}
 .navbtn{display:flex;align-items:center;gap:4px;height:var(--tap);padding:0 10px;border:0;border-radius:999px;cursor:pointer;
   background:color-mix(in srgb,var(--acc,var(--fg)) 14%,transparent);color:var(--fg);
@@ -786,25 +796,31 @@ aside#panel{padding-bottom:0}
 /* header: bigger title, outlined accent Search button; searching opens the sheet taller */
 #pbarTitle{font-size:18px;letter-spacing:-.02em}
 #pbarSub{font-size:var(--t-foot)}
-/* the panel title is the share control: tap the name to hand off the link */
-button.navttl{all:unset;box-sizing:border-box;cursor:pointer;min-width:0;max-width:100%}
-button.navttl{display:block;text-align:center;overflow:hidden;border-radius:10px;
-  min-height:var(--tap);padding:2px 6px;margin:-2px 0;transition:background .15s}
-button.navttl:hover{background:color-mix(in srgb,var(--fg) 7%,transparent)}
-button.navttl:focus-visible{outline:0;
-  box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
-.shg{flex:none;width:11px;height:11px;opacity:.55;vertical-align:-1px}
-/* share moved out of the title and onto the end of the header row: the title still
-   fires it, but the glyph now sits where a header action is looked for */
-button.navttl .my{display:inline-flex;align-items:center;gap:5px}
-.shg{display:inline-block}
-.navttl.done .mn{color:var(--acc,var(--fg))}
-@media (max-width:899px){
-  /* fill the row rather than float in it: a 50px target at no cost in header height,
-     since the negative margins give back exactly the row padding the button takes */
-  button.navttl{margin:-6px 0 -7px;padding:6px 8px 7px;border-radius:12px}
-}
-.navttl.done .shg{opacity:0}
+/* the title is a heading again. Share is its own control now: a round button on the
+   left of the root header, and a labelled one at the foot of a style panel. */
+.navttl{display:block;text-align:center;overflow:hidden;min-height:var(--tap);
+  padding:2px 6px;margin:-2px 0;min-width:0;max-width:100%}
+.shg{flex:none;width:11px;height:11px;opacity:.55;vertical-align:-1px;display:inline-block}
+.navttl .my{display:inline-flex;align-items:center;gap:5px}
+@media (max-width:899px){ .navttl{margin:-6px 0 -7px;padding:6px 8px 7px} }
+
+/* one share control, two shapes: round beside the root title, full width at the foot of
+   a style. Both are the same button, so the copied-link flash is written once. */
+.shbtn{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;
+  justify-content:center;gap:9px;color:var(--fg);
+  background:color-mix(in srgb,var(--acc,var(--fg)) 14%,transparent);
+  transition:background .15s,color .15s}
+.shbtn:hover{background:color-mix(in srgb,var(--acc,var(--fg)) 24%,transparent)}
+.shbtn:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+.shbtn .shg{width:17px;height:17px;opacity:.75;vertical-align:0}
+.shbtn:hover .shg{opacity:1}
+.shbtn.round{width:var(--tap);height:var(--tap);border-radius:50%;flex:none}
+.shbtn.wide{display:flex;width:100%;margin:22px 0 0;min-height:var(--tap);
+  border-radius:13px;font:600 var(--t-body)/1 var(--f-body)}
+.shbtn.done{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}
+.shbtn.done .shg{display:none}
+.shbtn .tick{display:none;flex:none;width:17px;height:17px}
+.shbtn.done .tick{display:block}
 /* the minimised sheet keeps its height for the playlist */
 /* swiped away: the sheet leaves the screen and a thin handle takes its place */
 #sheetpull{display:none}

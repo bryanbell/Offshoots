@@ -296,11 +296,10 @@ function fit(){}
 // band above the first lane that layout() leaves empty for them.
 let HEADH = 0;
 function mapHeadHTML(){
-  // not a control: the panel header carries the share, and a second one here was two
-  // buttons for one job. The blurb and the counts sit beside the name rather than under it.
+  // a label on the map rather than a masthead: no blurb, nothing to click, and set quietly
+  // enough that it does not compete with the style names a few pixels below it.
   return '<h1 class="mh">Offshoots</h1>'
-    + '<div class="mhtx"><p class="mtag">Find something to hear, and trace what it grew out of.</p>'
-    + '<p class="mmeta">'+nodes.length+' styles · '+playable().length+' playlists</p></div>';
+    + '<p class="mmeta">'+nodes.length+' styles · '+playable().length+' playlists</p>';
 }
 function measureHead(){
   const h=$("maphead"); if(!h){ HEADH=0; return; }
@@ -471,7 +470,7 @@ function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
     + `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg>`
     + `<span class="bklbl"></span>`
     + `<svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.6 7.4 3.6v10.8l-4.6 2z"/><path d="M7.4 3.6 12.6 5.6v10.8L7.4 14.4z"/><path d="M12.6 5.6 17.2 3.6v10.8l-4.6 2z"/></svg></button>`
-    + `<button type="button" class="navttl" data-share aria-label="Share this style" title="Share this style"><span class="mn">${esc(n.name)}</span><span class="my"><span class="yr">${n.year<1950?esc(n.disp):"c. "+n.year}</span>${SHAREGLYPH}</span></button>`
+    + `<h2 class="navttl"><span class="mn">${esc(n.name)}</span><span class="my"><span class="yr">${n.year<1950?esc(n.disp):"c. "+n.year}</span></span></h2>`
     + `<div class="navpair">`
     + navBtn("from",[...n.parents].sort(byYear))
     + navBtn("led",[...n.children].sort(byYear))
@@ -720,6 +719,12 @@ function listenSect(n,who,artistsHtml){
   const head = `<div class="secthead"><h3 class="secttl">Listen on ${svcPicker("inline")}</h3></div>`;
   return `<div class="sect sect-listen">${head}<div class="secbody">${body}</div></div>`;
 }
+// the share control at the foot of a style panel: in the flow under the text, not pinned
+// over it, so it scrolls away with everything else rather than sitting on the content
+function shareBtn(n){
+  return `<button type="button" class="shbtn wide" data-share aria-label="Share ${esc(n.name)}" title="Share ${esc(n.name)}">`
+    + SHAREGLYPH + `<svg class="tick" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 10.5l3.6 3.6L15.5 6.6"/></svg><span class="shlbl">Share this style</span></button>`;
+}
 function panel(n,anc,desc){
   const dfams=new Set([...desc.keys()].map(k=>byId[k].fam));
   const who=n.whoList||[];
@@ -728,6 +733,7 @@ function panel(n,anc,desc){
     ${listenSect(n,who,artistsHtml)}
     <p class="note lede wikiline">${about(n)?esc(about(n))+" ":""}${wikiTxt(n)}</p>
     ${n.sources.length?`<h3>Sources</h3><ul class="srcs">${n.sources.map(u=>{let h="";try{h=new URL(u).hostname.replace(/^www\./,"")}catch(e){h=u}return `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(h)}</a></li>`}).join("")}</ul>`:""}
+    ${shareBtn(n)}
     <p class="tally">${anc.size} ancestor styles · ${desc.size} descendant styles${desc.size?` across ${dfams.size} ${dfams.size===1?"family":"families"}`:""}</p></div>`;
   paintPlay();
 }
@@ -948,12 +954,13 @@ function shareSel(){
   const title = n ? "Offshoots · "+n.name : "Offshoots";
   const text  = n ? n.name+" on Offshoots" : "Offshoots — what grew out of what in North American music";
   const btn=document.querySelector("#panel [data-share]");
-  // the title says what happened, since there is no longer a button to label
-  const flash=t=>{ if(!btn) return; const nm=btn.querySelector(".mn"); if(!nm) return;
-    if(btn._was==null) btn._was=nm.textContent;
-    btn.classList.add("done"); nm.textContent=t;
+  // the wide button says what happened in words; the round one has no room for words, so
+  // .done swaps its glyph for a tick and that is the whole message
+  const flash=t=>{ if(!btn) return; const nm=btn.querySelector(".shlbl");
+    if(nm && btn._was==null) btn._was=nm.textContent;
+    btn.classList.add("done"); if(nm) nm.textContent=t;
     clearTimeout(btn._t); btn._t=setTimeout(()=>{ btn.classList.remove("done");
-      if(btn._was!=null){ nm.textContent=btn._was; btn._was=null; } },1600); };
+      if(nm && btn._was!=null){ nm.textContent=btn._was; btn._was=null; } },1600); };
   const copy=()=>{ const done=()=>flash("Link copied");
     if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done,()=>fallback());
     else fallback();
@@ -978,7 +985,8 @@ addEventListener("keydown",e=>{
 function syncShare(){
   const b=document.querySelector("#panel [data-share]"); if(!b) return;
   const l=state.sel?"Share this style":"Share this map";
-  if(!b.classList.contains("done")){ b.setAttribute("aria-label",l); b.setAttribute("title",l); }
+  if(!b.classList.contains("done")){ b.setAttribute("aria-label",l); b.setAttribute("title",l);
+    const t=b.querySelector(".shlbl"); if(t) t.textContent=l; }
 }
 
 // the panel takes a wash of the family's cover-art ground; strength lives in CSS
@@ -1130,7 +1138,7 @@ function emptyPanel(){
   const top=[...nodes].sort((a,b)=>b.children.length-a.children.length||a.year-b.year).slice(0,12);
   const np=playable().length;
   const withSrc=DATA.filter(r=>Array.isArray(r[7])&&r[7].length).length;
-  $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="navrow"><button id="panelBack" class="navback" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg><span class="bklbl"></span><svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.4L7.4 3.4v11.2L2.8 16.6z"/><path d="M7.4 3.4l5.2 2v11.2l-5.2-2z"/><path d="M12.6 5.4l4.6-2v11.2l-4.6 2z"/></svg></button><button type="button" class="navttl" data-share aria-label="Share this map" title="Share this map"><span class="mn">Offshoots</span>${SHAREGLYPH}</button><div class="navpair">${navBtn("roots",firstLevel())}</div></div></div><div class="more">
+  $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="navrow"><div class="navleft"><button id="panelBack" class="navback" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg><span class="bklbl"></span><svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.4L7.4 3.4v11.2L2.8 16.6z"/><path d="M7.4 3.4l5.2 2v11.2l-5.2-2z"/><path d="M12.6 5.4l4.6-2v11.2l-4.6 2z"/></svg></button><button type="button" class="shbtn round" data-share aria-label="Share this map" title="Share this map">${SHAREGLYPH}<svg class="tick" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 10.5l3.6 3.6L15.5 6.6"/></svg></button></div><h2 class="navttl"><span class="mn">Offshoots</span></h2><div class="navpair">${navBtn("roots",firstLevel())}</div></div></div><div class="more">
     ${featSect()}
     ${modeSect()}
     ${browseRow()}
