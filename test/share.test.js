@@ -157,6 +157,24 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
       turned:getComputedStyle(t.querySelector(".lrcv")).transform}; });
   say("the title carries no ground, even open ("+look.bg+")", /rgba\(0, 0, 0, 0\)|transparent/.test(look.bg));
   say("  and its chevron is turned over while it is", look.exp==="true" && /-1, 0, 0, -1/.test(look.turned));
+  // the header stays put while the card scrolls under it, so the name, back and the X are
+  // reachable at any scroll position. .pcard used to close right after the header, which
+  // left the sticky box no room to travel.
+  const stuck=await p.evaluate(async()=>{ const pb=document.getElementById("panelBody");
+    const row=document.querySelector(".navrow");
+    const at=()=>Math.round(row.getBoundingClientRect().top-pb.getBoundingClientRect().top);
+    const before=at(); pb.scrollTop=2000; await new Promise(z=>setTimeout(z,250));
+    const hit=sel=>{ const e=document.querySelector(sel); if(!e) return false;
+      const r=e.getBoundingClientRect();
+      const t=document.elementFromPoint(Math.round(r.left+r.width/2),Math.round(r.top+r.height/2));
+      return !!(t && (t===e || e.contains(t) || t.closest(sel))); };
+    return {before, after:at(), scrolled:pb.scrollTop, inCard:!!row.closest(".pcard"),
+      back:hit("#panelBack"), x:hit(".pmin"), title:hit(".navttl")}; });
+  say("the header holds at the top through a "+stuck.scrolled+"px scroll",
+    stuck.scrolled>0 && stuck.before===0 && stuck.after===0);
+  say("  with the title, back and the X all still hittable",
+    stuck.title && stuck.back && stuck.x);
+  say("  because the card wraps the content it sticks within", stuck.inCard);
   await p.click(".navttl"); await p.waitForTimeout(400);
   const back2=await p.evaluate(()=>{ const t=document.querySelector(".navttl");
     return {exp:t.getAttribute("aria-expanded"), turned:getComputedStyle(t.querySelector(".lrcv")).transform,

@@ -39,6 +39,10 @@ const readMap=(p)=>p.evaluate(()=>{
 });
 // decorative glyphs and counters are not reading copy, so they are exempt by name
 const EXEMPT="\\b(cnt|vt|ck|dot|sw|mi|cv|shg|upchev|svcchev|pkgo|plgo)\\b";
+// The mode chips are set 4px under the tap floor on purpose: they sit in a dense grid of
+// 24 where the gaps between them are part of the target, and the height was asked for.
+// Named rather than waived silently, so the exception stays visible.
+const SHORT=/^(chip|modechip)$/;
 
 const readType=(p,scope)=>p.evaluate(([ex,sc])=>{
   const re=new RegExp(ex), out=[];
@@ -54,7 +58,7 @@ const readType=(p,scope)=>p.evaluate(([ex,sc])=>{
   return out;
 },[EXEMPT,scope]);
 
-const readTaps=(p,scope,tap)=>p.evaluate(([sc,t])=>{
+const readTaps=(p,scope,tap)=>p.evaluate(([sc,t,sh])=>{
   const out=[];
   document.querySelectorAll(sc+" button, "+sc+" a, "+sc+" summary").forEach(e=>{
     const r=e.getBoundingClientRect(), d=getComputedStyle(e).display;
@@ -68,11 +72,12 @@ const readTaps=(p,scope,tap)=>p.evaluate(([sc,t])=>{
       const inset=parseFloat(after.top);
       if(!isNaN(inset) && inset<0) h += -inset*2;
     }
-    if(h+0.5 < t) out.push({cls:(e.className||e.tagName).toString().split(" ")[0]||e.tagName, h:Math.round(h)});
+    const cls=(e.className||e.tagName).toString().split(" ")[0]||e.tagName;
+    if(h+0.5 < t && !new RegExp(sh).test(cls)) out.push({cls, h:Math.round(h)});
   });
   const seen=new Map(); out.forEach(o=>{ if(!seen.has(o.cls)) seen.set(o.cls,o); });
   return [...seen.values()];
-},[scope,tap]);
+}, [scope, tap, SHORT.source]);
 
 
 // A full-bleed rule across the panel is the thing being replaced: grouping is done with
