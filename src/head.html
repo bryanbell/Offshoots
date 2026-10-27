@@ -502,11 +502,26 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line);
 .shuf:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
 .shuf svg{width:18px;height:18px}
 /* the methodology stays one tap away instead of ending the panel */
-.fold{margin-top:28px;padding:0 16px;background:var(--fill2);border-radius:14px}
-.fold[open]{padding-bottom:16px}
-.fold summary{display:flex;align-items:center;justify-content:space-between;gap:8px;
-  list-style:none;cursor:pointer;min-height:var(--tap);padding:0;border-radius:9px;
-  font:400 var(--t-body)/var(--t-body-lh) var(--f-body);color:var(--fg)}
+/* these two are not content, they are about the thing the content is in: a colophon.
+   They lose the filled cards, which gave them the same weight as the ways in, and read as
+   quiet rows under a rule instead. The rule is what separates them from the map above. */
+.fold{margin-top:0;padding:0;background:none;border-radius:0}
+.fold[open]{padding-bottom:14px}
+.fold summary{display:flex;align-items:center;gap:11px;
+  list-style:none;cursor:pointer;min-height:var(--tap);padding:0;
+  font:400 var(--t-body)/var(--t-body-lh) var(--f-body);color:var(--muted)}
+.fold summary .foldi{flex:none;display:grid;place-items:center;width:19px;height:19px;color:var(--muted)}
+.fold summary .foldi svg{width:19px;height:19px}
+.fold summary span{flex:1;min-width:0}
+.fold summary:hover,.fold summary:hover .foldi,.fold[open] summary{color:var(--fg)}
+/* The group is set off by a hairline that starts where its labels start, the same inset
+   the list separators use. A rule across the full width is the ham-fisted one these
+   folds were given shaded blocks to avoid; the inset says "these belong together"
+   without drawing a line through the panel. */
+.sect-learn{margin-top:26px;padding-top:7px;position:relative}
+.sect-learn::before,.fold + .fold::before{content:"";position:absolute;left:30px;right:0;top:0;
+  height:.5px;background:var(--sep)}
+.fold + .fold{position:relative}
 .fold summary::-webkit-details-marker{display:none}
 .fold summary:hover{color:var(--fg)}
 .fold summary .cv{flex:none;width:16px;height:16px;transition:transform .18s}
@@ -632,9 +647,7 @@ aside{display:flex;flex-direction:column;position:absolute;z-index:30;top:calc(e
 #mapHome[hidden]{display:none}
 #mapHome svg{width:18px;height:18px}
 #mapHome:hover:not(:disabled){background:#fff}
-/* already home: the button stays where it was rather than vanishing from under the
-   finger that just pressed it, and says so by going flat */
-#mapHome:disabled{cursor:default;opacity:.45;box-shadow:none;background:var(--muted)}
+
 body.searching #navpills{display:none}
 @media (max-width:899px){
   #navpills{top:calc(var(--axh,34px) + 10px);left:12px;gap:7px}
@@ -702,7 +715,7 @@ body.searching #bottomSearch{display:block}
 .about .steps svg.shg{width:15px;height:15px;vertical-align:-2px;margin:0 2px;color:var(--fg)}
 /* except inside the button, which is a light pill: there it takes the button's colour */
 .about .steps .sheetbtn svg.shg{color:currentColor;margin:0}
-.fold + .fold{margin-top:10px}
+.fold .about{padding-right:2px}
 .installwrap .subh{margin-top:18px}
 .installwrap .subh:first-child{margin-top:0}
 .about .stats{font-family:var(--f-mono);font-size:var(--t-foot);line-height:var(--t-foot-lh);color:var(--muted);margin:0 0 12px;font-variant-numeric:tabular-nums}
@@ -1127,7 +1140,7 @@ a.am .amgo{display:none}
         </div>
       </div>
       <div id="navpills">
-        <button id="mapHome" class="glass" type="button" disabled aria-label="You are looking at the whole map" title="You are looking at the whole map"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.6 7.4 3.6v10.8l-4.6 2z"/><path d="M7.4 3.6 12.6 5.6v10.8L7.4 14.4z"/><path d="M12.6 5.6 17.2 3.6v10.8l-4.6 2z"/></svg></button>
+        <button id="mapHome" class="glass" type="button" hidden aria-label="Back to the map" title="Back to the map"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.6 7.4 3.6v10.8l-4.6 2z"/><path d="M7.4 3.6 12.6 5.6v10.8L7.4 14.4z"/><path d="M12.6 5.6 17.2 3.6v10.8l-4.6 2z"/></svg></button>
       </div>
       <button id="mapSearch" class="glass" type="button" aria-label="Search styles and artists" title="Search styles and artists"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4 4"/></svg></button>
       <div id="bottomSearch">

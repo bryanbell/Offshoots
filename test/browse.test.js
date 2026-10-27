@@ -30,7 +30,7 @@ const vis=async(p,sel)=>p.$eval(sel,e=>{const r=e.getBoundingClientRect();
   say("the old chip sections are gone", (await p.$$(".sect-fams, .sect-top")).length===0);
   say("and so are the chips themselves", (await p.$$(".brbtn, .brlbl")).length===0);
   const rows=await p.$$eval(".listgrp .listrow .lrlbl",e=>e.map(x=>x.textContent));
-  say("two rows: "+rows.join(" / "), rows.join("/")==="Roots/Surprise me");
+  say("three rows: "+rows.join(" / "), rows.join("/")==="Roots/Most influential/Surprise me");
   say("menus closed at rest", (await p.$$(".navmenu:not([hidden])")).length===0);
 
   await p.click('[data-menu="roots"]'); await p.waitForTimeout(400);

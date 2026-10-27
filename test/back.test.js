@@ -125,11 +125,11 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
       mirrored:Math.abs(Math.round(a.left)-Math.round((s.offsetParent?s.offsetParent.clientWidth:innerWidth)-b.right))<=1}; });
   p=await fresh(b,M);
   say("home is not live on the map itself", (await home(p))===false);
+  // it was parked there, disabled and dimmed, which left a dead control sitting over the
+  // lane strip in the one corner the map has. It goes instead.
   { const k=await parked(p);
-    say("  but it is still there, disabled and dimmed", k.shown && k.off && k.dim);
-    say("  saying "+JSON.stringify(k.says), /whole map/.test(k.says));
-    say("  the same size as the search button, on the same line", k.size && k.top);
-    say("  and inset from its edge by the same amount", k.mirrored); }
+    say("  and not there at all", k.shown===false);
+    say("  so nothing covers the strip when there is nowhere to go", k.shown===false); }
   await p.click("#grab").catch(()=>{}); await p.waitForTimeout(400);
   await p.click('[data-mk="winddown"]'); await p.waitForTimeout(500);
   await p.click(".picks .pick"); await p.waitForTimeout(600);
@@ -145,6 +145,9 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
     s=document.getElementById("mapSearch").getBoundingClientRect();
     return [Math.round(h.width),Math.round(h.height),Math.round(h.right),Math.round(s.left)];});
   say("tap target "+hb[0]+"x"+hb[1], hb[0]>=40&&hb[1]>=40);
+  { const k=await parked(p);
+    say("  the same size as the search button, on the same line", k.size && k.top);
+    say("  and inset from its edge by the same amount", k.mirrored); }
   say("clear of the search button ("+hb[2]+" vs "+hb[3]+")", hb[2]<hb[3]);
   // it used to sit right of the lane strip to keep off the family labels. Mirroring the
   // search button put it back over the strip, which is the price of that symmetry: at the
@@ -160,8 +163,8 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
     strip.over>0 && strip.over<=strip.stripw);
   await p.click("#mapHome"); await p.waitForTimeout(600);
   say("one tap lands on the map", (await hash(p))==="" && (await p.$eval(".ovcard .mn",e=>e.textContent))==="Explore");
-  say("and goes dead again rather than vanishing", (await home(p))===false);
-  { const k=await parked(p); say("  still in place under the finger", k.shown && k.off); }
+  say("and goes again rather than sitting there dead", (await home(p))===false);
+  { const k=await parked(p); say("  gone from the corner", k.shown===false); }
   // home is a reset: the walk that led here is gone, so back goes too
   say("back is cleared away with it", (await shown(p))===false);
   // and the trail really is empty, not merely hidden: the next move starts from the map

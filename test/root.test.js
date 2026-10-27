@@ -27,6 +27,24 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("  with no heading on it", (await p.$$(".sect-learn .secthead")).length===0);
   say("  and the list under the title has none either", (await p.$$(".sect-browse .secthead")).length===0);
   say("  and none are left loose", (await p.$$eval("#panelBody > .more > .fold",e=>e.length))===0);
+  // they are about the map rather than part of it, so they read as a colophon: no filled
+  // cards, an icon each, and an inset hairline above the group instead of a box around it
+  const col=await p.evaluate(()=>{ const sec=document.querySelector(".sect-learn");
+    const folds=[...sec.querySelectorAll(".fold")];
+    const body=document.getElementById("panelBody").getBoundingClientRect();
+    const rule=getComputedStyle(sec,"::before");
+    return {grounds:folds.map(f=>getComputedStyle(f).backgroundColor),
+      icons:folds.every(f=>!!f.querySelector("summary .foldi svg")),
+      ruleLeft:parseFloat(rule.left)||0, ruleOn:rule.content!=="none",
+      bleeds:folds.concat([sec]).some(e=>{ const cs=getComputedStyle(e);
+        return (parseFloat(cs.borderTopWidth)||0)>0
+          && e.getBoundingClientRect().width>=body.width*0.9; })}; });
+  say("no filled cards under them ("+col.grounds.join(", ")+")",
+    col.grounds.every(c=>/rgba\(0, 0, 0, 0\)|transparent/.test(c)));
+  say("  an icon on each instead", col.icons);
+  say("  a hairline above the group, inset "+col.ruleLeft+"px to the labels",
+    col.ruleOn && col.ruleLeft>=20);
+  say("  and nothing bleeding across the panel", col.bleeds===false);
   // "Start here" is the style you are handed; the 17 are where the music starts. Both
   // were called start. The list row took the word the axis already prints over that region.
   const starts=await p.evaluate(()=>({
@@ -183,15 +201,15 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   // Families, Playlists and Most influential came out: they were reference lists, and
   // what is left is the two rows that are ways in rather than ways to look something up
   say("one list: "+(grp&&grp.labels.join(" / ")),
-    !!grp && grp.labels.join("/")==="Roots/Surprise me");
+    !!grp && grp.labels.join("/")==="Roots/Most influential/Surprise me");
   say("  with a count on each ("+(grp&&grp.counts.join(", "))+")", !!grp && grp.counts.every(c=>c.length>0));
   say("  an icon on each, in one rounded card of radius "+(grp&&grp.radius),
     !!grp && grp.icons && grp.oneCard && grp.radius>=10);
   say("  separators inset to the name ("+(grp&&grp.inset)+")", !!grp && parseFloat(grp.inset)>=40);
   say("  rows at least "+(grp&&grp.tap)+"px", !!grp && grp.tap>=44);
   // four of them open a list; the last is a destination, so it has no chevron
-  say("  the first opens a list, the second does not", !!grp &&
-    grp.chevrons[0]===true && grp.chevrons[1]===false);
+  say("  the first two open a list, the last does not", !!grp &&
+    grp.chevrons[0]===true && grp.chevrons[1]===true && grp.chevrons[2]===false);
 
   await p.click(".sect-browse .listrow"); await p.waitForTimeout(400);
   const menu=await p.evaluate(()=>{ const m=[...document.querySelectorAll(".navmenu")].find(x=>!x.hidden);
