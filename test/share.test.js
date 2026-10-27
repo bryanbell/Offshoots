@@ -57,30 +57,30 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   // the root has no body text to hang a wide button under, so its share is a round one
   // in the left track, where back sits on every other panel
   say("overview title is a heading below the row", await d.$eval(".ovcard .bigttl",e=>e.tagName==="H1"));
-  const rb=await d.evaluate(()=>{ const r=document.querySelector(".ovcard .navrow"),
-    sh=r.querySelector(".shbtn.round"), t=r.querySelector(".navttl");
+  const rb=await d.evaluate(()=>{ const card=document.querySelector(".ovcard"),
+    sh=document.querySelector("#panelBody .shbtn.wide"), row=card.querySelector(".navrow");
     if(!sh) return null;
-    const rr=r.getBoundingClientRect(), sr=sh.getBoundingClientRect(), tr=t.getBoundingClientRect();
-    return {left:Math.round(sr.left-rr.left), size:Math.round(sr.width),
-      round:getComputedStyle(sh).borderRadius, labelled:!!sh.querySelector(".shlbl"),
-      centred:Math.abs(Math.round((tr.left+tr.width/2)-(rr.left+rr.width/2))),
-      wide:document.querySelectorAll(".ovcard .shbtn.wide").length,
-      only:document.querySelectorAll(".ovcard [data-share]").length}; });
-  say("round share at the left of the row ("+rb.left+"px in)", rb.left<=1);
-  say("  "+rb.size+"px and circular ("+rb.round+")", rb.size>=36 && /50%|999/.test(rb.round));
-  say("  carrying no label, unlike a style's", rb.labelled===false && rb.wide===0);
-  say("  with the title still centred, off by "+rb.centred+"px", rb.centred<=2);
+    const sr=sh.getBoundingClientRect(), body=document.getElementById("panelBody");
+    return {label:sh.querySelector(".shlbl").textContent, width:Math.round(sr.width),
+      room:body.clientWidth, pos:getComputedStyle(sh).position,
+      round:document.querySelectorAll("#panelBody .shbtn.round").length,
+      inHeader:row.querySelectorAll("[data-share]").length,
+      last:sh.parentNode.lastElementChild===sh,
+      only:document.querySelectorAll("#panelBody [data-share]").length}; });
+  say("the root shares the same way a style does ("+rb.label+")", rb.label==="Share this app");
+  say("  full width, "+rb.width+" of "+rb.room, rb.width>=rb.room-48);
+  say("  in the flow at the foot of the card", rb.pos==="static" && rb.last);
+  say("  nothing round left in the header", rb.round===0 && rb.inHeader===0);
   say("  and it is the only share control here", rb.only===1);
-  await d.click(".ovcard .shbtn.round"); await d.waitForTimeout(250);
+  await d.$eval("#panelBody .shbtn.wide",e=>e.scrollIntoView({block:"center"})); await d.waitForTimeout(250);
+  await d.click("#panelBody .shbtn.wide"); await d.waitForTimeout(250);
   const u=await d.evaluate(()=>window.__copied[0]||"");
   say("copied the map link (no #)", !u.includes("#") ? true : u);
-  say("  and says so with a tick, having no room for words",
-    await d.$eval(".ovcard .shbtn.round",e=>e.classList.contains("done")
-      && getComputedStyle(e.querySelector(".tick")).display!=="none"
-      && getComputedStyle(e.querySelector(".shg")).display==="none"));
+  say("  and says so in its label",
+    await d.$eval("#panelBody .shbtn.wide .shlbl",e=>e.textContent)==="Link copied");
   await d.waitForTimeout(1700);
-  say("  then goes back to the glyph",
-    await d.$eval(".ovcard .shbtn.round",e=>!e.classList.contains("done")));
+  say("  then goes back to the label",
+    await d.$eval("#panelBody .shbtn.wide .shlbl",e=>e.textContent)==="Share this app");
   // the title on the map is a heading, not a second way to do the same thing
   const mh=await d.evaluate(()=>{ const h=document.querySelector("#maphead .mh");
     return {tag:h.tagName, share:document.querySelectorAll("#maphead [data-share]").length,

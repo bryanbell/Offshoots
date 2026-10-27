@@ -369,7 +369,35 @@ body.open .pcnt{display:none}
 .navpair .nav-led .navbtn{border-radius:0 999px 999px 0;padding-right:12px}
 .navpair .nav-led{border-left:1px solid color-mix(in srgb,var(--acc,var(--fg)) 22%,transparent)}
 /* the root panel has one direction to go, so its button is a whole pill, not half of one */
-.navpair .nav-roots .navbtn{border-radius:999px;padding:0 12px}
+/* the ways of browsing are one grouped list, the way a phone app lists collections:
+   a single rounded card, a row each, and hairlines that start at the name rather than
+   running the full width. --lrlead is that inset: padding + icon + gap. */
+.listgrp{background:var(--fill2);border-radius:14px;overflow:hidden;--lrlead:57px}
+.listgrp .navwrap{display:block;position:relative}
+.listgrp .navwrap + .navwrap::after{content:"";position:absolute;left:var(--lrlead);right:0;top:0;
+  height:.5px;background:var(--sep);pointer-events:none}
+.listrow{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:13px;
+  width:100%;min-height:58px;padding:0 14px;color:var(--fg);transition:background .15s}
+.listrow:hover{background:color-mix(in srgb,var(--fg) 7%,transparent)}
+.listrow:focus-visible{outline:0;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent) 55%,transparent)}
+.listrow .lrico{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:8px;
+  background:color-mix(in srgb,var(--acc,var(--fg)) 30%,transparent);color:var(--fg)}
+.listrow .lrico svg{width:18px;height:18px}
+.listrow .lrlbl{flex:1;min-width:0;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font:400 var(--t-body)/1.2 var(--f-body)}
+.listrow .lrct{flex:none;font:400 var(--t-body)/1 var(--f-mono);color:var(--muted);font-style:normal;
+  font-variant-numeric:tabular-nums}
+.listrow .lrcv{flex:none;width:15px;height:15px;color:var(--muted);opacity:.7}
+/* the one row that is a destination rather than a list keeps the count as a word and
+   drops the chevron, since nothing opens */
+.listrow.lrgo .lrct{font-family:var(--f-body);font-size:var(--t-sub)}
+@media (min-width:900px) and (hover:hover) and (pointer:fine){
+  .listgrp{--lrlead:51px}
+  .listrow{min-height:46px;padding:0 12px;gap:11px}
+  .listrow .lrico{width:28px;height:28px;border-radius:7px}
+  .listrow .lrico svg{width:16px;height:16px}
+}
+}
 .navpair .navbtn:hover:not(:disabled){background:color-mix(in srgb,var(--acc,var(--fg)) 16%,transparent)}
 /* back takes the left slot the From button used to hold, and keeps it empty when there
    is nothing behind you, so the title stays where it is either way */

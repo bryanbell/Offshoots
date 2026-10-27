@@ -22,14 +22,14 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("sections: "+groups.join(" / "), groups.includes("Browse") && groups[groups.length-1]==="Learn");
   say("  the folds live under Learn", (await p.$$(".sect-learn .fold")).length===2);
   say("  and none are left loose", (await p.$$eval("#panelBody > .more > .fold",e=>e.length))===0);
-  // "Start here" is the style you are handed; the header's 17 are where the music starts.
-  // Both were called start. The header took the word the axis already uses for that region.
+  // "Start here" is the style you are handed; the 17 are where the music starts. Both
+  // were called start. The list row took the word the axis already prints over that region.
   const starts=await p.evaluate(()=>({
     heads:[...document.querySelectorAll("#panelBody .secttl")].map(x=>x.textContent),
-    menu:(document.querySelector(".nav-roots .navmenu .navhd")||{}).textContent||"",
+    row:(document.querySelector(".sect-browse .listrow .lrlbl")||{}).textContent||"",
     axis:[...document.querySelectorAll("#axis text")].map(x=>x.textContent).join(" ")}));
   say("only the section says start ("+starts.heads[0]+")", /start/i.test(starts.heads[0]));
-  say("  the header's 17 are "+JSON.stringify(starts.menu), starts.menu==="Roots");
+  say("  the 17 are "+JSON.stringify(starts.row), starts.row==="Roots");
   say("  which is the axis's own word for that region", /Roots/.test(starts.axis));
 
   say("start-here sits above the modes", order.indexOf("sect-feat")===1 && order.indexOf("sect-modes")===2);
@@ -96,52 +96,69 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("no app icon in the header", (await p.$$(".ovcard .navrow .appicon")).length===0);
   say("it moved into About", (await p.$$(".aboutwrap .abouthd .appicon")).length===1);
 
-  // ---- the root panel's forward button ----
-  // the panel header is the style panels' header now, and at the root "forward" is the
-  // styles with nothing before them, so the map can be walked from its beginning
-  // the root is an index, so its name is a large left-aligned title under the row rather
-  // than a centred one inside it. The row keeps share on the left and the roots on the right.
+  // ---- the root panel's header and its list of ways in ----
+  // the header carries nothing now: the title is a large one under it, the roots moved
+  // into the Browse list, and share is a button at the foot like a style panel's
   const hdr=await p.evaluate(()=>{ const card=document.querySelector(".ovcard"),
       row=card&&card.querySelector(".navrow");
     if(!row) return null;
-    const t=card.querySelector(".bigttl"), btn=row.querySelector(".nav-roots .navbtn"),
-      sect=card.parentNode.querySelector(".secttl"),
-      cb=card.getBoundingClientRect(), tb=t.getBoundingClientRect(),
-      rb=row.getBoundingClientRect();
-    return {name:t.textContent, glyph:!!row.querySelector(".navttl .shg"),
-      share:!!row.querySelector(".shbtn.round"),
-      align:getComputedStyle(t).textAlign,
+    const t=card.querySelector(".bigttl"), sect=card.parentNode.querySelector(".secttl"),
+      tb=t.getBoundingClientRect(), rb=row.getBoundingClientRect();
+    return {name:t.textContent, align:getComputedStyle(t).textAlign,
       size:parseFloat(getComputedStyle(t.querySelector(".mn")||t).fontSize),
       sectSize:sect?parseFloat(getComputedStyle(sect).fontSize):0,
       flush:sect?Math.round(tb.left-sect.getBoundingClientRect().left):99,
-      belowRow:Math.round(tb.top-rb.bottom),
-      inRow:!!row.querySelector(".bigttl"),
-      off:0,
-      clipped:false,
-      count:btn?btn.querySelector(".ct").textContent:null,
-      pairs:row.querySelectorAll(".navwrap").length}; });
-  say("the root header is the shared one, titled "+(hdr&&hdr.name), !!hdr && hdr.name==="Explore");
+      belowRow:Math.round(tb.top-rb.bottom), inRow:!!row.querySelector(".bigttl"),
+      controls:[...row.querySelectorAll("button")].filter(b=>!b.hidden).length,
+      rowH:Math.round(rb.height)}; });
+  say("the root is titled "+(hdr&&hdr.name), !!hdr && hdr.name==="Explore");
   say("  left-aligned under the row, "+(hdr&&hdr.belowRow)+"px below it",
     !!hdr && hdr.align==="left" && hdr.belowRow>=0 && hdr.inRow===false);
   say("  flush with the section headings ("+(hdr&&hdr.flush)+"px)", !!hdr && Math.abs(hdr.flush)<=1);
   say("  and bigger than them, "+(hdr&&hdr.size)+" against "+(hdr&&hdr.sectSize),
     !!hdr && hdr.size>=28 && hdr.size>hdr.sectSize);
-  say("  with no glyph on the heading", !!hdr && hdr.glyph===false);
-  say("  and a round share button in the left track", !!hdr && hdr.share);
-  say("  with one direction to go, not two", !!hdr && hdr.pairs===1);
-  say("  pointing at "+(hdr&&hdr.count)+" first-level styles", !!hdr && +hdr.count>0);
-  await p.click(".nav-roots .navbtn"); await p.waitForTimeout(400);
+  say("  the row above it is empty, "+(hdr&&hdr.rowH)+"px tall",
+    !!hdr && hdr.controls===0 && hdr.rowH<=24);
+
+  // the ways in are one grouped list, the way a phone app lists collections
+  const grp=await p.evaluate(()=>{ const g=document.querySelector(".sect-browse .listgrp");
+    if(!g) return null;
+    const rows=[...g.querySelectorAll(".listrow")];
+    const gb=g.getBoundingClientRect();
+    return {labels:rows.map(r=>r.querySelector(".lrlbl").textContent),
+      counts:rows.map(r=>(r.querySelector(".lrct")||{}).textContent||""),
+      chevrons:rows.map(r=>!!r.querySelector(".lrcv")),
+      icons:rows.every(r=>!!r.querySelector(".lrico svg")),
+      oneCard:rows.every(r=>Math.round(r.getBoundingClientRect().width)===Math.round(gb.width)),
+      radius:parseFloat(getComputedStyle(g).borderRadius),
+      tap:Math.min(...rows.map(r=>Math.round(r.getBoundingClientRect().height))),
+      inset:getComputedStyle(g).getPropertyValue("--lrlead").trim()}; });
+  say("one list: "+(grp&&grp.labels.join(" / ")), !!grp && grp.labels[0]==="Roots" && grp.labels.length===5);
+  say("  with a count on each ("+(grp&&grp.counts.join(", "))+")", !!grp && grp.counts.every(c=>c.length>0));
+  say("  an icon on each, in one rounded card of radius "+(grp&&grp.radius),
+    !!grp && grp.icons && grp.oneCard && grp.radius>=10);
+  say("  separators inset to the name ("+(grp&&grp.inset)+")", !!grp && parseFloat(grp.inset)>=40);
+  say("  rows at least "+(grp&&grp.tap)+"px", !!grp && grp.tap>=44);
+  // four of them open a list; the last is a destination, so it has no chevron
+  say("  four open a list, one does not", !!grp &&
+    grp.chevrons.slice(0,4).every(Boolean) && grp.chevrons[4]===false);
+
+  await p.click(".sect-browse .listrow"); await p.waitForTimeout(400);
   const menu=await p.evaluate(()=>{ const m=[...document.querySelectorAll(".navmenu")].find(x=>!x.hidden);
     if(!m) return null;
     const items=[...m.querySelectorAll("[data-go]")].map(x=>x.dataset.go);
     return {head:m.querySelector(".navhd").textContent, n:items.length,
-      allRoots:items.every(id=>{ const row=DATA.find(d=>d[0]===id); return !!row && !(row[4]||"").trim(); }),
-      first:m.querySelector("[data-go] .nm").textContent}; });
-  say("  the menu is headed "+(menu&&'"'+menu.head+'"'), !!menu && menu.head.length>0);
-  say("  listing "+(menu&&menu.n)+" styles, every one of them a root", !!menu && menu.allRoots && menu.n===+hdr.count);
+      allRoots:items.every(id=>{ const row=DATA.find(d=>d[0]===id); return !!row && !(row[4]||"").trim(); })}; });
+  say("  the roots row opens a menu headed "+(menu&&'"'+menu.head+'"'), !!menu && menu.head==="Roots");
+  say("  listing "+(menu&&menu.n)+" styles, every one of them a root", !!menu && menu.allRoots && menu.n===17);
   await p.click(".navmenu:not([hidden]) [data-go]"); await p.waitForTimeout(700);
   say("  and picking one selects it ("+(await p.evaluate(()=>location.hash))+")",
     await p.evaluate(()=>location.hash.length>1));
+  await p.goto(URL); await p.waitForTimeout(900);
+  // the last row goes somewhere rather than opening anything
+  await p.click("[data-random]"); await p.waitForTimeout(700);
+  const r1=await p.evaluate(()=>location.hash);
+  say("  the last row lands on a style ("+r1+")", r1.length>1);
   await p.goto(URL); await p.waitForTimeout(900);
 
   // ---- 1: start-here row ----

@@ -126,27 +126,31 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   say("a short slow drag springs back open", await open());
   await drag(hd[0],hd[1],45,4); await p.waitForTimeout(700);
   say("a quick flick down closes it even at 45px", (await open())===false);
-  // the header is the drag handle and it carries the root's share button: a tap on that
-  // button must share, a drag starting anywhere in the row must not
+  // the header carries no control at all now, so the whole row is drag and nothing else.
+  // Share is a button at the foot of the card, out of the handle's way entirely.
   await ensure(); await p.waitForTimeout(500);
   await p.evaluate(()=>{window.__copied=[];navigator.clipboard.writeText=async t=>{window.__copied.push(t)};});
-  await p.click(".ovcard .shbtn.round"); await p.waitForTimeout(400);
-  say("tapping the round share button shares", await p.evaluate(()=>window.__copied.length===1));
+  say("no control sits in the drag handle",
+    (await p.$$eval(".ovcard .navrow button",e=>e.filter(b=>!b.hidden).length))===0);
+  await p.$eval("#panelBody .shbtn.wide",e=>e.scrollIntoView({block:"center"})); await p.waitForTimeout(300);
+  await p.click("#panelBody .shbtn.wide"); await p.waitForTimeout(400);
+  say("the button at the foot shares", await p.evaluate(()=>window.__copied.length===1));
   say("and the sheet stayed open", await open());
   await p.waitForTimeout(1800);
+  // the title is inert: it drags and nothing else
   await p.evaluate(()=>{window.__copied=[];});
-  const shb=await p.evaluate(()=>{const r=document.querySelector(".ovcard .shbtn.round").getBoundingClientRect(); return [Math.round(r.left+r.width/2),Math.round(r.top+r.height/2)];});
-  await drag(shb[0],shb[1],170,8); await p.waitForTimeout(700);
-  say("dragging from it does not fire share", await p.evaluate(()=>window.__copied.length===0));
-  say("it minimised instead", (await open())===false);
-  // and the title itself is inert: it drags and nothing else
+  const ttl=await p.evaluate(()=>{const r=document.querySelector(".ovcard .bigttl").getBoundingClientRect(); return [Math.round(r.left+r.width/2),Math.round(r.top+r.height/2)];});
+  await p.mouse.click(ttl[0],ttl[1]); await p.waitForTimeout(400);
+  say("tapping the title shares nothing", await p.evaluate(()=>window.__copied.length===0));
+  // the row is 13px tall with nothing in it, so the title under it is the grip
   await ensure(); await p.waitForTimeout(500);
-  await p.evaluate(()=>{window.__copied=[];});
-  await p.click(".ovcard .navttl"); await p.waitForTimeout(400);
-  say("tapping the title shares nothing now", await p.evaluate(()=>window.__copied.length===0));
-  const ttl=await p.evaluate(()=>{const r=document.querySelector(".ovcard .navttl").getBoundingClientRect(); return [Math.round(r.left+r.width/2),Math.round(r.top+r.height/2)];});
-  await drag(ttl[0],ttl[1],170,8); await p.waitForTimeout(700);
-  say("but it still drags the sheet shut", (await open())===false);
+  // the card is still scrolled to the share button from the step above
+  await p.evaluate(()=>{document.getElementById("panelBody").scrollTop=0;}); await p.waitForTimeout(400);
+  const hd2=await p.evaluate(()=>{const r=document.querySelector(".ovcard .bigttl").getBoundingClientRect();
+    return [Math.round(r.left+r.width/2),Math.round(r.top+r.height/2),Math.round(r.height)];});
+  say("the title is a "+hd2[2]+"px grip, which the empty row is not", hd2[2]>=34);
+  await drag(hd2[0],hd2[1],170,8); await p.waitForTimeout(700);
+  say("dragging it shuts the sheet", (await open())===false);
   // the drag ceiling has to match the open height, or dragging up pulls the sheet down
   await ensure(); await p.waitForTimeout(500);
   const up=await drag(hd[0],hd[1],-60,5,false);

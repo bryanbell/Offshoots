@@ -17,8 +17,9 @@ const vis=async(p,sel)=>p.$eval(sel,e=>{const r=e.getBoundingClientRect();
   let p=await fresh(b,M);
   await p.click("#grab").catch(()=>{}); await p.waitForTimeout(400);
   say("old chip sections gone", (await p.$$(".sect-fams, .sect-top")).length===0);
-  say("three browse buttons", (await p.$$(".brbtn")).length===3);
-  say("labels", await p.$$eval(".brlbl",e=>e.map(x=>x.textContent).join(" / ")));
+  // three chips became five rows in one grouped list, the roots among them
+  say("five rows in the browse list", (await p.$$(".listgrp .listrow")).length===5);
+  say("labels", await p.$$eval(".listgrp .lrlbl",e=>e.map(x=>x.textContent).join(" / ")));
   say("menus closed at rest", (await p.$$(".navmenu.brmenu:not([hidden])")).length===0);
 
   // open Families
