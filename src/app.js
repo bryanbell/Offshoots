@@ -784,8 +784,9 @@ function panel(n,anc,desc){
   const artistsHtml = `<div class="who">${who.map(am).join("")}</div>`;
   $("panelBody").innerHTML = PHEAD + `<div class="more">
     ${listenSect(n,who,artistsHtml)}
-    <p class="note lede wikiline">${about(n)?esc(about(n))+" ":""}${wikiTxt(n)}</p>
-    <p class="tally">${anc.size} ancestor styles · ${desc.size} descendant styles${desc.size?` across ${dfams.size} ${dfams.size===1?"family":"families"}`:""}</p>
+    ${sect("about","What it is",
+      `<p class="note lede wikiline">${about(n)?esc(about(n))+" ":""}${wikiTxt(n)}</p>`
+      + `<p class="tally">${anc.size} ancestor styles · ${desc.size} descendant styles${desc.size?` across ${dfams.size} ${dfams.size===1?"family":"families"}`:""}</p>`)}
     ${shareBtn(n)}</div></div>`;
   paintPlay();
 }

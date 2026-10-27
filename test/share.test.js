@@ -267,6 +267,24 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   say("no errors following it", il._errs.length===0 ? true : il._errs.join(" | "));
   await il.close();
 
+  // the prose and the tally read as a named section like Listen on above them,
+  // and like the rest of the body they stay out of the peek
+  { const w=await b.newPage({viewport:M});
+    await w.goto(URL+"#blackmetal"); await w.waitForTimeout(1200);
+    say("the prose is hidden in the peek",
+      await w.$eval(".sect-about",e=>getComputedStyle(e).display==="none"));
+    await w.click("#grab").catch(()=>{}); await w.waitForTimeout(700);
+    const r=await w.evaluate(()=>{ const s=document.querySelector(".sect-about");
+      return {shown:getComputedStyle(s).display!=="none",
+        head:(s.querySelector(".secttl")||{}).textContent||"",
+        prose:!!s.querySelector(".wikiline"), tally:!!s.querySelector(".tally"),
+        beforeShare:!!(s.compareDocumentPosition(document.querySelector("[data-share]"))&4)}; });
+    say("and shown when the panel is open", r.shown);
+    say("under the heading \""+r.head+"\"", r.head==="What it is");
+    say("carrying the description and the tally", r.prose && r.tally);
+    say("and still above the share button", r.beforeShare);
+    await w.close(); }
+
   say("no page errors", p._errs.length===0 ? true : p._errs.join(" | "));
   say("no desktop errors", d._errs.length===0 ? true : d._errs.join(" | "));
 
