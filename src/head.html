@@ -78,6 +78,11 @@ button:focus-visible,.chip:focus-visible,.link:focus-visible{outline:0;box-shado
 /* map */
 .mapbox{position:absolute;inset:0;background:var(--mapbg)}
 #scroller{position:absolute;inset:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y}
+/* the map is draggable with a mouse, so the background says so. Only where there is a
+   real pointer: a touch screen pans with a finger and would just get an odd cursor. */
+@media (hover:hover) and (pointer:fine){ #scroller{cursor:grab} }
+body.panning #scroller,body.panning #chart,body.panning #chart .n{cursor:grabbing}
+body.panning{user-select:none;-webkit-user-select:none}
 #inner{position:relative}
 #spacer{height:calc(var(--bar) + env(safe-area-inset-top,0px))}
 #axis{position:sticky;top:calc(var(--bar) + env(safe-area-inset-top,0px));z-index:4;background:color-mix(in srgb,var(--mapbg) 86%,transparent);-webkit-backdrop-filter:saturate(180%) blur(12px);backdrop-filter:saturate(180%) blur(12px);border-bottom:.5px solid var(--line)}

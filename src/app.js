@@ -1338,6 +1338,41 @@ scroller.addEventListener("wheel",e=>{ if(e.ctrlKey){ e.preventDefault(); setZoo
 // pinch-to-zoom (touch): scale about the midpoint, snapping to 5% steps
 let pinch=null;
 const dist=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
+// Drag the map with a mouse. A trackpad pans on its own and a phone has fingers;
+// a mouse has a wheel and nothing else, so the map is grabbed from empty space and
+// pushed. Anything that already answers a click is left alone, and the pan only
+// starts after a few pixels, so clicking the background still clears the selection.
+let pan=null;
+const PANSLOP=3, PANSKIP=".n,a,button,input,select,textarea,[data-go],[data-menu]";
+function endPan(){
+  if(!pan) return;
+  const moved=pan.on;
+  try{ scroller.releasePointerCapture(pan.id); }catch(_){}
+  pan=null; document.body.classList.remove("panning");
+  // the drag ends over whatever it ends over, and that would read as a click on it
+  if(moved){ const eat=ev=>{ ev.preventDefault(); ev.stopPropagation(); };
+    addEventListener("click",eat,true); setTimeout(()=>removeEventListener("click",eat,true),0); }
+}
+scroller.addEventListener("pointerdown",e=>{
+  if(e.pointerType!=="mouse"||e.button!==0) return;
+  if(e.target.closest&&e.target.closest(PANSKIP)) return;
+  pan={id:e.pointerId,x:e.clientX,y:e.clientY,l:scroller.scrollLeft,t:scroller.scrollTop,on:false};
+});
+scroller.addEventListener("pointermove",e=>{
+  if(!pan||e.pointerId!==pan.id) return;
+  const dx=e.clientX-pan.x, dy=e.clientY-pan.y;
+  if(!pan.on){
+    if(Math.abs(dx)<PANSLOP&&Math.abs(dy)<PANSLOP) return;
+    pan.on=true; document.body.classList.add("panning");
+    try{ scroller.setPointerCapture(pan.id); }catch(_){}
+  }
+  scroller.scrollLeft=pan.l-dx; scroller.scrollTop=pan.t-dy;
+  e.preventDefault();
+});
+scroller.addEventListener("pointerup",endPan);
+scroller.addEventListener("pointercancel",endPan);
+addEventListener("blur",endPan);
+
 scroller.addEventListener("touchstart",e=>{ if(e.touches.length===2){ const r=scroller.getBoundingClientRect(); const mx=(e.touches[0].clientX+e.touches[1].clientX)/2-r.left, my=(e.touches[0].clientY+e.touches[1].clientY)/2-r.top; pinch={d0:dist(e.touches),z0:Z,fx:(scroller.scrollLeft+mx)/W,fy:(scroller.scrollTop+my)/(H+AXH+BAR()),mx,my}; e.preventDefault(); } },{passive:false});
 scroller.addEventListener("touchmove",e=>{ if(!pinch||e.touches.length!==2) return; e.preventDefault(); const z=Math.min(ZMAX,Math.max(ZMIN,Math.round(pinch.z0*dist(e.touches)/pinch.d0*10)/10)); if(z!==Z){ Z=z; render(); if(state.sel) select(state.sel,{scroll:false,repaint:false}); scroller.scrollLeft=pinch.fx*W-pinch.mx; scroller.scrollTop=pinch.fy*(H+AXH+BAR())-pinch.my; updZoom(); } },{passive:false});
 scroller.addEventListener("touchend",e=>{ if(e.touches.length<2) pinch=null; });
