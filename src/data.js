@@ -1160,22 +1160,7 @@ const MODES = [
     ["post_metal","Heavy music built like a symphony"],
     ["idm","Rhythm as a puzzle"],
     ["thirdstream","Jazz and the concert hall, arguing"],
-    ["tape","The studio itself used as the instrument"]],1],
-
-  ["roots","Go to the source","Where it all starts",
-   "The far left of the map: styles that cohered before 1950, drawn as hollow dots that are easy to scroll past. Nearly everything else on the map descends from this handful, so it is the layer that explains the rest.",
-   [["blues","One voice and a guitar, and most of what followed"],
-    ["ragtime","Syncopation written down, the first American craze"],
-    ["appalachian","Ballads carried over an ocean and kept"],
-    ["oldtime","The first country records, before the word existed"],
-    ["tinpan","The song as sheet music, before the record"],
-    ["broadway","The stage teaching pop how to write"],
-    ["swing","When jazz was simply the popular music"],
-    ["honkytonk","Barroom country, amplified to be heard over it"],
-    ["danzon","Cuba's ballroom, parent to half the Latin map"],
-    ["corrido","News and legend sung on the border"],
-    ["conjunto","Accordion and bajo sexto, a whole tradition"],
-    ["mambo","The big-band answer from Havana"]],2]
+    ["tape","The studio itself used as the instrument"]],1]
 ];
 // ROSTER: every artist on a style's playlist, for search only. ART stays the three
 // names the panel shows; this is the long tail, joined from the curriculum workbook
