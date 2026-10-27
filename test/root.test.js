@@ -16,6 +16,22 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   const order=await p.$eval("#panelBody",e=>[...e.querySelectorAll(".ovcard,.sect-feat,.sect-modes,.browse,.ovhint,.aboutwrap")]
     .map(x=>x.className.split(" ").find(c=>/ovcard|sect-feat|sect-modes|browse|ovhint|aboutwrap/.test(c))));
   say("reading order", order.join(" → "));
+  // the panel names its job. Its sections name theirs, and the two folds, which used to
+  // dangle at the foot of the card, are what Learn means.
+  const groups=await p.$$eval("#panelBody .sect .secttl",e=>e.map(x=>x.textContent));
+  say("sections: "+groups.join(" / "), groups.includes("Browse") && groups[groups.length-1]==="Learn");
+  say("  the folds live under Learn", (await p.$$(".sect-learn .fold")).length===2);
+  say("  and none are left loose", (await p.$$eval("#panelBody > .more > .fold",e=>e.length))===0);
+  // "Start here" is the style you are handed; the header's 17 are where the music starts.
+  // Both were called start. The header took the word the axis already uses for that region.
+  const starts=await p.evaluate(()=>({
+    heads:[...document.querySelectorAll("#panelBody .secttl")].map(x=>x.textContent),
+    menu:(document.querySelector(".nav-roots .navmenu .navhd")||{}).textContent||"",
+    axis:[...document.querySelectorAll("#axis text")].map(x=>x.textContent).join(" ")}));
+  say("only the section says start ("+starts.heads[0]+")", /start/i.test(starts.heads[0]));
+  say("  the header's 17 are "+JSON.stringify(starts.menu), starts.menu==="Roots");
+  say("  which is the axis's own word for that region", /Roots/.test(starts.axis));
+
   say("start-here sits above the modes", order.indexOf("sect-feat")===1 && order.indexOf("sect-modes")===2);
   say("map hint demoted below browse", order.indexOf("ovhint")>order.indexOf("browse"));
 
@@ -83,18 +99,33 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   // ---- the root panel's forward button ----
   // the panel header is the style panels' header now, and at the root "forward" is the
   // styles with nothing before them, so the map can be walked from its beginning
-  const hdr=await p.evaluate(()=>{ const row=document.querySelector(".ovcard .navrow");
+  // the root is an index, so its name is a large left-aligned title under the row rather
+  // than a centred one inside it. The row keeps share on the left and the roots on the right.
+  const hdr=await p.evaluate(()=>{ const card=document.querySelector(".ovcard"),
+      row=card&&card.querySelector(".navrow");
     if(!row) return null;
-    const t=row.querySelector(".navttl"), btn=row.querySelector(".nav-roots .navbtn"),
-      rb=row.getBoundingClientRect(), tb=t.getBoundingClientRect();
-    return {name:t.querySelector(".mn").textContent, glyph:!!t.querySelector(".shg"),
+    const t=card.querySelector(".bigttl"), btn=row.querySelector(".nav-roots .navbtn"),
+      sect=card.parentNode.querySelector(".secttl"),
+      cb=card.getBoundingClientRect(), tb=t.getBoundingClientRect(),
+      rb=row.getBoundingClientRect();
+    return {name:t.textContent, glyph:!!row.querySelector(".navttl .shg"),
       share:!!row.querySelector(".shbtn.round"),
-      off:Math.abs(Math.round((tb.left+tb.width/2)-(rb.left+rb.width/2))),
-      clipped:t.querySelector(".mn").scrollWidth>t.querySelector(".mn").clientWidth+1,
+      align:getComputedStyle(t).textAlign,
+      size:parseFloat(getComputedStyle(t.querySelector(".mn")||t).fontSize),
+      sectSize:sect?parseFloat(getComputedStyle(sect).fontSize):0,
+      flush:sect?Math.round(tb.left-sect.getBoundingClientRect().left):99,
+      belowRow:Math.round(tb.top-rb.bottom),
+      inRow:!!row.querySelector(".bigttl"),
+      off:0,
+      clipped:false,
       count:btn?btn.querySelector(".ct").textContent:null,
       pairs:row.querySelectorAll(".navwrap").length}; });
-  say("the root header is the shared one, titled "+(hdr&&hdr.name), !!hdr && hdr.name==="Offshoots");
-  say("  centred, off by "+(hdr&&hdr.off)+"px, and not clipped", !!hdr && hdr.off<=2 && hdr.clipped===false);
+  say("the root header is the shared one, titled "+(hdr&&hdr.name), !!hdr && hdr.name==="Explore");
+  say("  left-aligned under the row, "+(hdr&&hdr.belowRow)+"px below it",
+    !!hdr && hdr.align==="left" && hdr.belowRow>=0 && hdr.inRow===false);
+  say("  flush with the section headings ("+(hdr&&hdr.flush)+"px)", !!hdr && Math.abs(hdr.flush)<=1);
+  say("  and bigger than them, "+(hdr&&hdr.size)+" against "+(hdr&&hdr.sectSize),
+    !!hdr && hdr.size>=28 && hdr.size>hdr.sectSize);
   say("  with no glyph on the heading", !!hdr && hdr.glyph===false);
   say("  and a round share button in the left track", !!hdr && hdr.share);
   say("  with one direction to go, not two", !!hdr && hdr.pairs===1);

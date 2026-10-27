@@ -401,6 +401,17 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line);
 /* one short button on the right and nothing on the left, so the side tracks that keep a
    style's long name centred are wider than this row needs and were clipping "Offshoots" */
 .ovcard .navrow{--navside:100px}   /* back and share side by side when both show */
+/* the root is an index, so it takes the large left-aligned title an index gets: the row
+   above keeps its two controls, and the name sits under them as the heading for the
+   sections that follow. A style panel is a pushed screen and keeps its centred title. */
+/* .pcard .mn sets the style-panel title's size, and this one is inside a .pcard too,
+   so the span has to be told as well as the heading */
+.ovcard .bigttl,.ovcard .bigttl .mn{margin:0;padding:0;text-align:left;display:block;
+  font:700 34px/1.1 var(--f-body);letter-spacing:-.03em;color:var(--fg)}
+.ovcard .bigttl{margin:4px 0 10px;padding:0}   /* flush with the section headings below */
+@media (min-width:900px) and (hover:hover) and (pointer:fine){ .ovcard .bigttl,.ovcard .bigttl .mn{font-size:28px} }
+.ovcard .navrow .navgap{min-height:0}
+@media (max-width:899px){ .ovcard .bigttl{margin:4px 0 8px} }
 /* beside the share button there is no room for the destination's name, and the two
    glyphs already say map and back */
 .ovcard .navleft .navback{padding:0 12px;max-width:none}

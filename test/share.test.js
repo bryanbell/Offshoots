@@ -56,7 +56,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   d=await fresh(b,Dk);
   // the root has no body text to hang a wide button under, so its share is a round one
   // in the left track, where back sits on every other panel
-  say("overview title is a heading", await d.$eval(".ovcard .navttl",e=>e.tagName==="H2"));
+  say("overview title is a heading below the row", await d.$eval(".ovcard .bigttl",e=>e.tagName==="H1"));
   const rb=await d.evaluate(()=>{ const r=document.querySelector(".ovcard .navrow"),
     sh=r.querySelector(".shbtn.round"), t=r.querySelector(".navttl");
     if(!sh) return null;

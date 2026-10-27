@@ -52,7 +52,7 @@ const hash=p=>p.evaluate(()=>location.hash);
   // the map pill now shows wherever a style is selected, so a deep link offers both
   say("home is offered here too, beside the step back", (await p.$eval("#mapHome",e=>!e.hidden))===true);
   await p.click("#panelBack"); await p.waitForTimeout(550);
-  say("and lands on the unselected map", (await hash(p))==="" && (await p.$eval(".ovcard .mn",e=>e.textContent))==="Offshoots");
+  say("and lands on the unselected map", (await hash(p))==="" && (await p.$eval(".ovcard .mn",e=>e.textContent))==="Explore");
   say("hidden once the trail runs out", (await shown(p))===false);
   say("no stale highlight left on the map", (await p.$$eval("#chart .n.cur",e=>e.length))===0);
   await p.screenshot({path:__dirname+"/screens/m-back.png"});
@@ -127,7 +127,7 @@ const hash=p=>p.evaluate(()=>location.hash);
   say("it overlaps the "+strip.stripw+"px lane strip by "+strip.over+"px, which mirroring cost",
     strip.over>0 && strip.over<=strip.stripw);
   await p.click("#mapHome"); await p.waitForTimeout(600);
-  say("one tap lands on the map", (await hash(p))==="" && (await p.$eval(".ovcard .mn",e=>e.textContent))==="Offshoots");
+  say("one tap lands on the map", (await hash(p))==="" && (await p.$eval(".ovcard .mn",e=>e.textContent))==="Explore");
   say("and goes dead again rather than vanishing", (await home(p))===false);
   { const k=await parked(p); say("  still in place under the finger", k.shown && k.off); }
   // home is a reset: the walk that led here is gone, so back goes too
