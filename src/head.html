@@ -88,6 +88,23 @@ button:focus-visible,.chip:focus-visible,.link:focus-visible{outline:0;box-shado
 #axis .rt{font-family:var(--f-body);font-weight:500}
 #axis .now{fill:var(--accent);font-weight:700}
 #lanes{position:absolute;left:0;z-index:3;pointer-events:none;will-change:transform}
+/* the map's own title row, above the first lane. It is in the scroller so it moves up
+   with the chart, but pinned horizontally like the lane strip, so panning the timeline
+   does not drag the title off the screen. */
+#maphead{position:absolute;left:0;z-index:3;will-change:transform;box-sizing:border-box;
+  display:flex;flex-direction:column;justify-content:center;gap:3px;
+  /* the back and map pills float at the top left of the map, so the row starts clear of
+     them rather than under them. It is a constant indent, not one that appears with the
+     pills: the band's height is measured once per render and must not change on selection. */
+  padding:14px 20px 16px calc(var(--stripw,28px) + 64px)}
+#maphead .mh{display:inline-flex;align-items:center;gap:9px;align-self:flex-start;
+  min-height:var(--tap);cursor:pointer;color:var(--fg);background:none;border:0;padding:0;margin:0}
+#maphead .mh h1{margin:0;font:700 var(--t-title1)/1.1 var(--f-body);letter-spacing:-.022em}
+#maphead .mh svg{flex:none;width:19px;height:19px;color:var(--muted)}
+#maphead .mh:hover svg{color:var(--fg)}
+#maphead .mtag{margin:0;font:400 var(--t-body)/var(--t-body-lh) var(--f-body);color:var(--fg)}
+#maphead .mmeta{margin:2px 0 0;font:400 var(--t-foot)/1.3 var(--f-mono);color:var(--muted)}
+@media (max-width:699px){ #maphead{padding:11px 16px 13px calc(var(--stripw,28px) + 58px)} }
 
 .lane{--lf:13px;position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:12px 0 7px 3px;border-radius:0;
   background:color-mix(in srgb,var(--c) 11%,var(--mapbg));box-shadow:inset 3px 0 0 var(--c),inset -.5px 0 0 var(--line);
@@ -138,7 +155,6 @@ svg{display:block}
 .zoom #zreset{height:26px;font:500 10.5px var(--f-mono);border-block:.5px solid var(--line);color:var(--muted)}
 .zoom button:disabled{opacity:.3;cursor:default}
 /* details panel */
-.phead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 .close{display:none;flex:none;width:30px;height:30px;border-radius:50%;border:0;background:var(--fill);color:var(--muted);font-size:17px;line-height:1;cursor:pointer}
 .eyebrow{display:flex;align-items:center;gap:7px;font-size:var(--t-foot);letter-spacing:0;color:var(--muted);font-weight:600}
 .eyebrow .sw{width:9px;height:9px;border-radius:50%;background:var(--c)}
@@ -341,6 +357,8 @@ body.open .pcnt{display:none}
 .navpair .nav-from .navbtn{border-radius:999px 0 0 999px;padding-left:12px}
 .navpair .nav-led .navbtn{border-radius:0 999px 999px 0;padding-right:12px}
 .navpair .nav-led{border-left:1px solid color-mix(in srgb,var(--acc,var(--fg)) 22%,transparent)}
+/* the root panel has one direction to go, so its button is a whole pill, not half of one */
+.navpair .nav-roots .navbtn{border-radius:999px;padding:0 12px}
 .navpair .navbtn:hover:not(:disabled){background:color-mix(in srgb,var(--acc,var(--fg)) 16%,transparent)}
 /* back takes the left slot the From button used to hold, and keeps it empty when there
    is nothing behind you, so the title stays where it is either way */
@@ -359,8 +377,6 @@ body.open .pcnt{display:none}
 .navback:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
 @media (max-width:899px){ .navback{min-width:var(--tap);height:var(--tap)} .navback svg{width:20px;height:20px} .navback .bklbl{font-size:var(--t-sub)} }
 /* on the overview the row has no empty slot to hold, so the button simply goes away */
-.ovback[hidden]{display:none}
-.ovback{align-self:center;margin-right:2px}
 body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line);
   background:color-mix(in srgb,var(--panel) 82%,transparent);
   -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
@@ -370,6 +386,13 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line);
 .navttl .mn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .navttl .mn{margin:0}
 .navttl .my{justify-content:center}
+/* the root title has no year under it, so its glyph sits beside the name instead */
+/* one short button on the right and nothing on the left, so the side tracks that keep a
+   style's long name centred are wider than this row needs and were clipping "Offshoots" */
+.ovcard .navrow{--navside:84px}
+.ovcard .navttl{display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.ovcard .navttl .shg{flex:none;width:17px;height:17px;opacity:.55}
+.ovcard .navttl:hover .shg{opacity:.9}
 .navwrap{position:relative;flex:none}
 .navbtn{display:flex;align-items:center;gap:4px;height:var(--tap);padding:0 10px;border:0;border-radius:999px;cursor:pointer;
   background:color-mix(in srgb,var(--acc,var(--fg)) 14%,transparent);color:var(--fg);
@@ -413,10 +436,6 @@ body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line);
 .brback .nm{font-weight:600;color:var(--fg)}
 .brback .bk{flex:none;display:flex;width:14px;height:14px;opacity:.8}
 .brback .bk .cv{width:14px;height:14px}
-.ovcard .phead{gap:12px;margin:0 0 8px}
-.ovcard .mn{font-size:var(--t-title1);line-height:var(--t-title1-lh);letter-spacing:-.026em;margin:0 0 2px}
-.ovcard .tag{margin:0;font-size:var(--t-sub);line-height:var(--t-sub-lh)}
-.ovmeta{margin:6px 0 0;font:500 var(--t-foot)/var(--t-foot-lh) var(--f-mono);color:var(--muted)}
 .ovhint{margin:0 0 2px}
 .navhd{padding:8px 12px;font:600 var(--t-foot)/var(--t-foot-lh) var(--f-body);letter-spacing:0;text-transform:none;color:var(--mmut)}
 .navmenu{--mbg:#f5f5f7; --mfg:#1a1a1c; --mmut:#6a6a70;
@@ -444,9 +463,6 @@ body > .navmenu{z-index:70}
   .navhd{padding:8px 12px 8px}
 }
 @media (max-width:420px){ .navttl .mn{font-size:16px} }
-.pcard .phead{display:flex;align-items:center;gap:13px;margin:2px 0 10px}
-.pcard .phead .phtx{min-width:0;flex:1 1 auto}
-.pcard .phead .tag{margin:0}
 .pcard .tag{margin:2px 0 10px;font:400 var(--t-sub)/var(--t-sub-lh) var(--f-body);color:var(--muted);max-width:40em}
 .pcard .meta{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0}
 .pcard .my{display:flex;min-width:0;font:500 var(--t-sub) var(--f-mono);color:var(--muted);white-space:nowrap;overflow:hidden}
@@ -671,7 +687,7 @@ body:not(.open) aside#panel{width:var(--sidew);cursor:pointer}
   #grab:active::before,#grab:focus-visible::before{background:var(--muted)}
   #pclose{display:none}
   /* the header drags the sheet, so the browser must not claim the vertical gesture first */
-  body.open .pcard .phead{touch-action:none}
+  body.open .pcard .navrow{touch-action:none}
   /* the height is driven in pixels from script, since auto will not interpolate */
   aside#panel{transition:height .34s cubic-bezier(.32,.72,0,1)}
   body.dragging aside#panel{transition:none}
@@ -762,36 +778,24 @@ aside#panel{padding-bottom:0}
 #pbarTitle{font-size:18px;letter-spacing:-.02em}
 #pbarSub{font-size:var(--t-foot)}
 /* the panel title is the share control: tap the name to hand off the link */
-button.navttl,button.ovttl{all:unset;box-sizing:border-box;cursor:pointer;min-width:0;max-width:100%}
-button.ovttl{display:inline-flex;align-items:center;min-height:var(--tap)}
+button.navttl{all:unset;box-sizing:border-box;cursor:pointer;min-width:0;max-width:100%}
 button.navttl{display:block;text-align:center;overflow:hidden;border-radius:10px;
   min-height:var(--tap);padding:2px 6px;margin:-2px 0;transition:background .15s}
-button.navttl:hover,button.ovttl:hover{background:color-mix(in srgb,var(--fg) 7%,transparent)}
-button.navttl:focus-visible,button.ovttl:focus-visible{outline:0;
+button.navttl:hover{background:color-mix(in srgb,var(--fg) 7%,transparent)}
+button.navttl:focus-visible{outline:0;
   box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
-.ovttl{display:inline-flex;align-items:center;gap:8px;min-height:var(--tap);border-radius:9px;padding:0 6px;margin:0 -6px}
-.ovttl .mn{display:inline-block;margin:0}
 .shg{flex:none;width:11px;height:11px;opacity:.55;vertical-align:-1px}
 /* share moved out of the title and onto the end of the header row: the title still
    fires it, but the glyph now sits where a header action is looked for */
-.ovshare{all:unset;box-sizing:border-box;cursor:pointer;flex:none;display:grid;place-items:center;
-  width:var(--tap);height:var(--tap);border-radius:999px;color:var(--fg);align-self:center}
-.ovshare .shg{width:19px;height:19px;opacity:.55}
-.ovshare:hover{background:color-mix(in srgb,var(--fg) 8%,transparent)}
-.ovshare:hover .shg{opacity:.85}
-.ovshare:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
 button.navttl .my{display:inline-flex;align-items:center;gap:5px}
 .shg{display:inline-block}
-.navttl.done .mn,.ovttl.done .mn{color:var(--acc,var(--fg))}
+.navttl.done .mn{color:var(--acc,var(--fg))}
 @media (max-width:899px){
   /* fill the row rather than float in it: a 50px target at no cost in header height,
      since the negative margins give back exactly the row padding the button takes */
   button.navttl{margin:-6px 0 -7px;padding:6px 8px 7px;border-radius:12px}
-  .ovttl{padding:0 6px}
-  .ovshare{width:var(--tap);height:var(--tap)}
-  .ovshare .shg{width:19px;height:19px}
 }
-.navttl.done .shg,.ovttl.done .shg{opacity:0}
+.navttl.done .shg{opacity:0}
 /* the minimised sheet keeps its height for the playlist */
 /* swiped away: the sheet leaves the screen and a thin handle takes its place */
 #sheetpull{display:none}
@@ -920,15 +924,16 @@ a.wk.pl:hover,a.wk.sp:hover{background:color-mix(in srgb,var(--ink,var(--fg)) 84
 .plrow .plttl{font:600 var(--t-head)/var(--t-head-lh) var(--f-body);letter-spacing:-.01em;overflow:hidden;display:-webkit-box;
   -webkit-line-clamp:2;-webkit-box-orient:vertical}
 .plrow .plsvc{font:400 var(--t-sub)/var(--t-sub-lh) var(--f-body);color:var(--muted)}
-.plrow .plgo{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;
-  background:var(--ink,var(--fg));color:var(--tint,var(--panel))}
-.plrow .plgo svg{width:17px;height:17px}
+.plrow .plline{display:flex;align-items:center;gap:5px;min-width:0}
+.plrow .plgo{flex:none;display:grid;place-items:center;width:15px;height:15px;color:var(--muted)}
+.plrow .plgo svg{width:15px;height:15px}
+.plrow:hover .plgo{color:var(--fg)}
 /* no playlist on the chosen service yet: the row stays, muted and inert */
 .plrow.off{background:color-mix(in srgb,var(--acc,var(--fg)) 7%,transparent);cursor:default}
 .plrow.off img.pcov{opacity:.5}
 .plrow.off .plttl{opacity:.6}
-.plrow.off .plgo{background:transparent;color:var(--muted);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 55%,transparent)}
-@media (max-width:899px){ .plrow{padding:9px 17px 9px 9px;gap:11px} .plrow img.pcov,.plrow .pcovph{width:60px;height:60px} .plrow .pcovph b{font-size:20px} }
+.plrow.off .plgo{display:none}
+@media (max-width:899px){ .plrow{padding:9px 16px 9px 9px;gap:12px} .plrow img.pcov,.plrow .pcovph{width:78px;height:78px} .plrow .pcovph b{font-size:26px} }
 
 /* the service switch fills the row beside "Listen on", three equal thirds */
 .sect-listen .secthead{gap:14px}
@@ -980,8 +985,6 @@ a.am .amgo{display:none}
   .picks>.pick+.pick::after{right:14px}
   .pick{padding:10px 14px}
   .chip,.modechip{padding:0 13px}
-  .plrow .plgo{width:34px;height:34px}
-  .plrow .plgo svg{width:15px;height:15px}
   /* a pointer means a big screen and no thumb: the cover is the one thing in the panel
      worth the space, so it doubles rather than stepping down with everything else */
   .plrow img.pcov,.plrow .pcovph{width:112px;height:112px;border-radius:12px}
@@ -998,6 +1001,7 @@ a.am .amgo{display:none}
         <div id="inner">
           <div id="spacer"></div>
           <div id="axis"></div>
+          <div id="maphead"></div>
           <div id="lanes"></div>
           <svg id="chart" role="img" aria-label="Genre lineage chart"></svg>
         </div>

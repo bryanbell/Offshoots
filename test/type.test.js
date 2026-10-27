@@ -194,10 +194,11 @@ const readRules=(p)=>p.evaluate(()=>{
         return e?Math.round(e.getBoundingClientRect().width):0; });
       await p.close();
     }
-    // a touch screen keeps it thumb-sized; a pointer screen roughly doubles it, which is
-    // the one place the pointer tier makes something bigger instead of smaller
+    // the cover is the one thing the pointer tier makes bigger rather than smaller, and the
+    // row stopped spending width on a 40px disc, so every tier gained
     say("playlist cover: phone "+sizes.phone+", tablet "+sizes.tablet+", desktop "+sizes.desktop,
-      sizes.desktop>=1.8*sizes.phone && sizes.desktop>=1.8*sizes.tablet && sizes.phone>=56);
+      sizes.phone>=76 && sizes.tablet>=76 && sizes.desktop>=110
+      && sizes.desktop>sizes.tablet && sizes.desktop>sizes.phone);
     const dp=await b.newPage({viewport:{width:1440,height:900}});
     await dp.goto(URL+"#jamband"); await dp.waitForTimeout(900);
     const box=await dp.evaluate(()=>{ const b=document.querySelector(".plrow img.pcov, .plrow .pcovph").getBoundingClientRect();

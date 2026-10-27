@@ -115,7 +115,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     if(release) await p.mouse.up();
     return seen; };
   await ensure(); await p.waitForTimeout(500);
-  const hd=await p.evaluate(()=>{const r=document.querySelector(".pcard .phead").getBoundingClientRect();
+  const hd=await p.evaluate(()=>{const r=document.querySelector(".pcard .navrow").getBoundingClientRect();
     return [Math.round(r.left+r.width/2),Math.round(r.top+r.height/2)];});
   const follow=await drag(hd[0],hd[1],170,8,false);
   say("the sheet follows the finger from the header", new Set(follow).size>=5);
@@ -129,11 +129,11 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   // the header sits on top of the share button: a tap must share, a drag must not
   await ensure(); await p.waitForTimeout(500);
   await p.evaluate(()=>{window.__copied=[];navigator.clipboard.writeText=async t=>{window.__copied.push(t)};});
-  await p.click(".ovttl"); await p.waitForTimeout(400);
+  await p.click(".ovcard .navttl"); await p.waitForTimeout(400);
   say("tapping the title still shares", await p.evaluate(()=>window.__copied.length===1));
   say("and the sheet stayed open", await open());
   await p.evaluate(()=>{window.__copied=[];});
-  const ttl=await p.evaluate(()=>{const r=document.querySelector(".ovttl").getBoundingClientRect(); return [Math.round(r.left+r.width/2),Math.round(r.top+r.height/2)];});
+  const ttl=await p.evaluate(()=>{const r=document.querySelector(".ovcard .navttl").getBoundingClientRect(); return [Math.round(r.left+r.width/2),Math.round(r.top+r.height/2)];});
   await drag(ttl[0],ttl[1],170,8); await p.waitForTimeout(700);
   say("dragging from the title does not fire share", await p.evaluate(()=>window.__copied.length===0));
   say("it minimised instead", (await open())===false);
@@ -146,7 +146,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   // nothing in the card may sit at a different offset in one state than the other, or the
   // contents slide under the finger as the sheet moves
   const offsets=()=>p.evaluate(()=>{const pa=document.getElementById("panel").getBoundingClientRect();
-    const o={}; [".pcard",".ovttl",".tag",".ovmeta",".sect"].forEach(s=>{const e=document.querySelector(s);
+    const o={}; [".pcard",".ovcard .navttl",".sect-feat",".sect"].forEach(s=>{const e=document.querySelector(s);
       if(e) o[s]=+(e.getBoundingClientRect().top-pa.top).toFixed(2);}); return o;});
   await p.goto(URL); await p.waitForTimeout(900);
   const shut=await offsets();

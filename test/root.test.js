@@ -20,14 +20,63 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("map hint demoted below browse", order.indexOf("ovhint")>order.indexOf("browse"));
 
   const nFams=await p.evaluate(()=>typeof FAMS!=="undefined"?FAMS.length:-1);
-  // ---- 2: the hero now talks about listening ----
-  say("tagline", await p.$eval(".ovcard .tag",e=>e.textContent));
-  say("meta", await p.$eval(".ovmeta",e=>e.textContent));
-  say("playlist count is in the hero", (await p.$eval(".ovmeta",e=>e.textContent)).includes("playlists"));
+  // ---- 2: the title block describes the map, so it sits on the map ----
+  say("tagline", await p.$eval("#maphead .mtag",e=>e.textContent));
+  say("meta", await p.$eval("#maphead .mmeta",e=>e.textContent));
+  say("playlist count is on the map", (await p.$eval("#maphead .mmeta",e=>e.textContent)).includes("playlists"));
+  say("and not repeated in the panel", (await p.$$("#panelBody .mtag, #panelBody .mmeta, .ovcard .tag")).length===0);
+  // it sits above the first lane rather than over it
+  const band=await p.evaluate(()=>{ const h=document.getElementById("maphead").getBoundingClientRect(),
+    l=document.querySelector(".lane").getBoundingClientRect();
+    return {gap:Math.round(l.top-h.bottom), h:Math.round(h.height)}; });
+  say("the band is "+band.h+"px and the first lane starts "+band.gap+"px below it", band.h>60 && band.gap>=0);
+  // the back and map pills float over the top left of the map, where the title now is
+  { const q=await b.newPage({viewport:{width:1440,height:900}});
+    await q.goto(URL+"#delta"); await q.waitForTimeout(1100);
+    await q.evaluate(()=>{ document.getElementById("scroller").scrollTop=0; }); await q.waitForTimeout(350);
+    const hit=await q.evaluate(()=>{ const a=document.getElementById("navpills").getBoundingClientRect();
+      const over=s=>{ const e=document.querySelector(s); if(!e) return false;
+        const r=e.getBoundingClientRect();
+        return !(a.right<r.left||a.left>r.right||a.bottom<r.top||a.top>r.bottom); };
+      return {vis:a.width>0, title:over("#maphead .mh"), tag:over("#maphead .mtag"), meta:over("#maphead .mmeta")}; });
+    say("with a style selected the pills are showing", hit.vis);
+    say("  and clear of the title, tagline and counts", !hit.title && !hit.tag && !hit.meta);
+    await q.close(); }
   // the app icon left the header and moved into About, so check both ends of that:
   // a bare .appicon count would now find the one inside the collapsed details
-  say("no app icon in the header", (await p.$$(".phead .appicon")).length===0);
+  say("no app icon in the header", (await p.$$(".ovcard .navrow .appicon")).length===0);
   say("it moved into About", (await p.$$(".aboutwrap .abouthd .appicon")).length===1);
+
+  // ---- the root panel's forward button ----
+  // the panel header is the style panels' header now, and at the root "forward" is the
+  // styles with nothing before them, so the map can be walked from its beginning
+  const hdr=await p.evaluate(()=>{ const row=document.querySelector(".ovcard .navrow");
+    if(!row) return null;
+    const t=row.querySelector(".navttl"), btn=row.querySelector(".nav-roots .navbtn"),
+      rb=row.getBoundingClientRect(), tb=t.getBoundingClientRect();
+    return {name:t.querySelector(".mn").textContent, glyph:!!t.querySelector(".shg"),
+      off:Math.abs(Math.round((tb.left+tb.width/2)-(rb.left+rb.width/2))),
+      clipped:t.querySelector(".mn").scrollWidth>t.querySelector(".mn").clientWidth+1,
+      count:btn?btn.querySelector(".ct").textContent:null,
+      pairs:row.querySelectorAll(".navwrap").length}; });
+  say("the root header is the shared one, titled "+(hdr&&hdr.name), !!hdr && hdr.name==="Offshoots");
+  say("  centred, off by "+(hdr&&hdr.off)+"px, and not clipped", !!hdr && hdr.off<=2 && hdr.clipped===false);
+  say("  carrying its own share glyph", !!hdr && hdr.glyph);
+  say("  with one direction to go, not two", !!hdr && hdr.pairs===1);
+  say("  pointing at "+(hdr&&hdr.count)+" first-level styles", !!hdr && +hdr.count>0);
+  await p.click(".nav-roots .navbtn"); await p.waitForTimeout(400);
+  const menu=await p.evaluate(()=>{ const m=[...document.querySelectorAll(".navmenu")].find(x=>!x.hidden);
+    if(!m) return null;
+    const items=[...m.querySelectorAll("[data-go]")].map(x=>x.dataset.go);
+    return {head:m.querySelector(".navhd").textContent, n:items.length,
+      allRoots:items.every(id=>{ const row=DATA.find(d=>d[0]===id); return !!row && !(row[4]||"").trim(); }),
+      first:m.querySelector("[data-go] .nm").textContent}; });
+  say("  the menu is headed "+(menu&&'"'+menu.head+'"'), !!menu && menu.head.length>0);
+  say("  listing "+(menu&&menu.n)+" styles, every one of them a root", !!menu && menu.allRoots && menu.n===+hdr.count);
+  await p.click(".navmenu:not([hidden]) [data-go]"); await p.waitForTimeout(700);
+  say("  and picking one selects it ("+(await p.evaluate(()=>location.hash))+")",
+    await p.evaluate(()=>location.hash.length>1));
+  await p.goto(URL); await p.waitForTimeout(900);
 
   // ---- 1: start-here row ----
   say("one featured row", (await p.$$(".featpick")).length===1);

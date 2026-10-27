@@ -41,28 +41,30 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
 
   // overview shares the map
   d=await fresh(b,Dk);
-  say("overview title is a button", await d.$eval(".ovttl",e=>e.tagName==="BUTTON"));
-  await d.click(".ovttl"); await d.waitForTimeout(250);
+  say("overview title is a button", await d.$eval(".ovcard .navttl",e=>e.tagName==="BUTTON"));
+  await d.click(".ovcard .navttl"); await d.waitForTimeout(250);
   const u=await d.evaluate(()=>window.__copied[0]||"");
   say("copied the map link (no #)", !u.includes("#") ? true : u);
-  say("overview title confirms", await d.$eval(".ovttl .mn",e=>e.textContent));
+  say("overview title confirms", await d.$eval(".ovcard .navttl .mn",e=>e.textContent));
   await d.waitForTimeout(1700);
-  say("overview name comes back", await d.$eval(".ovttl .mn",e=>e.textContent)==="Offshoots");
-  // the glyph lives at the end of the header row now, not beside the name
-  say("no glyph inside the title", (await d.$$eval(".ovttl .shg",e=>e.length))===0);
-  const ob=await d.evaluate(()=>{const s=document.querySelector(".ovshare").getBoundingClientRect(),
-    h=document.querySelector(".ovcard .phead").getBoundingClientRect(),
-    t=document.querySelector(".ovttl").getBoundingClientRect();
-    return [Math.round(h.right-s.right),Math.round(s.left-t.right),Math.round(s.height),
-      Math.abs(Math.round((s.top+s.height/2)-(h.top+h.height/2)))];});
-  say("sits at the header's right edge ("+ob[0]+"px)", ob[0]<=1);
-  say("clear of the title by "+ob[1]+"px", ob[1]>0);
-  say("centred on the header, off by "+ob[3]+"px", ob[3]<=1);
-  say("tap target "+ob[2]+"px", ob[2]>=34);
+  say("overview name comes back", await d.$eval(".ovcard .navttl .mn",e=>e.textContent)==="Offshoots");
+  // the overview uses the same header as a style now: one title button carrying its glyph,
+  // and no separate share button at the end of the row
+  say("the glyph is inside the title", (await d.$$eval(".ovcard .navttl .shg",e=>e.length))===1);
+  say("and there is no second share control", (await d.$$(".ovcard [data-share]")).length===1);
+  const ob=await d.evaluate(()=>{const row=document.querySelector(".ovcard .navrow").getBoundingClientRect(),
+    t=document.querySelector(".ovcard .navttl").getBoundingClientRect(),
+    g=document.querySelector(".ovcard .navttl .shg").getBoundingClientRect();
+    return [Math.abs(Math.round((t.left+t.width/2)-(row.left+row.width/2))),
+      Math.round(t.height), Math.round(g.width)];});
+  say("the title is centred in the row, off by "+ob[0]+"px", ob[0]<=2);
+  say("tap target "+ob[1]+"px", ob[1]>=34);
+  say("glyph "+ob[2]+"px", ob[2]>=14);
+  // the map carries its own share control, on the title block that describes it
   await d.evaluate(()=>{window.__copied.length=0;});
-  await d.click(".ovshare"); await d.waitForTimeout(250);
+  await d.click("#maphead .mh"); await d.waitForTimeout(250);
   const u2=await d.evaluate(()=>window.__copied[0]||"");
-  say("the moved glyph still shares", !!u2 && !u2.includes("#") ? true : u2||"nothing copied");
+  say("the map title shares too", !!u2 && !u2.includes("#") ? true : u2||"nothing copied");
   await d.waitForTimeout(1700);
 
   // ---------- mobile: minimised sheet still expands on a title tap ----------

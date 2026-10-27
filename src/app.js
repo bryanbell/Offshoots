@@ -53,8 +53,11 @@ function plist(n){
   return `<a class="plrow pl" target="_blank" rel="noopener"`
     + ` data-ap="${ap?esc("https://music.apple.com"+ap):""}" data-spid="${esc(sp)}" data-style="${esc(n.name)}">`
     + cover(n.id,n)
-    + `<span class="pltx"><b class="plttl">${esc(t)}</b><span class="plsvc"></span></span>`
-    + `<span class="plgo">${OPENGO}</span></a>`;
+    // the arrow used to be a disc at the right-hand end, taking width the long playlist
+    // titles needed. It sits at the end of the service line instead, where it still says
+    // the row leaves the page.
+    + `<span class="pltx"><b class="plttl">${esc(t)}</b>`
+    + `<span class="plline"><span class="plsvc"></span><span class="plgo">${OPENGO}</span></span></span></a>`;
 }
 function paintPlay(){
   document.querySelectorAll("#panelBody a.plrow").forEach(a=>{
@@ -236,7 +239,7 @@ function layout(avail){
   // stretch lanes so the chart fills the visible height
   const base = lanes.reduce((a,l)=>a+l.inner+PAD*2,0);
   const extra = avail>base ? (avail-base)/lanes.length : 0;
-  let y=0;
+  let y=HEADH;                      // the title row sits in the chart, above the first lane
   lanes.forEach(l=>{
     l.h = l.inner+PAD*2+extra; l.y0=y;
     const top = y+PAD+extra/2;
@@ -281,10 +284,32 @@ function draw(){
   L.innerHTML = lanes.map((l,i)=>`<div class="lane c" data-fam="${l.k}" style="--c:${FAM[l.k].c};top:${l.y0}px;height:${l.h}px;left:0;width:${LABELW-8}px" title="${esc(FAM[l.k].name)} · ${l.count} styles"><span class="vt">${esc(FAM[l.k].short)}</span><span class="cnt">${l.count}</span></div>`).join("");
   L.style.transform=`translateX(${scroller.scrollLeft}px)`;
 }
-scroller.addEventListener("scroll",()=>{ const t=`translateX(${scroller.scrollLeft}px)`; $("lanes").style.transform=t; const c=$("corner"); if(c) c.style.transform=t; },{passive:true});
+scroller.addEventListener("scroll",()=>{ const t=`translateX(${scroller.scrollLeft}px)`; $("lanes").style.transform=t;
+  const h=$("maphead"); if(h) h.style.transform=t;
+  const c=$("corner"); if(c) c.style.transform=t; },{passive:true});
 
 // size the tree to the rest of the viewport
 function fit(){}
+
+// ---------- the map's title row ----------
+// The title, the line about what the map is for and the two counts used to be the first
+// card in the panel. They describe the map, not the panel, so they sit on the map, in a
+// band above the first lane that layout() leaves empty for them.
+let HEADH = 0;
+function mapHeadHTML(){
+  return '<button type="button" class="mh" data-share aria-label="Share this map" title="Share this map">'
+    + '<h1>Offshoots</h1>'+SHAREGLYPH+'</button>'
+    + '<p class="mtag">Find something to hear, and trace what it grew out of.</p>'
+    + '<p class="mmeta">'+nodes.length+' styles · '+playable().length+' playlists</p>';
+}
+function measureHead(){
+  const h=$("maphead"); if(!h){ HEADH=0; return; }
+  if(!h.firstChild) h.innerHTML=mapHeadHTML();
+  h.style.top=(BAR()+AXH)+"px";
+  h.style.width=Math.max(300,scroller.clientWidth)+"px";
+  h.style.transform=`translateX(${scroller.scrollLeft}px)`;
+  HEADH=Math.ceil(h.getBoundingClientRect().height);
+}
 
 // ---------- lineage ----------
 function walk(id,key){ const m=new Map(), q=[[id,0]]; while(q.length){ const [c,d]=q.shift(); for(const x of byId[c][key]){ if(!m.has(x)){ m.set(x,d+1); q.push([x,d+1]); } } } return m; }
@@ -629,7 +654,9 @@ function sheetMax(){ return Math.round(innerHeight*0.7); }
   // delegated, because the card is rebuilt on every selection
   el.addEventListener("pointerdown",e=>{
     if(!OPEN || e.target.closest("#grab")) return;
-    if(!e.target.closest(".pcard .phead")) return;
+    // the overview used to be the only card with a .phead, so this gesture lived there
+    // alone. Both cards carry the same .navrow now, so it works on either.
+    if(!e.target.closest(".pcard .navrow")) return;
     begin(e,false);
   });
 })();
@@ -644,9 +671,10 @@ const SHAREGLYPH='<svg class="shg" viewBox="0 0 20 20" fill="none" stroke="curre
 const CHEV={from:'<svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3.4L5.4 8l4.6 4.6"/></svg>',
              led:'<svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.4L10.6 8 6 12.6"/></svg>'};
 function navBtn(kind,ids){
-  const label = kind==="from" ? "From" : "Led to";
+  const label = kind==="from" ? "From" : kind==="roots" ? "Where it starts" : "Led to";
   const n=ids.length;
-  const title = n ? `${label}: ${n} ${n===1?"style":"styles"}` : (kind==="from"?"A root style: nothing before it here":"Nothing grew out of this one here");
+  const title = kind==="roots" ? `Where it starts: ${n} styles with nothing before them here`
+    : n ? `${label}: ${n} ${n===1?"style":"styles"}` : (kind==="from"?"A root style: nothing before it here":"Nothing grew out of this one here");
   const items = ids.map(id=>{ const x=byId[id];
     return `<button type="button" role="menuitem" data-go="${x.id}"><i class="dot" style="background:${FAM[x.fam].c}"></i><span class="nm">${esc(x.name)}</span><small>${x.year<1950?esc(x.disp):x.year}</small></button>`;
   }).join("");
@@ -655,7 +683,7 @@ function navBtn(kind,ids){
     + ` title="${esc(title)}" aria-label="${esc(title)}"${n?"":" disabled"}>`
     + (kind==="from"?CHEV.from:"")
     + `<em class="ct">${n}</em>`
-    + (kind==="led"?CHEV.led:"")
+    + (kind==="led"||kind==="roots"?CHEV.led:"")
     + `</button>`
     + (n?`<div class="navmenu" role="menu" hidden><div class="navhd">${label}</div>${items}</div>`:"")
     + `</div>`;
@@ -1023,6 +1051,9 @@ function topMenuHtml(){
 }
 const hasPlay=id=>!!((typeof PLAY!=="undefined"&&PLAY[id])||(typeof SPLAY!=="undefined"&&SPLAY[id]));
 const playable=()=>nodes.filter(n=>hasPlay(n.id));
+// the first level: the styles nothing in this map leads to. The panel's forward button at
+// the root points at these, so the map can be walked from its beginning as well as searched.
+const firstLevel=()=>nodes.filter(n=>!n.parents.length).map(n=>n.id).sort(byYear);
 function plCount(k){ return nodes.filter(n=>n.fam===k&&hasPlay(n.id)).length; }
 // the catalog is 233 deep, so it drills by family rather than scrolling as one list
 function plMenuHtml(){
@@ -1093,7 +1124,7 @@ function emptyPanel(){
   const top=[...nodes].sort((a,b)=>b.children.length-a.children.length||a.year-b.year).slice(0,12);
   const np=playable().length;
   const withSrc=DATA.filter(r=>Array.isArray(r[7])&&r[7].length).length;
-  $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="phead"><button id="panelBack" class="navback ovback" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg></button><div class="phtx"><button type="button" class="ovttl" data-share aria-label="Share this map" title="Share this map"><span class="mn">Offshoots</span></button><p class="tag">Find something to hear, and trace what it grew out of.</p><p class="ovmeta">${nodes.length} styles · ${np} playlists</p></div><button type="button" class="ovshare" data-share aria-label="Share this map" title="Share this map">${SHAREGLYPH}</button></div></div><div class="more">
+  $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="navrow"><button id="panelBack" class="navback" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg><span class="bklbl"></span><svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.4L7.4 3.4v11.2L2.8 16.6z"/><path d="M7.4 3.4l5.2 2v11.2l-5.2-2z"/><path d="M12.6 5.4l4.6-2v11.2l-4.6 2z"/></svg></button><button type="button" class="navttl" data-share aria-label="Share this map" title="Share this map"><span class="mn">Offshoots</span>${SHAREGLYPH}</button><div class="navpair">${navBtn("roots",firstLevel())}</div></div></div><div class="more">
     ${featSect()}
     ${modeSect()}
     ${browseRow()}
@@ -1259,7 +1290,9 @@ if(window.ResizeObserver){
   const pel=$("panel");
   if(pel) new ResizeObserver(()=>{ syncMapPad(); }).observe(pel);
 }
-function render(){ RENDERED=true; dims(); LOD = Z<0.9; $("chart").classList.toggle("lod",LOD); fit(); const res=SRES(); $("inner").style.paddingBottom=res+"px"; layout(scroller.clientHeight-AXH-BAR()-res); draw(); }
+function render(){ RENDERED=true; dims(); LOD = Z<0.9; $("chart").classList.toggle("lod",LOD); fit();
+  const res=SRES(); $("inner").style.paddingBottom=res+"px"; measureHead();
+  layout(scroller.clientHeight-AXH-BAR()-res-HEADH); draw(); }
 let lastW=0,lastH=0,rt;
 // the panel is docked, so opening or closing it changes the map viewport: re-lay out when that happens
 let ro;
