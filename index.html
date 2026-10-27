@@ -863,6 +863,9 @@ aside#panel{padding-bottom:0}
   body:not(.open) .more > h3,
   body:not(.open) .more > .srcs,
   body:not(.open) .more > .tally,
+  /* the minimised sheet is a peek at the playlist, not a place to act from: the share
+     button was showing in it, directly under the cover and behind the expand chevron */
+  body:not(.open) .more > .shbtn,
   body:not(.open) .more > .about{display:none}
   body:not(.open) .more > .sect-fams{max-height:38px;overflow:hidden;pointer-events:none;
     -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 35%,transparent 100%);

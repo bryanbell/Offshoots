@@ -94,8 +94,14 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   // button is at the foot of the card, which is only reachable once it is open.
   let p=await fresh(b,M,"#disco");
   say("sheet starts minimised", (await p.$eval("body",e=>e.classList.contains("open")))===false);
+  // the peek is a look at the playlist, not a place to act from. The button was showing
+  // in it, under the cover art and behind the expand chevron.
+  say("  and the share button is not in the peek",
+    (await p.$eval(".shbtn.wide",e=>getComputedStyle(e).display))==="none");
   await p.click(".navttl"); await p.waitForTimeout(500);
   say("tapping the title opens the sheet", await p.$eval("body",e=>e.classList.contains("open")));
+  say("  which is what brings the button in",
+    (await p.$eval(".shbtn.wide",e=>getComputedStyle(e).display))!=="none");
   say("and shares nothing by itself", (await p.evaluate(()=>window.__copied.length))===0);
   await p.$eval(".shbtn.wide",e=>e.scrollIntoView({block:"center"})); await p.waitForTimeout(300);
   await p.click(".shbtn.wide"); await p.waitForTimeout(300);
