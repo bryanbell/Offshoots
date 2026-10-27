@@ -820,6 +820,46 @@ function clearSel(){
   setHash(""); syncShare();
   emptyPanel(); syncBack();
 }
+// ---------- "open in Safari" ----------
+// Add to Home Screen exists in Safari and nowhere else on iOS, so someone reading the
+// install steps from Chrome, or from the browser inside Instagram or Slack, cannot follow
+// them. A web page cannot choose a browser on a desktop, but both phone platforms have a
+// scheme that can, so offer it to the people the steps do not work for.
+function hereURL(){ return location.origin + location.pathname + location.search; }
+const UA = navigator.userAgent;
+function isiOS(){ return /iPad|iPhone|iPod/.test(UA) ||
+  (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1); }   // iPadOS claims to be a Mac
+function isAndroid(){ return /Android/.test(UA); }
+// every iOS browser is WebKit, so Safari is told apart by what it is not: the other
+// browsers' own tokens, and the in-app views, which carry no Version/ at all
+function isSafari(){ return /Version\/[\d.]+/.test(UA) && /Safari/.test(UA) &&
+  !/CriOS|FxiOS|EdgiOS|OPiOS|OPT\/|YaBrowser|DuckDuckGo|Instagram|FBAN|FBAV|FBIOS|Line\/|MicroMessenger|Snapchat/.test(UA); }
+function isChrome(){ return /Chrome\//.test(UA) && !/EdgA?\/|OPR\/|SamsungBrowser|YaBrowser|DuckDuckGo/.test(UA); }
+function installed(){ try{ return navigator.standalone===true ||
+  matchMedia("(display-mode: standalone)").matches; }catch(e){ return false; } }
+// the HTML for the row, or "" when the reader is already where they need to be
+function openInRow(){
+  const u=hereURL();
+  // the schemes take the page's own protocol, but a file:// copy has no browser to open
+  if(!/^https?:/.test(u) || installed()) return "";          // nothing to offer, or already added
+  let href="", app="", note="";
+  if(isiOS() && !isSafari()){
+    href="x-safari-"+u; app="Safari";
+    // on iOS this is not a preference: no other browser has the item at all
+    note="You are not in Safari, and Add to Home Screen exists nowhere else on iOS. "
+       + "If the button does nothing, tap <b>Share</b> and choose <b>Open in Safari</b>, which always works.";
+  } else if(isAndroid() && !isChrome()){
+    href="intent://"+u.replace(/^https?:\/\//,"")+"#Intent;scheme="+location.protocol.replace(":","")+";package=com.android.chrome;"
+       + "S.browser_fallback_url="+encodeURIComponent(u)+";end";
+    app="Chrome";
+    // unlike iOS, the browser you are in can almost certainly do this itself
+    note="Your own browser can install this too, under its own menu. The steps below describe Chrome, "
+       + "which is the one most people have.";
+  } else return "";
+  return '<p class="openin"><a href="'+href+'" rel="nofollow"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 3h6v6"/><path d="M17 3l-8 8"/><path d="M15 12v4.2A1.8 1.8 0 0 1 13.2 18H4.8A1.8 1.8 0 0 1 3 16.2V7.8A1.8 1.8 0 0 1 4.8 6H9"/></svg><span>Open this page in '+app+'</span></a></p>'
+   + '<p class="opennote">'+note+'</p>';
+}
+
 // ---------- sharing ----------
 // every style has a URL: the page plus #id, which boot() already reads back
 function styleURL(id){ return location.origin + location.pathname + location.search + "#" + encodeURIComponent(id); }
@@ -1055,7 +1095,7 @@ function emptyPanel(){
     <p>So a playlist starts just outside its own style and arrives at it, which is the same move the map makes. If the opening tracks sound like something else, that is the point: that is what it grew out of.</p>
     <h4 class="subh">Reading the map</h4>
     <p>A play triangle inside a dot marks a style with a playlist, linked in its panel. The bigger the name, the more styles grew out of it. Everything before 1950 sits left of the divider, on its own compressed scale, and is set in italic. Zoomed out, the styles that led nowhere show as plain dots.</p>
-    <button type="button" class="aboutcopy" data-aboutcopy="about"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 11.6a3.2 3.2 0 0 0 4.6 0l2.6-2.6a3.2 3.2 0 0 0-4.6-4.6l-1 1"/><path d="M11.6 8.4a3.2 3.2 0 0 0-4.6 0L4.4 11a3.2 3.2 0 0 0 4.6 4.6l1-1"/></svg><span class="lbl">Copy a link to this</span></button></div></details><details class="fold installwrap"><summary><span>How to install it</span><svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg></summary><div class="about"><p>Offshoots is a web page, so there is nothing to download and no app store. Every platform below can pin it to a home screen or dock, where it opens full screen with no browser chrome around it.</p><h4 class="subh">iPhone and iPad</h4><ol class="steps"><li>Open this page in <b>Safari</b>. Chrome and Firefox on iOS cannot do this.</li><li>Tap the <b>Share</b> button, the square with an arrow coming out of it.</li><li>Scroll down the list and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li></ol><h4 class="subh">Android</h4><ol class="steps"><li>Open this page in <b>Chrome</b>.</li><li>Tap the <b>three dots</b> at the top right.</li><li>Tap <b>Add to Home screen</b>, then <b>Install</b> or <b>Add</b>. Samsung Internet and Firefox have the same item in their own menus.</li></ol><h4 class="subh">Mac</h4><ol class="steps"><li>In <b>Safari</b>, choose <b>File &rsaquo; Add to Dock</b>, then <b>Add</b>. It lands in the Dock and opens in its own window.</li><li>In <b>Chrome</b>, the same thing is under the three dots at <b>Cast, Save and Share &rsaquo; Install page as app</b>.</li></ol><h4 class="subh">Windows</h4><ol class="steps"><li>In <b>Edge</b> or <b>Chrome</b>, look for the <b>install icon</b> at the right-hand end of the address bar, a monitor with an arrow in it, and click it.</li><li>No icon there? Open the <b>three dots</b> menu and choose <b>Apps &rsaquo; Install this site as an app</b> in Edge, or <b>Cast, Save and Share &rsaquo; Install page as app</b> in Chrome.</li><li>Tick <b>Pin to taskbar</b> when it offers, and it behaves like any other app.</li></ol><h4 class="subh">What you get</h4><p>The whole map is a single file, so once it has loaded it keeps working without a connection. The playlist links still need one, since those open Apple Music or Spotify.</p><button type="button" class="aboutcopy" data-aboutcopy="install"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 11.6a3.2 3.2 0 0 0 4.6 0l2.6-2.6a3.2 3.2 0 0 0-4.6-4.6l-1 1"/><path d="M11.6 8.4a3.2 3.2 0 0 0-4.6 0L4.4 11a3.2 3.2 0 0 0 4.6 4.6l1-1"/></svg><span class="lbl">Copy a link to this</span></button></div></details></div>`;
+    <button type="button" class="aboutcopy" data-aboutcopy="about"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 11.6a3.2 3.2 0 0 0 4.6 0l2.6-2.6a3.2 3.2 0 0 0-4.6-4.6l-1 1"/><path d="M11.6 8.4a3.2 3.2 0 0 0-4.6 0L4.4 11a3.2 3.2 0 0 0 4.6 4.6l1-1"/></svg><span class="lbl">Copy a link to this</span></button></div></details><details class="fold installwrap"><summary><span>How to install it</span><svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg></summary><div class="about">${openInRow()}<p>Offshoots is a web page, so there is nothing to download and no app store. Every platform below can pin it to a home screen or dock, where it opens full screen with no browser chrome around it.</p><h4 class="subh">iPhone and iPad</h4><ol class="steps"><li>Open this page in <b>Safari</b>. Chrome and Firefox on iOS cannot do this.</li><li>Tap the <b>Share</b> button, the square with an arrow coming out of it.</li><li>Scroll down the list and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li></ol><h4 class="subh">Android</h4><ol class="steps"><li>Open this page in <b>Chrome</b>.</li><li>Tap the <b>three dots</b> at the top right.</li><li>Tap <b>Add to Home screen</b>, then <b>Install</b> or <b>Add</b>. Samsung Internet and Firefox have the same item in their own menus.</li></ol><h4 class="subh">Mac</h4><ol class="steps"><li>In <b>Safari</b>, choose <b>File &rsaquo; Add to Dock</b>, then <b>Add</b>. It lands in the Dock and opens in its own window.</li><li>In <b>Chrome</b>, the same thing is under the three dots at <b>Cast, Save and Share &rsaquo; Install page as app</b>.</li></ol><h4 class="subh">Windows</h4><ol class="steps"><li>In <b>Edge</b> or <b>Chrome</b>, look for the <b>install icon</b> at the right-hand end of the address bar, a monitor with an arrow in it, and click it.</li><li>No icon there? Open the <b>three dots</b> menu and choose <b>Apps &rsaquo; Install this site as an app</b> in Edge, or <b>Cast, Save and Share &rsaquo; Install page as app</b> in Chrome.</li><li>Tick <b>Pin to taskbar</b> when it offers, and it behaves like any other app.</li></ol><h4 class="subh">What you get</h4><p>The whole map is a single file, so once it has loaded it keeps working without a connection. The playlist links still need one, since those open Apple Music or Spotify.</p><button type="button" class="aboutcopy" data-aboutcopy="install"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 11.6a3.2 3.2 0 0 0 4.6 0l2.6-2.6a3.2 3.2 0 0 0-4.6-4.6l-1 1"/><path d="M11.6 8.4a3.2 3.2 0 0 0-4.6 0L4.4 11a3.2 3.2 0 0 0 4.6 4.6l1-1"/></svg><span class="lbl">Copy a link to this</span></button></div></details></div>`;
 }
 
 

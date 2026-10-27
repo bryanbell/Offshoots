@@ -573,6 +573,16 @@ body.searching #bottomSearch{display:block}
 .about .steps li:last-child{margin-bottom:0}
 .about .steps li::marker{color:var(--mut2,var(--muted));font-variant-numeric:tabular-nums}
 .about .steps b{font-weight:600;color:var(--fg)}
+/* iOS only has Add to Home Screen in Safari, so the row that gets you there is the
+   loudest thing in the fold, and the note under it says why it is being offered */
+.openin{margin:0 0 6px}
+.openin a{display:inline-flex;align-items:center;gap:8px;min-height:var(--tap);
+  padding:0 16px;border-radius:999px;background:var(--lite);color:var(--lite-fg);
+  text-decoration:none;font:600 var(--t-body)/1 var(--f-body)}
+.openin a:active{background:#fff}
+.openin svg{flex:none;width:18px;height:18px}
+.opennote{margin:0 0 14px;font-size:var(--t-foot);color:var(--muted);line-height:var(--t-sub-lh)}
+.opennote b{font-weight:600;color:var(--fg)}
 .fold + .fold{margin-top:10px}
 .installwrap .subh{margin-top:18px}
 .installwrap .subh:first-child{margin-top:0}

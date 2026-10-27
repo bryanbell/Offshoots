@@ -1,0 +1,80 @@
+// The "open in" row in the install fold. It is the one thing on the page that behaves
+// differently per browser, and it is offered over http(s) only, so this suite serves the
+// built page rather than reading it off disk like the others.
+const {chromium}=require("playwright");
+const http=require("http"), fs=require("fs"), path=require("path");
+const FILE=path.join(__dirname,"..","index.html");
+const PORT=8741, URL="http://127.0.0.1:"+PORT+"/";
+const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typeof v!=="boolean"?": "+v:""));
+
+const UA={
+  safari:   "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1",
+  ipad:     "Mozilla/5.0 (iPad; CPU OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/129.0 Mobile/15E148 Safari/604.1",
+  ioschrome:"Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/129.0 Mobile/15E148 Safari/604.1",
+  iosfx:    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/130.0 Mobile/15E148 Safari/605.1.15",
+  instagram:"Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 330.0.0.0.0",
+  facebook: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 [FBAN/FBIOS;FBAV/470.0]",
+  andchrome:"Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Mobile Safari/537.36",
+  andfx:    "Mozilla/5.0 (Android 14; Mobile; rv:130.0) Gecko/130.0 Firefox/130.0",
+  samsung:  "Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/26.0 Chrome/122.0.0.0 Mobile Safari/537.36",
+  macsafari:"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15",
+  macchrome:"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+  winedge:  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36 Edg/129.0.0.0"
+};
+
+(async()=>{
+  const srv=http.createServer((q,r)=>{ r.writeHead(200,{"Content-Type":"text/html; charset=utf-8"});
+    r.end(fs.readFileSync(FILE)); }).listen(PORT);
+  const b=await chromium.launch();
+  const row=async(ua,hash)=>{
+    const ctx=await b.newContext({userAgent:UA[ua],viewport:{width:390,height:844}});
+    const p=await ctx.newPage(); const errs=[]; p.on("pageerror",e=>errs.push(String(e)));
+    await p.goto(URL+(hash||"#install")); await p.waitForTimeout(1500);
+    const r=await p.evaluate(()=>{ const a=document.querySelector(".openin a");
+      return a?{href:a.getAttribute("href"),label:a.textContent.trim(),
+                note:(document.querySelector(".opennote")||{}).textContent||"",
+                tap:Math.round(a.getBoundingClientRect().height)}:null; });
+    await ctx.close(); return {r,errs};
+  };
+
+  // offered to the people the steps do not work for
+  for(const ua of ["ioschrome","iosfx","ipad","instagram","facebook"]){
+    const {r,errs}=await row(ua);
+    say(ua+" is offered Safari", !!r && /Safari$/.test(r.label));
+    say("  with an x-safari- link", !!r && r.href.indexOf("x-safari-http")===0);
+    say("  and the share-sheet fallback", !!r && /Share/.test(r.note) && /Open in Safari/.test(r.note));
+    say("  tap target "+(r?r.tap:0)+"px", !!r && r.tap>=44);
+    say("  no errors", errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
+  }
+  // and withheld from everyone it would only confuse
+  for(const ua of ["safari","andchrome","macsafari","macchrome","winedge"]){
+    const {r}=await row(ua);
+    say(ua+" is offered nothing", r===null);
+  }
+  // Android gets Chrome, with the intent fallback that makes it safe when Chrome is absent
+  for(const ua of ["andfx","samsung"]){
+    const {r}=await row(ua);
+    say(ua+" is offered Chrome", !!r && /Chrome$/.test(r.label));
+    say("  through an intent url", !!r && r.href.indexOf("intent://")===0);
+    say("  naming the package", !!r && /package=com\.android\.chrome/.test(r.href));
+    say("  with a fallback url", !!r && /S\.browser_fallback_url=http/.test(r.href));
+    // on Android the browser you are in can do this itself, so the note must not claim otherwise
+    say("  and a note that does not claim Chrome is required", !!r && !/nowhere else/.test(r.note));
+  }
+  // an installed copy has nothing to install
+  { const ctx=await b.newContext({userAgent:UA.ioschrome,viewport:{width:390,height:844}});
+    const p=await ctx.newPage();
+    await p.addInitScript(()=>{ Object.defineProperty(navigator,"standalone",{get:()=>true}); });
+    await p.goto(URL+"#install"); await p.waitForTimeout(1500);
+    say("an already installed copy is offered nothing", (await p.$$(".openin a")).length===0);
+    await ctx.close(); }
+  // the row only exists inside the install fold
+  { const ctx=await b.newContext({userAgent:UA.ioschrome,viewport:{width:390,height:844}});
+    const p=await ctx.newPage(); await p.goto(URL+"#about"); await p.waitForTimeout(1500);
+    const inside=await p.evaluate(()=>{ const a=document.querySelector(".openin");
+      return a?!!a.closest(".installwrap"):"absent"; });
+    say("it lives inside the install fold ("+inside+")", inside===true);
+    await ctx.close(); }
+
+  await b.close(); srv.close();
+})();
