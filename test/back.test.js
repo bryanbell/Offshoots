@@ -102,7 +102,7 @@ const hash=p=>p.evaluate(()=>location.hash);
   // it used to sit at a fixed inset and cover the family label in the lane strip
   const strip=await p.evaluate(()=>{
     const pill=document.getElementById("mapHome").getBoundingClientRect(),
-          lane=document.querySelector(".lane").getBoundingClientRect();
+          lane=document.querySelector(".lane[data-fam]").getBoundingClientRect();
     return Math.round(pill.left-lane.right);});
   say("clear of the lane strip ("+strip+"px)", strip>=6);
   await p.click("#mapHome"); await p.waitForTimeout(600);

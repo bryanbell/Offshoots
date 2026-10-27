@@ -27,9 +27,31 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("and not repeated in the panel", (await p.$$("#panelBody .mtag, #panelBody .mmeta, .ovcard .tag")).length===0);
   // it sits above the first lane rather than over it
   const band=await p.evaluate(()=>{ const h=document.getElementById("maphead").getBoundingClientRect(),
-    l=document.querySelector(".lane").getBoundingClientRect();
+    l=document.querySelector(".lane[data-fam]").getBoundingClientRect();
     return {gap:Math.round(l.top-h.bottom), h:Math.round(h.height)}; });
-  say("the band is "+band.h+"px and the first lane starts "+band.gap+"px below it", band.h>60 && band.gap>=0);
+  say("the band is "+band.h+"px and the first lane starts "+band.gap+"px below it", band.h>40 && band.gap>=0);
+  // the blurb and the counts sit beside the name, not under it, wherever there is room
+  { const q=await b.newPage({viewport:{width:1440,height:900}});
+    await q.goto(URL); await q.waitForTimeout(1000);
+    const lay=await q.evaluate(()=>{ const t=document.querySelector("#maphead .mh").getBoundingClientRect(),
+      g=document.querySelector("#maphead .mtag").getBoundingClientRect(),
+      f=document.querySelector(".lane.fill"), h=document.getElementById("maphead").getBoundingClientRect();
+      const fb=f?f.getBoundingClientRect():null;
+      return {beside:Math.round(g.left-t.right), sameLine:Math.abs(Math.round(g.top-t.top))<30,
+        band:Math.round(h.height), fillTop:fb?Math.round(fb.top):null,
+        fillH:fb?Math.round(fb.height):null, bandTop:Math.round(h.top)}; });
+    say("the blurb sits "+lay.beside+"px right of the name, on its line", lay.beside>0 && lay.sameLine);
+    say("  which keeps the band to "+lay.band+"px", lay.band<90);
+    say("  and the lane strip is filled beside it ("+lay.fillH+"px from "+lay.fillTop+")",
+      lay.fillH!==null && Math.abs(lay.fillH-lay.band)<=2 && Math.abs(lay.fillTop-lay.bandTop)<=2);
+    // it belongs to the map, so panning the timeline carries it along
+    const before=await q.evaluate(()=>Math.round(document.querySelector("#maphead .mh").getBoundingClientRect().left));
+    await q.evaluate(()=>{ document.getElementById("scroller").scrollLeft=200; }); await q.waitForTimeout(300);
+    const after=await q.evaluate(()=>({ttl:Math.round(document.querySelector("#maphead .mh").getBoundingClientRect().left),
+      strip:Math.round(document.querySelector(".lane.fill").getBoundingClientRect().left)}));
+    say("  panning 200px moves the title with the map ("+before+" to "+after.ttl+")", before-after.ttl>=190);
+    say("  while the lane strip stays pinned at "+after.strip, after.strip<=1);
+    await q.close(); }
   // the back and map pills float over the top left of the map, where the title now is
   { const q=await b.newPage({viewport:{width:1440,height:900}});
     await q.goto(URL+"#delta"); await q.waitForTimeout(1100);

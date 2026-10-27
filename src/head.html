@@ -88,22 +88,25 @@ button:focus-visible,.chip:focus-visible,.link:focus-visible{outline:0;box-shado
 #axis .rt{font-family:var(--f-body);font-weight:500}
 #axis .now{fill:var(--accent);font-weight:700}
 #lanes{position:absolute;left:0;z-index:3;pointer-events:none;will-change:transform}
+/* the band at the top has no family, so the lane column would end in a bare notch.
+   This fills it, in grey, so the strip reads as one continuous column. */
+.lane.fill{position:absolute;background:color-mix(in srgb,var(--fg) 7%,transparent);
+  border-radius:0 7px 7px 0}
 /* the map's own title row, above the first lane. It is in the scroller so it moves up
    with the chart, but pinned horizontally like the lane strip, so panning the timeline
    does not drag the title off the screen. */
-#maphead{position:absolute;left:0;z-index:3;will-change:transform;box-sizing:border-box;
-  display:flex;flex-direction:column;justify-content:center;gap:3px;
+/* nothing in it is clickable, so it does not swallow taps: the band is map space, and a
+   tap there clears the selection exactly like a tap on any other empty part of the chart */
+#maphead{position:absolute;left:0;z-index:3;pointer-events:none;box-sizing:border-box;
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 18px;
   /* the back and map pills float at the top left of the map, so the row starts clear of
      them rather than under them. It is a constant indent, not one that appears with the
      pills: the band's height is measured once per render and must not change on selection. */
   padding:14px 20px 16px calc(var(--stripw,28px) + 64px)}
-#maphead .mh{display:inline-flex;align-items:center;gap:9px;align-self:flex-start;
-  min-height:var(--tap);cursor:pointer;color:var(--fg);background:none;border:0;padding:0;margin:0}
-#maphead .mh h1{margin:0;font:700 var(--t-title1)/1.1 var(--f-body);letter-spacing:-.022em}
-#maphead .mh svg{flex:none;width:19px;height:19px;color:var(--muted)}
-#maphead .mh:hover svg{color:var(--fg)}
+#maphead .mh{flex:none;margin:0;font:700 var(--t-title1)/1.1 var(--f-body);letter-spacing:-.022em;color:var(--fg)}
+#maphead .mhtx{min-width:0;display:flex;flex-direction:column;gap:2px}
 #maphead .mtag{margin:0;font:400 var(--t-body)/var(--t-body-lh) var(--f-body);color:var(--fg)}
-#maphead .mmeta{margin:2px 0 0;font:400 var(--t-foot)/1.3 var(--f-mono);color:var(--muted)}
+#maphead .mmeta{margin:0;font:400 var(--t-foot)/1.3 var(--f-mono);color:var(--muted)}
 @media (max-width:699px){ #maphead{padding:11px 16px 13px calc(var(--stripw,28px) + 58px)} }
 
 .lane{--lf:13px;position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:12px 0 7px 3px;border-radius:0;

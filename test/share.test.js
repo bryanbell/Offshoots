@@ -60,12 +60,13 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   say("the title is centred in the row, off by "+ob[0]+"px", ob[0]<=2);
   say("tap target "+ob[1]+"px", ob[1]>=34);
   say("glyph "+ob[2]+"px", ob[2]>=14);
-  // the map carries its own share control, on the title block that describes it
-  await d.evaluate(()=>{window.__copied.length=0;});
-  await d.click("#maphead .mh"); await d.waitForTimeout(250);
-  const u2=await d.evaluate(()=>window.__copied[0]||"");
-  say("the map title shares too", !!u2 && !u2.includes("#") ? true : u2||"nothing copied");
-  await d.waitForTimeout(1700);
+  // the title on the map is a heading, not a second way to do the same thing
+  const mh=await d.evaluate(()=>{ const h=document.querySelector("#maphead .mh");
+    return {tag:h.tagName, share:document.querySelectorAll("#maphead [data-share]").length,
+      buttons:document.querySelectorAll("#maphead button, #maphead a").length}; });
+  say("the map title is a heading ("+mh.tag+")", mh.tag==="H1");
+  say("  with nothing to click on the band", mh.share===0 && mh.buttons===0);
+  say("  so the panel header is the only share control", (await d.$$("[data-share]")).length===1);
 
   // ---------- mobile: minimised sheet still expands on a title tap ----------
   let p=await fresh(b,M,"#disco");

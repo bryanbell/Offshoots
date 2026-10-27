@@ -281,11 +281,10 @@ function draw(){
   const svg=$("chart"); svg.setAttribute("width",W); svg.setAttribute("height",H); svg.setAttribute("viewBox",`0 0 ${W} ${H}`); svg.style.setProperty("--fs",FS+"px"); svg.innerHTML=s;
   $("inner").style.width=W+"px";
   const L=$("lanes"); L.style.top=(BAR()+AXH)+"px"; L.style.setProperty("--lz",1);
-  L.innerHTML = lanes.map((l,i)=>`<div class="lane c" data-fam="${l.k}" style="--c:${FAM[l.k].c};top:${l.y0}px;height:${l.h}px;left:0;width:${LABELW-8}px" title="${esc(FAM[l.k].name)} · ${l.count} styles"><span class="vt">${esc(FAM[l.k].short)}</span><span class="cnt">${l.count}</span></div>`).join("");
+  L.innerHTML = `<div class="lane fill" style="top:0;height:${HEADH}px;left:0;width:${LABELW-8}px"></div>` + lanes.map((l,i)=>`<div class="lane c" data-fam="${l.k}" style="--c:${FAM[l.k].c};top:${l.y0}px;height:${l.h}px;left:0;width:${LABELW-8}px" title="${esc(FAM[l.k].name)} · ${l.count} styles"><span class="vt">${esc(FAM[l.k].short)}</span><span class="cnt">${l.count}</span></div>`).join("");
   L.style.transform=`translateX(${scroller.scrollLeft}px)`;
 }
 scroller.addEventListener("scroll",()=>{ const t=`translateX(${scroller.scrollLeft}px)`; $("lanes").style.transform=t;
-  const h=$("maphead"); if(h) h.style.transform=t;
   const c=$("corner"); if(c) c.style.transform=t; },{passive:true});
 
 // size the tree to the rest of the viewport
@@ -297,17 +296,17 @@ function fit(){}
 // band above the first lane that layout() leaves empty for them.
 let HEADH = 0;
 function mapHeadHTML(){
-  return '<button type="button" class="mh" data-share aria-label="Share this map" title="Share this map">'
-    + '<h1>Offshoots</h1>'+SHAREGLYPH+'</button>'
-    + '<p class="mtag">Find something to hear, and trace what it grew out of.</p>'
-    + '<p class="mmeta">'+nodes.length+' styles · '+playable().length+' playlists</p>';
+  // not a control: the panel header carries the share, and a second one here was two
+  // buttons for one job. The blurb and the counts sit beside the name rather than under it.
+  return '<h1 class="mh">Offshoots</h1>'
+    + '<div class="mhtx"><p class="mtag">Find something to hear, and trace what it grew out of.</p>'
+    + '<p class="mmeta">'+nodes.length+' styles · '+playable().length+' playlists</p></div>';
 }
 function measureHead(){
   const h=$("maphead"); if(!h){ HEADH=0; return; }
   if(!h.firstChild) h.innerHTML=mapHeadHTML();
   h.style.top=(BAR()+AXH)+"px";
-  h.style.width=Math.max(300,scroller.clientWidth)+"px";
-  h.style.transform=`translateX(${scroller.scrollLeft}px)`;
+  h.style.width=Math.max(300,scroller.clientWidth)+"px";   // measured against the window, not the chart
   HEADH=Math.ceil(h.getBoundingClientRect().height);
 }
 
@@ -439,7 +438,8 @@ function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   });
   const cur=svg.querySelector(`.n[data-id="${id}"]`); if(cur) cur.parentNode.appendChild(cur);
   const fams=new Set([...on].map(k=>byId[k].fam));
-  $("lanes").querySelectorAll(".lane").forEach(l=>l.classList.toggle("dim",!fams.has(l.dataset.fam)));
+  // [data-fam], so the filler above the first family is never dimmed along with them
+  $("lanes").querySelectorAll(".lane[data-fam]").forEach(l=>l.classList.toggle("dim",!fams.has(l.dataset.fam)));
   const fromNote=n.note.replace(/^[^:]{0,40}:\s*/,"").split(/;|\s·\s/)[0].replace(/\s*\([^)]*\)/g,"").replace(/'[^']*'/g,"").replace(/\s+,/g,",").replace(/,\s*,/g,",").trim().replace(/^,|,$/g,"");
   // a note that is just a list of names becomes the artist list; prose stays a note
   const JOIN=new Set(["in","the","of","and","a","an","on","at","for","to","de","la","le","du","des","el","y"]);
