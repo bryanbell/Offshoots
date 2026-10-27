@@ -363,6 +363,11 @@ body.open .pcnt{display:none}
 .pmin svg{width:17px;height:17px}
 /* a sidebar has no smaller state to go to, so the control is not offered there */
 @media (min-width:900px){ .pmin{display:none} }
+/* on the root the row holds nothing else, so the X sits over the corner instead of
+   setting the row's height and pushing the large title down a tap target */
+.ovcard .navrow{position:sticky}
+.ovcard .pmin{position:absolute;top:0;right:0}
+.ovcard .bigttl{padding-right:calc(var(--tap) + 8px)}
 /* and the lineage cluster is not part of the peek, which is for the playlist */
 @media (max-width:899px){ body:not(.open) .more > .sect-lineage{display:none} }
 .navrow .navleft .navback{justify-self:auto}
@@ -398,7 +403,10 @@ body.open .pcnt{display:none}
   font:400 var(--t-body)/1.2 var(--f-body)}
 .listrow .lrct{flex:none;font:400 var(--t-body)/1 var(--f-mono);color:var(--muted);font-style:normal;
   font-variant-numeric:tabular-nums}
-.listrow .lrcv{flex:none;width:15px;height:15px;color:var(--muted);opacity:.7}
+.listrow .lrcv{flex:none;width:15px;height:15px;color:var(--muted);opacity:.7;transition:transform .18s}
+/* the menu opens in place rather than pushing a screen in, so the chevron turns over */
+.listrow[aria-expanded="true"] .lrcv{transform:rotate(180deg);opacity:1}
+@media (prefers-reduced-motion:reduce){ .listrow .lrcv{transition:none} }
 /* a root style has nothing before it, so that row is a statement rather than a control */
 .listrow:disabled{cursor:default;opacity:.45}
 .listrow:disabled:hover{background:transparent}

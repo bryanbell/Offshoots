@@ -131,6 +131,41 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("  and it is at the right of the row", await p.evaluate(()=>{
     const r=document.querySelector(".ovcard .navrow"), x=r.querySelector(".pmin");
     return !!x && Math.round(r.getBoundingClientRect().right-x.getBoundingClientRect().right)<=1; }));
+  say("  and it says what it does", await p.$eval(".ovcard .pmin",e=>e.getAttribute("title")));
+  say("  which is close, not minimise",
+    await p.$eval(".ovcard .pmin",e=>e.hasAttribute("data-dismiss")&&/close/i.test(e.getAttribute("title"))));
+  // it floats over the corner rather than setting the row's height: a 44px control in the
+  // flow pushed the large title down by its own height
+  const xo=await p.evaluate(()=>{ const card=document.querySelector(".ovcard"),
+    row=card.querySelector(".navrow"), x=card.querySelector(".pmin"),
+    t=card.querySelector(".bigttl");
+    const cb=card.getBoundingClientRect();
+    return {rowH:Math.round(row.getBoundingClientRect().height),
+      pos:getComputedStyle(x).position,
+      titleTop:Math.round(t.getBoundingClientRect().top-cb.top),
+      // the h1 is a block and spans the card, so measure the painted text, not the box
+      clearsTitle:(()=>{ const rg=document.createRange();
+        rg.selectNodeContents(t.querySelector(".mn")||t);
+        return Math.round(x.getBoundingClientRect().left - rg.getBoundingClientRect().right); })()}; });
+  say("  floating, so the row stays "+xo.rowH+"px", xo.pos==="absolute" && xo.rowH<=24);
+  say("  and the title starts "+xo.titleTop+"px into the card", xo.titleTop<=24);
+  say("  with the title clear of it by "+xo.clearsTitle+"px", xo.clearsTitle>0);
+
+  // the rows open a menu in place, so their chevron is a disclosure one
+  const cv=await p.evaluate(async()=>{
+    const r=document.querySelector('[data-menu="roots"]');
+    // read the state, not the animation: sampling a 180ms transition is a race, and under
+    // load it reads the identity matrix it started from
+    r.querySelector(".lrcv").style.transition="none";
+    const at=()=>getComputedStyle(r.querySelector(".lrcv")).transform;
+    const shut=at(); r.click(); await new Promise(z=>setTimeout(z,350));
+    const out={shut, open:at(), expanded:r.getAttribute("aria-expanded"),
+      points:r.querySelector(".lrcv").innerHTML};
+    r.click(); await new Promise(z=>setTimeout(z,300));   // leave it shut for what follows
+    return out; });
+  say("  the chevron points down at rest", /M3 6l5 5 5-5/.test(cv.points));
+  say("  and turns over when the menu opens ("+cv.open+")",
+    cv.expanded==="true" && cv.open!==cv.shut && /-1, 0, 0, -1/.test(cv.open));
 
   // the ways in are one grouped list, the way a phone app lists collections
   const grp=await p.evaluate(()=>{ const g=document.querySelector(".sect-browse .listgrp");

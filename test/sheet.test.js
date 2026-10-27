@@ -134,7 +134,17 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   say("the handle carries the minimise control",
     (await p.$$eval(".ovcard .navrow button",e=>e.filter(b=>!b.hidden).length))===1);
   await p.click(".ovcard .pmin"); await p.waitForTimeout(700);
-  say("  tapping it minimises the sheet", (await open())===false);
+  // it closes rather than minimises: the sheet goes, the map is whole, and the pull tab
+  // at the bottom of the screen is what brings it back
+  const away=await p.evaluate(()=>({gone:document.body.classList.contains("sheetgone"),
+    panel:getComputedStyle(document.getElementById("panel")).display,
+    pull:(()=>{const t=document.getElementById("sheetpull");
+      return t?getComputedStyle(t).display:"missing";})(),
+    kept:location.hash}));
+  say("  tapping it puts the sheet away", away.gone && away.panel==="none");
+  say("  leaving a pull tab to bring it back ("+away.pull+")", away.pull!=="none" && away.pull!=="missing");
+  await p.click("#sheetpull"); await p.waitForTimeout(700);
+  say("  which does", await p.evaluate(()=>!document.body.classList.contains("sheetgone")));
   await ensure(); await p.waitForTimeout(500);
   await p.$eval("#panelBody .shbtn.wide",e=>e.scrollIntoView({block:"center"})); await p.waitForTimeout(300);
   await p.click("#panelBody .shbtn.wide"); await p.waitForTimeout(400);

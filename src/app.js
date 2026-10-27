@@ -709,9 +709,9 @@ function svcPicker(kind){ return `<span class="svc${kind==="inline"?" svcinline"
   + `<option value="spotify"${SVC==="spotify"?" selected":""}>Spotify</option>`
   + `<option value="qobuz"${SVC==="qobuz"?" selected":""}>Qobuz</option>`
   + `</select></span>`; }
-// one control at the top right of every panel: it shrinks the card to its smallest
-// state rather than dismissing it, so the playlist stays in view and the map opens up
-const CLOSEBTN=`<button type="button" class="pmin" data-close aria-label="Minimise this panel" title="Minimise this panel"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5.5 5.5l9 9"/><path d="M14.5 5.5l-9 9"/></svg></button>`;
+// one control at the top right of every panel: it puts the card away and leaves the map
+// whole. The pull tab at the bottom of the screen brings it back.
+const CLOSEBTN=`<button type="button" class="pmin" data-dismiss aria-label="Close this panel" title="Close this panel"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5.5 5.5l9 9"/><path d="M14.5 5.5l-9 9"/></svg></button>`;
 
 // From and Led to were a segmented pill in the header, which gave the two directions of
 // the whole map less room than the playlist row. They are the same grouped list the
@@ -756,8 +756,8 @@ function panel(n,anc,desc){
   const who=n.whoList||[];
   const artistsHtml = `<div class="who">${who.map(am).join("")}</div>`;
   $("panelBody").innerHTML = PHEAD + `<div class="more">
-    ${listenSect(n,who,artistsHtml)}
     ${lineageSect(n)}
+    ${listenSect(n,who,artistsHtml)}
     <p class="note lede wikiline">${about(n)?esc(about(n))+" ":""}${wikiTxt(n)}</p>
     ${n.sources.length?`<h3>Sources</h3><ul class="srcs">${n.sources.map(u=>{let h="";try{h=new URL(u).hostname.replace(/^www\./,"")}catch(e){h=u}return `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(h)}</a></li>`}).join("")}</ul>`:""}
     ${shareBtn(n)}
@@ -873,6 +873,7 @@ $("panel").addEventListener("click",e=>{
   { const ss=e.target.closest("[data-sharesheet]");
     if(ss){ openShareSheet(ss); return; } }
   if(e.target.closest("[data-share]")){ shareSel(); return; }
+  if(e.target.closest("[data-dismiss]")){ dismissSheet(); return; }
   if(e.target.closest("[data-close]")){ closePanel(); return; }
   const m=e.target.closest("[data-mode]"); if(m){ state.mode=m.dataset.mode; select(state.sel,{scroll:false}); }
 });
@@ -1115,7 +1116,7 @@ function plStylesHtml(k){
 }
 
 const LRICON={"roots": "<path d=\"M10 17V7\"/><path d=\"M10 11C10 8.5 8 6.5 5.5 6.5\"/><path d=\"M10 13.5c0-2 1.7-3.6 3.7-3.6\"/><path d=\"M10 7a2.6 2.6 0 1 0 0-5.2A2.6 2.6 0 0 0 10 7z\"/>", "fams": "<path d=\"M3.2 6.6L10 3.2l6.8 3.4L10 10z\"/><path d=\"M3.2 10L10 13.4 16.8 10\"/><path d=\"M3.2 13.4L10 16.8l6.8-3.4\"/>", "pl": "<path d=\"M4 5.5h8\"/><path d=\"M4 10h8\"/><path d=\"M4 14.5h5\"/><path d=\"M15.2 13.6V6.2l2.3-.7\"/><circle cx=\"13.8\" cy=\"14\" r=\"1.6\"/>", "top": "<path d=\"M3 13.5l4-4.2 3.1 2.8L17 5.5\"/><path d=\"M13.2 5.5H17V9\"/>"};
-const LRCHEV="<svg class=\"lrcv\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7.5 4.5L13 10l-5.5 5.5\"/></svg>";
+const LRCHEV="<svg class=\"lrcv\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 6l5 5 5-5\"/></svg>";
 // every way of browsing the map is a collection you open, so they are one grouped list:
 // icon, name, how many, chevron, hairlines starting at the name. They used to be three
 // chips in a row, and the roots were a pill up in the header.

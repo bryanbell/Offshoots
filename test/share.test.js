@@ -132,6 +132,10 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   say("each row spans it, and neither paints its own ground",
     seg.full && seg.halves.every(c=>/rgba\(0, 0, 0, 0\)/.test(c)));
   say("and it is in the body, not the header", seg.inHeader===false);
+  // directly under the title: where a style sits in the map is the first thing the panel
+  // says about it, ahead of what you can play
+  const first=await p.$$eval("#panelBody .sect",e=>e.map(x=>x.className.match(/sect-[\w]+/)[0]));
+  say("lineage leads the card ("+first.join(" / ")+")", first[0]==="sect-lineage");
   // back carries its destination, and gives it up rather than crowding the title
   const bk=await p.$eval("#panelBack",e=>{const l=e.querySelector(".bklbl");
     return {text:l.textContent, ellipsis:getComputedStyle(l).textOverflow};});
