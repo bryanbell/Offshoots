@@ -396,8 +396,13 @@ function goHome(){
 function syncBack(){
   // the root pill stays over the map whenever you are not looking at the unselected
   // root, so there is always one tap back to the whole picture
+  // it used to disappear at the root, which meant the control vanished from under the
+  // finger that had just used it. It stays put and goes disabled instead.
   const hm=$("mapHome");
-  if(hm) hm.hidden = !state.sel;
+  if(hm){ const home=!state.sel;
+    hm.disabled=home; hm.hidden=false;
+    const t = home ? "You are looking at the whole map" : "Back to the map";
+    hm.title=t; hm.setAttribute("aria-label",t); }
   // back itself lives in the panel now, where it is not sitting beside a From button
   const b=$("panelBack"); if(!b) return;
   const l=backLabel();
@@ -1118,6 +1123,7 @@ function modeSect(){
 }
 function emptyPanel(){
   setTint("");
+  syncBack();                      // so the map pill is in its home state from the first paint
   setExpandLabel("", "About this map", "About");
   setPbar("Offshoots", FAMS.length+" families · "+nodes.length+" styles");
   syncPull();

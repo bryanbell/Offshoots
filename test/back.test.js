@@ -80,9 +80,24 @@ const hash=p=>p.evaluate(()=>location.hash);
   say("no page errors", p._errs.length===0 ? true : p._errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
 
   // the home pill: shown whenever you are not on the unselected root
-  const home=q=>q.$eval("#mapHome",e=>!e.hidden&&getComputedStyle(e).display!=="none");
+  // it no longer disappears at the root: it stays in place and goes disabled, so "home"
+  // here means live, not merely present
+  const home=q=>q.$eval("#mapHome",e=>!e.hidden&&getComputedStyle(e).display!=="none"&&!e.disabled);
+  const parked=q=>q.evaluate(()=>{ const e=document.getElementById("mapHome");
+    const s=document.getElementById("mapSearch");
+    const a=e.getBoundingClientRect(), b=s.getBoundingClientRect();
+    return {shown:!e.hidden&&getComputedStyle(e).display!=="none", off:e.disabled,
+      dim:parseFloat(getComputedStyle(e).opacity)<.6, says:e.title,
+      size:Math.round(a.width)===Math.round(b.width)&&Math.round(a.height)===Math.round(b.height),
+      top:Math.round(a.top)===Math.round(b.top),
+      mirrored:Math.abs(Math.round(a.left)-Math.round((s.offsetParent?s.offsetParent.clientWidth:innerWidth)-b.right))<=1}; });
   p=await fresh(b,M);
-  say("home hidden on the map itself", (await home(p))===false);
+  say("home is not live on the map itself", (await home(p))===false);
+  { const k=await parked(p);
+    say("  but it is still there, disabled and dimmed", k.shown && k.off && k.dim);
+    say("  saying "+JSON.stringify(k.says), /whole map/.test(k.says));
+    say("  the same size as the search button, on the same line", k.size && k.top);
+    say("  and inset from its edge by the same amount", k.mirrored); }
   await p.click("#grab").catch(()=>{}); await p.waitForTimeout(400);
   await p.click('[data-mk="winddown"]'); await p.waitForTimeout(500);
   await p.click(".picks .pick"); await p.waitForTimeout(600);
@@ -99,15 +114,22 @@ const hash=p=>p.evaluate(()=>location.hash);
     return [Math.round(h.width),Math.round(h.height),Math.round(h.right),Math.round(s.left)];});
   say("tap target "+hb[0]+"x"+hb[1], hb[0]>=40&&hb[1]>=40);
   say("clear of the search button ("+hb[2]+" vs "+hb[3]+")", hb[2]<hb[3]);
-  // it used to sit at a fixed inset and cover the family label in the lane strip
+  // it used to sit right of the lane strip to keep off the family labels. Mirroring the
+  // search button put it back over the strip, which is the price of that symmetry: at the
+  // top of the map it covers only the blank filler, but scrolled down it crosses whichever
+  // family label is passing under it. Pinned here so the trade is deliberate, not forgotten.
   const strip=await p.evaluate(()=>{
     const pill=document.getElementById("mapHome").getBoundingClientRect(),
-          lane=document.querySelector(".lane[data-fam]").getBoundingClientRect();
-    return Math.round(pill.left-lane.right);});
-  say("clear of the lane strip ("+strip+"px)", strip>=6);
+      lane=document.querySelector(".lane.fill")||document.querySelector(".lane[data-fam]");
+    const r=lane.getBoundingClientRect();
+    return {over:Math.round(Math.min(pill.right,r.right)-Math.max(pill.left,r.left)),
+      stripw:Math.round(r.width)};});
+  say("it overlaps the "+strip.stripw+"px lane strip by "+strip.over+"px, which mirroring cost",
+    strip.over>0 && strip.over<=strip.stripw);
   await p.click("#mapHome"); await p.waitForTimeout(600);
   say("one tap lands on the map", (await hash(p))==="" && (await p.$eval(".ovcard .mn",e=>e.textContent))==="Offshoots");
-  say("and hides itself again", (await home(p))===false);
+  say("and goes dead again rather than vanishing", (await home(p))===false);
+  { const k=await parked(p); say("  still in place under the finger", k.shown && k.off); }
   // home is a reset: the walk that led here is gone, so back goes too
   say("back is cleared away with it", (await shown(p))===false);
   // and the trail really is empty, not merely hidden: the next move starts from the map

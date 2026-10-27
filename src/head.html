@@ -102,12 +102,12 @@ button:focus-visible,.chip:focus-visible,.link:focus-visible{outline:0;box-shado
   /* the back and map pills float at the top left of the map, so the row starts clear of
      them rather than under them. It is a constant indent, not one that appears with the
      pills: the band's height is measured once per render and must not change on selection. */
-  padding:14px 20px 16px calc(var(--stripw,28px) + 64px)}
+  padding:14px 72px 16px 72px}
 #maphead .mh{flex:none;margin:0;font:700 var(--t-title1)/1.1 var(--f-body);letter-spacing:-.022em;color:var(--fg)}
 #maphead .mhtx{min-width:0;display:flex;flex-direction:column;gap:2px}
 #maphead .mtag{margin:0;font:400 var(--t-body)/var(--t-body-lh) var(--f-body);color:var(--fg)}
 #maphead .mmeta{margin:0;font:400 var(--t-foot)/1.3 var(--f-mono);color:var(--muted)}
-@media (max-width:699px){ #maphead{padding:11px 16px 13px calc(var(--stripw,28px) + 58px)} }
+@media (max-width:699px){ #maphead{padding:11px 64px 13px 64px} }
 
 .lane{--lf:13px;position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:12px 0 7px 3px;border-radius:0;
   background:color-mix(in srgb,var(--c) 11%,var(--mapbg));box-shadow:inset 3px 0 0 var(--c),inset -.5px 0 0 var(--line);
@@ -539,15 +539,21 @@ aside{display:flex;flex-direction:column;position:absolute;z-index:30;top:calc(e
   background:var(--fg);color:var(--bg);box-shadow:0 2px 10px rgb(0 0 0 / .4)}
 #mapSearch svg{width:18px;height:18px}
 /* the way out of a lineage you have walked four taps into */
-#navpills{position:absolute;z-index:24;top:calc(var(--axh,34px) + 12px);left:calc(var(--stripw,28px) + 12px);display:flex;align-items:center;gap:8px}
-#mapHome{display:grid;place-items:center;flex:none;width:38px;height:38px;border:0;border-radius:999px;cursor:pointer;
+/* mirrors #mapSearch: same inset from its edge, same size, same skin, so the two map
+   controls read as a pair rather than as one control and one afterthought */
+#navpills{position:absolute;z-index:24;top:calc(var(--axh,34px) + 12px);left:16px;display:flex;align-items:center;gap:8px}
+#mapHome{display:grid;place-items:center;flex:none;width:42px;height:42px;border:0;border-radius:50%;cursor:pointer;
+  transition:background .15s,opacity .15s;
   background:var(--fg);color:var(--bg);box-shadow:0 2px 10px rgb(0 0 0 / .4)}
 #mapHome[hidden]{display:none}
 #mapHome svg{width:18px;height:18px}
-#mapHome:hover{background:#fff}
+#mapHome:hover:not(:disabled){background:#fff}
+/* already home: the button stays where it was rather than vanishing from under the
+   finger that just pressed it, and says so by going flat */
+#mapHome:disabled{cursor:default;opacity:.45;box-shadow:none;background:var(--muted)}
 body.searching #navpills{display:none}
 @media (max-width:899px){
-  #navpills{top:calc(var(--axh,34px) + 10px);left:calc(var(--stripw,28px) + 10px);gap:7px}
+  #navpills{top:calc(var(--axh,34px) + 10px);left:12px;gap:7px}
   #mapHome{width:40px;height:40px}
 }
 #mapSearch:hover{background:#fff}
@@ -1010,7 +1016,7 @@ a.am .amgo{display:none}
         </div>
       </div>
       <div id="navpills">
-        <button id="mapHome" class="glass" type="button" hidden aria-label="Back to the map" title="Back to the map"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.6 7.4 3.6v10.8l-4.6 2z"/><path d="M7.4 3.6 12.6 5.6v10.8L7.4 14.4z"/><path d="M12.6 5.6 17.2 3.6v10.8l-4.6 2z"/></svg></button>
+        <button id="mapHome" class="glass" type="button" disabled aria-label="You are looking at the whole map" title="You are looking at the whole map"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.6 7.4 3.6v10.8l-4.6 2z"/><path d="M7.4 3.6 12.6 5.6v10.8L7.4 14.4z"/><path d="M12.6 5.6 17.2 3.6v10.8l-4.6 2z"/></svg></button>
       </div>
       <button id="mapSearch" class="glass" type="button" aria-label="Search styles and artists" title="Search styles and artists"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4 4"/></svg></button>
       <div id="bottomSearch">
