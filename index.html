@@ -172,13 +172,13 @@ aside h2{font-weight:700;font-size:28px;line-height:1.1;letter-spacing:-.022em;m
 .seg button{padding:0 14px;min-height:var(--tap);font-size:var(--t-sub)}
 aside h3,.pcard h3.sec{font:600 var(--t-head)/var(--t-head-lh) var(--f-body);letter-spacing:-.01em;text-transform:none;color:var(--fg);margin:24px 0 10px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{display:inline-flex;align-items:center;gap:8px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;min-width:0;max-width:100%;min-height:var(--tap);box-sizing:border-box;font:500 var(--t-sub)/var(--t-sub-lh) var(--f-body);padding:0 14px;border-radius:999px;border:0;background:var(--fill2);color:var(--fg);cursor:pointer;transition:background .15s}
+.chip{display:inline-flex;align-items:center;gap:8px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;min-width:0;max-width:100%;min-height:var(--tap);box-sizing:border-box;font:500 var(--t-sub)/var(--t-sub-lh) var(--f-body);padding:0 12px;border-radius:999px;border:0;background:var(--fill2);color:var(--fg);cursor:pointer;transition:background .15s}
 .chip::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:var(--c)}
 .chip>i.nm{font-style:normal;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .chip:hover{background:var(--fill)}
 /* listening modes */
 .sectaside{font:400 var(--t-foot)/var(--t-foot-lh) var(--f-body);color:var(--muted);opacity:1}
-.modechip{gap:8px;padding:0 14px}
+.modechip{gap:8px;padding:0 12px}
 .modechip{--lvc:#9aa0a6}
 .modechip.lv1{--lvc:#7aa2f7}
 .modechip.lv2{--lvc:#5bbda4}
@@ -335,6 +335,9 @@ body:not(.open) #pclose{transform:rotate(180deg)}
 .pcard .mn{padding-right:0}
 body:not(.open) aside{cursor:pointer;width:min(215px,23vw)}
 body:not(.open) .pcard .my{display:block;white-space:normal;overflow:visible}
+/* except on the title button, where the chevron belongs beside the year rather than
+   dropped onto a line of its own */
+body:not(.open) .pcard button.navttl .my{display:inline-flex}
 body:not(.open) .pcard .my .fam,body:not(.open) .pcard .my .yr{display:inline;white-space:normal;overflow:visible;text-overflow:clip}
 body:not(.open) .pcard .meta{align-items:flex-start;gap:6px}
 @media (max-width:699px){ body:not(.open) aside{left:auto;width:min(50vw,230px)} }
@@ -363,11 +366,15 @@ body.open .pcnt{display:none}
 .pmin svg{width:17px;height:17px}
 /* a sidebar has no smaller state to go to, so the control is not offered there */
 @media (min-width:900px){ .pmin{display:none} }
-/* on the root the row holds nothing else, so the X sits over the corner instead of
-   setting the row's height and pushing the large title down a tap target */
-.ovcard .navrow{position:sticky}
-.ovcard .pmin{position:absolute;top:0;right:0}
+/* both controls are pinned to the card's corners on every panel, so moving between the
+   root and a style does not slide them a few pixels. It also keeps the root's row at its
+   own height instead of a tap target's, which was pushing the large title down. */
+.pcard .navrow{position:sticky}
+.pcard .navrow .navleft,.pcard .navrow>#panelBack{position:absolute;left:0;top:0;z-index:2}
+.pcard .pmin{position:absolute;top:0;right:0;z-index:2}
 .ovcard .bigttl{padding-right:calc(var(--tap) + 8px)}
+/* and the title gets out of their way rather than running under them */
+.pcard .navrow .nav-lineage{grid-column:1 / -1;padding:0 calc(var(--tap) + 10px)}
 /* and the lineage cluster is not part of the peek, which is for the playlist */
 /* the peek used to hide this, which moved everything below it up: open the sheet and the
    playlist jumped down a hundred pixels, under whatever finger was reaching for it. The
@@ -868,6 +875,23 @@ aside#panel{padding-bottom:0}
    left of the root header, and a labelled one at the foot of a style panel. */
 .navttl{display:block;text-align:center;overflow:hidden;min-height:var(--tap);
   padding:2px 6px;margin:-2px 0;min-width:0;max-width:100%}
+/* the name opens the lineage, so it is a button again, but it must not look like one at
+   rest: a title with a ground on it reads as a field, not a heading */
+button.navttl{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;
+  text-align:center;overflow:hidden;min-height:var(--tap);min-width:0;max-width:100%;
+  padding:2px 6px;margin:-2px 0;border-radius:11px;transition:background .15s}
+button.navttl:hover{background:color-mix(in srgb,var(--fg) 7%,transparent)}
+button.navttl:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+button.navttl .lrcv{width:13px;height:13px;opacity:.6;transition:transform .18s}
+button.navttl[aria-expanded="true"] .lrcv{transform:rotate(180deg);opacity:1}
+@media (prefers-reduced-motion:reduce){ button.navttl .lrcv{transition:none} }
+/* parents on the left and children on the right, the way they sit on the map */
+.lineagemenu .twocol{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0}
+.lineagemenu .lcol{min-width:0;padding:0 2px}
+.lineagemenu .lcol-led{border-left:.5px solid rgb(0 0 0 / .12)}
+.lineagemenu .navhd{display:flex;align-items:baseline;gap:6px}
+.lineagemenu .navhd em{font-style:normal;font-family:var(--f-mono);opacity:.7}
+.lineagemenu .lnone{margin:4px 8px 8px;font:400 var(--t-sub)/1.35 var(--f-body);color:var(--mmut)}
 .shg{flex:none;width:11px;height:11px;opacity:.55;vertical-align:-1px;display:inline-block}
 .navttl .my{display:inline-flex;align-items:center;gap:5px}
 @media (max-width:899px){ .navttl{margin:-6px 0 -7px;padding:6px 8px 7px} }
@@ -2782,7 +2806,7 @@ function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
     + `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg>`
     + `<span class="bklbl"></span>`
     + `<svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.6 7.4 3.6v10.8l-4.6 2z"/><path d="M7.4 3.6 12.6 5.6v10.8L7.4 14.4z"/><path d="M12.6 5.6 17.2 3.6v10.8l-4.6 2z"/></svg></button>`
-    + `<h2 class="navttl"><span class="mn">${esc(n.name)}</span><span class="my"><span class="yr">${n.year<1950?esc(n.disp):"c. "+n.year}</span></span></h2>`
+    + lineageTitle(n)
     + CLOSEBTN
     + `</div></div>`;
   setExpandLabel("", `${n.parents.length} from · ${n.children.length} led to`, `${n.parents.length} from · ${n.children.length} led to`);
@@ -2892,8 +2916,11 @@ function setPbar(t,s){ PBAR={t:t||"",s:s||""}; const a1=$("pbarTitle"), a2=$("pb
 // the sheet's grab handle: tap toggles, a vertical drag resizes and snaps to the nearer state
 let MINH=0, DRAGGING=false;
 const dismissable = ()=> OVERLAY && !OPEN;
-function dismissSheet(){ syncPull(); document.body.classList.add("sheetgone"); setOpen(false); }
-function restoreSheet(){ document.body.classList.remove("sheetgone"); }
+// closing remembers whether the sheet was open or peeking, so reopening gives back the
+// state it was put away in rather than always the smallest one
+let WASOPEN=false;
+function dismissSheet(){ WASOPEN=OPEN; syncPull(); document.body.classList.add("sheetgone"); setOpen(false); }
+function restoreSheet(){ document.body.classList.remove("sheetgone"); if(WASOPEN) setOpen(true); }
 function syncPull(){ const el=$("sheetpull"); if(!el) return; const l=el.querySelector(".plbl"); if(!l) return;
   const n=state.sel&&byId[state.sel];
   l.textContent = n ? n.name : "Offshoots";
@@ -3050,6 +3077,31 @@ function lineageSect(n){
     + lineageRow("led",[...n.children].sort(byYear))
     + `</div>`);
 }
+// The name is the lineage control. From and Led to were a segmented pill, then a pair of
+// rows in the card; both spent a line of the panel on something the title can carry,
+// since what a style came from and led to is what its name means here. One tap opens
+// both lists at once, parents on the left and children on the right, which is also how
+// they sit on the map.
+function lineageCol(kind,ids){
+  const label = kind==="from" ? "Came from" : "Led to";
+  const items = ids.length
+    ? ids.map(id=>{ const x=byId[id];
+        return `<button type="button" role="menuitem" data-go="${x.id}"><i class="dot" style="background:${FAM[x.fam].c}"></i><span class="nm">${esc(x.name)}</span><small>${x.year<1950?esc(x.disp):x.year}</small></button>`; }).join("")
+    : `<p class="lnone">${kind==="from"?"Nothing before it here":"Nothing out of it here"}</p>`;
+  return `<div class="lcol lcol-${kind}"><div class="navhd">${label} <em>${ids.length}</em></div>${items}</div>`;
+}
+function lineageTitle(n){
+  const from=[...n.parents].sort(byYear), led=[...n.children].sort(byYear);
+  const t=`${from.length} came from \u00b7 ${led.length} led to`;
+  return `<div class="navwrap nav-lineage">`
+    + `<button type="button" class="navttl" data-menu="lineage" aria-haspopup="menu" aria-expanded="false" title="${esc(t)}" aria-label="${esc(n.name)}. ${esc(t)}">`
+    + `<span class="mn">${esc(n.name)}</span>`
+    + `<span class="my"><span class="yr">${n.year<1950?esc(n.disp):"c. "+n.year}</span>${LRCHEV}</span>`
+    + `</button>`
+    + `<div class="navmenu lineagemenu" role="menu" hidden><div class="twocol">`
+    + lineageCol("from",from) + lineageCol("led",led)
+    + `</div></div></div>`;
+}
 function listenSect(n,who,artistsHtml){
   const pb=plist(n);
   if(!pb && !who.length) return "";
@@ -3069,7 +3121,6 @@ function panel(n,anc,desc){
   const who=n.whoList||[];
   const artistsHtml = `<div class="who">${who.map(am).join("")}</div>`;
   $("panelBody").innerHTML = PHEAD + `<div class="more">
-    ${lineageSect(n)}
     ${listenSect(n,who,artistsHtml)}
     <p class="note lede wikiline">${about(n)?esc(about(n))+" ":""}${wikiTxt(n)}</p>
     <p class="tally">${anc.size} ancestor styles · ${desc.size} descendant styles${desc.size?` across ${dfams.size} ${dfams.size===1?"family":"families"}`:""}</p>
@@ -3105,11 +3156,17 @@ function placeNav(btn,m){
   // it takes the row's instead, so it reads as that row opening rather than as a popup
   // .navmenu caps itself at 300px for a pill-sized button; a list row is wider than that,
   // so the cap has to come off with the width
-  const asRow=btn.classList.contains("listrow");
-  m.style.width = asRow ? Math.round(b.width)+"px" : "";
-  m.style.maxWidth = asRow ? "none" : "";
+  // a row's menu takes the row's width; the title's takes the card's, since two columns
+  // need more than the name is wide
+  const card=btn.closest(".pcard");
+  const w0 = btn.classList.contains("listrow") ? Math.round(b.width)
+    : btn.classList.contains("navttl") && card ? Math.round(card.getBoundingClientRect().width)
+    : 0;
+  m.style.width = w0 ? w0+"px" : "";
+  m.style.maxWidth = w0 ? "none" : "";
   const w=m.offsetWidth;
-  const want = led ? b.right-w : b.left;    // the pair's own edge, where there is room
+  const cb = btn.classList.contains("navttl") && card ? card.getBoundingClientRect() : null;
+  const want = cb ? cb.left : led ? b.right-w : b.left;
   const max = innerWidth-edge-w, min = edge;
   m.style.left=Math.round(max<min ? min : Math.min(Math.max(want,min),max))+"px";
 }

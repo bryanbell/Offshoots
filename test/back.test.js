@@ -39,8 +39,8 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
   // a chain where every stop still leads somewhere, so the Led to button is never disabled
   const walk=["hardcore","thrash","deathmetal","blackmetal"];
   for(const id of walk){
-    await open(p); await p.click('.sect-lineage [data-menu="led"]'); await p.waitForTimeout(350);
-    await p.click(`.navmenu:not([hidden]) [data-go="${id}"]`); await p.waitForTimeout(550);
+    await p.click('.navttl'); await p.waitForTimeout(350);
+    await p.click(`.navmenu:not([hidden]) .lcol-led [data-go="${id}"]`); await p.waitForTimeout(550);
   }
   say("walked", "punk -> "+walk.join(" -> "));
   say("button shows the previous stop", await label(p));
@@ -63,8 +63,8 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
 
   // the trail survives a browse-menu jump too, and empty-space taps
   p=await fresh(b,M,"#disco");
-  await open(p); await p.click('.sect-lineage [data-menu="from"]'); await p.waitForTimeout(350);
-  await p.click(".navmenu:not([hidden]) [data-go]"); await p.waitForTimeout(550);
+  await p.click('.navttl'); await p.waitForTimeout(350);
+  await p.click(".navmenu:not([hidden]) .lcol-from [data-go]"); await p.waitForTimeout(550);
   const mid=await hash(p);
   // an empty-map tap. Not an offset inside #chart: that element is 3000px wide and
   // scrolled, so an offset into it lands off-screen and Playwright scrolls the map to
@@ -78,12 +78,11 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
     } return null; });
   const tapBare=async()=>{ const pt=await bare(); if(!pt) return false;
     await p.mouse.click(pt[0],pt[1]); await p.waitForTimeout(500); return true; };
-  // with the sheet open, a tap on the map closes the sheet and stops there: the selection
-  // survives, so the first tap is not the clear. The second one is.
+  // the lineage menu opens from the peek, so the sheet was never opened here and a tap on
+  // bare map clears straight away. With the sheet open it would close that first.
+  say("the sheet is still at its peek", (await p.evaluate(()=>document.body.classList.contains("open")))===false);
   say("tapped bare map", await tapBare());
-  say("the first tap only closes the sheet, keeping "+(await hash(p)), (await hash(p))===mid);
-  say("tapped again", await tapBare());
-  say("the second clears to the map", (await hash(p))==="");
+  say("which clears to the map", (await hash(p))==="");
   say("clearing to the map is a step too", await shown(p));
   say("its label", await label(p));
   await p.click("#panelBack"); await p.waitForTimeout(550);
@@ -93,14 +92,23 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
   const boxes=await p.evaluate(()=>{const r=document.querySelector(".navrow").getBoundingClientRect();
     const g=sel=>{const e=document.querySelector(sel); if(!e) return null;
       const b=e.getBoundingClientRect();
-      return [Math.round(b.left-r.left),Math.round(b.right-r.left),Math.round(b.height)];};
+      return [Math.round(b.left-r.left),Math.round(b.right-r.left),Math.round(b.top-r.top)];};
+    const mn=document.querySelector(".navttl .mn");
+    const rg=document.createRange(); rg.selectNodeContents(mn);
+    const nb=rg.getBoundingClientRect();
     return {back:g("#panelBack"), title:g(".navttl"), x:g(".pmin"),
-      width:Math.round(r.width), pair:document.querySelectorAll(".navrow .navwrap").length};});
-  say("back is left of the title", boxes.back[1]<=boxes.title[0]);
-  say("the X is right of it, at the row's edge", boxes.x[0]>=boxes.title[1]-1
+      name:[Math.round(nb.left-r.left),Math.round(nb.right-r.left)],
+      backPos:getComputedStyle(document.querySelector("#panelBack")).position,
+      xPos:getComputedStyle(document.querySelector(".pmin")).position,
+      width:Math.round(r.width)};});
+  // the title spans the row under both controls, so compare against the painted name
+  say("back is left of the name", boxes.back[1]<=boxes.name[0]);
+  say("the X is right of it, at the row's edge", boxes.x[0]>=boxes.name[1]-1
     && boxes.width-boxes.x[1]<=1);
-  say("and nothing else is in the row", boxes.pair===0);
-  say("back tap target "+boxes.back[2]+"px", boxes.back[2]>=34);
+  say("and both are pinned to the corners, not laid out in it",
+    boxes.backPos==="absolute" && boxes.xPos==="absolute" && boxes.back[2]===0 && boxes.x[2]===0);
+  say("back tap target "+(await p.$eval("#panelBack",e=>Math.round(e.getBoundingClientRect().height)))+"px",
+    (await p.$eval("#panelBack",e=>e.getBoundingClientRect().height))>=34);
   say("no page errors", p._errs.length===0 ? true : p._errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
 
   // the home pill: shown whenever you are not on the unselected root
@@ -128,7 +136,7 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
   say("home shown one step out", await home(p));
   const hwalk=["hardcore","thrash"];
   p=await fresh(b,M,"#punk");
-  await open(p); await p.click('.sect-lineage [data-menu="led"]'); await p.waitForTimeout(350);
+  await p.click('.navttl'); await p.waitForTimeout(350);
   await p.click(`.navmenu:not([hidden]) [data-go="${hwalk[0]}"]`); await p.waitForTimeout(550);
   say("home still there two styles deep", await home(p));
   say("and back names the style it returns to", /^Back to /.test(await label(p)));

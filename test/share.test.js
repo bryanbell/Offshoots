@@ -19,9 +19,11 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   // ---------- the old footer is gone ----------
   let d=await fresh(b,Dk,"#disco");
   say("footer button removed", (await d.$$("#pshare, #pfoot")).length===0);
-  // the title is a heading again; share is its own button at the foot of the card
-  say("title is a heading", await d.$eval(".navttl",e=>e.tagName==="H2"&&!e.hasAttribute("data-share")));
-  say("with no glyph on it", await d.$eval(".navttl",e=>!e.querySelector(".shg")));
+  // the title is the lineage control: one tap, both directions, parents left and children
+  // right. Share is its own button at the foot of the card.
+  say("title opens the lineage", await d.$eval(".navttl",
+    e=>e.tagName==="BUTTON" && e.dataset.menu==="lineage" && !e.hasAttribute("data-share")));
+  say("with no share glyph on it", await d.$eval(".navttl",e=>!e.querySelector(".shg")));
   const sb=await d.evaluate(()=>{ const w=document.querySelector(".shbtn.wide");
     if(!w) return null;
     const r=w.getBoundingClientRect(), body=document.getElementById("panelBody");
@@ -99,10 +101,15 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   say("  and the share button is not in the peek",
     (await p.$eval(".shbtn.wide",e=>getComputedStyle(e).display))==="none");
   await p.click(".navttl"); await p.waitForTimeout(500);
-  say("tapping the title opens the sheet", await p.$eval("body",e=>e.classList.contains("open")));
-  say("  which is what brings the button in",
-    (await p.$eval(".shbtn.wide",e=>getComputedStyle(e).display))!=="none");
+  // the title is the lineage control now, so it opens its menu rather than the sheet.
+  // That is the point: the lineage is reachable from the peek, where it used to be when
+  // it was a pill in the header, and is not once it is a section in the card.
+  say("tapping the title opens the lineage from the peek",
+    (await p.$$(".navmenu:not([hidden]) .lcol")).length===2);
+  say("  without opening the sheet", (await p.$eval("body",e=>e.classList.contains("open")))===false);
   say("and shares nothing by itself", (await p.evaluate(()=>window.__copied.length))===0);
+  await p.keyboard.press("Escape"); await p.waitForTimeout(250);
+  await p.click("#grab").catch(()=>{}); await p.waitForTimeout(600);
   await p.$eval(".shbtn.wide",e=>e.scrollIntoView({block:"center"})); await p.waitForTimeout(300);
   await p.click(".shbtn.wide"); await p.waitForTimeout(300);
   say("the button at the foot does the sharing", (await p.evaluate(()=>window.__copied.length))===1);
@@ -112,33 +119,38 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   await p.goto(URL+"#skapunk"); await p.waitForTimeout(100);
   await p.reload(); await p.waitForTimeout(900);
   await p.click("#grab").catch(()=>{}); await p.waitForTimeout(400);
-  const gap=await p.$eval(".navrow",r=>{ const t=r.querySelector(".navttl").getBoundingClientRect();
+  // the title button spans the row now, under two controls pinned to its corners, so what
+  // has to clear them is the painted name rather than the button's box
+  const gap=await p.$eval(".navrow",r=>{ const mn=r.querySelector(".navttl .mn");
+    const rg=document.createRange(); rg.selectNodeContents(mn);
+    const t=rg.getBoundingClientRect();
     const bk=r.querySelector("#panelBack").getBoundingClientRect();
     const x=r.querySelector(".pmin").getBoundingClientRect();
-    return [Math.round(t.left-bk.right),Math.round(x.left-t.right),r.querySelector(".navttl .mn").textContent]; });
+    return [Math.round(t.left-bk.right),Math.round(x.left-t.right),mn.textContent]; });
   say("longest title clears back by "+gap[0]+"px and the X by "+gap[1]+"px ("+gap[2]+")", gap[0]>=0&&gap[1]>=0);
-  // From and Led to left the header for the body, as the same grouped list the panel uses
-  // for its other collections: a single card, a row each, hairline between them
-  const seg=await p.$eval(".sect-lineage .listgrp",e=>{const cs=getComputedStyle(e);
-    const rows=[...e.querySelectorAll(".listrow")];
-    const gb=e.getBoundingClientRect();
-    return {bg:cs.backgroundColor, radius:parseFloat(cs.borderTopLeftRadius),
-      labels:rows.map(r=>r.querySelector(".lrlbl").textContent),
-      widths:rows.map(r=>Math.round(r.getBoundingClientRect().width)), cardW:Math.round(gb.width),
-      sideBySide:(()=>{const a=rows[0].getBoundingClientRect(),b2=rows[1].getBoundingClientRect();
-        return Math.abs(a.top-b2.top)<2 && b2.left>=a.right-1;})(),
-      inHeader:!!e.closest(".navrow"),
-      halves:rows.map(r=>getComputedStyle(r).backgroundColor)};});
-  say("one card carries both directions ("+seg.labels.join(" / ")+")",
-    seg.labels.join("/")==="Came from/Led to" && seg.radius>=10);
-  say("the two sit side by side, each half the card ("+seg.widths.join(" + ")+" of "+seg.cardW+")",
-    seg.sideBySide && seg.widths.every(w=>Math.abs(w-seg.cardW/2)<=2));
-  say("  and neither paints its own ground", seg.halves.every(c=>/rgba\(0, 0, 0, 0\)/.test(c)));
-  say("and it is in the body, not the header", seg.inHeader===false);
-  // directly under the title: where a style sits in the map is the first thing the panel
-  // says about it, ahead of what you can play
-  const first=await p.$$eval("#panelBody .sect",e=>e.map(x=>x.className.match(/sect-[\w]+/)[0]));
-  say("lineage leads the card ("+first.join(" / ")+")", first[0]==="sect-lineage");
+  // one menu, two columns. It was a segmented pill, then a pair of rows in the card; both
+  // spent a line of the panel on something the name can carry.
+  say("no lineage section is left in the card", (await p.$$(".sect-lineage")).length===0);
+  await p.click(".navttl"); await p.waitForTimeout(400);
+  const seg=await p.evaluate(()=>{
+    const m=[...document.querySelectorAll(".navmenu")].find(x=>!x.hidden);
+    if(!m) return null;
+    const cols=[...m.querySelectorAll(".lcol")];
+    const mb=m.getBoundingClientRect(), card=document.querySelector(".pcard").getBoundingClientRect();
+    const cb=cols.map(c=>c.getBoundingClientRect());
+    return {heads:cols.map(c=>c.querySelector(".navhd").textContent.replace(/\s+/g," ").trim()),
+      counts:cols.map(c=>c.querySelectorAll("[data-go]").length),
+      sideBySide:cb.length===2 && Math.abs(cb[0].top-cb[1].top)<2 && cb[1].left>=cb[0].right-1,
+      halves:cb.map(r=>Math.round(r.width)), menuW:Math.round(mb.width),
+      cardW:Math.round(card.width), dx:Math.round(mb.left-card.left),
+      divider:getComputedStyle(cols[1]).borderLeftWidth};});
+  say("the title opens both lists at once ("+seg.heads.join(" | ")+")",
+    /^Came from/.test(seg.heads[0]) && /^Led to/.test(seg.heads[1]));
+  say("  side by side, parents left and children right", seg.sideBySide);
+  say("  split by a "+seg.divider+" rule", parseFloat(seg.divider)>0);
+  say("  the menu is the card's width ("+seg.menuW+" vs "+seg.cardW+"), aligned to it",
+    seg.menuW===seg.cardW && Math.abs(seg.dx)<=1);
+  await p.keyboard.press("Escape"); await p.waitForTimeout(250);
   // back carries its destination, and gives it up rather than crowding the title
   const bk=await p.$eval("#panelBack",e=>{const l=e.querySelector(".bklbl");
     return {text:l.textContent, ellipsis:getComputedStyle(l).textOverflow};});

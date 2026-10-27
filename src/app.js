@@ -470,7 +470,7 @@ function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
     + `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg>`
     + `<span class="bklbl"></span>`
     + `<svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.6 7.4 3.6v10.8l-4.6 2z"/><path d="M7.4 3.6 12.6 5.6v10.8L7.4 14.4z"/><path d="M12.6 5.6 17.2 3.6v10.8l-4.6 2z"/></svg></button>`
-    + `<h2 class="navttl"><span class="mn">${esc(n.name)}</span><span class="my"><span class="yr">${n.year<1950?esc(n.disp):"c. "+n.year}</span></span></h2>`
+    + lineageTitle(n)
     + CLOSEBTN
     + `</div></div>`;
   setExpandLabel("", `${n.parents.length} from · ${n.children.length} led to`, `${n.parents.length} from · ${n.children.length} led to`);
@@ -580,8 +580,11 @@ function setPbar(t,s){ PBAR={t:t||"",s:s||""}; const a1=$("pbarTitle"), a2=$("pb
 // the sheet's grab handle: tap toggles, a vertical drag resizes and snaps to the nearer state
 let MINH=0, DRAGGING=false;
 const dismissable = ()=> OVERLAY && !OPEN;
-function dismissSheet(){ syncPull(); document.body.classList.add("sheetgone"); setOpen(false); }
-function restoreSheet(){ document.body.classList.remove("sheetgone"); }
+// closing remembers whether the sheet was open or peeking, so reopening gives back the
+// state it was put away in rather than always the smallest one
+let WASOPEN=false;
+function dismissSheet(){ WASOPEN=OPEN; syncPull(); document.body.classList.add("sheetgone"); setOpen(false); }
+function restoreSheet(){ document.body.classList.remove("sheetgone"); if(WASOPEN) setOpen(true); }
 function syncPull(){ const el=$("sheetpull"); if(!el) return; const l=el.querySelector(".plbl"); if(!l) return;
   const n=state.sel&&byId[state.sel];
   l.textContent = n ? n.name : "Offshoots";
@@ -738,6 +741,31 @@ function lineageSect(n){
     + lineageRow("led",[...n.children].sort(byYear))
     + `</div>`);
 }
+// The name is the lineage control. From and Led to were a segmented pill, then a pair of
+// rows in the card; both spent a line of the panel on something the title can carry,
+// since what a style came from and led to is what its name means here. One tap opens
+// both lists at once, parents on the left and children on the right, which is also how
+// they sit on the map.
+function lineageCol(kind,ids){
+  const label = kind==="from" ? "Came from" : "Led to";
+  const items = ids.length
+    ? ids.map(id=>{ const x=byId[id];
+        return `<button type="button" role="menuitem" data-go="${x.id}"><i class="dot" style="background:${FAM[x.fam].c}"></i><span class="nm">${esc(x.name)}</span><small>${x.year<1950?esc(x.disp):x.year}</small></button>`; }).join("")
+    : `<p class="lnone">${kind==="from"?"Nothing before it here":"Nothing out of it here"}</p>`;
+  return `<div class="lcol lcol-${kind}"><div class="navhd">${label} <em>${ids.length}</em></div>${items}</div>`;
+}
+function lineageTitle(n){
+  const from=[...n.parents].sort(byYear), led=[...n.children].sort(byYear);
+  const t=`${from.length} came from \u00b7 ${led.length} led to`;
+  return `<div class="navwrap nav-lineage">`
+    + `<button type="button" class="navttl" data-menu="lineage" aria-haspopup="menu" aria-expanded="false" title="${esc(t)}" aria-label="${esc(n.name)}. ${esc(t)}">`
+    + `<span class="mn">${esc(n.name)}</span>`
+    + `<span class="my"><span class="yr">${n.year<1950?esc(n.disp):"c. "+n.year}</span>${LRCHEV}</span>`
+    + `</button>`
+    + `<div class="navmenu lineagemenu" role="menu" hidden><div class="twocol">`
+    + lineageCol("from",from) + lineageCol("led",led)
+    + `</div></div></div>`;
+}
 function listenSect(n,who,artistsHtml){
   const pb=plist(n);
   if(!pb && !who.length) return "";
@@ -757,7 +785,6 @@ function panel(n,anc,desc){
   const who=n.whoList||[];
   const artistsHtml = `<div class="who">${who.map(am).join("")}</div>`;
   $("panelBody").innerHTML = PHEAD + `<div class="more">
-    ${lineageSect(n)}
     ${listenSect(n,who,artistsHtml)}
     <p class="note lede wikiline">${about(n)?esc(about(n))+" ":""}${wikiTxt(n)}</p>
     <p class="tally">${anc.size} ancestor styles · ${desc.size} descendant styles${desc.size?` across ${dfams.size} ${dfams.size===1?"family":"families"}`:""}</p>
@@ -793,11 +820,17 @@ function placeNav(btn,m){
   // it takes the row's instead, so it reads as that row opening rather than as a popup
   // .navmenu caps itself at 300px for a pill-sized button; a list row is wider than that,
   // so the cap has to come off with the width
-  const asRow=btn.classList.contains("listrow");
-  m.style.width = asRow ? Math.round(b.width)+"px" : "";
-  m.style.maxWidth = asRow ? "none" : "";
+  // a row's menu takes the row's width; the title's takes the card's, since two columns
+  // need more than the name is wide
+  const card=btn.closest(".pcard");
+  const w0 = btn.classList.contains("listrow") ? Math.round(b.width)
+    : btn.classList.contains("navttl") && card ? Math.round(card.getBoundingClientRect().width)
+    : 0;
+  m.style.width = w0 ? w0+"px" : "";
+  m.style.maxWidth = w0 ? "none" : "";
   const w=m.offsetWidth;
-  const want = led ? b.right-w : b.left;    // the pair's own edge, where there is room
+  const cb = btn.classList.contains("navttl") && card ? card.getBoundingClientRect() : null;
+  const want = cb ? cb.left : led ? b.right-w : b.left;
   const max = innerWidth-edge-w, min = edge;
   m.style.left=Math.round(max<min ? min : Math.min(Math.max(want,min),max))+"px";
 }

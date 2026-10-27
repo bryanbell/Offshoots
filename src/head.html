@@ -172,13 +172,13 @@ aside h2{font-weight:700;font-size:28px;line-height:1.1;letter-spacing:-.022em;m
 .seg button{padding:0 14px;min-height:var(--tap);font-size:var(--t-sub)}
 aside h3,.pcard h3.sec{font:600 var(--t-head)/var(--t-head-lh) var(--f-body);letter-spacing:-.01em;text-transform:none;color:var(--fg);margin:24px 0 10px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{display:inline-flex;align-items:center;gap:8px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;min-width:0;max-width:100%;min-height:var(--tap);box-sizing:border-box;font:500 var(--t-sub)/var(--t-sub-lh) var(--f-body);padding:0 14px;border-radius:999px;border:0;background:var(--fill2);color:var(--fg);cursor:pointer;transition:background .15s}
+.chip{display:inline-flex;align-items:center;gap:8px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;min-width:0;max-width:100%;min-height:var(--tap);box-sizing:border-box;font:500 var(--t-sub)/var(--t-sub-lh) var(--f-body);padding:0 12px;border-radius:999px;border:0;background:var(--fill2);color:var(--fg);cursor:pointer;transition:background .15s}
 .chip::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:var(--c)}
 .chip>i.nm{font-style:normal;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .chip:hover{background:var(--fill)}
 /* listening modes */
 .sectaside{font:400 var(--t-foot)/var(--t-foot-lh) var(--f-body);color:var(--muted);opacity:1}
-.modechip{gap:8px;padding:0 14px}
+.modechip{gap:8px;padding:0 12px}
 .modechip{--lvc:#9aa0a6}
 .modechip.lv1{--lvc:#7aa2f7}
 .modechip.lv2{--lvc:#5bbda4}
@@ -335,6 +335,9 @@ body:not(.open) #pclose{transform:rotate(180deg)}
 .pcard .mn{padding-right:0}
 body:not(.open) aside{cursor:pointer;width:min(215px,23vw)}
 body:not(.open) .pcard .my{display:block;white-space:normal;overflow:visible}
+/* except on the title button, where the chevron belongs beside the year rather than
+   dropped onto a line of its own */
+body:not(.open) .pcard button.navttl .my{display:inline-flex}
 body:not(.open) .pcard .my .fam,body:not(.open) .pcard .my .yr{display:inline;white-space:normal;overflow:visible;text-overflow:clip}
 body:not(.open) .pcard .meta{align-items:flex-start;gap:6px}
 @media (max-width:699px){ body:not(.open) aside{left:auto;width:min(50vw,230px)} }
@@ -363,11 +366,15 @@ body.open .pcnt{display:none}
 .pmin svg{width:17px;height:17px}
 /* a sidebar has no smaller state to go to, so the control is not offered there */
 @media (min-width:900px){ .pmin{display:none} }
-/* on the root the row holds nothing else, so the X sits over the corner instead of
-   setting the row's height and pushing the large title down a tap target */
-.ovcard .navrow{position:sticky}
-.ovcard .pmin{position:absolute;top:0;right:0}
+/* both controls are pinned to the card's corners on every panel, so moving between the
+   root and a style does not slide them a few pixels. It also keeps the root's row at its
+   own height instead of a tap target's, which was pushing the large title down. */
+.pcard .navrow{position:sticky}
+.pcard .navrow .navleft,.pcard .navrow>#panelBack{position:absolute;left:0;top:0;z-index:2}
+.pcard .pmin{position:absolute;top:0;right:0;z-index:2}
 .ovcard .bigttl{padding-right:calc(var(--tap) + 8px)}
+/* and the title gets out of their way rather than running under them */
+.pcard .navrow .nav-lineage{grid-column:1 / -1;padding:0 calc(var(--tap) + 10px)}
 /* and the lineage cluster is not part of the peek, which is for the playlist */
 /* the peek used to hide this, which moved everything below it up: open the sheet and the
    playlist jumped down a hundred pixels, under whatever finger was reaching for it. The
@@ -868,6 +875,23 @@ aside#panel{padding-bottom:0}
    left of the root header, and a labelled one at the foot of a style panel. */
 .navttl{display:block;text-align:center;overflow:hidden;min-height:var(--tap);
   padding:2px 6px;margin:-2px 0;min-width:0;max-width:100%}
+/* the name opens the lineage, so it is a button again, but it must not look like one at
+   rest: a title with a ground on it reads as a field, not a heading */
+button.navttl{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;
+  text-align:center;overflow:hidden;min-height:var(--tap);min-width:0;max-width:100%;
+  padding:2px 6px;margin:-2px 0;border-radius:11px;transition:background .15s}
+button.navttl:hover{background:color-mix(in srgb,var(--fg) 7%,transparent)}
+button.navttl:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+button.navttl .lrcv{width:13px;height:13px;opacity:.6;transition:transform .18s}
+button.navttl[aria-expanded="true"] .lrcv{transform:rotate(180deg);opacity:1}
+@media (prefers-reduced-motion:reduce){ button.navttl .lrcv{transition:none} }
+/* parents on the left and children on the right, the way they sit on the map */
+.lineagemenu .twocol{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0}
+.lineagemenu .lcol{min-width:0;padding:0 2px}
+.lineagemenu .lcol-led{border-left:.5px solid rgb(0 0 0 / .12)}
+.lineagemenu .navhd{display:flex;align-items:baseline;gap:6px}
+.lineagemenu .navhd em{font-style:normal;font-family:var(--f-mono);opacity:.7}
+.lineagemenu .lnone{margin:4px 8px 8px;font:400 var(--t-sub)/1.35 var(--f-body);color:var(--mmut)}
 .shg{flex:none;width:11px;height:11px;opacity:.55;vertical-align:-1px;display:inline-block}
 .navttl .my{display:inline-flex;align-items:center;gap:5px}
 @media (max-width:899px){ .navttl{margin:-6px 0 -7px;padding:6px 8px 7px} }
