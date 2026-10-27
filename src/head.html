@@ -370,8 +370,13 @@ body.open .pcnt{display:none}
    root and a style does not slide them a few pixels. It also keeps the root's row at its
    own height instead of a tap target's, which was pushing the large title down. */
 .pcard .navrow{position:sticky}
-.pcard .navrow .navleft,.pcard .navrow>#panelBack{position:absolute;left:0;top:0;z-index:2}
-.pcard .pmin{position:absolute;top:0;right:0;z-index:2}
+/* the band has to reach the card's own edges. Inset by the body's padding, it left a
+   channel down each side that whatever was scrolling underneath showed through. The
+   row bleeds out and pads back in, so the grid keeps its width and only the two
+   absolutely placed controls need the padding spelled out to stay where they were. */
+.pcard .navrow{margin-inline:calc(var(--ppad) * -1);padding-inline:var(--ppad)}
+.pcard .navrow .navleft,.pcard .navrow>#panelBack{position:absolute;left:var(--ppad);top:0;z-index:2}
+.pcard .pmin{position:absolute;top:0;right:var(--ppad);z-index:2}
 .ovcard .bigttl{padding-right:calc(var(--tap) + 8px)}
 /* and the title gets out of their way rather than running under them */
 .pcard .navrow .nav-lineage{grid-column:1 / -1;padding:0 calc(var(--tap) + 10px)}
@@ -453,6 +458,7 @@ body.open .pcnt{display:none}
 @media (max-width:899px){ .navback{min-width:var(--tap);height:var(--tap)} .navback svg{width:20px;height:20px} .navback .bklbl{font-size:var(--t-sub)} }
 /* on the overview the row has no empty slot to hold, so the button simply goes away */
 body.pscrolled .navrow{box-shadow:0 .5px 0 var(--line);background:var(--panel)}
+body.pscrolled .pcard .navrow{border-radius:0}
 @media (prefers-reduced-motion:reduce){ .navrow{transition:none} }
 .navttl{min-width:0;text-align:center;overflow:hidden}
 .navrow .navttl .mn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

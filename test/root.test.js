@@ -146,9 +146,12 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("  and bigger than them, "+(hdr&&hdr.size)+" against "+(hdr&&hdr.sectSize),
     !!hdr && hdr.size>=28 && hdr.size>hdr.sectSize);
   say("  the row above it holds one control, the X", !!hdr && hdr.controls===1);
-  say("  and it is at the right of the row", await p.evaluate(()=>{
+  // the row bleeds past the card's content edge so the stuck band has no gap down its
+  // sides; the X stays at the content edge, one padding in from the row's own
+  say("  and it is at the right of the content", await p.evaluate(()=>{
     const r=document.querySelector(".ovcard .navrow"), x=r.querySelector(".pmin");
-    return !!x && Math.round(r.getBoundingClientRect().right-x.getBoundingClientRect().right)<=1; }));
+    const pad=parseFloat(getComputedStyle(r).paddingRight);
+    return !!x && Math.abs(r.getBoundingClientRect().right-pad-x.getBoundingClientRect().right)<=1; }));
   say("  and it says what it does", await p.$eval(".ovcard .pmin",e=>e.getAttribute("title")));
   say("  which is close, not minimise",
     await p.$eval(".ovcard .pmin",e=>e.hasAttribute("data-dismiss")&&/close/i.test(e.getAttribute("title"))));

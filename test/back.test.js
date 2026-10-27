@@ -100,11 +100,14 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
       name:[Math.round(nb.left-r.left),Math.round(nb.right-r.left)],
       backPos:getComputedStyle(document.querySelector("#panelBack")).position,
       xPos:getComputedStyle(document.querySelector(".pmin")).position,
+      pad:Math.round(parseFloat(getComputedStyle(document.querySelector(".pcard .navrow")).paddingRight)),
       width:Math.round(r.width)};});
   // the title spans the row under both controls, so compare against the painted name
   say("back is left of the name", boxes.back[1]<=boxes.name[0]);
-  say("the X is right of it, at the row's edge", boxes.x[0]>=boxes.name[1]-1
-    && boxes.width-boxes.x[1]<=1);
+  // the band bleeds to the card's edges, so the row's own box is wider than the content
+  // column: the X sits at the content edge, which is the row's edge less its padding
+  say("the X is right of it, at the content edge", boxes.x[0]>=boxes.name[1]-1
+    && Math.abs(boxes.width-boxes.pad-boxes.x[1])<=1);
   say("and both are pinned to the corners, not laid out in it",
     boxes.backPos==="absolute" && boxes.xPos==="absolute" && boxes.back[2]===0 && boxes.x[2]===0);
   say("back tap target "+(await p.$eval("#panelBack",e=>Math.round(e.getBoundingClientRect().height)))+"px",

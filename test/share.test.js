@@ -267,6 +267,29 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   say("no errors following it", il._errs.length===0 ? true : il._errs.join(" | "));
   await il.close();
 
+  // the opaque band has to reach the card's edges: inset, it left a channel down each
+  // side that the content scrolling underneath showed through
+  { const w=await b.newPage({viewport:M});
+    await w.goto(URL+"#neoswing"); await w.waitForTimeout(1200);
+    await w.click("#grab").catch(()=>{}); await w.waitForTimeout(700);
+    await w.evaluate(()=>{document.getElementById("panelBody").scrollTop=260;});
+    await w.waitForTimeout(400);
+    const r=await w.evaluate(()=>{
+      const row=document.querySelector(".pcard .navrow"), body=document.getElementById("panelBody");
+      const rb=row.getBoundingClientRect(), bb=body.getBoundingClientRect();
+      const btn=document.querySelector(".pcard .navleft")||document.querySelector(".pcard #panelBack");
+      const x=document.querySelector(".pcard .pmin");
+      return {on:document.body.classList.contains("pscrolled"),
+        dl:Math.round(rb.left-bb.left), dr:Math.round(bb.right-rb.right),
+        btnL:btn?Math.round(btn.getBoundingClientRect().left-bb.left):-1,
+        xR:x?Math.round(bb.right-x.getBoundingClientRect().right):-1}; });
+    say("the header is stuck after scrolling", r.on);
+    say("and its band runs to both edges ("+r.dl+"/"+r.dr+")", r.dl===0 && r.dr===0);
+    // the bleed is cancelled on the two absolutely placed controls, which must not move
+    say("with the back cluster still inset "+r.btnL+"px", r.btnL===16);
+    say("and the close still inset "+r.xR+"px", r.xR===16);
+    await w.close(); }
+
   // the prose and the tally read as a named section like Listen on above them,
   // and like the rest of the body they stay out of the peek
   { const w=await b.newPage({viewport:M});
