@@ -196,10 +196,10 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   // ---- 1: Playlists menu ----
   p=await fresh(b,M);
   await p.click("#grab").catch(()=>{}); await p.waitForTimeout(400);
-  say("three browse buttons", await p.$$eval(".brlbl",e=>e.map(x=>x.textContent).join(" / ")));
+  say("the browse rows", await p.$$eval(".listgrp .lrlbl",e=>e.map(x=>x.textContent).join(" / ")));
   // derived from the data rather than hard-coded: this broke the moment playlists were added
   const nPlay=await p.evaluate(()=>DATA.filter(r=>PLAY[r[0]]||SPLAY[r[0]]).length);
-  const n=await p.$eval('[data-menu="pl"] .ct',e=>+e.textContent);
+  const n=await p.$eval('[data-menu="pl"] .lrct',e=>+e.textContent);
   say("playlist count on the button matches the data ("+n+")", n===nPlay);
   await p.click('[data-menu="pl"]'); await p.waitForTimeout(350);
   const fams=await p.$$eval('.navmenu[data-br="pl"] [data-plbr]',e=>e.map(x=>x.textContent.replace(/\s+/g," ").trim()));
