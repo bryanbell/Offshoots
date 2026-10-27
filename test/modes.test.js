@@ -73,10 +73,10 @@ const Dk={width:1280,height:900};
     return {name:c.querySelector(".nm").textContent, lv:c.dataset.lv,
       bg:cs.backgroundColor, fg:cs.color, icon:getComputedStyle(c.querySelector(".mi")).color};}));
   say("every chip is rated 1 to 5", lv.length>0 && lv.every(c=>/^[1-5]$/.test(c.lv)));
-  // the chips run quietest first, so the colour reads as one ramp down the section
+  // the chips run loudest first, so the colour reads as one ramp down the section
   const order=lv.map(c=>+c.lv);
-  say("they run 1 to 5 ["+order.join("")+"]", order.every((v,i)=>i===0||v>=order[i-1]));
-  say("the first is a 1 and the last a 5", order[0]===1 && order[order.length-1]===5);
+  say("they run 5 down to 1 ["+order.join("")+"]", order.every((v,i)=>i===0||v<=order[i-1]));
+  say("the first is a 5 and the last a 1", order[0]===5 && order[order.length-1]===1);
   const grounds=new Set(lv.map(c=>c.bg)), icons=new Set(lv.map(c=>c.icon));
   say("the five levels are five grounds ("+grounds.size+")", grounds.size===5);
   say("and five icon colours ("+icons.size+")", icons.size===5);

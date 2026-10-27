@@ -831,7 +831,7 @@ body.pscrolled #pbar{display:none}
 /* ---- desktop: artist links match the lineage chips ---- */
 @media (min-width:900px){
   .who{gap:6px}
-  .who a.am{min-height:var(--tap);gap:8px;padding:0 14px;border-radius:999px;font:500 var(--t-sub) var(--f-body);background:var(--fill2)}
+  .who a.am{min-height:var(--tap);gap:8px;padding:0 12px;border-radius:999px;font:500 var(--t-sub)/var(--t-sub-lh) var(--f-body);background:var(--fill2)}
   .who a.am svg{width:12px;height:12px}
 }
 
@@ -1015,7 +1015,7 @@ a.wk.txt:hover{background:none;color:color-mix(in srgb,var(--accent) 80%,#000)}
 
 @media (max-width:899px){
   .who{gap:7px}
-  .who a.am{position:relative;min-height:var(--tap);padding:0 14px;font-size:var(--t-sub);gap:8px}
+  .who a.am{position:relative;min-height:calc(var(--tap) - 4px);padding:0 12px;font-size:var(--t-sub);gap:8px}
   .who a.am::after{content:"";position:absolute;inset:-6px;border-radius:inherit}
   .who a.am svg{width:13px;height:13px}
 }
@@ -1096,7 +1096,7 @@ a.am .amgo{display:none}
   background:none;color:var(--muted);transition:color .15s}
 .who a.am .amgo svg{width:14px;height:14px;opacity:1}
 .who a.am:hover .amgo{color:var(--fg)}
-@media (max-width:899px){ .who a.am{gap:7px;padding-right:12px} }
+@media (max-width:899px){ .who a.am{gap:7px;padding-right:10px} }
 
 /* ---- pointer tier ----------------------------------------------------------
    A phone is held at arm's length; a sidebar on a desktop is read at desk
