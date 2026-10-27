@@ -165,7 +165,7 @@ const readRules=(p)=>p.evaluate(()=>{
     if(!(mp.n>400 && mp.min>=floor-0.01) || mp.max-mp.min<2 || smallChrome.length) bad++;
 
     // 2. a menu, which is where the uppercase section header lived
-    await p.click('[data-menu="fams"]').catch(()=>{});
+    await p.click('[data-menu="roots"]').catch(()=>{});
     await p.waitForTimeout(400);
     const menu=await p.$(".navmenu:not([hidden])");
     if(menu){

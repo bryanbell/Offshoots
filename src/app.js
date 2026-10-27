@@ -763,6 +763,13 @@ function placeNav(btn,m){
           m.style.maxHeight=Math.max(150,Math.round(below))+"px"; }
   m.style.right="auto";
   m.style.left="0px";                       // measure at a known origin before placing
+  // a menu hanging off a full-width list row looked detached at its own natural width:
+  // it takes the row's instead, so it reads as that row opening rather than as a popup
+  // .navmenu caps itself at 300px for a pill-sized button; a list row is wider than that,
+  // so the cap has to come off with the width
+  const asRow=btn.classList.contains("listrow");
+  m.style.width = asRow ? Math.round(b.width)+"px" : "";
+  m.style.maxWidth = asRow ? "none" : "";
   const w=m.offsetWidth;
   const want = led ? b.right-w : b.left;    // the pair's own edge, where there is room
   const max = innerWidth-edge-w, min = edge;
@@ -816,10 +823,6 @@ $("panel").addEventListener("click",e=>{
     if(rr){ const pool=nodes.filter(n=>n.id!==state.sel);
       const pick=pool[Math.floor(Math.random()*pool.length)];
       if(pick){ closeNav(); select(pick.id); panelTop(); } return; } }
-  if(e.target.closest("[data-shuffle]")){
-    const pool=featPool().filter(x=>x.id!==(featPick()||{}).id);
-    if(pool.length){ FEAT=pool[Math.floor(Math.random()*pool.length)].id; if(!state.sel) emptyPanel(); }
-    return; }
   if(e.target.closest("[data-modeup]")){ showChips(); return; }
   const mk=e.target.closest("[data-mk]");
   if(mk){ MODE = MODE===mk.dataset.mk ? null : mk.dataset.mk;   // tapping the open one closes it
@@ -834,8 +837,8 @@ $("panel").addEventListener("click",e=>{
     if(pick){ select(pick.id,{scroll:true,smooth:!reduce}); panelTop(); }
     return; }
   // a row that names a style navigates to it even on a minimised sheet, which is
-  // otherwise tap-anywhere-to-open: Start here and the mode picks both sit there,
-  // and expanding the panel is not what tapping a named style asks for
+  // otherwise tap-anywhere-to-open: the mode picks sit there, and expanding the panel
+  // is not what tapping a named style asks for
   const g0=e.target.closest("[data-go]");
   if(g0){ closeNav(); select(g0.dataset.go); panelTop(); return; }
   if(!OPEN && OVERLAY){ if(!e.target.closest("a")) setOpen(true); return; }   // only the minimised sheet is tap-to-open
@@ -1085,33 +1088,6 @@ function plStylesHtml(k){
   return `<button type="button" class="brback" data-plback="${k}"><i class="bk">${CHEV.from}</i><span class="nm">${esc(FAM[k].name)}</span><small>${plCount(k)}</small></button>${rows}`;
 }
 
-// a concrete suggestion beats an empty menu: the most-connected styles that are
-// actually listenable, rotating by the day so the map looks tended rather than static
-let FEAT=null;
-const hasCover=id=>!!((typeof COVER!=="undefined"&&COVER[id])||false);
-function featPool(){ return playable().sort((x,y)=>y.children.length-x.children.length||x.year-y.year).slice(0,40); }
-function featPick(){
-  const pool=featPool(); if(!pool.length) return null;
-  if(FEAT&&byId[FEAT]&&hasPlay(FEAT)) return byId[FEAT];
-  return pool[Math.floor(Date.now()/864e5)%pool.length];
-}
-function featLine(n){
-  const d=(typeof DESC!=="undefined"&&DESC[n.id])||"";
-  if(d){ const s=d.split(/(?<=[.!?])\s/)[0]; return s.length>96?s.slice(0,93).trim()+"…":s; }
-  const who=(typeof ART!=="undefined"&&ART[n.id])||[];
-  return who.length?who.slice(0,3).join(", "):"A playlist for this style";
-}
-function featSect(){
-  const n=featPick(); if(!n) return "";
-  // it opens the style on the map, so it is built like the other style rows rather than
-  // like a playlist: no cover, no play button, nothing promising playback
-  const body=`<div class="feat"><button type="button" class="pick featpick c" style="--c:${FAM[n.fam].c}" data-go="${esc(n.id)}" title="Show ${esc(n.name)} on the map">`
-    + `<span class="pknm">${esc(n.name)}</span>`
-    + `<span class="pkfam">${esc(FAM[n.fam].short)} · ${n.year}</span>`
-    + `<span class="pkwhy">${esc(featLine(n))}</span></button>`
-    + `<button type="button" class="shuf" data-shuffle aria-label="Suggest another" title="Suggest another"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h3.5l7 8H17"/><path d="M3 14h3.5l2-2.3"/><path d="M11.5 8.3L13.5 6H17"/><path d="M15 4l2 2-2 2"/><path d="M15 12l2 2-2 2"/></svg></button></div>`;
-  return sect("feat","Start here",body,'<span class="sectaside">a style to try</span>');
-}
 const LRICON={"roots": "<path d=\"M10 17V7\"/><path d=\"M10 11C10 8.5 8 6.5 5.5 6.5\"/><path d=\"M10 13.5c0-2 1.7-3.6 3.7-3.6\"/><path d=\"M10 7a2.6 2.6 0 1 0 0-5.2A2.6 2.6 0 0 0 10 7z\"/>", "fams": "<path d=\"M3.2 6.6L10 3.2l6.8 3.4L10 10z\"/><path d=\"M3.2 10L10 13.4 16.8 10\"/><path d=\"M3.2 13.4L10 16.8l6.8-3.4\"/>", "pl": "<path d=\"M4 5.5h8\"/><path d=\"M4 10h8\"/><path d=\"M4 14.5h5\"/><path d=\"M15.2 13.6V6.2l2.3-.7\"/><circle cx=\"13.8\" cy=\"14\" r=\"1.6\"/>", "top": "<path d=\"M3 13.5l4-4.2 3.1 2.8L17 5.5\"/><path d=\"M13.2 5.5H17V9\"/>"};
 const LRCHEV="<svg class=\"lrcv\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7.5 4.5L13 10l-5.5 5.5\"/></svg>";
 // every way of browsing the map is a collection you open, so they are one grouped list:
@@ -1146,12 +1122,7 @@ function appShareBtn(){
     + `<span class="shlbl">Share this app</span></button>`;
 }
 function browseRow(){
-  return sect("browse","Browse",`<div class="listgrp">`+rootsRow()
-    + browseBtn("fams","Families",FAMS.length,"Browse all "+FAMS.length+" families",famMenuHtml())
-    + browseBtn("pl","Playlists",playable().length,"Browse the "+playable().length+" styles with a playlist",plMenuHtml())
-    + browseBtn("top","Most influential",TOPN,"The "+TOPN+" styles that led to the most",topMenuHtml())
-    + randomRow()
-    + `</div>`, '<span class="sectaside">every style</span>');
+  return sect("browse","Browse",`<div class="listgrp">`+rootsRow()+randomRow()+`</div>`);
 }
 const MODEICON={"coding":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 6.2 3.2 10 7 13.8\"/><path d=\"M13 6.2 16.8 10 13 13.8\"/><path d=\"M11.3 4.4 8.7 15.6\"/></svg>","focus":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"10\" r=\"6.8\"/><circle cx=\"10\" cy=\"10\" r=\"2.4\"/></svg>","workout":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.4 7.4v5.2\"/><path d=\"M15.6 7.4v5.2\"/><path d=\"M7 6v8\"/><path d=\"M13 6v8\"/><path d=\"M7 10h6\"/></svg>","miles":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2.4 10.4h3.1l1.7-4.6 2.9 9.1 2-4.5h5.5\"/></svg>","winddown":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M16.2 12.3A6.7 6.7 0 0 1 7.7 3.8a6.9 6.9 0 1 0 8.5 8.5z\"/></svg>","party":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"11.6\" r=\"5.4\"/><path d=\"M10 6.2V3\"/><path d=\"M4.7 10.4h10.6\"/><path d=\"M10 6.2V17\"/></svg>","houseparty":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5.1 4.4h9.8l-1.2 12.1a.9.9 0 0 1-.9.8H7.2a.9.9 0 0 1-.9-.8z\"/><path d=\"M5.6 9.2h8.8\"/></svg>","driving":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.2 12.6h13.6\"/><path d=\"M4.8 12.6l1.3-4.1a1.7 1.7 0 0 1 1.6-1.2h4.6a1.7 1.7 0 0 1 1.6 1.2l1.3 4.1\"/><circle cx=\"6.6\" cy=\"14\" r=\"1.5\"/><circle cx=\"13.4\" cy=\"14\" r=\"1.5\"/></svg>","dinner":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6.4 3v4.6\"/><path d=\"M9.1 3v4.6\"/><path d=\"M7.75 7.6V17\"/><path d=\"M14.4 3c1.5 1.7 1.5 5.3 0 6.6V17\"/></svg>","coffee":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.2 6.4h9.4v4.8a3.5 3.5 0 0 1-3.5 3.5H7.7a3.5 3.5 0 0 1-3.5-3.5z\"/><path d=\"M13.6 7.6h1.2a2 2 0 0 1 0 4h-1.2\"/><path d=\"M5.6 16.8h7.6\"/></svg>","cocktails":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.6 4.4h12.8L10 10.9z\"/><path d=\"M10 10.9v5.1\"/><path d=\"M7.2 16h5.6\"/></svg>","nightcap":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.8 5.2h10.4l-1 10.1a1 1 0 0 1-1 .9H6.8a1 1 0 0 1-1-.9z\"/><path d=\"M5.4 10.6h9.2\"/></svg>","gaming":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2.6\" y=\"6.6\" width=\"14.8\" height=\"8.8\" rx=\"4.1\"/><path d=\"M6.6 9.8v2.4\"/><path d=\"M5.4 11h2.4\"/><circle cx=\"13.4\" cy=\"10.5\" r=\".95\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"15.1\" cy=\"12.4\" r=\".95\" fill=\"currentColor\" stroke=\"none\"/></svg>","lift":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"10\" r=\"3.5\"/><path d=\"M10 2.4v1.7\"/><path d=\"M10 15.9v1.7\"/><path d=\"M2.4 10h1.7\"/><path d=\"M15.9 10h1.7\"/><path d=\"M4.6 4.6l1.2 1.2\"/><path d=\"M14.2 14.2l1.2 1.2\"/><path d=\"M15.4 4.6l-1.2 1.2\"/><path d=\"M5.8 14.2l-1.2 1.2\"/></svg>","burn":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 2.6c3 3.4 5.1 5.6 5.1 8.5a5.1 5.1 0 0 1-10.2 0c0-1.6.6-2.9 1.7-4.1.5 1.1 1.2 1.7 2 1.9C8.2 6.7 8.8 4.7 10 2.6z\"/></svg>","sit":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6.4 12.3a3.2 3.2 0 0 1 .4-6.4 4.3 4.3 0 0 1 8.1 1.4 2.7 2.7 0 0 1-.5 5\"/><path d=\"M7.6 14.8v2.1\"/><path d=\"M11 14.8v2.7\"/><path d=\"M14.3 14.8v2.1\"/></svg>","together":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"7.3\" cy=\"7.4\" r=\"2.4\"/><circle cx=\"13.5\" cy=\"8.3\" r=\"2\"/><path d=\"M3 16.6a4.4 4.4 0 0 1 8.7 0\"/><path d=\"M12.7 12.7a3.8 3.8 0 0 1 4.3 3.9\"/></svg>","family":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2.6 10.2 10 4.1l7.4 6.1\"/><path d=\"M4.6 9v7.3h10.8V9\"/><path d=\"M8.3 16.3v-3.5h3.4v3.5\"/></svg>","deep":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.2 13v-2.6a5.8 5.8 0 0 1 11.6 0V13\"/><path d=\"M4.2 12.3h1.5a1.4 1.4 0 0 1 1.4 1.4v1.6a1.4 1.4 0 0 1-1.4 1.4h-.9a.6.6 0 0 1-.6-.6z\"/><path d=\"M15.8 12.3h-1.5a1.4 1.4 0 0 0-1.4 1.4v1.6a1.4 1.4 0 0 0 1.4 1.4h.9a.6.6 0 0 0 .6-.6z\"/></svg>","restless":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7.6 2.8h4.8l3.1 14.4H4.5z\"/><path d=\"M4.9 13.9h10.2\"/><path d=\"M10 14.2 13 4.6\"/></svg>","chores":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7.3 3.1l1.15 3.05L11.5 7.3 8.45 8.45 7.3 11.5 6.15 8.45 3.1 7.3l3.05-1.15z\"/><path d=\"M14.1 10.6l.72 1.9 1.9.72-1.9.72-.72 1.9-.72-1.9-1.9-.72 1.9-.72z\"/></svg>","hype":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M11.6 2.4L5.2 11h4.1l-.9 6.6L14.8 9h-4.1z\"/></svg>","roots":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 17.2V8.6\"/><path d=\"M10 10.8C10 7.7 7.5 5.3 4.5 5.3c0 3.1 2.5 5.5 5.5 5.5z\"/><path d=\"M10 8.9c0-2.7 2.2-4.8 4.9-4.8 0 2.7-2.2 4.8-4.9 4.8z\"/></svg>","onmind":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M16.6 10.9a2.9 2.9 0 0 1-2.9 2.9H8.4l-3.9 3.1V6.4a2.9 2.9 0 0 1 2.9-2.9h6.3a2.9 2.9 0 0 1 2.9 2.9z\"/><circle cx=\"7.6\" cy=\"8.6\" r=\".85\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"10.5\" cy=\"8.6\" r=\".85\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"13.4\" cy=\"8.6\" r=\".85\" fill=\"currentColor\" stroke=\"none\"/></svg>"};
 function modeSect(){
@@ -1172,9 +1143,8 @@ function emptyPanel(){
   const np=playable().length;
   const withSrc=DATA.filter(r=>Array.isArray(r[7])&&r[7].length).length;
   $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="navrow"><div class="navleft"><button id="panelBack" class="navback" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg><span class="bklbl"></span><svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.4L7.4 3.4v11.2L2.8 16.6z"/><path d="M7.4 3.4l5.2 2v11.2l-5.2-2z"/><path d="M12.6 5.4l4.6-2v11.2l-4.6 2z"/></svg></button></div><div class="navttl navgap" aria-hidden="true"></div></div><h1 class="bigttl"><span class="mn">Explore</span></h1></div><div class="more">
-    ${featSect()}
-    ${modeSect()}
     ${browseRow()}
+    ${modeSect()}
     <p class="note ovhint">Or tap any style on the map to trace where it came from and what it led to.</p>
     <div class="sect sect-learn"><div class="secthead"><h3 class="secttl">Learn</h3><span class="sectaside">how this was made</span></div><div class="secbody"><details class="fold aboutwrap"><summary><span>About this map</span><svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg></summary>
     <div class="about"><div class="abouthd"><img class="appicon" alt="" src="${ICONSRC()}"><p class="stats">${$("stats").textContent} · ${np} with a playlist</p></div>

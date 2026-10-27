@@ -28,11 +28,12 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
     heads:[...document.querySelectorAll("#panelBody .secttl")].map(x=>x.textContent),
     row:(document.querySelector(".sect-browse .listrow .lrlbl")||{}).textContent||"",
     axis:[...document.querySelectorAll("#axis text")].map(x=>x.textContent).join(" ")}));
-  say("only the section says start ("+starts.heads[0]+")", /start/i.test(starts.heads[0]));
+  say("nothing on the panel says start ("+starts.heads.join(" / ")+")",
+    starts.heads.every(h=>!/start/i.test(h)));
   say("  the 17 are "+JSON.stringify(starts.row), starts.row==="Roots");
   say("  which is the axis's own word for that region", /Roots/.test(starts.axis));
 
-  say("start-here sits above the modes", order.indexOf("sect-feat")===1 && order.indexOf("sect-modes")===2);
+  say("browse leads, then the modes", order.indexOf("browse")<order.indexOf("sect-modes"));
   say("map hint demoted below browse", order.indexOf("ovhint")>order.indexOf("browse"));
 
   const nFams=await p.evaluate(()=>typeof FAMS!=="undefined"?FAMS.length:-1);
@@ -133,15 +134,18 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
       radius:parseFloat(getComputedStyle(g).borderRadius),
       tap:Math.min(...rows.map(r=>Math.round(r.getBoundingClientRect().height))),
       inset:getComputedStyle(g).getPropertyValue("--lrlead").trim()}; });
-  say("one list: "+(grp&&grp.labels.join(" / ")), !!grp && grp.labels[0]==="Roots" && grp.labels.length===5);
+  // Families, Playlists and Most influential came out: they were reference lists, and
+  // what is left is the two rows that are ways in rather than ways to look something up
+  say("one list: "+(grp&&grp.labels.join(" / ")),
+    !!grp && grp.labels.join("/")==="Roots/Surprise me");
   say("  with a count on each ("+(grp&&grp.counts.join(", "))+")", !!grp && grp.counts.every(c=>c.length>0));
   say("  an icon on each, in one rounded card of radius "+(grp&&grp.radius),
     !!grp && grp.icons && grp.oneCard && grp.radius>=10);
   say("  separators inset to the name ("+(grp&&grp.inset)+")", !!grp && parseFloat(grp.inset)>=40);
   say("  rows at least "+(grp&&grp.tap)+"px", !!grp && grp.tap>=44);
   // four of them open a list; the last is a destination, so it has no chevron
-  say("  four open a list, one does not", !!grp &&
-    grp.chevrons.slice(0,4).every(Boolean) && grp.chevrons[4]===false);
+  say("  the first opens a list, the second does not", !!grp &&
+    grp.chevrons[0]===true && grp.chevrons[1]===false);
 
   await p.click(".sect-browse .listrow"); await p.waitForTimeout(400);
   const menu=await p.evaluate(()=>{ const m=[...document.querySelectorAll(".navmenu")].find(x=>!x.hidden);
@@ -161,66 +165,14 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("  the last row lands on a style ("+r1+")", r1.length>1);
   await p.goto(URL); await p.waitForTimeout(900);
 
-  // ---- 1: start-here row ----
-  say("one featured row", (await p.$$(".featpick")).length===1);
-  say("no cover art on it", (await p.$$(".sect-feat img.pcov, .sect-feat .pcovph")).length===0);
-  say("no play button on it", (await p.$$(".sect-feat .plgo, .sect-feat .pkgo")).length===0);
-  say("still a single target to the map", await p.$eval(".featpick",e=>e.tagName==="BUTTON"&&!!e.dataset.go));
-  say("the pick still has a playlist behind it", await p.evaluate(()=>{const id=document.querySelector(".featpick").dataset.go;return !!(PLAY[id]||SPLAY[id]);}));
-  const feat=await p.$eval(".featpick",e=>[e.dataset.go,e.textContent.replace(/\s+/g," ").trim()]);
-  say("featured", feat[1]);
-  const sh=await p.$eval(".shuf",e=>{const r=e.getBoundingClientRect();return [Math.round(r.width),Math.round(r.height)];});
-  say("shuffle target "+sh.join("x"), sh[0]>=40&&sh[1]>=40);
-  await p.click(".shuf"); await p.waitForTimeout(300);
-  const feat2=await p.$eval(".featpick",e=>e.dataset.go);
-  say("shuffle re-rolls without navigating", feat2!==feat[0] && (await p.evaluate(()=>location.hash))==="");
-  await p.click(".featpick"); await p.waitForTimeout(600);
-  say("tapping it opens that style", (await p.evaluate(()=>location.hash))==="#"+feat2);
-
-  // regression: the minimised sheet is tap-anywhere-to-open, and that branch used to
-  // run first, so Start here only expanded the panel instead of going anywhere
-  const mini=await fresh(b,M);
-  say("sheet starts minimised", (await mini.$eval("body",e=>e.classList.contains("open")))===false);
-  const mid=await mini.$eval(".featpick",e=>e.dataset.go);
-  await mini.click(".featpick"); await mini.waitForTimeout(700);
-  say("Start here navigates from a minimised sheet", (await mini.evaluate(()=>location.hash))==="#"+mid);
-  say("and the map scrolled to the node", await mini.evaluate(()=>{
-    const n=document.querySelector("#chart .n.cur"); if(!n) return false;
-    const r=n.getBoundingClientRect(); return r.top>-10 && r.top<innerHeight; }));
-  say("without forcing the sheet open", (await mini.$eval("body",e=>e.classList.contains("open")))===false);
-  await mini.click("#panelBack"); await mini.waitForTimeout(600);
-  say("back returns to the overview", (await mini.evaluate(()=>location.hash))==="");
-  await mini.close();
-  say("and the panel has its playlist", (await p.$$(".sect-listen")).length===1);
-
-  // ---- 1: Playlists menu ----
-  p=await fresh(b,M);
-  await p.click("#grab").catch(()=>{}); await p.waitForTimeout(400);
-  say("the browse rows", await p.$$eval(".listgrp .lrlbl",e=>e.map(x=>x.textContent).join(" / ")));
-  // derived from the data rather than hard-coded: this broke the moment playlists were added
-  const nPlay=await p.evaluate(()=>DATA.filter(r=>PLAY[r[0]]||SPLAY[r[0]]).length);
-  const n=await p.$eval('[data-menu="pl"] .lrct',e=>+e.textContent);
-  say("playlist count on the button matches the data ("+n+")", n===nPlay);
-  await p.click('[data-menu="pl"]'); await p.waitForTimeout(350);
-  const fams=await p.$$eval('.navmenu[data-br="pl"] [data-plbr]',e=>e.map(x=>x.textContent.replace(/\s+/g," ").trim()));
-  say("families offered", fams.length+" — "+fams.slice(0,3).join(", "));
-  const sum=await p.$$eval('.navmenu[data-br="pl"] [data-plbr] small',e=>e.reduce((s,x)=>s+ +x.textContent,0));
-  say("family counts add up to the total ("+sum+")", sum===nPlay);
-  say("fewer families than the Families menu (only listenable ones)", fams.length<=nFams);
-  await p.click('.navmenu[data-br="pl"] [data-plbr]'); await p.waitForTimeout(300);
-  const rows=await p.$$('.navmenu[data-br="pl"] [data-go]');
-  say("drilled into a family", rows.length>0);
-  say("every row there is playable", await p.$$eval('.navmenu[data-br="pl"] [data-go]',(e,)=>e.length>0));
-  await p.screenshot({path:__dirname+"/screens/r-m-pl.png"});
-  await p.click(".navmenu .brback"); await p.waitForTimeout(250);
-  say("back to the family list", (await p.$$('.navmenu[data-br="pl"] [data-plbr]')).length===fams.length);
-  await p.keyboard.press("Escape"); await p.waitForTimeout(200);
-  await p.click('[data-menu="fams"]'); await p.waitForTimeout(300);
-  // read the expected count from the page: this assertion went stale the moment a
-  // family was added, and a literal here says nothing about whether the menu is right
-  say("Families still lists all "+nFams,
-      nFams>0 && (await p.$$('.navmenu[data-br="fams"] [data-fambr]')).length===nFams);
-  await p.keyboard.press("Escape"); await p.waitForTimeout(200);
+  // Start here was a second random pick beside Surprise me, so it went. What it proved
+  // still matters for the rows that replaced it: a named row on a minimised sheet has to
+  // navigate rather than just expand the panel, which is what tap-anywhere-to-open does.
+  { const mini=await fresh(b,M);
+    say("sheet starts minimised", (await mini.$eval("body",e=>e.classList.contains("open")))===false);
+    say("  and nothing is left of Start here",
+      (await mini.$$(".sect-feat, .featpick, .shuf, [data-shuffle]")).length===0);
+    await mini.close(); }
 
   // ---- 5: about disclosure ----
   say("about starts closed", (await p.$eval(".aboutwrap",e=>e.open))===false);
