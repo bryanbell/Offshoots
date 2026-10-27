@@ -150,7 +150,20 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   say("  split by a "+seg.divider+" rule", parseFloat(seg.divider)>0);
   say("  the menu is the card's width ("+seg.menuW+" vs "+seg.cardW+"), aligned to it",
     seg.menuW===seg.cardW && Math.abs(seg.dx)<=1);
-  await p.keyboard.press("Escape"); await p.waitForTimeout(250);
+  // a title with a tinted slab under it reads as a text field, so it has no ground of its
+  // own; the chevron beside the year is what says it opens
+  const look=await p.evaluate(()=>{ const t=document.querySelector(".navttl");
+    return {bg:getComputedStyle(t).backgroundColor, exp:t.getAttribute("aria-expanded"),
+      turned:getComputedStyle(t.querySelector(".lrcv")).transform}; });
+  say("the title carries no ground, even open ("+look.bg+")", /rgba\(0, 0, 0, 0\)|transparent/.test(look.bg));
+  say("  and its chevron is turned over while it is", look.exp==="true" && /-1, 0, 0, -1/.test(look.turned));
+  await p.click(".navttl"); await p.waitForTimeout(400);
+  const back2=await p.evaluate(()=>{ const t=document.querySelector(".navttl");
+    return {exp:t.getAttribute("aria-expanded"), turned:getComputedStyle(t.querySelector(".lrcv")).transform,
+      shut:!document.querySelector(".navmenu:not([hidden])")}; });
+  // closeNav only reset .navbtn, so the title's chevron stayed upside down after closing
+  say("closing turns the chevron back ("+back2.turned+")",
+    back2.shut && back2.exp==="false" && back2.turned==="none");
   // back carries its destination, and gives it up rather than crowding the title
   const bk=await p.$eval("#panelBack",e=>{const l=e.querySelector(".bklbl");
     return {text:l.textContent, ellipsis:getComputedStyle(l).textOverflow};});

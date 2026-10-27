@@ -839,7 +839,7 @@ function closeNav(except){
     const w=m._home||m.parentNode;
     if(w===except) return;
     if(m.parentNode===document.body && w && !w.isConnected){ m.remove(); return; }
-    const b=w&&w.querySelector(".navbtn");
+    const b=w&&w.querySelector("[data-menu]");   // .navbtn, .listrow or the title
     m.hidden=true; if(b) b.setAttribute("aria-expanded","false");
     clearNav(m);
   });
@@ -900,13 +900,14 @@ $("panel").addEventListener("click",e=>{
   // is not what tapping a named style asks for
   const g0=e.target.closest("[data-go]");
   if(g0){ closeNav(); select(g0.dataset.go); panelTop(); return; }
+  // before tap-anywhere-to-open, or closing a minimised sheet opens it instead
+  if(e.target.closest("[data-dismiss]")){ dismissSheet(); return; }
   if(!OPEN && OVERLAY){ if(!e.target.closest("a")) setOpen(true); return; }   // only the minimised sheet is tap-to-open
   { const ac=e.target.closest("[data-aboutcopy]");
     if(ac){ copyAbout(ac); return; } }
   { const ss=e.target.closest("[data-sharesheet]");
     if(ss){ openShareSheet(ss); return; } }
   if(e.target.closest("[data-share]")){ shareSel(); return; }
-  if(e.target.closest("[data-dismiss]")){ dismissSheet(); return; }
   if(e.target.closest("[data-close]")){ closePanel(); return; }
   const m=e.target.closest("[data-mode]"); if(m){ state.mode=m.dataset.mode; select(state.sel,{scroll:false}); }
 });

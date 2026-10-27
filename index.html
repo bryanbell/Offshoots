@@ -880,7 +880,9 @@ aside#panel{padding-bottom:0}
 button.navttl{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;
   text-align:center;overflow:hidden;min-height:var(--tap);min-width:0;max-width:100%;
   padding:2px 6px;margin:-2px 0;border-radius:11px;transition:background .15s}
-button.navttl:hover{background:color-mix(in srgb,var(--fg) 7%,transparent)}
+/* no ground on hover or press: it is a title, and a tinted slab under the name reads
+   as a text field. The chevron beside the year is what says it opens. */
+button.navttl:hover .lrcv{opacity:1}
 button.navttl:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
 button.navttl .lrcv{width:13px;height:13px;opacity:.6;transition:transform .18s}
 button.navttl[aria-expanded="true"] .lrcv{transform:rotate(180deg);opacity:1}
@@ -3175,7 +3177,7 @@ function closeNav(except){
     const w=m._home||m.parentNode;
     if(w===except) return;
     if(m.parentNode===document.body && w && !w.isConnected){ m.remove(); return; }
-    const b=w&&w.querySelector(".navbtn");
+    const b=w&&w.querySelector("[data-menu]");   // .navbtn, .listrow or the title
     m.hidden=true; if(b) b.setAttribute("aria-expanded","false");
     clearNav(m);
   });
@@ -3236,13 +3238,14 @@ $("panel").addEventListener("click",e=>{
   // is not what tapping a named style asks for
   const g0=e.target.closest("[data-go]");
   if(g0){ closeNav(); select(g0.dataset.go); panelTop(); return; }
+  // before tap-anywhere-to-open, or closing a minimised sheet opens it instead
+  if(e.target.closest("[data-dismiss]")){ dismissSheet(); return; }
   if(!OPEN && OVERLAY){ if(!e.target.closest("a")) setOpen(true); return; }   // only the minimised sheet is tap-to-open
   { const ac=e.target.closest("[data-aboutcopy]");
     if(ac){ copyAbout(ac); return; } }
   { const ss=e.target.closest("[data-sharesheet]");
     if(ss){ openShareSheet(ss); return; } }
   if(e.target.closest("[data-share]")){ shareSel(); return; }
-  if(e.target.closest("[data-dismiss]")){ dismissSheet(); return; }
   if(e.target.closest("[data-close]")){ closePanel(); return; }
   const m=e.target.closest("[data-mode]"); if(m){ state.mode=m.dataset.mode; select(state.sel,{scroll:false}); }
 });

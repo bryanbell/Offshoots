@@ -142,6 +142,14 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
       return t?getComputedStyle(t).display:"missing";})(),
     kept:location.hash}));
   say("  tapping it puts the sheet away", away.gone && away.panel==="none");
+  // and from the peek too: tap-anywhere-to-open was reading the tap first, so closing a
+  // minimised sheet opened it instead
+  await p.click("#sheetpull"); await p.waitForTimeout(700);
+  if(await open()){ await p.click("#grab"); await p.waitForTimeout(600); }
+  say("  from the peek, the same", (await open())===false);
+  await p.click(".ovcard .pmin"); await p.waitForTimeout(700);
+  say("  it closes rather than opening", await p.evaluate(()=>
+    document.body.classList.contains("sheetgone") && !document.body.classList.contains("open")));
   say("  leaving a pull tab to bring it back ("+away.pull+")", away.pull!=="none" && away.pull!=="missing");
   await p.click("#sheetpull"); await p.waitForTimeout(700);
   say("  which does", await p.evaluate(()=>!document.body.classList.contains("sheetgone")));
