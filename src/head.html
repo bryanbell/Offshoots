@@ -583,6 +583,16 @@ body.searching #bottomSearch{display:block}
 .openin svg{flex:none;width:18px;height:18px}
 .opennote{margin:0 0 14px;font-size:var(--t-foot);color:var(--muted);line-height:var(--t-sub-lh)}
 .opennote b{font-weight:600;color:var(--fg)}
+/* the step that says to tap Share can open the sheet itself, so it carries the control */
+.about .steps .sheetbtn{all:unset;box-sizing:border-box;display:inline-flex;align-items:center;gap:7px;
+  cursor:pointer;margin-top:7px;min-height:var(--tap);padding:0 15px;border-radius:999px;
+  background:var(--lite);color:var(--lite-fg);font:600 var(--t-sub)/1 var(--f-body)}
+.about .steps .sheetbtn:active{background:#fff}
+.about .steps .sheetbtn svg{flex:none;width:16px;height:16px}
+/* and the glyph named in the sentence, set inline so it reads as the icon it describes */
+.about .steps svg.shg{width:15px;height:15px;vertical-align:-2px;margin:0 2px;color:var(--fg)}
+/* except inside the button, which is a light pill: there it takes the button's colour */
+.about .steps .sheetbtn svg.shg{color:currentColor;margin:0}
 .fold + .fold{margin-top:10px}
 .installwrap .subh{margin-top:18px}
 .installwrap .subh:first-child{margin-top:0}
@@ -972,7 +982,11 @@ a.am .amgo{display:none}
   .chip,.modechip{padding:0 13px}
   .plrow .plgo{width:34px;height:34px}
   .plrow .plgo svg{width:15px;height:15px}
-  .plrow img.pcov,.plrow .pcovph{width:56px;height:56px}
+  /* a pointer means a big screen and no thumb: the cover is the one thing in the panel
+     worth the space, so it doubles rather than stepping down with everything else */
+  .plrow img.pcov,.plrow .pcovph{width:112px;height:112px;border-radius:12px}
+  .plrow .pcovph b{font-size:36px}
+  .plrow{padding:12px 22px 12px 12px;gap:16px}
   .who a.am .amgo{width:20px;height:20px}
 }
 

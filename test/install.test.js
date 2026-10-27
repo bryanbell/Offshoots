@@ -76,5 +76,35 @@ const UA={
     say("it lives inside the install fold ("+inside+")", inside===true);
     await ctx.close(); }
 
+  // the step that says to tap Share can open the sheet itself, which is where
+  // Add to Home Screen actually lives
+  const sheet=async(ua,share)=>{
+    const ctx=await b.newContext({userAgent:UA[ua],viewport:{width:390,height:844}});
+    const p=await ctx.newPage();
+    await p.addInitScript(on=>{ if(on) navigator.share=()=>{ window.__shared=true; return Promise.resolve(); };
+      else { try{ delete Navigator.prototype.share; }catch(e){} } }, share);
+    await p.goto(URL+"#install"); await p.waitForTimeout(1500);
+    const r=await p.evaluate(()=>{ const btn=document.querySelector("[data-sharesheet]");
+      return {btn:!!btn, tap:btn?Math.round(btn.getBoundingClientRect().height):0,
+        glyphs:document.querySelectorAll(".installwrap .steps svg.shg").length,
+        inStep:btn?/Share/.test(btn.closest("li").textContent):false}; });
+    let fired=false;
+    if(r.btn){ await p.$eval("[data-sharesheet]",e=>e.click()); await p.waitForTimeout(250);
+      fired=await p.evaluate(()=>!!window.__shared); }
+    await ctx.close(); return Object.assign(r,{fired});
+  };
+  { const r=await sheet("safari",true);
+    say("iOS Safari gets a Share-sheet button", r.btn);
+    say("  inside the step that names Share", r.inStep);
+    say("  tap target "+r.tap+"px", r.tap>=44);
+    say("  and tapping it opens the sheet", r.fired); }
+  { const r=await sheet("safari",false);
+    say("without navigator.share there is no button", r.btn===false);
+    say("  but the glyph still illustrates the step ("+r.glyphs+")", r.glyphs>=1); }
+  { const r=await sheet("macchrome",true);
+    say("a desktop with navigator.share gets no button", r.btn===false); }
+  { const r=await sheet("andchrome",true);
+    say("Android gets no Share-sheet button either", r.btn===false); }
+
   await b.close(); srv.close();
 })();

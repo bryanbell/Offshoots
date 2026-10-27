@@ -183,6 +183,29 @@ const readRules=(p)=>p.evaluate(()=>{
     check(name+" style", await readType(p,"#panelBody"), await readTaps(p,"#panelBody",TIER.tap));
     await p.close();
   }
+  // the cover is the one thing that gets bigger on a pointer screen rather than smaller
+  { const sizes={};
+    for(const [name,vp] of [["phone",{width:390,height:844,isMobile:true,hasTouch:true}],
+        ["tablet",{width:834,height:1112,isMobile:true,hasTouch:true}],
+        ["desktop",{width:1440,height:900}]]){
+      const p=await b.newPage({viewport:vp});
+      await p.goto(URL+"#jamband"); await p.waitForTimeout(900);
+      sizes[name]=await p.evaluate(()=>{ const e=document.querySelector(".plrow img.pcov, .plrow .pcovph");
+        return e?Math.round(e.getBoundingClientRect().width):0; });
+      await p.close();
+    }
+    // a touch screen keeps it thumb-sized; a pointer screen roughly doubles it, which is
+    // the one place the pointer tier makes something bigger instead of smaller
+    say("playlist cover: phone "+sizes.phone+", tablet "+sizes.tablet+", desktop "+sizes.desktop,
+      sizes.desktop>=1.8*sizes.phone && sizes.desktop>=1.8*sizes.tablet && sizes.phone>=56);
+    const dp=await b.newPage({viewport:{width:1440,height:900}});
+    await dp.goto(URL+"#jamband"); await dp.waitForTimeout(900);
+    const box=await dp.evaluate(()=>{ const b=document.querySelector(".plrow img.pcov, .plrow .pcovph").getBoundingClientRect();
+      return [Math.round(b.width),Math.round(b.height)]; });
+    await dp.close();
+    say("  and still square at "+box.join("x"), box[0]===box[1]);
+  }
+
   await b.close();
   process.exit(bad?1:0);
 })();
