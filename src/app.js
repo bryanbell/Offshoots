@@ -345,8 +345,8 @@ function readSect(n){
       + (say ? ` <i class="rdv">${say}</i>` : "")
       + ` \u00b7 ${esc(r[2])} \u00b7 ${r[3]}`
       + (r[5] ? ` <i class="rdw">${esc(cap(r[5]))}</i>` : "");
-    return `<a class="rd" href="${esc(r[0])}" target="_blank" rel="noopener noreferrer" title="${kind}, ${esc(r[7])}">`
-      + `<i class="rdi${ser?" rdis":""}">${ser?MEDICON.series:(MEDICON[r[7]]||MEDICON.read)}</i>`
+    return `<a class="rd rd-${ser?"series":esc(r[7])}" href="${esc(r[0])}" target="_blank" rel="noopener noreferrer" title="${kind}, ${esc(r[7])}">`
+      + `<i class="rdi">${ser?MEDICON.series:(MEDICON[r[7]]||MEDICON.read)}</i>`
       + `<span class="rdx"><span class="rdm">${kicker}</span>`
       + `<span class="rdt">${esc(r[1])}</span>`
       + `<span class="rdn">${esc(r[6])}</span></span></a>`;

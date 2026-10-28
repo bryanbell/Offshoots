@@ -77,6 +77,16 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   say("counted in the aside ("+r.aside+")", r.aside===r.n+" sources");
   say("each row carries title, source and note", r.full);
   // the kind is drawn as well as said, which is what makes a long list scannable
+  // each medium has a colour, so a long list sorts itself at a glance
+  say("each medium has a colour of its own", await p.evaluate(()=>{
+    const seen={}; let ok=true;
+    for(const x of document.querySelectorAll("a.rd")){
+      const m=(x.className.match(/rd-(\w+)/)||[])[1];
+      const c=getComputedStyle(x.querySelector(".rdi")).color;
+      if(seen[m] && seen[m]!==c) ok=false; seen[m]=c;
+    }
+    const cols=Object.values(seen);
+    return ok && cols.length>1 && new Set(cols).size===cols.length;}));
   say("each row carries an icon for its medium", await p.evaluate(()=>
     [...document.querySelectorAll("a.rd")].every(x=>!!x.querySelector(".rdi svg"))));
   say("and the kicker stays on one line", await p.evaluate(()=>
@@ -94,7 +104,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   say("the 33 1/3 entries are badged", await p.evaluate(()=>{
     const ser=[...document.querySelectorAll("a.rd")].filter(x=>x.querySelector(".rds"));
     return ser.length===2 && ser.every(x=>/33\u2153/.test(x.querySelector(".rds").textContent)
-      && x.querySelector(".rdi.rdis"));}));
+      && x.classList.contains("rd-series"));}));
   say("the medium is never said twice", await p.evaluate(()=>
     [...document.querySelectorAll("a.rd .rdm")].every(x=>
       !/Audio\s+Listen|Documentary\s+Watch/.test(x.textContent))));

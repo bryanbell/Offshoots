@@ -599,10 +599,18 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
   height:.5px;background:var(--sep)}
 .rd:hover{background:color-mix(in srgb,var(--fg) 7%,transparent)}
 .rd:focus-visible{outline:0;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent) 55%,transparent)}
+/* each medium has a colour, so a long list sorts itself at a glance: what is reading,
+   what is a recording, what is a film. The same ramp idea as the mode chips. */
+.rd{--rdc:#9aa0a6}
+.rd-read{--rdc:#7aa2f7}
+.rd-listen{--rdc:#5bbda4}
+.rd-watch{--rdc:#e2604a}
+.rd-look{--rdc:#e8c24a}
+.rd-book{--rdc:#b48cf0}
 .rd .rdi{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:8px;
-  background:color-mix(in srgb,var(--fg) 12%,transparent);color:var(--muted);margin-top:1px}
+  background:color-mix(in srgb,var(--rdc) 22%,transparent);color:var(--rdc);margin-top:1px}
 .rd .rdi svg{width:17px;height:17px}
-.rd:hover .rdi{color:var(--fg)}
+.rd:hover .rdi{background:color-mix(in srgb,var(--rdc) 34%,transparent)}
 .rdx{flex:1;min-width:0;display:block}
 /* the kicker: what kind of thing, who ran it, when */
 .rdm{display:block;font:400 var(--t-foot)/1.35 var(--f-body);color:var(--muted)}
@@ -617,8 +625,7 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
    that belongs to a series worth naming, so it is the one row that gets a colour. */
 .rds{font-style:normal;font-weight:700;color:var(--bg);background:var(--accent);
   border-radius:5px;padding:1px 5px;letter-spacing:.01em}
-.rd .rdi.rdis{background:color-mix(in srgb,var(--accent) 26%,transparent);color:var(--accent)}
-.rd:hover .rdi.rdis{color:var(--accent)}
+.rd.rd-series{--rdc:var(--accent)}
 .rdt{display:block;margin-top:2px;font:600 var(--t-body)/1.3 var(--f-body);letter-spacing:-.01em}
 /* the note is the reason to tap, so it reads brighter than the line above it */
 .rdn{display:block;margin-top:4px;font:400 var(--t-sub)/1.4 var(--f-body);
