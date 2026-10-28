@@ -343,6 +343,18 @@ function readSect(n){
   const rows = (typeof READ!=="undefined" && READ[n.id]) || [];
   if(!rows.length) return "";
   const cap = t => t.charAt(0).toUpperCase() + t.slice(1);
+  // A mark per row, so the eye has something to land on. Real favicons would be better
+  // and are not available: nothing in this session can reach those hosts, and hotlinking
+  // them would break the installed copy offline and tell every publisher who is reading.
+  // So the mark is drawn from the data: the source's own initials, in the medium's colour.
+  const SKIP=/^(the|of|and|a|an|for|on|in|at|de|la)$/i;
+  const mono = p => {
+    const t = p.replace(/^the\s+/i,"").trim();
+    if(/^[A-Z0-9][A-Z0-9&.']{1,3}$/.test(t)) return t;          // NPR, PBS, KQED, SPIN
+    const w = t.split(/[\s/.-]+/).filter(x=>x && !SKIP.test(x));
+    if(w.length>=2) return w.slice(0,3).map(x=>x[0]).join("").toUpperCase();
+    return (w[0]||t).slice(0,2).replace(/^./,c=>c.toUpperCase());
+  };
   const items = rows.map(r=>{
     const kind = esc(r[4]);
     // the icon carries the medium; the word is added only where it is a promise the kind
@@ -357,7 +369,9 @@ function readSect(n){
       + ` \u00b7 ${esc(r[2])} \u00b7 ${r[3]}`
       + (r[5] ? ` <i class="rdw">${esc(cap(r[5]))}</i>` : "");
     return `<a class="rd rd-${ser?"series":esc(r[7])}" href="${esc(r[0])}" target="_blank" rel="noopener noreferrer" title="${kind}, ${esc(r[7])}">`
-      + `<i class="rdi">${ser?MEDICON.series:(MEDICON[r[7]]||MEDICON.read)}</i>`
+      + `<i class="rdi">${ser ? `<b class="rdser">33\u2153</b>`
+          : r[7]==="book" ? MEDICON.book
+          : (m=>`<b class="rdmo${m.length>3?" wide":""}">${esc(m)}</b>`)(mono(r[2]))}</i>`
       + `<span class="rdx"><span class="rdm">${kicker}</span>`
       + `<span class="rdt">${esc(r[1])}</span>`
       + `<span class="rdn">${esc(r[6])}</span></span></a>`;

@@ -87,8 +87,14 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     }
     const cols=Object.values(seen);
     return ok && cols.length>1 && new Set(cols).size===cols.length;}));
-  say("each row carries an icon for its medium", await p.evaluate(()=>
-    [...document.querySelectorAll("a.rd")].every(x=>!!x.querySelector(".rdi svg"))));
+  say("every row carries a mark, and it fits its tile", await p.evaluate(()=>
+    [...document.querySelectorAll("a.rd")].every(x=>{
+      const t=x.querySelector(".rdi"); if(!t) return false;
+      const m=t.querySelector(".rdmo,.rdser"), svg=t.querySelector("svg");
+      if(!m && !svg) return false;
+      return !m || (m.textContent.trim().length>0 && m.getBoundingClientRect().width<=t.getBoundingClientRect().width);
+    })));
+
   say("and the kicker stays on one line", await p.evaluate(()=>
     [...document.querySelectorAll("a.rd .rdm")].every(x=>x.getBoundingClientRect().height<=22)));
   // app.js keeps its own scope, so the icon table is checked against the built file

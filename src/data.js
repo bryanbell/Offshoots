@@ -1520,7 +1520,7 @@ const READ = {
   ["https://www.motherjones.com/politics/2013/06/hard-art-lucian-perkins-dc-punk-bad-brains-dischord/","A Pulitzer Winner's Photos of Early DC Punk","Mother Jones",2013,"photo essay","","Perkins shot Bad Brains in a gallery in 1979; the frames ran nowhere for decades.","look"],
   ["https://vice.com/en/article/theres-no-shortage-of-blood-and-crazy-motherfuckers-an-interview-with-john-brannon-of-negative-approach","An Interview with John Brannon","Vice",2013,"oral history","","Brannon names the Freezer Theater and why Midwest hardcore sounded unlike either coast.","read"],
   ["https://www.criterion.com/current/posts/6476-the-truth-about-punk-according-to-penelope-spheeris","The Truth About Punk, According to Penelope Spheeris","Criterion",2015,"longform","","How an outsider in her thirties got LA punks to drop their guard on camera.","read"],
-  ["https://www.criterionchannel.com/the-decline-of-western-civilization","The Decline of Western Civilization","Criterion Channel",1981,"documentary","paywall","Circle Jerks and Black Flag filmed in 1979 clubs, before anyone performed for history.","watch"]
+  ["https://www.criterionchannel.com/the-decline-of-western-civilization","The Decline of Western Civilization","Criterion",1981,"documentary","paywall","Circle Jerks and Black Flag filmed in 1979 clubs, before anyone performed for history.","watch"]
 ],
 "soul": [
   ["https://vromansbookstore.com/book/9780826419262","Songs in the Key of Life","Zeth Lundy",2007,"33 1/3","","A whole short book about this one record by Stevie Wonder.","book"],
@@ -1541,7 +1541,7 @@ const READ = {
   ["https://blogs.loc.gov/folklife/2026/03/guess-who-just-turned-50-lead-belly-on-a-milestone-disc-from-the-archive/","Lead Belly on a Milestone Disc","Library of Congress",2026,"history","","Plays the 1935 disc and compares what the Lomaxes printed with what he sang.","read"],
   ["https://blogs.loc.gov/folklife/2018/05/when-a-song-became-a-road-map-the-tom-hoskins-collection-and-mississippi-john-hurt/","When a Song Became a Road Map","Library of Congress",2018,"history","","A lyric led Hoskins to Avalon in 1963; the recording he made is here.","read"],
   ["https://folkways-media.si.edu/docs/folkways/artwork/ARH00330.pdf","The Gold Star Sessions liner notes","Arhoolie",1990,"history","","Strachwitz watched Hopkins improvise verses about rain and arthritis as he walked in.","read"],
-  ["https://www.criterionchannel.com/the-blues-accordin-to-lightnin-hopkins","The Blues Accordin' to Lightnin' Hopkins","Criterion Channel",1968,"documentary","paywall","Les Blank follows Hopkins through Texas while he plays and talks, unstaged.","watch"]
+  ["https://www.criterionchannel.com/the-blues-accordin-to-lightnin-hopkins","The Blues Accordin' to Lightnin' Hopkins","Criterion",1968,"documentary","paywall","Les Blank follows Hopkins through Texas while he plays and talks, unstaged.","watch"]
 ],
 "synthpop": [
   ["https://rep.club/products/donna-summers-once-upon-a-time","Once Upon a Time","Alex Jeffery",2021,"33 1/3","","A whole short book about this one record by Donna Summer.","book"],

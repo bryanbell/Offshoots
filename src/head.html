@@ -607,11 +607,18 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 .rd-watch{--rdc:#e2604a}
 .rd-look{--rdc:#e8c24a}
 .rd-book{--rdc:#b48cf0}
-.rd .rdi{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:8px;
-  background:color-mix(in srgb,var(--rdc) 22%,transparent);color:var(--rdc);margin-top:1px}
-.rd .rdi svg{width:17px;height:17px}
+.rd .rdi{flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:11px;
+  background:color-mix(in srgb,var(--rdc) 20%,transparent);color:var(--rdc);margin-top:1px;
+  box-shadow:inset 0 0 0 .5px color-mix(in srgb,var(--rdc) 38%,transparent)}
+.rd .rdi svg{width:19px;height:19px}
+/* the source's initials, set tight so three letters still fit the tile */
+.rdmo{font:700 14px/1 var(--f-body);letter-spacing:-.04em;font-style:normal}
+.rdmo:not(:empty){padding:0 1px}
+.rdmo.wide{font-size:13px;letter-spacing:-.055em}
+.rdser{font:700 13px/1 var(--f-body);letter-spacing:-.03em;font-style:normal}
 .rd:hover .rdi{background:color-mix(in srgb,var(--rdc) 34%,transparent)}
 .rdx{flex:1;min-width:0;display:block}
+.reads{--rdlead:69px}
 /* the kicker: what kind of thing, who ran it, when */
 .rdm{display:block;font:400 var(--t-foot)/1.35 var(--f-body);color:var(--muted)}
 /* the kind is said in the kicker and drawn in the tile; a colour on it as well made it
