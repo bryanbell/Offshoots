@@ -589,16 +589,31 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 .svc:focus-within{outline:2px solid color-mix(in srgb,var(--accent) 60%,transparent);outline-offset:2px}
 
 
-/* Go deeper. A stack of rows rather than pills: each one carries a title, where it came
-   from, and a line on why it is worth the tap, and that line is the whole point. */
-.reads{display:flex;flex-direction:column;gap:2px;margin-top:2px}
-.rd{display:block;padding:10px 12px;border-radius:12px;background:var(--fill2);
-  color:var(--fg);text-decoration:none;transition:background .15s}
-.rd:hover{background:color-mix(in srgb,var(--fill2) 70%,var(--fg))}
-.rdt{display:block;font:600 var(--t-sub)/1.35 var(--f-body);letter-spacing:-.008em}
-.rdm{display:block;margin-top:3px;font:500 var(--t-foot)/1.3 var(--f-mono);color:var(--muted)}
-.rdw{font-style:normal;color:var(--lv4,#ee8f4e);opacity:.95}
-.rdn{display:block;margin-top:5px;font:400 var(--t-foot)/1.4 var(--f-body);color:var(--muted)}
+/* Go deeper, laid out like a news list. One block with hairlines between the rows
+   rather than a card each, so the titles form a column the eye can run down. The
+   separators inset past the icon, the way the Browse list does it. */
+.reads{background:var(--fill2);border-radius:14px;overflow:hidden;margin-top:2px;--rdlead:57px}
+.rd{position:relative;display:flex;gap:13px;padding:13px 14px;color:var(--fg);
+  text-decoration:none;transition:background .15s}
+.rd + .rd::after{content:"";position:absolute;left:var(--rdlead);right:0;top:0;
+  height:.5px;background:var(--sep)}
+.rd:hover{background:color-mix(in srgb,var(--fg) 7%,transparent)}
+.rd:focus-visible{outline:0;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent) 55%,transparent)}
+.rd .rdi{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:8px;
+  background:color-mix(in srgb,var(--fg) 12%,transparent);color:var(--muted);margin-top:1px}
+.rd .rdi svg{width:17px;height:17px}
+.rd:hover .rdi{color:var(--fg)}
+.rdx{flex:1;min-width:0;display:block}
+/* the kicker: what kind of thing, who ran it, when */
+.rdm{display:block;font:400 var(--t-foot)/1.35 var(--f-body);color:var(--muted)}
+/* the kind is said in the kicker and drawn in the tile; a colour on it as well made it
+   compete with the headline, so it is weight alone */
+.rdk{font-style:normal;font-weight:600}
+.rdw{font-style:normal;font-weight:600;color:#e2a04a}
+.rdt{display:block;margin-top:2px;font:600 var(--t-body)/1.3 var(--f-body);letter-spacing:-.01em}
+/* the note is the reason to tap, so it reads brighter than the line above it */
+.rdn{display:block;margin-top:4px;font:400 var(--t-sub)/1.4 var(--f-body);
+  color:color-mix(in srgb,var(--fg) 82%,transparent)}
 .who{display:flex;flex-wrap:wrap;gap:7px}
 .pcard .links{display:none}
 body.open .pcard .links{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin-top:16px}
@@ -2791,19 +2806,27 @@ function walk(id,key){ const m=new Map(), q=[[id,0]]; while(q.length){ const [c,
 let state={sel:null,mode:"both"};
 let PHEAD="";
 const CHEVSVG='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg>';
-// Things to go and read, on the styles that have them. The note under each one is the
-// point: a bare list of links is a worse Wikipedia, and what makes it worth a tap is
-// being told why. A style with nothing good stays silent, the way a playlist does.
+// what kind of thing it is, as a shape: the word is there too, but the icon is what
+// carries down a scrolled list
+const READICON={"review":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M14.6 3.3l2.1 2.1-9 9-2.8.7.7-2.8z\"/><path d=\"M4.2 16.7h11.6\"/></svg>","memoir":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M8.1 5.2c-2 .9-3.3 2.7-3.3 5.1v4.5h4.6v-4.6H6.6c0-1.6.6-2.6 2-3.3z\"/><path d=\"M15.4 5.2c-2 .9-3.3 2.7-3.3 5.1v4.5h4.6v-4.6h-2.8c0-1.6.6-2.6 2-3.3z\"/></svg>","photo essay":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2.6\" y=\"5.4\" width=\"14.8\" height=\"10.4\" rx=\"2.4\"/><circle cx=\"10\" cy=\"10.6\" r=\"2.9\"/><path d=\"M6.9 5.4l1-1.6h4.2l1 1.6\"/></svg>","scene report":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 5.2h10.6v11.2H4.6a1.6 1.6 0 0 1-1.6-1.6z\"/><path d=\"M13.6 7.6h2.2a1.6 1.6 0 0 1 1.6 1.6v5.6a1.6 1.6 0 0 1-1.6 1.6h-2.2\"/><path d=\"M5.4 8h5.8\"/><path d=\"M5.4 11h5.8\"/><path d=\"M5.4 13.8h3.4\"/></svg>","audio":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 9v2\"/><path d=\"M6 6.6v6.8\"/><path d=\"M9 3.6v12.8\"/><path d=\"M12 6v8\"/><path d=\"M15 8.2v3.6\"/><path d=\"M18 9.4v1.2\"/></svg>","longform":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 3.2h6.4L15.6 7v9.8H5z\"/><path d=\"M11.2 3.2V7h4.4\"/><path d=\"M7.4 10.4h5.8\"/><path d=\"M7.4 13.2h5.8\"/></svg>","oral history":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"7.6\" y=\"2.4\" width=\"4.8\" height=\"8.6\" rx=\"2.4\"/><path d=\"M4.8 9.6a5.2 5.2 0 0 0 10.4 0\"/><path d=\"M10 14.8v2.8\"/></svg>","obituary":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 2.6c1.5 1.6 2.2 2.7 2.2 3.9a2.2 2.2 0 0 1-4.4 0c0-1.2.7-2.3 2.2-3.9z\"/><path d=\"M10 8.9v8.5\"/><path d=\"M6.8 17.4h6.4\"/></svg>","documentary":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2.6\" y=\"5\" width=\"14.8\" height=\"10\" rx=\"2.2\"/><path d=\"M2.6 8.4h14.8\"/><path d=\"M6.4 5v3.4\"/><path d=\"M11.4 5v3.4\"/><path d=\"M8.4 11.2l3.4 1.8-3.4 1.8z\"/></svg>"};
+
+
+// Laid out like a news list rather than a stack of cards: what it is and who ran it on
+// top, the headline next, and the reason to read it underneath. One block, hairlines
+// between, so the eye runs down the titles instead of stopping at every box.
 function readSect(n){
   const rows = (typeof READ!=="undefined" && READ[n.id]) || [];
   if(!rows.length) return "";
+  const cap = t => t.charAt(0).toUpperCase() + t.slice(1);
   const items = rows.map(r=>{
-    const meta = [esc(r[2]), r[3], esc(r[4])].join(" \u00b7 ")
-      + (r[5] ? ` <em class="rdw">${esc(r[5])}</em>` : "");
-    return `<a class="rd" href="${esc(r[0])}" target="_blank" rel="noopener noreferrer">`
+    const kind = esc(r[4]);
+    const kicker = `<i class="rdk">${esc(cap(r[4]))}</i> \u00b7 ${esc(r[2])} \u00b7 ${r[3]}`
+      + (r[5] ? ` <i class="rdw">${esc(cap(r[5]))}</i>` : "");
+    return `<a class="rd" href="${esc(r[0])}" target="_blank" rel="noopener noreferrer" title="${kind}">`
+      + `<i class="rdi">${READICON[r[4]]||READICON.longform}</i>`
+      + `<span class="rdx"><span class="rdm">${kicker}</span>`
       + `<span class="rdt">${esc(r[1])}</span>`
-      + `<span class="rdm">${meta}</span>`
-      + `<span class="rdn">${esc(r[6])}</span></a>`;
+      + `<span class="rdn">${esc(r[6])}</span></span></a>`;
   }).join("");
   return sect("read","Go deeper",`<div class="reads">${items}</div>`,
     `<span class="sectaside">${rows.length} ${rows.length===1?"read":"reads"}</span>`);

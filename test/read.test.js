@@ -70,6 +70,19 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   say("shown when the panel opens, as \""+r.head+"\"", r.shown && r.head==="Go deeper");
   say("counted in the aside ("+r.aside+")", r.aside===r.n+" reads");
   say("each row carries title, source and note", r.full);
+  // the kind is drawn as well as said, which is what makes a long list scannable
+  say("each row carries an icon for its kind", await p.evaluate(()=>
+    [...document.querySelectorAll("a.rd")].every(x=>!!x.querySelector(".rdi svg"))));
+  say("and the kicker stays on one line", await p.evaluate(()=>
+    [...document.querySelectorAll("a.rd .rdm")].every(x=>x.getBoundingClientRect().height<=22)));
+  // app.js keeps its own scope, so the icon table is checked against the built file
+  { const built=require("fs").readFileSync(__dirname+"/../index.html","utf8");
+    const tbl=built.slice(built.indexOf("const READICON={"));
+    const kinds=await p.evaluate(()=>{const k=new Set();
+      for(const s in READ) for(const r of READ[s]) k.add(r[4]); return [...k];});
+    const missing=kinds.filter(k=>tbl.indexOf(JSON.stringify(k)+":")<0);
+    say("all "+kinds.length+" kinds have a shape of their own"
+      +(missing.length?" (missing "+missing.join(", ")+")":""), missing.length===0); }
   say("each opens in its own tab, safely", r.blank);
   say("smallest row is "+r.tap+"px", r.tap>=44);
   say("it sits under What it is", r.afterAbout);
