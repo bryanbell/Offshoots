@@ -29,6 +29,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
         return new Set(u).size===u.length;}),
       shared:urls.length-new Set(urls).size,
       enc:urls.filter(u=>/wikipedia|britannica|fandom|discogs|allmusic|rateyourmusic/i.test(u)).length,
+      aids:urls.filter(u=>/findingaids|archival_objects|\/repositories\/\d|archivesspace/i.test(u)).length,
       noted:rows.every(([,r])=>typeof r[6]==="string" && r[6].length>20),
       dashes:rows.filter(([,r])=>/—/.test(r[6])).length,
       years:rows.every(([,r])=>r[3]>=1900 && r[3]<=2026),
@@ -43,6 +44,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   say("no link appears twice on one style", t.uniq);
   say("and "+t.shared+" piece"+(t.shared===1?"":"s")+" covering two styles", t.shared<=3);
   say("no encyclopedias or databases ("+t.enc+")", t.enc===0);
+  say("no catalogue records or finding aids ("+t.aids+")", t.aids===0);
   say("every one says why it is worth reading", t.noted);
   say("and says it without an em dash", t.dashes===0);
   say("years are plausible", t.years);
@@ -51,7 +53,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   say(t.kinds+" kinds of thing, not just articles", t.kinds>=5);
   // the icon promises what you will do with it, so every row has to declare that
   say("every row says what you do with it ("+t.media+")",
-    t.media.split("|").every(m=>["read","listen","watch","look","archive"].indexOf(m)>=0));
+    t.media.split("|").every(m=>["read","listen","watch","look"].indexOf(m)>=0));
   await p.close();
 
   // a style with reads shows them, under a heading, above the share button

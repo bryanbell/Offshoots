@@ -1190,7 +1190,9 @@ const SONGS = {"acidhouse":["Washing Machine","No Way Back","Acid Tracks","Land 
 // the piece gives you something the map cannot: what it was like to be in the room.
 // Contemporaneous reviews, oral histories, zine and flyer archives, obituaries.
 // Rows are [url, title, publication, year, kind, access, why it is worth your time, medium].
-// medium is read / listen / watch / look / archive, and it is what the icon promises: an
+// A link has to serve the material, not describe it. Three entries were cut for pointing at
+// catalogue records that name a box and a folder and show you nothing.
+// medium is read / listen / watch / look, and it is what the icon promises: an
 // oral history can be a tape you play or a transcript you read, and the row has to say which.
 // access is "" for open, or paywall / partial / registration, which the panel says out loud.
 // [url, title, publication, year, kind, access, note]
@@ -1208,7 +1210,7 @@ const READ = {
 ],
 "house": [
  ["https://daily.redbullmusicacademy.com/2015/05/ron-hardy-at-the-music-box","Ron Hardy at the Music Box","Red Bull Music Academy",2015,"oral history","","Dancers and producers describe Hardy's sets, the heat in the room and the drugs in it.","read"],
- ["https://digitalcommons.colum.edu/house/45","Robert Williams, Chicago House Music Oral History Project","Columbia College Chicago",2014,"oral history","","The man who opened the Warehouse and the Music Box, in his own recorded voice.","archive"],
+ ["https://digitalcommons.colum.edu/house/45","Robert Williams, Chicago House Music Oral History Project","Columbia College",2014,"oral history","","The man who opened the Warehouse and the Music Box, in his own recorded voice.","listen"],
  ["https://www.chicago.gov/content/dam/city/depts/zlup/Historic_Preservation/Publications/The_Warehouse_Report.pdf","The Warehouse Landmark Designation Report","City of Chicago",2023,"longform","","Documents the building, the hours, the door price and the juice bar, with Knuckles quoted.","read"],
  ["https://www.gridface.com/memories-of-ron-hardy/","Memories of Ron Hardy","Gridface",2010,"oral history","","Hardy's nephew on the family, the record crates and the leaking Music Box roof.","read"]
 ],
@@ -1224,11 +1226,11 @@ const READ = {
  ["https://blogs.loc.gov/loc/2018/01/this-day-in-history-celebrating-dizzy-gillespie-through-photographs-and-more/","Celebrating Dizzy Gillespie Through Photographs","Library of Congress",2018,"photo essay","","Routes you to a 1984 Gillespie interview transcript and a 1947 Down Beat definition of bop.","read"]
 ],
 "gogo": [
+  ["https://pbs.kixe.org/video/go-go-city-displacement-and-protest-in-washington-dc-nuXKea","Go-Go City: Displacement and Protest in Washington, DC","PBS",2023,"documentary","","A full-length film with go-go musicians and Don't Mute DC organisers on camera.","watch"],
+  ["https://dcist.com/story/21/08/17/dcpl-go-go-photo-collection-chuck-brown-band-rare-essence","Nearly 2,000 Go-Go Photos Enter the City Archive","DCist",2021,"photo essay","","Credited stage and crowd shots from Club Elite, Tradewinds and the first Don't Mute DC protest.","look"],
  ["https://jameshamiltonsdiscopage.com/1985/03/02/march-2-1985-drop-the-whop-washington-dc-go-go-special-report-extended-hip-hop-hot-uns-review-special/","Drop the Whop: Washington DC Go-Go Special Report","Record Mirror",1985,"scene report","","A British dance columnist's on-the-spot account of the bands, the tempos and the crowds.","read"],
- ["https://thepeoplesarchive.dclibrary.org/repositories/2/resources/2395","Lornell and Stephenson Go-Go Oral History Collection","DC Public Library",1998,"oral history","","Interview transcripts with go-go performers, recorded while the scene was still running.","archive"],
  ["https://www.npr.org/2012/05/17/152918364/go-go-godfather-created-distinct-dc-soundtrack","Go-Go Godfather Created a Distinct DC Soundtrack","NPR",2012,"obituary","","Chuck Brown in his own voice from an earlier interview, with the records playing under it.","listen"],
  ["https://thekojonnamdishow.org/shows/2012-05-17/remembering-go-go-godfather-chuck-brown","Remembering Go-Go Godfather Chuck Brown","WAMU",2012,"audio","","DC listeners and Rare Essence's Andre Johnson phone in with their own memories.","listen"],
- ["https://digdc.dclibrary.org/islandora/object/dcplislandora%3A305086","The Chip Py Go-Go Collection","DC Public Library",2020,"photo essay","","Entry point to 1,900 concert photographs by Chuck Brown's own photographer.","look"]
 ],
 "zydeco": [
  ["https://folklife.si.edu/magazine/clifton-chenier-archives","The King of Zydeco's 100th Birthday Calls for a Look into the Archives","Smithsonian Folklife",2025,"longform","","Built from a 1978 interview with Chenier and Ann Savoy's account of meeting him.","read"],
@@ -1247,8 +1249,8 @@ const READ = {
  ["https://britishculturearchive.co.uk/virginia-turbett-british-subculture-1970s/","Virginia Turbett: British Subculture 1979-1981","British Culture Archive",2020,"photo essay","","Dated, located shots, including Madness on the first 2 Tone tour in 1979.","look"]
 ],
 "riotgrrrl": [
- ["https://thepeoplesarchive.dclibrary.org/repositories/2/archival_objects/169680","Riot Grrrl! A Valley Girl Production #2","DC Public Library",1992,"oral history","","An original zine issue, catalogued, with its seven teenage authors named.","look"],
- ["https://findingaids.library.nyu.edu/fales/mss_394/all","Elena Humphreys Riot Grrrl Collection","Fales Library, NYU",1996,"oral history","","Itemized zines, flyers, paste-ups and mailing lists from Riot Grrrl NYC.","archive"],
+  ["https://archive.org/details/girl-germs-4","Girl Germs #4","Girl Germs",1991,"longform","","Wolfe and Neuman's own pages, ads and rants, as readers of the scene saw them.","read"],
+  ["https://archive.org/details/girl-germs-3","Girl Germs #3","Girl Germs",1991,"longform","","An earlier issue, from the movement's first months in Olympia.","read"],
  ["https://www.npr.org/blogs/therecord/2011/09/20/140640502/revolution-girl-style-20-years-later","Revolution Girl Style, 20 Years Later","NPR",2011,"scene report","","Molly Neuman and others recall the 1991 convention and the reaction to it.","read"],
  ["https://www.bookforum.com/print/1703/in-the-early-90s-punk-girls-improvised-new-forms-of-feminist-agitation-6325","Her Jazz","Bookforum",2010,"longform","","A participant reviews the movement's own history and names where it failed.","read"],
  ["https://www.theparisreview.org/blog/2013/07/30/grrrl-collected/","Grrrl, Collected","The Paris Review",2013,"longform","","The archivist on what the zines reveal, including the criticism from inside the scene.","read"]
@@ -1258,7 +1260,7 @@ const READ = {
  ["https://www.insomniac.com/magazine/how-to-talk-to-your-kids-about-riddim/","How to Talk to Your Kids About Riddim","Insomniac",2017,"scene report","","Producers argue on the record about whether riddim is a real subgenre at all.","read"]
 ],
 "witchhouse": [
- ["https://sfbgarchive.48hills.org/sfbgarchive/2011/01/06/weird-emergence/","Weird Emergence","San Francisco Bay Guardian",2011,"scene report","","Interviews Travis Egedy, who helped coin the term and then disowned it.","read"],
+ ["https://sfbgarchive.48hills.org/sfbgarchive/2011/01/06/weird-emergence/","Weird Emergence","SF Bay Guardian",2011,"scene report","","Interviews Travis Egedy, who helped coin the term and then disowned it.","read"],
  ["https://grantland.com/hollywood-prospectus/the-short-life-weird-death-and-mild-rebirth-of-the-witch-house-genre","The Short Life, Weird Death and Mild Rebirth of Witch House","Grantland",2015,"longform","","Traces the collapse, including Salem's implosion, rather than the definition.","read"],
  ["https://stereogum.com/2089949/witch-house-salem-king-night-turns-10/columns/sounding-board","Remember Witch House?","Stereogum",2020,"memoir","","Written by the editor whose inbox the scene flooded, on how the hype actually worked.","read"]
 ],
