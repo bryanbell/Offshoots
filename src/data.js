@@ -1197,6 +1197,98 @@ const SONGS = {"acidhouse":["Washing Machine","No Way Back","Acid Tracks","Land 
 // access is "" for open, or paywall / partial / registration, which the panel says out loud.
 // [url, title, publication, year, kind, access, note]
 const READ = {
+"ranchera": [
+  ["https://folkways-media.si.edu/docs/folkways/artwork/SFW40559.pdf","Tradicion, Arte y Pasion","Daniel E. Sheehy",2015,"history","","Bilingual booklet tracing radio XEW and film to the ranchera singers, Spanish included.","read"],
+  ["https://folkways-media.si.edu/docs/folkways/artwork/FW08870.pdf","Mariachi Music from Jalisco","Charles M. Bogert",1960,"history","","Fieldworkers describe recording a Chapala mariachi on a hotel roof, song form by form.","read"],
+  ["https://www.elespectador.com/entretenimiento/musica/jose-alfredo-jimenez-95-anos-del-rey-de-la-cancion-ranchera/","Jose Alfredo Jimenez, 95 anos del rey","El Espectador",2021,"obituary","partial","In Spanish: how a man with no training whistled melodies Mariachi Vargas recorded.","read"]
+],
+"son": [
+  ["https://folkways-media.si.edu/docs/folkways/artwork/ARH07003.pdf","Sextetos Cubanos, Vol. I liner notes","Michael Ivan Avalos",1992,"history","","Breaks down preludio, largo and montuno and profiles each sexteto, lyrics included.","read"],
+  ["https://frontera.library.ucla.edu/recordings/suavecito","Suavecito, Septeto Nacional, 1930","Frontera, UCLA",1930,"audio","","The digitised Brunswick 78 of Ignacio Pineiro's son, playable from the original disc.","listen"],
+  ["https://folkways.si.edu/sextetos-cubanos/world/music/album/smithsonian","Sextetos Cubanos: Sones 1930","Smithsonian Folkways",1991,"audio","partial","Twenty-four sextet sones from 1929 and 1930; previews free, full streaming needs membership.","listen"]
+],
+"corrido": [
+  ["https://folkways-media.si.edu/docs/folkways/artwork/SFW40418.pdf","Music of the Rio Grande Valley","Smithsonian Folkways",1993,"history","","Booklet with an Americo Paredes essay and song notes on Cortez and smuggler corridos.","read"],
+  ["https://blog.oup.com/2017/09/singing-resistance-americo-paredes-corrido/","Singing Resistance on the Border","Oxford Univ. Press",2017,"history","","Shows the corrido working as community news, from Cortez through narco songs and parody.","read"],
+  ["https://www.texasobserver.org/archive_page/ustxtxb_obs_1993_10_29_50_00018-00000_000pdf20180/","Americo Paredes, profiled","Texas Observer",1993,"longform","","Scanned page on the folklorist who made corrido scholarship a Chicano movement text.","read"]
+],
+"cloudrap": [
+  ["https://redbullmusicacademy.com/lectures/clams-casino","Clams Casino, in lecture","RBMA",2011,"oral history","","Clams walks through the Imogen Heap flip and the cold emails that built those beats.","read"],
+  ["https://www.npr.org/sections/therecord/2011/01/27/133245953/lil-b-understanding-raps-new-rebel","Lil B: Understanding Rap's New Rebel","NPR",2011,"longform","","Written while it was happening: why Lil B treated the internet as the instrument.","read"],
+  ["https://daily.bandcamp.com/features/squadda-b-main-attrakionz-new-dog-interview","Cloud Rap No More: Squadda B Returns","Bandcamp Daily",2020,"oral history","","Squadda B says the label he helped coin ended up gentrifying his own sound.","read"]
+],
+"miamibass": [
+  ["https://daily.redbullmusicacademy.com/2016/07/mr-mixx-interview","Mr. Mixx on the Roots of Miami Bass","RBMA",2016,"oral history","","2 Live Crew's producer explains how he stretched the 808 kick into the Miami sound.","read"],
+  ["https://www.wlrn.org/news/2016-11-30/in-miami-bass-is-king-performance-recalls-history-of-miami-bass","In Miami, Bass Is King","WLRN",2016,"audio","","Four minutes of the actual bass, car systems and sound-tank builders talking volume.","listen"],
+  ["https://malaysia.news.yahoo.com/2-live-crew-obscenity-trial-213607638.html","The Obscenity Trial, 30 Years Later","Variety",2020,"oral history","","Luther Campbell and Doug Morris recall the arrests, the Miller test and the verdict.","read"]
+],
+"ukgarage": [
+  ["https://daily.redbullmusicacademy.com/2019/06/ukg-committee-garage-wars","The Garage Committee and the Garage Wars","RBMA",2019,"longform","","Dan Hancox reconstructs the meeting where insiders tried to purge the darker sound.","read"],
+  ["https://www.vice.com/en/article/the-complicated-legacy-of-so-solid-crew","The Complicated Legacy of So Solid Crew","VICE",2017,"longform","","Argues the press used the crew as racial shorthand while ignoring south London conditions.","read"],
+  ["https://old.afropop.org/articles/locked-on-a-history-of-uk-dance-in-radio-sets","Keep It Locked: UK Dance in Radio Sets","Afropop",2016,"history","","Builds the whole pirate radio lineage out of specific named broadcasts you can find.","read"]
+],
+"trance": [
+  ["https://www.beatportal.com/features/trance-history-beatport","A History of Trance","Beatportal",2021,"history","","Traces trance city by city, from Goa and Frankfurt to the Dutch labels, records named.","read"],
+  ["https://www.digitaldjtips.com/trance-nation-changed-dance-music/","How Ferry Corsten Changed Dance Music","Digital DJ Tips",2025,"oral history","","Corsten and the Ministry A and R recount picking and editing the 1999 mix track by track.","read"]
+],
+"postdisco": [
+  ["https://www.npr.org/2016/07/16/485873750/july-12-1979-the-night-disco-died-or-didnt","The Night Disco Died, Or Didn't","NPR",2016,"audio","","Vince Lawrence, an usher that night, describes salvaging records and later building house.","listen"],
+  ["https://aeon.co/ideas/the-night-when-straight-white-males-tried-to-kill-disco","The Night They Tried to Kill Disco","Aeon",2017,"longform","","Shows whose records burned and why the market, not the riot, finished disco off.","read"],
+  ["https://daily.redbullmusicacademy.com/2015/01/underground-boogie-1982","The Underground Boogie Sound of 1982","RBMA",2015,"scene report","","Eight 1982 records with the producers and labels behind them, each linked to hear.","read"],
+  ["https://electrofunkroots.co.uk/articles/the_building_blocks_of_boogie.html","The Building Blocks of Boogie","Greg Wilson",2006,"history","","A DJ who was there separates boogie from electro-funk and lists the essential cuts.","read"]
+],
+"invasion": [
+  ["https://worldradiohistory.com/UK/Record-Mirror/60s/64/Record-Mirror-1964-02-29-S-OCR.pdf","Record Mirror, 29 February 1964","Record Mirror",1964,"scene report","","A whole weekly from the moment itself: charts, gig ads, gossip, club listings.","look"],
+  ["https://www.wlrn.org/2014-05-01/the-animals-the-british-invasion-that-wasnt","The British Invasion That Wasn't","Fresh Air",2014,"audio","","Ed Ward plays the records while arguing the Animals never fit the invasion story.","listen"],
+  ["https://rockhall.com/wp-content/uploads/2024/03/The_Dave_Clark_Five_2008.pdf","The Dave Clark Five","Rock Hall",2008,"history","","Rob Bowman on how Clark ran his own band as manager and owned the tapes.","read"]
+],
+"newwave": [
+  ["https://interviewmagazine.com/music/new-again-the-b-52s","New Again: The B-52's","Interview",1979,"longform","","Glenn O'Brien talking to the band before anyone knew what they were, reprinted whole.","read"],
+  ["https://www.electronicsound.co.uk/features/long-reads/summer-1978-new-yorks-new-wave-heatwave-devo/","Summer 1978: Devo in New York","Electronic Sound",2018,"longform","","Details Casale hustling Devo into CBGB and the Warner versus Virgin tug of war.","read"],
+  ["https://www.ijpr.org/2015-08-21/akron-loves-devo","Akron Loves Devo","WCPN",2015,"audio","","Short radio piece on the Rust Belt town that produced the hazmat suits.","listen"]
+],
+"deathmetal": [
+  ["https://riffology.co/posts/the-making-of-cause-of-death-by-obituary/","The Making of Cause of Death","Riffology",2024,"longform","","Session-level account of Obituary at Morrisound and what Scott Burns actually did.","read"],
+  ["https://tapeop.com/interviews/173/scott-burns","Scott Burns on the Florida Sound","Tape Op",2026,"oral history","paywall","Burns explains the drum triggering and mic technique behind those records.","read"],
+  ["https://www.deathmetal.org/article/tape-trading-the-secret-of-the-underground/","Tape-Trading: Secret of the Underground","Death Metal U.",2016,"history","","Explains why traders, not labels, did quality control and made bands compete.","read"],
+  ["https://www.decibelmagazine.com/?p=55900","Glorious Times Co-author Alan Moses","Decibel",2024,"obituary","","Shows how one zine editor's mailbox connected the whole late-80s underground.","read"]
+],
+"industrial": [
+  ["https://xlr8r.com/?p=93215","Building an Iconic Sound","XLR8R",2010,"oral history","","Bargeld and Hacke name each scrap instrument they built, from plumbing tube to shopping cart.","read"],
+  ["https://thequietus.com/?p=30617","Concrete Dschungel: Kollaps at 40","The Quietus",2021,"longform","","Follows Neubauten scavenging timber and a taxi partition to make the first record.","read"]
+],
+"glam": [
+  ["https://www.loudersound.com/bands-artists/interviews/the-story-of-slade-noddy-holder","The Astonishing Story of Slade","Classic Rock",2005,"oral history","partial","Noddy Holder narrates the switch from skinhead crops to platform boots and mirrored hat.","read"],
+  ["https://thespinoff.co.nz/pop-culture/03-11-2016/it-doesnt-take-much-for-an-englishman-to-get-into-drag-simon-reynolds-on-his-new-history-of-glam-shock-and-awe","Simon Reynolds on His History of Glam","The Spinoff",2016,"longform","","Argues the costumes were a publicity tactic, and quotes a teenage fan letter.","read"],
+  ["https://davidbuckingham.net/growing-up-modern/glitter-glam-and-gender-play-pop-and-teenybop-in-the-early-1970s/","Glitter, Glam and Gender Play","David Buckingham",2017,"history","","Takes glam's fans seriously and treats its anti-authenticity as the whole point.","read"],
+  ["https://rockandrollglobe.com/?p=29104","The Slider Turns 50","Rock & Roll Globe",2022,"review","","Tracks Bolan's deliberate turn from folk mystic to chart glam, Visconti included.","read"]
+],
+"bluegrass": [
+  ["https://www.popmatters.com/115315-the-music-that-matters-ralph-rinzler-and-bill-monroe-part-one-2496116551.html","The Music That Matters: Monroe and Rinzler","PopMatters",2009,"history","","How Monroe's band kept breaking apart and who rebuilt his standing.","read"],
+  ["https://bluegrasstoday.com/im-going-back-to-old-kentucky-242/","Going Back to Old Kentucky","Bluegrass Today",2011,"history","","Tracks the exact 1962 and 1963 articles that made Monroe the Father of Bluegrass.","read"],
+  ["https://freshairarchive.org/segments/all-bluegrass-can-be-traced-back-one-man-bill-monroe","All Bluegrass Traced Back to One Man","Fresh Air",1995,"review","","Seven minutes of Milo Miles playing and judging Monroe's anthology on air.","listen"]
+],
+"chicago_blues": [
+  ["https://www.tabletmag.com/sections/arts-letters/articles/marshall-chess-rolling-stones","Record Master Marshall Chess","Tablet",2023,"oral history","","Leonard Chess's son on the label from inside, including the ugly parts.","read"],
+  ["https://digital-release.wgnradio.com/nocturnal-journal-with-dave-hoekstra/marshall-chess-an-inside-look-at-the-birthplace-of-rock-and-roll-chess-records/amp","Marshall Chess: Inside Chess Records","WGN Radio",2017,"oral history","","Long radio conversation about 2120 South Michigan and who worked there.","listen"],
+  ["https://www.npr.org/transcripts/498653533","Phil Chess of Chess Records Dies","NPR",2016,"obituary","","Carries archival tape of Phil Chess describing how the tracks were layered.","read"]
+],
+"jazz_early": [
+  ["https://www.mesaartscenter.com/download.php/engagement/jazz-a-to-z/resources/archive/2016-2017/teacher-resources-2016-2017-season-new-orleans-los-angeles-and-paris/bechet-excerpt-from-treat-it-gentle","Treat It Gentle","Sidney Bechet",1960,"memoir","","Bechet in his own voice on what the word jazz hid and cost.","read"],
+  ["https://folkways-media.si.edu/docs/folkways/artwork/FW02803.pdf","Jazz Vol. 3: New Orleans, album notes","Folkways",1951,"history","","Frederic Ramsey annotates each early side with personnel, dates and players' accounts.","read"],
+  ["https://lantern.mediahist.org/catalog/recordchanger10unse_0274","New Orleans: The Golden Age","Record Changer",1951,"scene report","","Scanned collector-magazine page treating parades and funerals as the music's real setting.","read"]
+],
+"souljazz": [
+  ["https://archive.mpr.org/stories/1996/05/17/voices-minnesota-captain-jack-mcduff-part-2","Voices of Minnesota: Captain Jack McDuff","MPR Archive",1996,"oral history","","McDuff talks about organ life and road bands, with audio and transcript.","listen"],
+  ["https://arts.gov/honors/jazz/lou-donaldson","Lou Donaldson, NEA Jazz Master","NEA",2012,"oral history","","Donaldson interview audio plus transcript on Blue Note dates and groove playing.","listen"],
+  ["https://microgroove.jp/?p=22775","Tracking the Groove Machine","Microgroove",2026,"longform","","Take-by-take listening on the McDuff quartet with Benson and Joe Dukes.","read"]
+],
+"freejazz": [
+  ["https://downbeat.com/microsites/prestige/dolphy-interview.html","Coltrane and Dolphy Answer the Jazz Critics","DownBeat",1962,"longform","","Both men answer the anti-jazz charge directly, in their own measured words.","read"],
+  ["https://www.ayler.co.uk/html/interview1.html","Ayler in Melody Maker and DownBeat","ayler.co.uk",1966,"oral history","","Reprinted 1966 Ayler interviews with Valerie Wilmer and Nat Hentoff, text intact.","read"],
+  ["https://www.npr.org/sections/ablogsupreme/2010/03/antijazz_revisited_50_years_later.html","Anti-Jazz, Revisited 50 Years Later","NPR",2010,"scene report","","Howard Mandel reconstructs the fight Tynan started and who took which side.","read"],
+  ["https://jerryjazzmusician.com/moment-time-john-coltrane-eric-dolphy-1961","A Moment in Time: Coltrane and Dolphy, 1961","Jerry Jazz Musician",2014,"history","","Quotes the hostile 1961 reviews at length and traces how critics piled on.","read"]
+],
 "rnb": [
   ["https://www.npr.org/2012/01/20/145510703/remembering-bandleader-and-producer-johnny-otis","Remembering Johnny Otis","NPR",2012,"obituary","","Otis describes passing for Black on Southern tours and the danger that brought.","listen"],
   ["https://www.wbur.org/hereandnow/2022/06/30/big-mama-thornton-hound-dog","Big Mama Thornton's Original 'Hound Dog'","WBUR",2022,"audio","","Maureen Mahon makes the case for Thornton as a founder, not a footnote.","listen"],
@@ -1387,6 +1479,10 @@ const READ = {
   ["https://www.mixonline.com/recording/rudy-van-gelder-375282","Jazz and the Art of Technical Excellence","Mix",2005,"longform","","Engineer talks gear he built himself and why he called himself the messenger.","read"]
 ],
 "rockabilly": [
+  ["https://www.soundonsound.com/people/sam-phillips-sun-records","Sam Phillips: Sun Records","Sound On Sound",2003,"oral history","","Built on a 1998 Phillips interview; names the gear and the actual sessions.","read"],
+  ["https://freshairarchive.org/segments/roots-rock-sun-records-founder-sam-phillips","Sun Records Founder Sam Phillips","Fresh Air",1997,"oral history","","Phillips talking on tape about what he was listening for in singers.","listen"],
+  ["https://www.mixonline.com/recording/sam-phillips-captured-raw-rock-n-roll","Sam Phillips Captured Raw Rock 'n' Roll","Mix",2015,"longform","","Explains the two-machine slapback and why Phillips pushed levels into distortion.","read"],
+  ["https://www.austinchronicle.com/music/reissues-11743132/","Reissues: Charlie Feathers","Austin Chronicle",2008,"review","","Weighs three volumes of unissued Feathers tapes and where his real strength was.","read"],
   ["https://www.nashvillescene.com/arts_culture/true-believer/article_e93d86f9-9939-5893-a30f-d4c137fee764.html","True Believer","Nashville Scene",1998,"obituary","","Written at Charlie Feathers' death on why Sam Phillips never pushed him as a rocker.","read"]
 ],
 "garage": [
@@ -1395,9 +1491,14 @@ const READ = {
   ["https://www.elsewhere.co.nz/absoluteelsewhere/5413/nuggets-at-40-2012-we-are-the-young-americans","Nuggets at 40","Elsewhere",2012,"longform","","Argues suburban teenage frustration, not nostalgia, is why these records still land.","read"]
 ],
 "bluesrock": [
+  ["https://www.texasmonthly.com/arts-entertainment/johnny-winter-looks-back-through-the-songs-that-made-him-famous/","Johnny Winter Looks Back","Texas Monthly",2014,"oral history","","Winter walks through four of his own recordings months before he died.","read"],
+  ["https://www.guitarplayer.com/guitarists/stevie-ray-vaughan-talks-his-number-one-strat-dumble-amps-and-craziest-gigs","Stevie Ray Vaughan on His Number One Strat","Guitar Player",1984,"oral history","","Vaughan's 1984 Q and A on tone, gear abuse and rough early gigs.","read"],
   ["https://billmilkowski.substack.com/p/a-generational-guitar-hero-remembered","A Generational Guitar Hero Remembered","Bill Milkowski",2024,"memoir","","Reporter who interviewed Vaughan in 1983 reprints his 1990 dispatch from the memorials.","read"]
 ],
 "countryrock": [
+  ["https://www.lamag.com/culturefiles/drug-crazed-majesty-gram-parsons/","The Drug-Crazed Majesty of Gram Parsons","Los Angeles",2014,"longform","","Walks through the chaotic Gilded Palace of Sin sessions and why the record flopped.","read"],
+  ["https://www.rollingstone.com/music/music-news/chris-hillman-flying-burrito-brothers-time-between-excerpt-1043901/","Sin City","Chris Hillman",2020,"memoir","","Hillman's own account of forming the Burritos, the 1969 tour, Manson and Altamont.","book"],
+  ["https://studsterkel.wfmt.com/programs/flying-burrito-brothers-discuss-their-album-gilded-palace-sin","The Burritos Discuss Gilded Palace of Sin","Studs Terkel",1969,"oral history","partial","Terkel interviewing Parsons and Ethridge in March 1969; transcript only, audio not public.","read"],
   ["https://www.udiscovermusic.com/news/ben-fong-torres-gram-parsons-biography-republished/","Hickory Wind: The Gram Parsons Biography","Ben Fong-Torres",2021,"history","","The standard Parsons biography, sourced from Hillman, Harris and Kaufman.","book"]
 ],
 "dub": [
