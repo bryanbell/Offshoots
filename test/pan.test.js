@@ -77,16 +77,18 @@ async function drag(p,x,y,dx,dy,steps){ steps=steps||8;
 
   // and the things that already answer a click keep answering it
   p=await fresh(b);
-  const n=await p.$("#chart .n"); const box=await n.boundingBox();
-  await p.mouse.click(box.x+box.width/2, box.y+box.height/2); await p.waitForTimeout(600);
-  const hash=await p.evaluate(()=>location.hash);
-  say("clicking a style still selects it ("+hash+")", hash.length>1);
+  const box=await p.$eval("#chart .n text:not(.halo)",e=>{const r=e.getBoundingClientRect();
+    return {x:r.x,y:r.y,width:r.width,height:r.height};});
   // a style is not a handle: pressing on one must not start a pan
   const at0=await at(p);
   await p.mouse.move(box.x+box.width/2, box.y+box.height/2); await p.mouse.down();
-  await p.mouse.move(box.x+box.width/2-120, box.y); await p.mouse.up();
+  await p.mouse.move(box.x+box.width/2-120, box.y+box.height/2); await p.mouse.up();
+  await p.waitForTimeout(200);
   const at1=await at(p);
-  say("and dragging from a style does not pan", at1[0]===at0[0] && at1[1]===at0[1]);
+  say("dragging from a style does not pan", at1[0]===at0[0] && at1[1]===at0[1]);
+  await p.mouse.click(box.x+box.width/2, box.y+box.height/2); await p.waitForTimeout(700);
+  const hash=await p.evaluate(()=>location.hash);
+  say("and clicking one still selects it ("+hash+")", hash.length>1);
   say("no page errors", p._errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
 
   await b.close();

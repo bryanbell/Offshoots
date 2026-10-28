@@ -199,17 +199,28 @@ const scroller=$("scroller");
 
 let W=0,H=0,lanes=[];
 const CMAX = Math.max(...nodes.map(n=>n.children.length));
-nodes.forEach(n=>{ const c=n.children.length; n.sc = 1.15+0.95*Math.sqrt(c/CMAX); n.bold = c>=8; });
+// How much came out of a style is the one thing size says on this map, and a smooth
+// square-root ramp said it too quietly: a leaf was 11.5px and the biggest trunk 14.5px,
+// a quarter larger after twenty-five descendants. Five discrete tiers instead, because
+// the eye groups steps and reads a continuous ramp as noise. Weight climbs with them.
+const TIERS=[[12,4],[6,3],[3,2],[1,1],[0,0]];
+const TIERFS=[[11.5,400],[12.5,400],[14,500],[16.5,600],[19,700]];
+const TIERFS_N=[[11,400],[12,400],[13.5,500],[15.5,600],[18,700]];
+nodes.forEach(n=>{ const c=n.children.length;
+  n.tier = TIERS.find(t=>c>=t[0])[1];
+  n.sc = 1.15+0.95*Math.sqrt(c/CMAX);
+  n.fw = TIERFS[n.tier][1];
+  n.bold = n.fw>=600; });
 function layout(avail){
   lanes=[]; W=xOf(END)+40; nodes.forEach(n=>n.row=null);
   FAMS.forEach(([k])=>{
     const list = nodes.filter(n=>n.fam===k).sort((a,b)=>a.year-b.year||a.name.localeCompare(b.name));
     const ends=[], rowH=[];
     list.forEach(n=>{
-      // n.sc runs 1.15 to 2.10, so (n.sc-1.15)/0.95 is sqrt(children/CMAX): the same
-      // ranking the dots use, mapped onto the band rather than onto zero
-      n.fs = FSMIN + (FSMAX-FSMIN)*((n.sc-1.15)/0.95); n.r = R*(1+.5*(n.sc-1));
-      mctx.font = `${n.bold?600:400} ${n.fs}px 'IBM Plex Sans', system-ui, sans-serif`;
+      // the tier picks the size; the dot follows it so a big label never wears a small mark
+      n.fs = (NARROW?TIERFS_N:TIERFS)[n.tier][0];
+      n.r = R*(0.88+0.17*n.tier);
+      mctx.font = `${n.fw} ${n.fs}px 'IBM Plex Sans', system-ui, sans-serif`;
       n.x = xOf(n.year);
       n.lod = LOD && n.children.length===0;           // leaf drawn as a dot only at overview zoom
       n.w = n.lod ? 0 : mctx.measureText(n.name).width;
@@ -275,7 +286,7 @@ function draw(){
   s+=`</g><g id="nodes">`;
   nodes.forEach(n=>{
     s+=`<g class="n${n.year<1950?' root':''}${n.lod?' leaf':''}${n.done?' has':''}" data-id="${n.id}" style="--c:${FAM[n.fam].c}" transform="translate(${n.x},${n.y})"><title>${esc(n.name)} (${esc(n.disp)})</title><rect class="hit" x="${-n.r-4}" y="${-n.rh/2}" width="${n.w+n.r*2+14}" height="${n.rh}"/><circle r="${(n.done?n.r*1.95:n.r).toFixed(2)}"/>${n.done
-      ? `<path class="ply" d="M${(-n.r*.85).toFixed(2)} ${(-n.r*1.1).toFixed(2)}L${(n.r*1.15).toFixed(2)} 0L${(-n.r*.85).toFixed(2)} ${(n.r*1.1).toFixed(2)}Z"/>`:""}<text class="halo" aria-hidden="true" x="${n.r+5}" y="${n.fs*.36}" style="font-size:${n.fs.toFixed(1)}px${n.bold?";font-weight:600":""}">${esc(n.name)}</text><text x="${n.r+5}" y="${n.fs*.36}" style="font-size:${n.fs.toFixed(1)}px${n.bold?";font-weight:600":""}">${esc(n.name)}</text></g>`;
+      ? `<path class="ply" d="M${(-n.r*.85).toFixed(2)} ${(-n.r*1.1).toFixed(2)}L${(n.r*1.15).toFixed(2)} 0L${(-n.r*.85).toFixed(2)} ${(n.r*1.1).toFixed(2)}Z"/>`:""}<text class="halo" aria-hidden="true" x="${n.r+5}" y="${n.fs*.36}" style="font-size:${n.fs.toFixed(1)}px;font-weight:${n.fw}">${esc(n.name)}</text><text x="${n.r+5}" y="${n.fs*.36}" style="font-size:${n.fs.toFixed(1)}px;font-weight:${n.fw}">${esc(n.name)}</text></g>`;
   });
   s+=`</g>`;
   const svg=$("chart"); svg.setAttribute("width",W); svg.setAttribute("height",H); svg.setAttribute("viewBox",`0 0 ${W} ${H}`); svg.style.setProperty("--fs",FS+"px"); svg.innerHTML=s;

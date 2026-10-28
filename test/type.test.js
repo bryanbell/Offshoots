@@ -163,6 +163,7 @@ const readRules=(p)=>p.evaluate(()=>{
     say(name+" map: all "+mp.n+" labels at or above "+floor+"px ("+mp.min+" to "+mp.max+")",
         mp.n>400 && mp.min>=floor-0.01);
     say(name+" map: the labels still have a range ("+mp.min+" to "+mp.max+")", mp.max-mp.min>=2);
+    say(name+" map: and the biggest is at least half again the smallest", mp.max>=mp.min*1.5);
     const chrome=[["axis",mp.axis],["lane name",mp.lane],["lane count",mp.count]].filter(([,v])=>v!==null);
     const smallChrome=chrome.filter(([,v])=>v<11);
     say(name+" map: axis, lane and count all at or above 11px ("
