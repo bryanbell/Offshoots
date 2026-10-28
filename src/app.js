@@ -319,7 +319,8 @@ const CHEVSVG='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke
 // What you will be doing with it, drawn as a shape. This is the medium, not the kind:
 // an oral history can be a tape you play or a transcript you read, and a microphone on
 // both promised audio that most of them do not have.
-const MEDICON={"read":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.2 4.6h5a2.4 2.4 0 0 1 1.8.8 2.4 2.4 0 0 1 1.8-.8h5v9.8h-5a2.4 2.4 0 0 0-1.8.8 2.4 2.4 0 0 0-1.8-.8h-5z\"/><path d=\"M10 5.4v10\"/></svg>","listen":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.4 9.1v1.8\"/><path d=\"M6.4 6.4v7.2\"/><path d=\"M9.4 3.4v13.2\"/><path d=\"M12.4 5.8v8.4\"/><path d=\"M15.4 8.2v3.6\"/></svg>","watch":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2.6\" y=\"4.6\" width=\"14.8\" height=\"10.8\" rx=\"2.4\"/><path d=\"M8.3 7.9l4.3 2.1-4.3 2.1z\"/></svg>","look":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2.6\" y=\"5.4\" width=\"14.8\" height=\"10.4\" rx=\"2.4\"/><circle cx=\"10\" cy=\"10.6\" r=\"2.9\"/><path d=\"M6.9 5.4l1-1.6h4.2l1 1.6\"/></svg>"};
+const MEDICON={"read":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.2 4.6h5a2.4 2.4 0 0 1 1.8.8 2.4 2.4 0 0 1 1.8-.8h5v9.8h-5a2.4 2.4 0 0 0-1.8.8 2.4 2.4 0 0 0-1.8-.8h-5z\"/><path d=\"M10 5.4v10\"/></svg>","listen":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.4 9.1v1.8\"/><path d=\"M6.4 6.4v7.2\"/><path d=\"M9.4 3.4v13.2\"/><path d=\"M12.4 5.8v8.4\"/><path d=\"M15.4 8.2v3.6\"/></svg>","watch":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2.6\" y=\"4.6\" width=\"14.8\" height=\"10.8\" rx=\"2.4\"/><path d=\"M8.3 7.9l4.3 2.1-4.3 2.1z\"/></svg>","look":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2.6\" y=\"5.4\" width=\"14.8\" height=\"10.4\" rx=\"2.4\"/><circle cx=\"10\" cy=\"10.6\" r=\"2.9\"/><path d=\"M6.9 5.4l1-1.6h4.2l1 1.6\"/></svg>","book":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.4 3.4h3.2v13.2H4.4z\"/><path d=\"M8.4 3.4h3v13.2h-3z\"/><path d=\"M12.3 4.3l2.9.8-3.3 12-1-.3\"/></svg>","series":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"10\" r=\"7.2\"/><circle cx=\"10\" cy=\"10\" r=\"2.2\"/><path d=\"M10 4.6a5.4 5.4 0 0 1 5.4 5.4\"/></svg>"};
+
 
 
 
@@ -337,18 +338,21 @@ function readSect(n){
     // does not already make, so no row ever reads "Audio Listen"
     const SAY={listen:"Listen",watch:"Watch"};
     const say = SAY[r[7]] && !/^(audio|documentary)$/.test(r[4]) ? SAY[r[7]] : "";
-    const kicker = `<i class="rdk">${esc(cap(r[4]))}</i>`
+    // a 33 1/3 is one short book about one record, which makes it the narrowest door into
+    // a style there is, so it gets the series badge and a record instead of a shelf
+    const ser = r[4]==="33 1/3";
+    const kicker = `<i class="rdk${ser?" rds":""}">${ser?"33\u2153":esc(cap(r[4]))}</i>`
       + (say ? ` <i class="rdv">${say}</i>` : "")
       + ` \u00b7 ${esc(r[2])} \u00b7 ${r[3]}`
       + (r[5] ? ` <i class="rdw">${esc(cap(r[5]))}</i>` : "");
     return `<a class="rd" href="${esc(r[0])}" target="_blank" rel="noopener noreferrer" title="${kind}, ${esc(r[7])}">`
-      + `<i class="rdi">${MEDICON[r[7]]||MEDICON.read}</i>`
+      + `<i class="rdi${ser?" rdis":""}">${ser?MEDICON.series:(MEDICON[r[7]]||MEDICON.read)}</i>`
       + `<span class="rdx"><span class="rdm">${kicker}</span>`
       + `<span class="rdt">${esc(r[1])}</span>`
       + `<span class="rdn">${esc(r[6])}</span></span></a>`;
   }).join("");
   return sect("read","Go deeper",`<div class="reads">${items}</div>`,
-    `<span class="sectaside">${rows.length} ${rows.length===1?"read":"reads"}</span>`);
+    `<span class="sectaside">${rows.length} ${rows.length===1?"source":"sources"}</span>`);
 }
 
 function sect(key,label,html,aside){

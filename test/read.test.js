@@ -53,12 +53,12 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   say(t.kinds+" kinds of thing, not just articles", t.kinds>=5);
   // the icon promises what you will do with it, so every row has to declare that
   say("every row says what you do with it ("+t.media+")",
-    t.media.split("|").every(m=>["read","listen","watch","look"].indexOf(m)>=0));
+    t.media.split("|").every(m=>["read","listen","watch","look","book"].indexOf(m)>=0));
   await p.close();
 
   // a style with reads shows them, under a heading, above the share button
   p=await b.newPage({viewport:M}); p.on("pageerror",e=>errs.push(String(e)));
-  await p.goto(URL+"#house"); await p.waitForTimeout(1200);
+  await p.goto(URL+"#shoegaze"); await p.waitForTimeout(1200);
   say("hidden in the peek",
     await p.$eval(".sect-read",e=>getComputedStyle(e).display==="none"));
   await p.click("#grab").catch(()=>{}); await p.waitForTimeout(700);
@@ -74,7 +74,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
       beforeShare:!!(s.compareDocumentPosition(document.querySelector("[data-share]"))&4),
       afterAbout:!!(document.querySelector(".sect-about").compareDocumentPosition(s)&4)};});
   say("shown when the panel opens, as \""+r.head+"\"", r.shown && r.head==="Go deeper");
-  say("counted in the aside ("+r.aside+")", r.aside===r.n+" reads");
+  say("counted in the aside ("+r.aside+")", r.aside===r.n+" sources");
   say("each row carries title, source and note", r.full);
   // the kind is drawn as well as said, which is what makes a long list scannable
   say("each row carries an icon for its medium", await p.evaluate(()=>
@@ -90,6 +90,11 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     say("all "+media.length+" media have a shape of their own"
       +(missing.length?" (missing "+missing.join(", ")+")":""), missing.length===0); }
   // and no row repeats itself: an audio piece must not read "Audio Listen"
+  // a 33 1/3 is one book about one record and gets the series badge
+  say("the 33 1/3 entries are badged", await p.evaluate(()=>{
+    const ser=[...document.querySelectorAll("a.rd")].filter(x=>x.querySelector(".rds"));
+    return ser.length===2 && ser.every(x=>/33\u2153/.test(x.querySelector(".rds").textContent)
+      && x.querySelector(".rdi.rdis"));}));
   say("the medium is never said twice", await p.evaluate(()=>
     [...document.querySelectorAll("a.rd .rdm")].every(x=>
       !/Audio\s+Listen|Documentary\s+Watch/.test(x.textContent))));

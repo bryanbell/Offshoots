@@ -613,6 +613,12 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 /* reading is the default and goes unsaid; anything else says so, since the whole
    complaint was a row that promised audio and delivered an article */
 .rdv{font-style:normal;font-weight:600;color:var(--accent)}
+/* the 33 1/3 badge. One short book about one record, and the only thing in the list
+   that belongs to a series worth naming, so it is the one row that gets a colour. */
+.rds{font-style:normal;font-weight:700;color:var(--bg);background:var(--accent);
+  border-radius:5px;padding:1px 5px;letter-spacing:.01em}
+.rd .rdi.rdis{background:color-mix(in srgb,var(--accent) 26%,transparent);color:var(--accent)}
+.rd:hover .rdi.rdis{color:var(--accent)}
 .rdt{display:block;margin-top:2px;font:600 var(--t-body)/1.3 var(--f-body);letter-spacing:-.01em}
 /* the note is the reason to tap, so it reads brighter than the line above it */
 .rdn{display:block;margin-top:4px;font:400 var(--t-sub)/1.4 var(--f-body);

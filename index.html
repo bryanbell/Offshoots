@@ -613,6 +613,12 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 /* reading is the default and goes unsaid; anything else says so, since the whole
    complaint was a row that promised audio and delivered an article */
 .rdv{font-style:normal;font-weight:600;color:var(--accent)}
+/* the 33 1/3 badge. One short book about one record, and the only thing in the list
+   that belongs to a series worth naming, so it is the one row that gets a colour. */
+.rds{font-style:normal;font-weight:700;color:var(--bg);background:var(--accent);
+  border-radius:5px;padding:1px 5px;letter-spacing:.01em}
+.rd .rdi.rdis{background:color-mix(in srgb,var(--accent) 26%,transparent);color:var(--accent)}
+.rd:hover .rdi.rdis{color:var(--accent)}
 .rdt{display:block;margin-top:2px;font:600 var(--t-body)/1.3 var(--f-body);letter-spacing:-.01em}
 /* the note is the reason to tap, so it reads brighter than the line above it */
 .rdn{display:block;margin-top:4px;font:400 var(--t-sub)/1.4 var(--f-body);
@@ -2409,40 +2415,49 @@ const SONGS = {"acidhouse":["Washing Machine","No Way Back","Acid Tracks","Land 
 // Rows are [url, title, publication, year, kind, access, why it is worth your time, medium].
 // A link has to serve the material, not describe it. Three entries were cut for pointing at
 // catalogue records that name a box and a folder and show you nothing.
-// medium is read / listen / watch / look, and it is what the icon promises: an
+// medium is read / listen / watch / look / book, and it is what the icon promises: an
 // oral history can be a tape you play or a transcript you read, and the row has to say which.
 // access is "" for open, or paywall / partial / registration, which the panel says out loud.
 // [url, title, publication, year, kind, access, note]
 const READ = {
 "punk": [
+  ["https://www.harvard.com/book/9780826416711","Ramones","Nicholas Rombes",2005,"33 1/3","","Takes the first album apart to find the formula the rest of punk copied.","book"],
+  ["https://openlibrary.org/works/OL2147151W","England's Dreaming","Jon Savage",1991,"history","","Reconstructs British punk month by month, with the Pistols inside a wider social story.","book"],
+  ["https://openlibrary.org/books/OL431657M","Please Kill Me","McNeil and McCain",1996,"oral history","","New York punk told by the people in it, in overlapping first-hand voices.","book"],
  ["https://flashbak.com/dont-look-over-your-shoulder-but-the-sex-pistols-are-coming-the-bands-first-review-february-21-1976-369355/","Don't Look Over Your Shoulder, But The Sex Pistols Are Coming","NME",1976,"review","","The 200-word notice a critic filed before anyone knew what punk was.","read"],
  ["https://johnholmstrom.substack.com/p/the-birth-of-punk-at-cbgb-on-november","The Birth of Punk at CBGB, November 23, 1975","John Holmstrom",2024,"memoir","","PUNK magazine's founder on the night he walked into CBGB and met the Ramones.","read"],
  ["https://98bowery.com/punk-years/punk-art-catalogue-section-two","Punk Art Catalogue: Punk Magazine","98 Bowery",1978,"photo essay","","Scanned magazine pages, cartoons and shirt designs, with the scene profiling itself.","look"]
 ],
 "oldschool": [
+  ["https://openlibrary.org/works/OL15835141W","Can't Stop Won't Stop","Jeff Chang",2005,"history","","Follows hip hop from the Bronx block parties through the politics that shaped it.","book"],
  ["https://www.villagevoice.com/afrika-bambaataa-gave-voice-to-music-never-heard-before/","Afrika Bambaataa's Hip Hop","The Village Voice",1982,"scene report","","The first serious press account of the Bronx scene, reported while it was still local.","read"],
  ["https://digital.library.cornell.edu/collections/hiphopflyers","Early Hip Hop Party and Event Flyers","Cornell University Library",1984,"photo essay","","Nearly 500 handmade flyers showing who played where, at what price, on what night.","look"],
  ["https://www.npr.org/2023/07/11/1186407223/50-years-ago-teenagers-partied-in-the-bronx-and-gave-rise-to-hip-hop","Teenagers Partied in the Bronx and Gave Rise to Hip-Hop","NPR",2023,"audio","","People who were at the 1973 Sedgwick Avenue party describe the room and the crowd.","listen"],
  ["https://www.rollingstone.com/music/music-features/kool-herc-hip-hop-50-august-11-1973-1234802035/","Kool Herc and the History (and Mystery) of Hip-Hop's First Day","Rolling Stone",2023,"longform","","Shows how shaky the founding date is, using Herc's and Cindy Campbell's conflicting memories.","read"]
 ],
 "house": [
+  ["https://academic.oup.com/book/5894","Do You Remember House?","Micah Salkind",2019,"history","","Centres the Black and Latino queer dancers and DJs who actually made house.","book"],
  ["https://daily.redbullmusicacademy.com/2015/05/ron-hardy-at-the-music-box","Ron Hardy at the Music Box","Red Bull Music Academy",2015,"oral history","","Dancers and producers describe Hardy's sets, the heat in the room and the drugs in it.","read"],
  ["https://digitalcommons.colum.edu/house/45","Robert Williams, Chicago House Music Oral History Project","Columbia College",2014,"oral history","","The man who opened the Warehouse and the Music Box, in his own recorded voice.","listen"],
  ["https://www.chicago.gov/content/dam/city/depts/zlup/Historic_Preservation/Publications/The_Warehouse_Report.pdf","The Warehouse Landmark Designation Report","City of Chicago",2023,"longform","","Documents the building, the hours, the door price and the juice bar, with Knuckles quoted.","read"],
  ["https://www.gridface.com/memories-of-ron-hardy/","Memories of Ron Hardy","Gridface",2010,"oral history","","Hardy's nephew on the family, the record crates and the leaking Music Box roof.","read"]
 ],
 "disco": [
+  ["https://abbeys.com.au/book/soundtrack-from-saturday-night-fever-9798765109687.do","Saturday Night Fever","Clinton Walker",2024,"33 1/3","","How one soundtrack carried disco out of the clubs and into everything.","book"],
+  ["https://openlibrary.org/works/OL16659141W","Love Saves the Day","Tim Lawrence",2003,"history","","The DJs and dancefloors of 1970s New York that turned private parties into disco.","book"],
  ["https://daily.redbullmusicacademy.com/2016/11/david-mancuso-dj-history-interview","Interview: David Mancuso","Red Bull Music Academy",2016,"oral history","","Mancuso explains the rent-party economics, the balloons and the sound system he built.","read"],
  ["https://daily.redbullmusicacademy.com/2018/02/nicky-siano-interview-dj-history","Nicky Siano on the Gallery and the Dark Days of Disco","Red Bull Music Academy",2018,"oral history","","A teenager's view of the Loft in 1971, and running the Gallery from 1973.","read"],
  ["https://www.kqed.org/arts/12364614/the-death-of-a-disco-host","The Death of a Disco Host","NPR",2016,"obituary","","Argues the Loft was a private host's living room rather than a nightclub, and why that mattered.","read"]
 ],
 "bebop": [
+  ["https://openlibrary.org/works/OL3349002W","The Birth of Bebop","Scott DeVeaux",1997,"history","","Shows bebop growing out of the swing business rather than breaking cleanly from it.","book"],
  ["https://www.loc.gov/collections/jazz-photography-of-william-p-gottlieb/","The Jazz Photography of William P. Gottlieb","Library of Congress",1948,"photo essay","","Club interiors on 52nd Street, with the photographer's own later notes on the sittings.","look"],
  ["https://dh.howard.edu/hujohp_transcripts/2","An Interview with Art Blakey","Howard University",1984,"oral history","","A full transcript of a bebop drummer talking at length about the working life.","read"],
  ["https://www.npr.org/2009/12/29/122020272/excerpt-thelonious-monk-the-life-and-times-of-an-american-original","Thelonious Monk: The Life and Times of an American Original","NPR",2009,"longform","","Reconstructs the 1947 photo shoot at Minton's and the press fight over bop.","read"],
  ["https://blogs.loc.gov/loc/2018/01/this-day-in-history-celebrating-dizzy-gillespie-through-photographs-and-more/","Celebrating Dizzy Gillespie Through Photographs","Library of Congress",2018,"photo essay","","Routes you to a 1984 Gillespie interview transcript and a 1947 Down Beat definition of bop.","read"]
 ],
 "gogo": [
+  ["https://www.upress.state.ms.us/Books/T/The-Beat","The Beat: Go-Go Music from Washington, D.C.","Lornell and Stephenson",2009,"history","","How the percussion and the call-and-response work, and why it stayed in DC.","book"],
   ["https://pbs.kixe.org/video/go-go-city-displacement-and-protest-in-washington-dc-nuXKea","Go-Go City: Displacement and Protest in Washington, DC","PBS",2023,"documentary","","A full-length film with go-go musicians and Don't Mute DC organisers on camera.","watch"],
   ["https://dcist.com/story/21/08/17/dcpl-go-go-photo-collection-chuck-brown-band-rare-essence","Nearly 2,000 Go-Go Photos Enter the City Archive","DCist",2021,"photo essay","","Credited stage and crowd shots from Club Elite, Tradewinds and the first Don't Mute DC protest.","look"],
  ["https://jameshamiltonsdiscopage.com/1985/03/02/march-2-1985-drop-the-whop-washington-dc-go-go-special-report-extended-hip-hop-hot-uns-review-special/","Drop the Whop: Washington DC Go-Go Special Report","Record Mirror",1985,"scene report","","A British dance columnist's on-the-spot account of the bands, the tempos and the crowds.","read"],
@@ -2450,22 +2465,29 @@ const READ = {
  ["https://thekojonnamdishow.org/shows/2012-05-17/remembering-go-go-godfather-chuck-brown","Remembering Go-Go Godfather Chuck Brown","WAMU",2012,"audio","","DC listeners and Rare Essence's Andre Johnson phone in with their own memories.","listen"],
 ],
 "zydeco": [
+  ["https://openlibrary.org/works/OL1821889W","The Kingdom of Zydeco","Michael Tisserand",1998,"history","","Travels Creole Louisiana for the players, the dance halls and the family lines.","book"],
  ["https://folklife.si.edu/magazine/clifton-chenier-archives","The King of Zydeco's 100th Birthday Calls for a Look into the Archives","Smithsonian Folklife",2025,"longform","","Built from a 1978 interview with Chenier and Ann Savoy's account of meeting him.","read"],
  ["https://www.npr.org/transcripts/nx-s1-5425376","A New Album Celebrates Clifton Chenier, the King of Zydeco","NPR",2025,"audio","","C.J. Chenier on his father's house-party roots and how the sound changed.","listen"],
  ["https://rocksbackpages.com/Library/Article/remembering-clifton-chenier-the-king-of-zydeco","Remembering Clifton Chenier, the King of Zydeco","Los Angeles Times",1987,"obituary","paywall","The critical obituary written the week he died, by someone who had seen the band.","read"]
 ],
 "shoegaze": [
+  ["https://www.harvard.com/book/9798765103418","Shoegaze","Ryan Pinkard",2024,"33 1/3","","A whole-genre volume: the sound, the press that named it, Creation, 4AD, the revival.","book"],
+  ["https://www.harvard.com/book/9780826415486","Loveless","Mike McGonigal",2006,"33 1/3","","The record that defined it, with detail on how that guitar sound was built.","book"],
  ["https://thequietus.com/?p=19489","Who Killed Shoegaze?","The Quietus",2016,"longform","","Quotes the hostile reviews in full, including Melody Maker calling Souvlaki a bath of porridge.","read"],
  ["https://www.huffingtonpost.co.uk/andy-ross/shoegaze_b_9892330.html","Shoegazing: The Coining of a Genre","HuffPost UK",2011,"memoir","","The man who says he coined the insult describes the gigs that prompted it.","read"],
  ["https://www.loudandquiet.com/interview/slowdives-first-extensive-interview-since-split-1995/","Slowdive's First Interview Since the Split","Loud And Quiet",2014,"oral history","","Halstead and Goswell on what being the music press's punchline felt like from inside.","read"],
  ["https://www.3ammagazine.com/3am/leave-them-all-behind/","Leave Them All Behind: A Guide to Shoegazing","3:AM Magazine",2003,"longform","","Band by band, written close enough to the time to remember the gigs and the labels.","read"]
 ],
 "twotone": [
+  ["https://timesbookshop.co.uk/madness-one-step-beyond-9780826429063","One Step Beyond...","Terry Edwards",2009,"33 1/3","","Madness at the centre of the 1979 revival, though this album left the label.","book"],
+  ["https://www.hachette.co.uk/titles/daniel-rachel/too-much-too-young-the-2-tone-records-story/9781399607506/","Too Much Too Young","Daniel Rachel",2023,"history","","The label itself, from the Specials and the Selecter to Dammers and the collapse.","book"],
  ["https://www.spinmagazine.com/2009/09/oral-history-2-tone/","The Oral History of 2 Tone","SPIN",2009,"oral history","","Dammers, Pauline Black, Suggs and Rhoda Dakar narrate the label's rise themselves.","read"],
  ["https://harpers.org/archive/2025/03/an-unstoppable-march-ian-penman-2-tone-ska","An Unstoppable March","Harper's Magazine",2025,"longform","","A critic who was there reads 2 Tone against the racial politics of 1979 Britain.","read"],
  ["https://britishculturearchive.co.uk/virginia-turbett-british-subculture-1970s/","Virginia Turbett: British Subculture 1979-1981","British Culture Archive",2020,"photo essay","","Dated, located shots, including Madness on the first 2 Tone tour in 1979.","look"]
 ],
 "riotgrrrl": [
+  ["https://atomicbooks.com/products/33-1-3-volume-115-sleater-kinneys-dig-me-out","Dig Me Out","Jovana Babovic",2016,"33 1/3","","An Olympia band straight out of riot grrrl, with the scene's politics explained.","book"],
+  ["https://openlibrary.org/works/OL15931605W","Girls to the Front","Sara Marcus",2010,"history","","Narrative history built from the zines, the interviews and the movement's own records.","book"],
   ["https://archive.org/details/girl-germs-4","Girl Germs #4","Girl Germs",1991,"longform","","Wolfe and Neuman's own pages, ads and rants, as readers of the scene saw them.","read"],
   ["https://archive.org/details/girl-germs-3","Girl Germs #3","Girl Germs",1991,"longform","","An earlier issue, from the movement's first months in Olympia.","read"],
  ["https://www.npr.org/blogs/therecord/2011/09/20/140640502/revolution-girl-style-20-years-later","Revolution Girl Style, 20 Years Later","NPR",2011,"scene report","","Molly Neuman and others recall the 1991 convention and the reaction to it.","read"],
@@ -2818,7 +2840,8 @@ const CHEVSVG='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke
 // What you will be doing with it, drawn as a shape. This is the medium, not the kind:
 // an oral history can be a tape you play or a transcript you read, and a microphone on
 // both promised audio that most of them do not have.
-const MEDICON={"read":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.2 4.6h5a2.4 2.4 0 0 1 1.8.8 2.4 2.4 0 0 1 1.8-.8h5v9.8h-5a2.4 2.4 0 0 0-1.8.8 2.4 2.4 0 0 0-1.8-.8h-5z\"/><path d=\"M10 5.4v10\"/></svg>","listen":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.4 9.1v1.8\"/><path d=\"M6.4 6.4v7.2\"/><path d=\"M9.4 3.4v13.2\"/><path d=\"M12.4 5.8v8.4\"/><path d=\"M15.4 8.2v3.6\"/></svg>","watch":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2.6\" y=\"4.6\" width=\"14.8\" height=\"10.8\" rx=\"2.4\"/><path d=\"M8.3 7.9l4.3 2.1-4.3 2.1z\"/></svg>","look":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2.6\" y=\"5.4\" width=\"14.8\" height=\"10.4\" rx=\"2.4\"/><circle cx=\"10\" cy=\"10.6\" r=\"2.9\"/><path d=\"M6.9 5.4l1-1.6h4.2l1 1.6\"/></svg>"};
+const MEDICON={"read":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.2 4.6h5a2.4 2.4 0 0 1 1.8.8 2.4 2.4 0 0 1 1.8-.8h5v9.8h-5a2.4 2.4 0 0 0-1.8.8 2.4 2.4 0 0 0-1.8-.8h-5z\"/><path d=\"M10 5.4v10\"/></svg>","listen":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.4 9.1v1.8\"/><path d=\"M6.4 6.4v7.2\"/><path d=\"M9.4 3.4v13.2\"/><path d=\"M12.4 5.8v8.4\"/><path d=\"M15.4 8.2v3.6\"/></svg>","watch":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2.6\" y=\"4.6\" width=\"14.8\" height=\"10.8\" rx=\"2.4\"/><path d=\"M8.3 7.9l4.3 2.1-4.3 2.1z\"/></svg>","look":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2.6\" y=\"5.4\" width=\"14.8\" height=\"10.4\" rx=\"2.4\"/><circle cx=\"10\" cy=\"10.6\" r=\"2.9\"/><path d=\"M6.9 5.4l1-1.6h4.2l1 1.6\"/></svg>","book":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.4 3.4h3.2v13.2H4.4z\"/><path d=\"M8.4 3.4h3v13.2h-3z\"/><path d=\"M12.3 4.3l2.9.8-3.3 12-1-.3\"/></svg>","series":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"10\" r=\"7.2\"/><circle cx=\"10\" cy=\"10\" r=\"2.2\"/><path d=\"M10 4.6a5.4 5.4 0 0 1 5.4 5.4\"/></svg>"};
+
 
 
 
@@ -2836,18 +2859,21 @@ function readSect(n){
     // does not already make, so no row ever reads "Audio Listen"
     const SAY={listen:"Listen",watch:"Watch"};
     const say = SAY[r[7]] && !/^(audio|documentary)$/.test(r[4]) ? SAY[r[7]] : "";
-    const kicker = `<i class="rdk">${esc(cap(r[4]))}</i>`
+    // a 33 1/3 is one short book about one record, which makes it the narrowest door into
+    // a style there is, so it gets the series badge and a record instead of a shelf
+    const ser = r[4]==="33 1/3";
+    const kicker = `<i class="rdk${ser?" rds":""}">${ser?"33\u2153":esc(cap(r[4]))}</i>`
       + (say ? ` <i class="rdv">${say}</i>` : "")
       + ` \u00b7 ${esc(r[2])} \u00b7 ${r[3]}`
       + (r[5] ? ` <i class="rdw">${esc(cap(r[5]))}</i>` : "");
     return `<a class="rd" href="${esc(r[0])}" target="_blank" rel="noopener noreferrer" title="${kind}, ${esc(r[7])}">`
-      + `<i class="rdi">${MEDICON[r[7]]||MEDICON.read}</i>`
+      + `<i class="rdi${ser?" rdis":""}">${ser?MEDICON.series:(MEDICON[r[7]]||MEDICON.read)}</i>`
       + `<span class="rdx"><span class="rdm">${kicker}</span>`
       + `<span class="rdt">${esc(r[1])}</span>`
       + `<span class="rdn">${esc(r[6])}</span></span></a>`;
   }).join("");
   return sect("read","Go deeper",`<div class="reads">${items}</div>`,
-    `<span class="sectaside">${rows.length} ${rows.length===1?"read":"reads"}</span>`);
+    `<span class="sectaside">${rows.length} ${rows.length===1?"source":"sources"}</span>`);
 }
 
 function sect(key,label,html,aside){
