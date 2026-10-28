@@ -316,7 +316,11 @@ let PHEAD="";
 const CHEVSVG='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg>';
 // what kind of thing it is, as a shape: the word is there too, but the icon is what
 // carries down a scrolled list
-const READICON={"review":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M14.6 3.3l2.1 2.1-9 9-2.8.7.7-2.8z\"/><path d=\"M4.2 16.7h11.6\"/></svg>","memoir":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M8.1 5.2c-2 .9-3.3 2.7-3.3 5.1v4.5h4.6v-4.6H6.6c0-1.6.6-2.6 2-3.3z\"/><path d=\"M15.4 5.2c-2 .9-3.3 2.7-3.3 5.1v4.5h4.6v-4.6h-2.8c0-1.6.6-2.6 2-3.3z\"/></svg>","photo essay":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2.6\" y=\"5.4\" width=\"14.8\" height=\"10.4\" rx=\"2.4\"/><circle cx=\"10\" cy=\"10.6\" r=\"2.9\"/><path d=\"M6.9 5.4l1-1.6h4.2l1 1.6\"/></svg>","scene report":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 5.2h10.6v11.2H4.6a1.6 1.6 0 0 1-1.6-1.6z\"/><path d=\"M13.6 7.6h2.2a1.6 1.6 0 0 1 1.6 1.6v5.6a1.6 1.6 0 0 1-1.6 1.6h-2.2\"/><path d=\"M5.4 8h5.8\"/><path d=\"M5.4 11h5.8\"/><path d=\"M5.4 13.8h3.4\"/></svg>","audio":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 9v2\"/><path d=\"M6 6.6v6.8\"/><path d=\"M9 3.6v12.8\"/><path d=\"M12 6v8\"/><path d=\"M15 8.2v3.6\"/><path d=\"M18 9.4v1.2\"/></svg>","longform":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 3.2h6.4L15.6 7v9.8H5z\"/><path d=\"M11.2 3.2V7h4.4\"/><path d=\"M7.4 10.4h5.8\"/><path d=\"M7.4 13.2h5.8\"/></svg>","oral history":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"7.6\" y=\"2.4\" width=\"4.8\" height=\"8.6\" rx=\"2.4\"/><path d=\"M4.8 9.6a5.2 5.2 0 0 0 10.4 0\"/><path d=\"M10 14.8v2.8\"/></svg>","obituary":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 2.6c1.5 1.6 2.2 2.7 2.2 3.9a2.2 2.2 0 0 1-4.4 0c0-1.2.7-2.3 2.2-3.9z\"/><path d=\"M10 8.9v8.5\"/><path d=\"M6.8 17.4h6.4\"/></svg>","documentary":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2.6\" y=\"5\" width=\"14.8\" height=\"10\" rx=\"2.2\"/><path d=\"M2.6 8.4h14.8\"/><path d=\"M6.4 5v3.4\"/><path d=\"M11.4 5v3.4\"/><path d=\"M8.4 11.2l3.4 1.8-3.4 1.8z\"/></svg>"};
+// What you will be doing with it, drawn as a shape. This is the medium, not the kind:
+// an oral history can be a tape you play or a transcript you read, and a microphone on
+// both promised audio that most of them do not have.
+const MEDICON={"read":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.2 4.6h5a2.4 2.4 0 0 1 1.8.8 2.4 2.4 0 0 1 1.8-.8h5v9.8h-5a2.4 2.4 0 0 0-1.8.8 2.4 2.4 0 0 0-1.8-.8h-5z\"/><path d=\"M10 5.4v10\"/></svg>","listen":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.4 9.1v1.8\"/><path d=\"M6.4 6.4v7.2\"/><path d=\"M9.4 3.4v13.2\"/><path d=\"M12.4 5.8v8.4\"/><path d=\"M15.4 8.2v3.6\"/></svg>","watch":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2.6\" y=\"4.6\" width=\"14.8\" height=\"10.8\" rx=\"2.4\"/><path d=\"M8.3 7.9l4.3 2.1-4.3 2.1z\"/></svg>","look":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2.6\" y=\"5.4\" width=\"14.8\" height=\"10.4\" rx=\"2.4\"/><circle cx=\"10\" cy=\"10.6\" r=\"2.9\"/><path d=\"M6.9 5.4l1-1.6h4.2l1 1.6\"/></svg>","archive":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2.8 4.4h14.4v3.2H2.8z\"/><path d=\"M4.2 7.6h11.6v8H4.2z\"/><path d=\"M8.2 10.6h3.6\"/></svg>"};
+
 
 
 // Laid out like a news list rather than a stack of cards: what it is and who ran it on
@@ -328,10 +332,16 @@ function readSect(n){
   const cap = t => t.charAt(0).toUpperCase() + t.slice(1);
   const items = rows.map(r=>{
     const kind = esc(r[4]);
-    const kicker = `<i class="rdk">${esc(cap(r[4]))}</i> \u00b7 ${esc(r[2])} \u00b7 ${r[3]}`
+    // the icon carries the medium; the word is added only where it is a promise the kind
+    // does not already make, so no row ever reads "Audio Listen"
+    const SAY={listen:"Listen",watch:"Watch"};
+    const say = SAY[r[7]] && !/^(audio|documentary)$/.test(r[4]) ? SAY[r[7]] : "";
+    const kicker = `<i class="rdk">${esc(cap(r[4]))}</i>`
+      + (say ? ` <i class="rdv">${say}</i>` : "")
+      + ` \u00b7 ${esc(r[2])} \u00b7 ${r[3]}`
       + (r[5] ? ` <i class="rdw">${esc(cap(r[5]))}</i>` : "");
-    return `<a class="rd" href="${esc(r[0])}" target="_blank" rel="noopener noreferrer" title="${kind}">`
-      + `<i class="rdi">${READICON[r[4]]||READICON.longform}</i>`
+    return `<a class="rd" href="${esc(r[0])}" target="_blank" rel="noopener noreferrer" title="${kind}, ${esc(r[7])}">`
+      + `<i class="rdi">${MEDICON[r[7]]||MEDICON.read}</i>`
       + `<span class="rdx"><span class="rdm">${kicker}</span>`
       + `<span class="rdt">${esc(r[1])}</span>`
       + `<span class="rdn">${esc(r[6])}</span></span></a>`;

@@ -1189,91 +1189,93 @@ const SONGS = {"acidhouse":["Washing Machine","No Way Back","Acid Tracks","Land 
 // Not a reading list of summaries, which is what Wikipedia already is. The bar is that
 // the piece gives you something the map cannot: what it was like to be in the room.
 // Contemporaneous reviews, oral histories, zine and flyer archives, obituaries.
-// Rows are [url, title, publication, year, kind, access, why it is worth your time].
+// Rows are [url, title, publication, year, kind, access, why it is worth your time, medium].
+// medium is read / listen / watch / look / archive, and it is what the icon promises: an
+// oral history can be a tape you play or a transcript you read, and the row has to say which.
 // access is "" for open, or paywall / partial / registration, which the panel says out loud.
 // [url, title, publication, year, kind, access, note]
 const READ = {
 "punk": [
- ["https://flashbak.com/dont-look-over-your-shoulder-but-the-sex-pistols-are-coming-the-bands-first-review-february-21-1976-369355/","Don't Look Over Your Shoulder, But The Sex Pistols Are Coming","NME",1976,"review","","The 200-word notice a critic filed before anyone knew what punk was."],
- ["https://johnholmstrom.substack.com/p/the-birth-of-punk-at-cbgb-on-november","The Birth of Punk at CBGB, November 23, 1975","John Holmstrom",2024,"memoir","","PUNK magazine's founder on the night he walked into CBGB and met the Ramones."],
- ["https://98bowery.com/punk-years/punk-art-catalogue-section-two","Punk Art Catalogue: Punk Magazine","98 Bowery",1978,"photo essay","","Scanned magazine pages, cartoons and shirt designs, with the scene profiling itself."]
+ ["https://flashbak.com/dont-look-over-your-shoulder-but-the-sex-pistols-are-coming-the-bands-first-review-february-21-1976-369355/","Don't Look Over Your Shoulder, But The Sex Pistols Are Coming","NME",1976,"review","","The 200-word notice a critic filed before anyone knew what punk was.","read"],
+ ["https://johnholmstrom.substack.com/p/the-birth-of-punk-at-cbgb-on-november","The Birth of Punk at CBGB, November 23, 1975","John Holmstrom",2024,"memoir","","PUNK magazine's founder on the night he walked into CBGB and met the Ramones.","read"],
+ ["https://98bowery.com/punk-years/punk-art-catalogue-section-two","Punk Art Catalogue: Punk Magazine","98 Bowery",1978,"photo essay","","Scanned magazine pages, cartoons and shirt designs, with the scene profiling itself.","look"]
 ],
 "oldschool": [
- ["https://www.villagevoice.com/afrika-bambaataa-gave-voice-to-music-never-heard-before/","Afrika Bambaataa's Hip Hop","The Village Voice",1982,"scene report","","The first serious press account of the Bronx scene, reported while it was still local."],
- ["https://digital.library.cornell.edu/collections/hiphopflyers","Early Hip Hop Party and Event Flyers","Cornell University Library",1984,"photo essay","","Nearly 500 handmade flyers showing who played where, at what price, on what night."],
- ["https://www.npr.org/2023/07/11/1186407223/50-years-ago-teenagers-partied-in-the-bronx-and-gave-rise-to-hip-hop","Teenagers Partied in the Bronx and Gave Rise to Hip-Hop","NPR",2023,"audio","","People who were at the 1973 Sedgwick Avenue party describe the room and the crowd."],
- ["https://www.rollingstone.com/music/music-features/kool-herc-hip-hop-50-august-11-1973-1234802035/","Kool Herc and the History (and Mystery) of Hip-Hop's First Day","Rolling Stone",2023,"longform","","Shows how shaky the founding date is, using Herc's and Cindy Campbell's conflicting memories."]
+ ["https://www.villagevoice.com/afrika-bambaataa-gave-voice-to-music-never-heard-before/","Afrika Bambaataa's Hip Hop","The Village Voice",1982,"scene report","","The first serious press account of the Bronx scene, reported while it was still local.","read"],
+ ["https://digital.library.cornell.edu/collections/hiphopflyers","Early Hip Hop Party and Event Flyers","Cornell University Library",1984,"photo essay","","Nearly 500 handmade flyers showing who played where, at what price, on what night.","look"],
+ ["https://www.npr.org/2023/07/11/1186407223/50-years-ago-teenagers-partied-in-the-bronx-and-gave-rise-to-hip-hop","Teenagers Partied in the Bronx and Gave Rise to Hip-Hop","NPR",2023,"audio","","People who were at the 1973 Sedgwick Avenue party describe the room and the crowd.","listen"],
+ ["https://www.rollingstone.com/music/music-features/kool-herc-hip-hop-50-august-11-1973-1234802035/","Kool Herc and the History (and Mystery) of Hip-Hop's First Day","Rolling Stone",2023,"longform","","Shows how shaky the founding date is, using Herc's and Cindy Campbell's conflicting memories.","read"]
 ],
 "house": [
- ["https://daily.redbullmusicacademy.com/2015/05/ron-hardy-at-the-music-box","Ron Hardy at the Music Box","Red Bull Music Academy",2015,"oral history","","Dancers and producers describe Hardy's sets, the heat in the room and the drugs in it."],
- ["https://digitalcommons.colum.edu/house/45","Robert Williams, Chicago House Music Oral History Project","Columbia College Chicago",2014,"oral history","","The man who opened the Warehouse and the Music Box, in his own recorded voice."],
- ["https://www.chicago.gov/content/dam/city/depts/zlup/Historic_Preservation/Publications/The_Warehouse_Report.pdf","The Warehouse Landmark Designation Report","City of Chicago",2023,"longform","","Documents the building, the hours, the door price and the juice bar, with Knuckles quoted."],
- ["https://www.gridface.com/memories-of-ron-hardy/","Memories of Ron Hardy","Gridface",2010,"oral history","","Hardy's nephew on the family, the record crates and the leaking Music Box roof."]
+ ["https://daily.redbullmusicacademy.com/2015/05/ron-hardy-at-the-music-box","Ron Hardy at the Music Box","Red Bull Music Academy",2015,"oral history","","Dancers and producers describe Hardy's sets, the heat in the room and the drugs in it.","read"],
+ ["https://digitalcommons.colum.edu/house/45","Robert Williams, Chicago House Music Oral History Project","Columbia College Chicago",2014,"oral history","","The man who opened the Warehouse and the Music Box, in his own recorded voice.","archive"],
+ ["https://www.chicago.gov/content/dam/city/depts/zlup/Historic_Preservation/Publications/The_Warehouse_Report.pdf","The Warehouse Landmark Designation Report","City of Chicago",2023,"longform","","Documents the building, the hours, the door price and the juice bar, with Knuckles quoted.","read"],
+ ["https://www.gridface.com/memories-of-ron-hardy/","Memories of Ron Hardy","Gridface",2010,"oral history","","Hardy's nephew on the family, the record crates and the leaking Music Box roof.","read"]
 ],
 "disco": [
- ["https://daily.redbullmusicacademy.com/2016/11/david-mancuso-dj-history-interview","Interview: David Mancuso","Red Bull Music Academy",2016,"oral history","","Mancuso explains the rent-party economics, the balloons and the sound system he built."],
- ["https://daily.redbullmusicacademy.com/2018/02/nicky-siano-interview-dj-history","Nicky Siano on the Gallery and the Dark Days of Disco","Red Bull Music Academy",2018,"oral history","","A teenager's view of the Loft in 1971, and running the Gallery from 1973."],
- ["https://www.kqed.org/arts/12364614/the-death-of-a-disco-host","The Death of a Disco Host","NPR",2016,"obituary","","Argues the Loft was a private host's living room rather than a nightclub, and why that mattered."]
+ ["https://daily.redbullmusicacademy.com/2016/11/david-mancuso-dj-history-interview","Interview: David Mancuso","Red Bull Music Academy",2016,"oral history","","Mancuso explains the rent-party economics, the balloons and the sound system he built.","read"],
+ ["https://daily.redbullmusicacademy.com/2018/02/nicky-siano-interview-dj-history","Nicky Siano on the Gallery and the Dark Days of Disco","Red Bull Music Academy",2018,"oral history","","A teenager's view of the Loft in 1971, and running the Gallery from 1973.","read"],
+ ["https://www.kqed.org/arts/12364614/the-death-of-a-disco-host","The Death of a Disco Host","NPR",2016,"obituary","","Argues the Loft was a private host's living room rather than a nightclub, and why that mattered.","read"]
 ],
 "bebop": [
- ["https://www.loc.gov/collections/jazz-photography-of-william-p-gottlieb/","The Jazz Photography of William P. Gottlieb","Library of Congress",1948,"photo essay","","Club interiors on 52nd Street, with the photographer's own later notes on the sittings."],
- ["https://dh.howard.edu/hujohp_transcripts/2","An Interview with Art Blakey","Howard University",1984,"oral history","","A full transcript of a bebop drummer talking at length about the working life."],
- ["https://www.npr.org/2009/12/29/122020272/excerpt-thelonious-monk-the-life-and-times-of-an-american-original","Thelonious Monk: The Life and Times of an American Original","NPR",2009,"longform","","Reconstructs the 1947 photo shoot at Minton's and the press fight over bop."],
- ["https://blogs.loc.gov/loc/2018/01/this-day-in-history-celebrating-dizzy-gillespie-through-photographs-and-more/","Celebrating Dizzy Gillespie Through Photographs","Library of Congress",2018,"photo essay","","Routes you to a 1984 Gillespie interview transcript and a 1947 Down Beat definition of bop."]
+ ["https://www.loc.gov/collections/jazz-photography-of-william-p-gottlieb/","The Jazz Photography of William P. Gottlieb","Library of Congress",1948,"photo essay","","Club interiors on 52nd Street, with the photographer's own later notes on the sittings.","look"],
+ ["https://dh.howard.edu/hujohp_transcripts/2","An Interview with Art Blakey","Howard University",1984,"oral history","","A full transcript of a bebop drummer talking at length about the working life.","read"],
+ ["https://www.npr.org/2009/12/29/122020272/excerpt-thelonious-monk-the-life-and-times-of-an-american-original","Thelonious Monk: The Life and Times of an American Original","NPR",2009,"longform","","Reconstructs the 1947 photo shoot at Minton's and the press fight over bop.","read"],
+ ["https://blogs.loc.gov/loc/2018/01/this-day-in-history-celebrating-dizzy-gillespie-through-photographs-and-more/","Celebrating Dizzy Gillespie Through Photographs","Library of Congress",2018,"photo essay","","Routes you to a 1984 Gillespie interview transcript and a 1947 Down Beat definition of bop.","read"]
 ],
 "gogo": [
- ["https://jameshamiltonsdiscopage.com/1985/03/02/march-2-1985-drop-the-whop-washington-dc-go-go-special-report-extended-hip-hop-hot-uns-review-special/","Drop the Whop: Washington DC Go-Go Special Report","Record Mirror",1985,"scene report","","A British dance columnist's on-the-spot account of the bands, the tempos and the crowds."],
- ["https://thepeoplesarchive.dclibrary.org/repositories/2/resources/2395","Lornell and Stephenson Go-Go Oral History Collection","DC Public Library",1998,"oral history","","Interview transcripts with go-go performers, recorded while the scene was still running."],
- ["https://www.npr.org/2012/05/17/152918364/go-go-godfather-created-distinct-dc-soundtrack","Go-Go Godfather Created a Distinct DC Soundtrack","NPR",2012,"obituary","","Chuck Brown in his own voice from an earlier interview, with the records playing under it."],
- ["https://thekojonnamdishow.org/shows/2012-05-17/remembering-go-go-godfather-chuck-brown","Remembering Go-Go Godfather Chuck Brown","WAMU",2012,"audio","","DC listeners and Rare Essence's Andre Johnson phone in with their own memories."],
- ["https://digdc.dclibrary.org/islandora/object/dcplislandora%3A305086","The Chip Py Go-Go Collection","DC Public Library",2020,"photo essay","","Entry point to 1,900 concert photographs by Chuck Brown's own photographer."]
+ ["https://jameshamiltonsdiscopage.com/1985/03/02/march-2-1985-drop-the-whop-washington-dc-go-go-special-report-extended-hip-hop-hot-uns-review-special/","Drop the Whop: Washington DC Go-Go Special Report","Record Mirror",1985,"scene report","","A British dance columnist's on-the-spot account of the bands, the tempos and the crowds.","read"],
+ ["https://thepeoplesarchive.dclibrary.org/repositories/2/resources/2395","Lornell and Stephenson Go-Go Oral History Collection","DC Public Library",1998,"oral history","","Interview transcripts with go-go performers, recorded while the scene was still running.","archive"],
+ ["https://www.npr.org/2012/05/17/152918364/go-go-godfather-created-distinct-dc-soundtrack","Go-Go Godfather Created a Distinct DC Soundtrack","NPR",2012,"obituary","","Chuck Brown in his own voice from an earlier interview, with the records playing under it.","listen"],
+ ["https://thekojonnamdishow.org/shows/2012-05-17/remembering-go-go-godfather-chuck-brown","Remembering Go-Go Godfather Chuck Brown","WAMU",2012,"audio","","DC listeners and Rare Essence's Andre Johnson phone in with their own memories.","listen"],
+ ["https://digdc.dclibrary.org/islandora/object/dcplislandora%3A305086","The Chip Py Go-Go Collection","DC Public Library",2020,"photo essay","","Entry point to 1,900 concert photographs by Chuck Brown's own photographer.","look"]
 ],
 "zydeco": [
- ["https://folklife.si.edu/magazine/clifton-chenier-archives","The King of Zydeco's 100th Birthday Calls for a Look into the Archives","Smithsonian Folklife",2025,"longform","","Built from a 1978 interview with Chenier and Ann Savoy's account of meeting him."],
- ["https://www.npr.org/transcripts/nx-s1-5425376","A New Album Celebrates Clifton Chenier, the King of Zydeco","NPR",2025,"audio","","C.J. Chenier on his father's house-party roots and how the sound changed."],
- ["https://rocksbackpages.com/Library/Article/remembering-clifton-chenier-the-king-of-zydeco","Remembering Clifton Chenier, the King of Zydeco","Los Angeles Times",1987,"obituary","paywall","The critical obituary written the week he died, by someone who had seen the band."]
+ ["https://folklife.si.edu/magazine/clifton-chenier-archives","The King of Zydeco's 100th Birthday Calls for a Look into the Archives","Smithsonian Folklife",2025,"longform","","Built from a 1978 interview with Chenier and Ann Savoy's account of meeting him.","read"],
+ ["https://www.npr.org/transcripts/nx-s1-5425376","A New Album Celebrates Clifton Chenier, the King of Zydeco","NPR",2025,"audio","","C.J. Chenier on his father's house-party roots and how the sound changed.","listen"],
+ ["https://rocksbackpages.com/Library/Article/remembering-clifton-chenier-the-king-of-zydeco","Remembering Clifton Chenier, the King of Zydeco","Los Angeles Times",1987,"obituary","paywall","The critical obituary written the week he died, by someone who had seen the band.","read"]
 ],
 "shoegaze": [
- ["https://thequietus.com/?p=19489","Who Killed Shoegaze?","The Quietus",2016,"longform","","Quotes the hostile reviews in full, including Melody Maker calling Souvlaki a bath of porridge."],
- ["https://www.huffingtonpost.co.uk/andy-ross/shoegaze_b_9892330.html","Shoegazing: The Coining of a Genre","HuffPost UK",2011,"memoir","","The man who says he coined the insult describes the gigs that prompted it."],
- ["https://www.loudandquiet.com/interview/slowdives-first-extensive-interview-since-split-1995/","Slowdive's First Interview Since the Split","Loud And Quiet",2014,"oral history","","Halstead and Goswell on what being the music press's punchline felt like from inside."],
- ["https://www.3ammagazine.com/3am/leave-them-all-behind/","Leave Them All Behind: A Guide to Shoegazing","3:AM Magazine",2003,"longform","","Band by band, written close enough to the time to remember the gigs and the labels."]
+ ["https://thequietus.com/?p=19489","Who Killed Shoegaze?","The Quietus",2016,"longform","","Quotes the hostile reviews in full, including Melody Maker calling Souvlaki a bath of porridge.","read"],
+ ["https://www.huffingtonpost.co.uk/andy-ross/shoegaze_b_9892330.html","Shoegazing: The Coining of a Genre","HuffPost UK",2011,"memoir","","The man who says he coined the insult describes the gigs that prompted it.","read"],
+ ["https://www.loudandquiet.com/interview/slowdives-first-extensive-interview-since-split-1995/","Slowdive's First Interview Since the Split","Loud And Quiet",2014,"oral history","","Halstead and Goswell on what being the music press's punchline felt like from inside.","read"],
+ ["https://www.3ammagazine.com/3am/leave-them-all-behind/","Leave Them All Behind: A Guide to Shoegazing","3:AM Magazine",2003,"longform","","Band by band, written close enough to the time to remember the gigs and the labels.","read"]
 ],
 "twotone": [
- ["https://www.spinmagazine.com/2009/09/oral-history-2-tone/","The Oral History of 2 Tone","SPIN",2009,"oral history","","Dammers, Pauline Black, Suggs and Rhoda Dakar narrate the label's rise themselves."],
- ["https://harpers.org/archive/2025/03/an-unstoppable-march-ian-penman-2-tone-ska","An Unstoppable March","Harper's Magazine",2025,"longform","","A critic who was there reads 2 Tone against the racial politics of 1979 Britain."],
- ["https://britishculturearchive.co.uk/virginia-turbett-british-subculture-1970s/","Virginia Turbett: British Subculture 1979-1981","British Culture Archive",2020,"photo essay","","Dated, located shots, including Madness on the first 2 Tone tour in 1979."]
+ ["https://www.spinmagazine.com/2009/09/oral-history-2-tone/","The Oral History of 2 Tone","SPIN",2009,"oral history","","Dammers, Pauline Black, Suggs and Rhoda Dakar narrate the label's rise themselves.","read"],
+ ["https://harpers.org/archive/2025/03/an-unstoppable-march-ian-penman-2-tone-ska","An Unstoppable March","Harper's Magazine",2025,"longform","","A critic who was there reads 2 Tone against the racial politics of 1979 Britain.","read"],
+ ["https://britishculturearchive.co.uk/virginia-turbett-british-subculture-1970s/","Virginia Turbett: British Subculture 1979-1981","British Culture Archive",2020,"photo essay","","Dated, located shots, including Madness on the first 2 Tone tour in 1979.","look"]
 ],
 "riotgrrrl": [
- ["https://thepeoplesarchive.dclibrary.org/repositories/2/archival_objects/169680","Riot Grrrl! A Valley Girl Production #2","DC Public Library",1992,"oral history","","An original zine issue, catalogued, with its seven teenage authors named."],
- ["https://findingaids.library.nyu.edu/fales/mss_394/all","Elena Humphreys Riot Grrrl Collection","Fales Library, NYU",1996,"oral history","","Itemized zines, flyers, paste-ups and mailing lists from Riot Grrrl NYC."],
- ["https://www.npr.org/blogs/therecord/2011/09/20/140640502/revolution-girl-style-20-years-later","Revolution Girl Style, 20 Years Later","NPR",2011,"scene report","","Molly Neuman and others recall the 1991 convention and the reaction to it."],
- ["https://www.bookforum.com/print/1703/in-the-early-90s-punk-girls-improvised-new-forms-of-feminist-agitation-6325","Her Jazz","Bookforum",2010,"longform","","A participant reviews the movement's own history and names where it failed."],
- ["https://www.theparisreview.org/blog/2013/07/30/grrrl-collected/","Grrrl, Collected","The Paris Review",2013,"longform","","The archivist on what the zines reveal, including the criticism from inside the scene."]
+ ["https://thepeoplesarchive.dclibrary.org/repositories/2/archival_objects/169680","Riot Grrrl! A Valley Girl Production #2","DC Public Library",1992,"oral history","","An original zine issue, catalogued, with its seven teenage authors named.","look"],
+ ["https://findingaids.library.nyu.edu/fales/mss_394/all","Elena Humphreys Riot Grrrl Collection","Fales Library, NYU",1996,"oral history","","Itemized zines, flyers, paste-ups and mailing lists from Riot Grrrl NYC.","archive"],
+ ["https://www.npr.org/blogs/therecord/2011/09/20/140640502/revolution-girl-style-20-years-later","Revolution Girl Style, 20 Years Later","NPR",2011,"scene report","","Molly Neuman and others recall the 1991 convention and the reaction to it.","read"],
+ ["https://www.bookforum.com/print/1703/in-the-early-90s-punk-girls-improvised-new-forms-of-feminist-agitation-6325","Her Jazz","Bookforum",2010,"longform","","A participant reviews the movement's own history and names where it failed.","read"],
+ ["https://www.theparisreview.org/blog/2013/07/30/grrrl-collected/","Grrrl, Collected","The Paris Review",2013,"longform","","The archivist on what the zines reveal, including the criticism from inside the scene.","read"]
 ],
 "riddim": [
- ["https://ukf.com/read/infekts-guide-to-riddim/","Infekt's Guide to Riddim","UKF",2017,"scene report","","A producer explains in his own words where the sound came from and how it is built."],
- ["https://www.insomniac.com/magazine/how-to-talk-to-your-kids-about-riddim/","How to Talk to Your Kids About Riddim","Insomniac",2017,"scene report","","Producers argue on the record about whether riddim is a real subgenre at all."]
+ ["https://ukf.com/read/infekts-guide-to-riddim/","Infekt's Guide to Riddim","UKF",2017,"scene report","","A producer explains in his own words where the sound came from and how it is built.","read"],
+ ["https://www.insomniac.com/magazine/how-to-talk-to-your-kids-about-riddim/","How to Talk to Your Kids About Riddim","Insomniac",2017,"scene report","","Producers argue on the record about whether riddim is a real subgenre at all.","read"]
 ],
 "witchhouse": [
- ["https://sfbgarchive.48hills.org/sfbgarchive/2011/01/06/weird-emergence/","Weird Emergence","San Francisco Bay Guardian",2011,"scene report","","Interviews Travis Egedy, who helped coin the term and then disowned it."],
- ["https://grantland.com/hollywood-prospectus/the-short-life-weird-death-and-mild-rebirth-of-the-witch-house-genre","The Short Life, Weird Death and Mild Rebirth of Witch House","Grantland",2015,"longform","","Traces the collapse, including Salem's implosion, rather than the definition."],
- ["https://stereogum.com/2089949/witch-house-salem-king-night-turns-10/columns/sounding-board","Remember Witch House?","Stereogum",2020,"memoir","","Written by the editor whose inbox the scene flooded, on how the hype actually worked."]
+ ["https://sfbgarchive.48hills.org/sfbgarchive/2011/01/06/weird-emergence/","Weird Emergence","San Francisco Bay Guardian",2011,"scene report","","Interviews Travis Egedy, who helped coin the term and then disowned it.","read"],
+ ["https://grantland.com/hollywood-prospectus/the-short-life-weird-death-and-mild-rebirth-of-the-witch-house-genre","The Short Life, Weird Death and Mild Rebirth of Witch House","Grantland",2015,"longform","","Traces the collapse, including Salem's implosion, rather than the definition.","read"],
+ ["https://stereogum.com/2089949/witch-house-salem-king-night-turns-10/columns/sounding-board","Remember Witch House?","Stereogum",2020,"memoir","","Written by the editor whose inbox the scene flooded, on how the hype actually worked.","read"]
 ],
 "digicore": [
- ["https://www.waterandmusic.com/soundcloud-digicore-and-the-observer-effect-in-emerging-music-scenes","SoundCloud, Digicore and the Observer Effect","Water & Music",2021,"longform","","Interviews the person who coined digicore and shows how platform curation reshaped it."],
- ["https://www.papermag.com/angelus-majorette-ep","angelus Is Watching Digicore Come to Life","PAPER",2022,"scene report","","Reporting on how a teenage artist met their collaborators through Twitter and Discord."],
- ["https://www.npr.org/2025/04/24/nx-s1-5361403/hyperpop-digicore-jane-remover-2hollis-microgenre","Jane Remover and 2hollis Chart What Came Next","NPR",2025,"longform","","Follows what the artists became once the label stopped being useful to them."]
+ ["https://www.waterandmusic.com/soundcloud-digicore-and-the-observer-effect-in-emerging-music-scenes","SoundCloud, Digicore and the Observer Effect","Water & Music",2021,"longform","","Interviews the person who coined digicore and shows how platform curation reshaped it.","read"],
+ ["https://www.papermag.com/angelus-majorette-ep","angelus Is Watching Digicore Come to Life","PAPER",2022,"scene report","","Reporting on how a teenage artist met their collaborators through Twitter and Discord.","read"],
+ ["https://www.npr.org/2025/04/24/nx-s1-5361403/hyperpop-digicore-jane-remover-2hollis-microgenre","Jane Remover and 2hollis Chart What Came Next","NPR",2025,"longform","","Follows what the artists became once the label stopped being useful to them.","read"]
 ],
 "brocountry": [
- ["https://www.npr.org/2013/12/27/257393669/cruise-was-one-of-2013s-biggest-musical-hits","How a Hip-Hop Remix Made Cruise the Year's Biggest Country Hit","NPR",2013,"audio","","A label president and radio programmers explain on tape how the hit was engineered."],
- ["https://www.npr.org/transcripts/333719578","Teenage Songwriters Take On Bro-Country","NPR",2014,"audio","","Maddie and Tae explain their own backlash song while the trend was still peaking."],
- ["https://www.nashvillescene.com/music/how-jason-aldean-became-a-bro/article_ae3d56c8-0f1c-52e2-89b5-d9d96de7b1be.html","How Jason Aldean Became a Bro","Nashville Scene",2015,"review","partial","Tracks song by song how one performer's catalogue drifted into the template."]
+ ["https://www.npr.org/2013/12/27/257393669/cruise-was-one-of-2013s-biggest-musical-hits","How a Hip-Hop Remix Made Cruise the Year's Biggest Country Hit","NPR",2013,"audio","","A label president and radio programmers explain on tape how the hit was engineered.","listen"],
+ ["https://www.npr.org/transcripts/333719578","Teenage Songwriters Take On Bro-Country","NPR",2014,"audio","","Maddie and Tae explain their own backlash song while the trend was still peaking.","listen"],
+ ["https://www.nashvillescene.com/music/how-jason-aldean-became-a-bro/article_ae3d56c8-0f1c-52e2-89b5-d9d96de7b1be.html","How Jason Aldean Became a Bro","Nashville Scene",2015,"review","partial","Tracks song by song how one performer's catalogue drifted into the template.","read"]
 ],
 "hyperpop": [
- ["https://www.dazeddigital.com/music/article/55293/1/the-rise-and-fall-of-hyperpop-the-internets-most-confusing-music-genre","Goodbye Hyperpop: The Rise and Fall of a Genre","Dazed",2022,"longform","","Artists on the record rejecting the label that a playlist had applied to them."],
- ["https://www.pbs.org/video/how-did-pop-music-evolve-into-hyperpop-6pfaas","How Did Pop Music Evolve into Hyperpop?","PBS Sound Field",2022,"documentary","","Interviews midwxst and Zhone about the Spotify naming and what it did to them."],
- ["https://www.npr.org/2025/04/24/nx-s1-5361403/hyperpop-digicore-jane-remover-2hollis-microgenre","Jane Remover and 2hollis Chart Hyperpop's Next Evolution","NPR",2025,"longform","","Retrospective on what survived after the playlist and the term were retired."]
+ ["https://www.dazeddigital.com/music/article/55293/1/the-rise-and-fall-of-hyperpop-the-internets-most-confusing-music-genre","Goodbye Hyperpop: The Rise and Fall of a Genre","Dazed",2022,"longform","","Artists on the record rejecting the label that a playlist had applied to them.","read"],
+ ["https://www.pbs.org/video/how-did-pop-music-evolve-into-hyperpop-6pfaas","How Did Pop Music Evolve into Hyperpop?","PBS Sound Field",2022,"documentary","","Interviews midwxst and Zhone about the Spotify naming and what it did to them.","watch"],
+ ["https://www.npr.org/2025/04/24/nx-s1-5361403/hyperpop-digicore-jane-remover-2hollis-microgenre","Jane Remover and 2hollis Chart Hyperpop's Next Evolution","NPR",2025,"longform","","Retrospective on what survived after the playlist and the term were retired.","read"]
 ]
 };
 
