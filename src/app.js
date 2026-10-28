@@ -314,6 +314,24 @@ function walk(id,key){ const m=new Map(), q=[[id,0]]; while(q.length){ const [c,
 let state={sel:null,mode:"both"};
 let PHEAD="";
 const CHEVSVG='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg>';
+// Things to go and read, on the styles that have them. The note under each one is the
+// point: a bare list of links is a worse Wikipedia, and what makes it worth a tap is
+// being told why. A style with nothing good stays silent, the way a playlist does.
+function readSect(n){
+  const rows = (typeof READ!=="undefined" && READ[n.id]) || [];
+  if(!rows.length) return "";
+  const items = rows.map(r=>{
+    const meta = [esc(r[2]), r[3], esc(r[4])].join(" \u00b7 ")
+      + (r[5] ? ` <em class="rdw">${esc(r[5])}</em>` : "");
+    return `<a class="rd" href="${esc(r[0])}" target="_blank" rel="noopener noreferrer">`
+      + `<span class="rdt">${esc(r[1])}</span>`
+      + `<span class="rdm">${meta}</span>`
+      + `<span class="rdn">${esc(r[6])}</span></a>`;
+  }).join("");
+  return sect("read","Go deeper",`<div class="reads">${items}</div>`,
+    `<span class="sectaside">${rows.length} ${rows.length===1?"read":"reads"}</span>`);
+}
+
 function sect(key,label,html,aside){
   const head = label ? `<div class="secthead"><h3 class="secttl">${esc(label)}</h3>${aside||""}</div>` : "";
   return `<div class="sect sect-${key}${label?"":" nohead"}">${head}<div class="secbody">${html}</div></div>`;
@@ -787,6 +805,7 @@ function panel(n,anc,desc){
     ${sect("about","What it is",
       `<p class="note lede wikiline">${about(n)?esc(about(n))+" ":""}${wikiTxt(n)}</p>`
       + `<p class="tally">${anc.size} ancestor styles · ${desc.size} descendant styles${desc.size?` across ${dfams.size} ${dfams.size===1?"family":"families"}`:""}</p>`)}
+    ${readSect(n)}
     ${shareBtn(n)}</div></div>`;
   paintPlay();
 }
