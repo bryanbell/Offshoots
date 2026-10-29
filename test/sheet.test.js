@@ -72,6 +72,27 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   await swipe(195,mid,0,30); await p.waitForTimeout(350);
   say("a small downward nudge is not a pull", await open());
 
+  // the band that comes in on scroll draws exactly one hairline. It used to be two: the
+  // band was a fixed 44px to cover the buttons that overhang a short row, and a style
+  // panel's row is 53px, so each drew its own line nine pixels apart.
+  for(const [name,id] of [["the overview",""],["a style","#mathrock"]]){
+    const q=await ctx.newPage();
+    await q.goto(URL+id); await q.waitForTimeout(1300);
+    await q.click("#grab").catch(()=>{}); await q.waitForTimeout(800);
+    for(let i=0;i<4;i++){ await q.mouse.move(195,600); await q.mouse.wheel(0,110); await q.waitForTimeout(70); }
+    await q.waitForTimeout(400);
+    const hd=await q.evaluate(()=>{
+      const n=document.querySelector(".pcard .navrow");
+      const cs=getComputedStyle(n), bf=getComputedStyle(n,"::before");
+      const row=Math.round(n.getBoundingClientRect().height);
+      const lines=[cs.boxShadow,bf.boxShadow].filter(x=>x&&x!=="none").length;
+      return {row, lines, band:Math.round(parseFloat(bf.height)||0),
+        scrolled:document.body.classList.contains("pscrolled")};});
+    say(name+" draws one rule under a "+hd.band+"px band", hd.scrolled && hd.lines===1);
+    say("  which covers a row of "+hd.row+"px", hd.band>=hd.row && hd.band>=44);
+    await q.close();
+  }
+
   await p.click("#grab"); await p.waitForTimeout(500);
   say("it is minimised again", (await open())===false);
   await swipe(195,R[1]-40,0,-60); await p.waitForTimeout(400);

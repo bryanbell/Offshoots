@@ -492,8 +492,13 @@ body.pscrolled .pcard .navrow{border-radius:0}
    band that comes in on scroll has to cover their height without taking any: a painted
    pseudo-element rather than a taller row, which would shove the large title down and
    make the content jump the moment you touched it */
+/* the band has to cover the buttons, which overhang a short row, but a style panel's row
+   is taller than they are. A fixed 44px band drew its hairline at 44 while the row drew
+   its own at 53, which is the double rule. The band takes whichever is taller and carries
+   the only hairline; the row's own is turned off wherever the band paints. */
 body.pscrolled .pcard .navrow::before{content:"";position:absolute;left:0;right:0;top:0;
-  height:var(--tap);background:var(--panel);box-shadow:0 .5px 0 var(--line);z-index:0}
+  height:max(var(--tap), 100%);background:var(--panel);box-shadow:0 .5px 0 var(--line);z-index:0}
+body.pscrolled .pcard .navrow{box-shadow:none}
 /* the back button and the close button are both positioned out of the grid, which leaves
    the title as the only item in flow and parks it in the first column. It spans the bar
    instead, and the side tracks keep it clear of the two buttons. */
@@ -1159,7 +1164,7 @@ button.navttl[aria-expanded="true"] .lrcv{transform:rotate(180deg);opacity:1}
 .shbtn .shg{width:17px;height:17px;opacity:.75;vertical-align:0}
 .shbtn:hover .shg{opacity:1}
 .shbtn.round{width:var(--tap);height:var(--tap);border-radius:50%;flex:none}
-.shbtn.wide{display:flex;width:100%;margin:0;min-height:52px;
+.shbtn.wide{display:flex;width:100%;margin:18px 0 0;min-height:52px;
   border-radius:14px;font:600 var(--t-body)/1 var(--f-body)}
 /* ---------- the one button on the page ----------
    Everything else in a panel opens something; Share acts. So it is the only thing shaped
@@ -1171,7 +1176,7 @@ button.navttl[aria-expanded="true"] .lrcv{transform:rotate(180deg);opacity:1}
 .shbtn.wide:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 40%,transparent)}
 .shbtn.wide .shg{opacity:1}
 .shbtn.wide.done{color:var(--ok);background:color-mix(in srgb,var(--ok) 20%,transparent)}
-.sect-learn .shbtn.wide{margin-top:16px}
+.sect-learn .shbtn.wide{margin-top:18px}
 .shbtn.done{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}
 .shbtn.done .shg{display:none}
 .shbtn .tick{display:none;flex:none;width:17px;height:17px}
