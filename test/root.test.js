@@ -200,8 +200,10 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("one list: "+(grp&&grp.labels.join(" / ")),
     !!grp && grp.labels.join("/")==="Roots/Most influential/Surprise me");
   say("  with a count on each ("+(grp&&grp.counts.join(", "))+")", !!grp && grp.counts.every(c=>c.length>0));
-  say("  an icon on each, in one rounded card of radius "+(grp&&grp.radius),
-    !!grp && grp.icons && grp.oneCard && grp.radius>=10);
+  // the shaded card went: a panel is already a card, and a second one inside it pushed
+  // every row in by two gutters. The rows span it and a hairline does the dividing.
+  say("  an icon on each, the rows spanning the panel (radius "+(grp&&grp.radius)+")",
+    !!grp && grp.icons && grp.oneCard && grp.radius<1);
   say("  separators inset to the name ("+(grp&&grp.inset)+")", !!grp && parseFloat(grp.inset)>=40);
   say("  rows at least "+(grp&&grp.tap)+"px", !!grp && grp.tap>=44);
   // four of them open a list; the last is a destination, so it has no chevron

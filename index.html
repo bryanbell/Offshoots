@@ -665,19 +665,43 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 /* a pick carries its playlist's cover: the square is what you recognise before the name,
    and it gives the three lines of text something to sit against. It replaces the family
    dot rather than joining it, since the tile already carries the family colour. */
-.picks>.pick.withart{grid-template-columns:var(--pkart) 1fr;column-gap:12px;align-items:start;
-  --pkart:56px}
+.picks>.pick.withart{grid-template-columns:var(--pkart) 1fr;column-gap:14px;align-items:start;
+  --pkart:76px}
 .picks>.pick.withart::before{display:none}
-.pick.withart img.pcov,.pick.withart .pcovph{grid-row:1 / span 3;align-self:start;margin:1px 0 0;
-  width:var(--pkart);height:var(--pkart);border-radius:9px;aspect-ratio:1;object-fit:cover;
+.pick.withart img.pcov,.pick.withart .pcovph{grid-row:1 / span 3;align-self:start;margin:2px 0 0;
+  width:var(--pkart);height:var(--pkart);border-radius:11px;aspect-ratio:1;object-fit:cover;
   box-shadow:0 0 0 .5px var(--line),0 1px 3px rgb(0 0 0 / .14)}
 .pick.withart .pcovph{display:grid;place-items:center;
   background:linear-gradient(145deg,color-mix(in srgb,var(--c) 70%,#000) 0%,color-mix(in srgb,var(--c) 32%,#000) 100%)}
-.pick.withart .pcovph b{font:700 19px var(--f-body);color:#fff;opacity:.92}
+.pick.withart .pcovph b{font:700 25px var(--f-body);color:#fff;opacity:.92}
 /* the hairline starts past the art so the eye runs down the names */
-.picks:has(.pick.withart){--seplead:84px}
-@media (max-width:899px){ .picks:has(.pick.withart){--seplead:77px}
-  .picks>.pick.withart{--pkart:54px;column-gap:11px} .pick.withart .pcovph b{font-size:18px} }
+.picks:has(.pick.withart){--seplead:90px}
+@media (max-width:899px){ .picks:has(.pick.withart){--seplead:90px}
+  .picks>.pick.withart{--pkart:76px;column-gap:14px} .pick.withart .pcovph b{font-size:25px} }
+/* ---------- the lists come out of their boxes ----------
+   Every list in the panel sat on its own shaded, rounded card, which put a second frame
+   inside a panel that is already a card and pushed every row in by the width of two
+   gutters. They are plain lists now: no ground, rows starting at the panel's own margin
+   where the headings start, and a hairline doing the work the card edge used to. The
+   hover fill still runs to the panel edges, so a row under the finger is the full width
+   of the sheet even though its content lines up with the heading above it. */
+/* the group, not the row, is what bleeds: a button sized to its content would otherwise
+   shrink-wrap the moment width:100% came off, and the hairlines would end at the label */
+.picks,.listgrp,.reads{background:transparent;border-radius:0;overflow:visible;
+  margin-inline:calc(var(--ppad) * -1)}
+.picks>.pick,.listgrp .listrow,.reads .rd{border-radius:0;background:transparent;
+  padding-inline:var(--ppad);width:100%;margin-inline:0;box-sizing:border-box}
+.picks>.pick:first-child,.picks>.pick:last-child{border-radius:0}
+.pick:hover,.pick:focus-visible{background:color-mix(in srgb,var(--fg) 7%,transparent)}
+/* the hairlines keep their inset but now end at the panel margin, not a card edge */
+.picks>.pick+.pick::after,.reads .rd + .rd::after{right:0}
+/* .two draws a column rule instead, which needs the gutter back */
+.listgrp.two{margin-inline:0}
+.listgrp.two .listrow{padding-inline:12px}
+/* the left column starts where the heading starts; the right keeps its inset so the
+   column rule between them has air on both sides */
+.modelist.two .listrow:nth-child(odd){padding-left:0}
+.listgrp.sep > * + *::before{right:0}
 .modelist.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 .modelist.two .listrow{padding:0 12px;gap:10px;min-height:52px;position:relative}
 .modelist.two .listrow .lrcv{display:none}
@@ -909,10 +933,14 @@ body:not(.open) aside#panel{width:var(--sidew);cursor:pointer}
   aside#panel{order:1;position:absolute;left:0;right:0;bottom:0;z-index:30;
     flex:0 0 auto;width:auto;height:auto;max-height:70vh;border-left:0;border-top:0;border-radius:16px 16px 0 0;box-shadow:0 -1px 0 var(--line),0 -10px 30px rgb(0 0 0 / .34),0 -3px 10px rgb(0 0 0 / .18);
     padding:2px 16px calc(14px + env(safe-area-inset-bottom,0px));
-    background:color-mix(in srgb,var(--panel) 74%,transparent);
-    -webkit-backdrop-filter:saturate(150%) blur(30px);backdrop-filter:saturate(150%) blur(30px)}
+    /* the lists used to sit on their own shaded cards, which gave the type something
+       opaque to stand on and let the sheet itself stay well back. Unboxed, the rows sit
+       straight on the glass, so the glass carries more of the ground and blurs harder:
+       what shows through should read as weather behind the sheet, not as labels. */
+    background:color-mix(in srgb,var(--panel) 96%,transparent);
+    -webkit-backdrop-filter:saturate(165%) blur(36px);backdrop-filter:saturate(165%) blur(36px)}
   /* the family wash goes translucent too, over its own ground rather than the root's */
-  aside#panel.tinted{background:color-mix(in srgb,var(--panel) 78%,transparent)}
+  aside#panel.tinted{background:color-mix(in srgb,var(--panel) 96%,transparent)}
   /* no backdrop-filter support: fall back to the solid ground rather than a see-through sheet */
   @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
     aside#panel{background:var(--panel)}

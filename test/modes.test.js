@@ -118,9 +118,17 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
         return t && /^[A-Z0-9]{1,2}$/.test(t.textContent.trim());})};});
   say("  all "+art.n+" carry a square ("+art.img+" covers, "+art.ph+" tiles)", art.n>0 && art.sq);
   say("  and a tile says which style it stands for", art.inked);
-  const box=await p.$eval(".ppage:not([hidden]) .picks [data-go]",e=>{const r=e.getBoundingClientRect();
-    return [Math.round(r.height),Math.round(r.width)];});
-  say("a pick row is "+box.join(" x "), box[0]>=44 && box[1]<=390-24);
+  // the rows came out of their card: each one now spans the panel, and what lines up is
+  // the art, with the heading above it, rather than the row's own edges
+  const box=await p.evaluate(()=>{
+    const r=document.querySelector(".ppage:not([hidden]) .picks [data-go]").getBoundingClientRect();
+    const body=document.getElementById("panelBody").getBoundingClientRect();
+    const art=document.querySelector(".ppage:not([hidden]) .pick img.pcov,.ppage:not([hidden]) .pick .pcovph").getBoundingClientRect();
+    const ttl=document.querySelector(".ppage:not([hidden]) .bigttl").getBoundingClientRect();
+    return {h:Math.round(r.height), bleed:Math.round(r.width)-Math.round(body.width),
+      off:Math.round(art.left-ttl.left)};});
+  say("a pick row is "+box.h+"px and spans the panel", box.h>=44 && Math.abs(box.bleed)<=1);
+  say("  its art lining up with the title ("+box.off+"px off)", Math.abs(box.off)<=1);
   say("no row overflows itself", await p.$$eval(".ppage:not([hidden]) .picks [data-go]",
     e=>e.every(x=>x.scrollWidth<=x.clientWidth+1)));
 
