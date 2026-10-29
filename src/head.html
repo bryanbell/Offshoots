@@ -700,7 +700,7 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
   --pkart:76px}
 .picks>.pick.withart::before{display:none}
 .pick.withart img.pcov,.pick.withart .pcovph{grid-row:1 / span 3;align-self:start;margin:2px 0 0;
-  width:var(--pkart);height:var(--pkart);border-radius:11px;aspect-ratio:1;object-fit:cover;
+  width:var(--pkart);height:var(--pkart);border-radius:0;aspect-ratio:1;object-fit:cover;
   box-shadow:0 0 0 .5px var(--line),0 1px 3px rgb(0 0 0 / .14)}
 .pick.withart .pcovph{display:grid;place-items:center;
   background:linear-gradient(145deg,color-mix(in srgb,var(--c) 70%,#000) 0%,color-mix(in srgb,var(--c) 32%,#000) 100%)}
@@ -775,22 +775,23 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 .secthead.sectgo:hover .sectcv{opacity:1;transform:translateX(2px)}
 .secthead.sectgo:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent);
   border-radius:8px}
-/* the sort on the ways in: one segmented control, the iOS shape — a sunken track with a
-   raised pill on the chosen one, so the state reads at a glance and there is no menu to
-   open. Four labels have to survive a narrow phone, so the track scrolls sideways rather
-   than squeezing the text, and the pill never shrinks below what its word needs. */
-.segwrap{margin:0 0 14px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
+/* The sort on the ways in. Its own class, not .seg — that one is the Apple Music /
+   Spotify toggle and repainting it here would have followed the service switch around
+   the whole app. Same iOS shape though: a sunken track with a raised pill on the chosen
+   one, so the state reads at a glance and there is no menu to open. Four labels have to
+   survive a narrow phone, so the track scrolls sideways rather than squeezing the text. */
+.msortwrap{margin:0 0 14px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
   scrollbar-width:none;margin-inline:calc(var(--ppad) * -1);padding-inline:var(--ppad)}
-.segwrap::-webkit-scrollbar{display:none}
-.seg{display:inline-flex;gap:2px;padding:2px;border-radius:10px;background:var(--fill2);
+.msortwrap::-webkit-scrollbar{display:none}
+.msort{display:inline-flex;gap:2px;padding:2px;border-radius:10px;background:var(--fill2);
   min-width:100%;box-sizing:border-box}
-.segbtn{flex:1 1 auto;white-space:nowrap;border:0;cursor:pointer;background:transparent;
+.msortbtn{flex:1 1 auto;white-space:nowrap;border:0;cursor:pointer;background:transparent;
   color:var(--muted);font:600 var(--t-foot)/1 var(--f-body);letter-spacing:-.01em;
   padding:0 12px;min-height:30px;border-radius:8px;transition:background .18s,color .18s}
-.segbtn:hover{color:var(--ink)}
-.segbtn.on{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgb(0 0 0 / .22)}
-.segbtn:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
-@media (prefers-reduced-motion:reduce){ .segbtn{transition:none} }
+.msortbtn:hover{color:var(--ink)}
+.msortbtn.on{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgb(0 0 0 / .22)}
+.msortbtn:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+@media (prefers-reduced-motion:reduce){ .msortbtn{transition:none} }
 .modelist.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 .modelist.two .listrow{padding:0 14px;gap:10px;min-height:52px;position:relative}
 .modelist.two .listrow .lrcv{display:none}
@@ -971,7 +972,7 @@ a.wk{display:inline-flex;align-items:center;gap:8px;min-height:var(--tap);paddin
 a.wk span{font:600 13px var(--f-body);letter-spacing:.01em;line-height:1.3}
 a.wk svg{width:15px;height:15px;flex:none;opacity:.7}
 a.wk:hover{background:var(--accent);color:#fff}
-img.pcov{display:block;width:100%;max-width:200px;aspect-ratio:1;object-fit:cover;border-radius:10px;margin:0 auto 12px;box-shadow:0 0 0 .5px var(--line),0 1px 3px rgb(0 0 0 / .14)}
+img.pcov{display:block;width:100%;max-width:200px;aspect-ratio:1;object-fit:cover;border-radius:0;margin:0 auto 12px;box-shadow:0 0 0 .5px var(--line),0 1px 3px rgb(0 0 0 / .14)}
 .ptitle{margin:0 0 14px;text-align:center;font-size:13px;line-height:1.35;color:var(--fg);text-wrap:balance}
 .ptitle b{font-weight:650}
 a.wk.pl{background:#fa233b;color:#fff}
@@ -1439,11 +1440,11 @@ a.wk.pl:hover,a.wk.sp:hover{background:color-mix(in srgb,var(--ink,var(--fg)) 84
   background:color-mix(in srgb,var(--acc,var(--fg)) 13%,transparent);color:var(--fg);text-decoration:none;
   transition:background .15s}
 .plrow:hover{background:color-mix(in srgb,var(--acc,var(--fg)) 22%,transparent);color:var(--fg)}
-.plrow .pcovph{display:grid;place-items:center;width:64px;height:64px;flex:none;border-radius:9px;
+.plrow .pcovph{display:grid;place-items:center;width:64px;height:64px;flex:none;border-radius:0;
   background:linear-gradient(150deg,color-mix(in srgb,var(--c,var(--fg)) 62%,#000),color-mix(in srgb,var(--c,var(--fg)) 20%,#000));
   box-shadow:inset 0 0 0 .5px color-mix(in srgb,#fff 16%,transparent)}
 .plrow .pcovph b{font:700 21px var(--f-body);letter-spacing:.01em;color:#fff;opacity:.92}
-.plrow img.pcov{width:64px;height:64px;flex:none;margin:0;border-radius:9px;aspect-ratio:1;object-fit:cover;
+.plrow img.pcov{width:64px;height:64px;flex:none;margin:0;border-radius:0;aspect-ratio:1;object-fit:cover;
   box-shadow:0 0 0 .5px var(--line),0 1px 3px rgb(0 0 0 / .25)}
 .plrow .pltx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .plrow .plttl{font:600 var(--t-head)/var(--t-head-lh) var(--f-body);letter-spacing:-.01em;overflow:hidden;display:-webkit-box;
@@ -1512,7 +1513,7 @@ a.am .amgo{display:none}
   .chip,.modechip{padding:0 13px}
   /* a pointer means a big screen and no thumb: the cover is the one thing in the panel
      worth the space, so it doubles rather than stepping down with everything else */
-  .plrow img.pcov,.plrow .pcovph{width:112px;height:112px;border-radius:12px}
+  .plrow img.pcov,.plrow .pcovph{width:112px;height:112px;border-radius:0}
   .plrow .pcovph b{font-size:36px}
   .plrow{padding:12px 22px 12px 12px;gap:16px}
   .who a.am .amgo{width:13px;height:13px}

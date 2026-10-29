@@ -118,7 +118,9 @@ const state=p=>p.evaluate(()=>{
   say("no page errors", p._errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
 
   // ---------- a deep link lands on the page itself ----------
-  for(const [hash,key,rows] of [["#install","install",0],["#about","about",0],["#modes","modes",26]]){
+  // the mode count comes off the data, so adding a way in is not a test failure
+  const MODECOUNT=await p.evaluate(()=>MODES.length);
+  for(const [hash,key,rows] of [["#install","install",0],["#about","about",0],["#modes","modes",MODECOUNT]]){
     const dl=await fresh(b,M,hash);
     await dl.waitForTimeout(900);
     const d=await state(dl);

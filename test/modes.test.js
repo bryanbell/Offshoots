@@ -76,7 +76,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     for(const x of document.querySelectorAll(".mcirc .mco svg")){
       const k=x.innerHTML.replace(/\s+/g," ").trim();
       if(seen.has(k)) return false; seen.add(k);
-    } return seen.size===26;}));
+    } return seen.size===MODES.length;}));
   say("  filling "+gl.share+"% of its circle", gl.share>=45 && gl.share<=60);
   // a mouse has no momentum of its own, so the row carries a flick after the button is up
   const fling=await p.evaluate(async()=>{
@@ -334,7 +334,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
 
     const read=()=>s.evaluate(()=>{
       const ps=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden), u=ps[ps.length-1];
-      return {on:[...u.querySelectorAll(".segbtn")].filter(x=>x.classList.contains("on")).map(x=>x.textContent),
+      return {on:[...u.querySelectorAll(".msortbtn")].filter(x=>x.classList.contains("on")).map(x=>x.textContent),
         labels:[...u.querySelectorAll(".moderow .lrlbl")].map(x=>x.textContent),
         stored:(()=>{try{return localStorage.getItem("offshoots.modesort")}catch(e){return null}})()};});
 
@@ -344,7 +344,9 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
 
     const seen={quiet:start.labels.join("|")};
     const total=start.labels.length;
-    let kept=total===26, named=true;
+    // the real count, not a number typed here: a mode added later must not read as a bug
+    const want=await s.evaluate(()=>MODES.length);
+    let kept=total===want, named=true;
     for(const [k,lbl] of [["loud","Loudest"],["used","Most used"],["az","A–Z"]]){
       // wait on the control actually flipping rather than on a stopwatch: under a loaded
       // machine a fixed pause is a coin toss, and a half-rendered list reads as a bug
@@ -358,7 +360,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
       if(r.labels.length!==total) kept=false;
       if(r.on.length!==1 || r.on[0]!==lbl || r.stored!==k) named=false;
     }
-    say("  all "+total+" modes survive every sort", kept && total===26);
+    say("  all "+total+" modes survive every sort", kept && total===want);
     say("  and the control marks and stores the one that is on", named);
     say("  quietest and loudest are mirror images",
       seen.quiet===seen.loud.split("|").reverse().join("|"));
@@ -376,7 +378,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     await s2.goto(URL+"#modes"); await s2.waitForTimeout(1200);
     const r=await s2.evaluate(()=>{
       const ps=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden), u=ps[ps.length-1];
-      return {on:[...u.querySelectorAll(".segbtn")].filter(x=>x.classList.contains("on")).map(x=>x.textContent)[0],
+      return {on:[...u.querySelectorAll(".msortbtn")].filter(x=>x.classList.contains("on")).map(x=>x.textContent)[0],
         first:(u.querySelector(".moderow .lrlbl")||{}).textContent};});
     say("a remembered sort is honoured next time the page opens",
       r.on==="A–Z" && r.first==="Burn it off");
@@ -388,18 +390,18 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     await s3.goto(URL+"#modes"); await s3.waitForTimeout(1200);
     const r=await s3.evaluate(()=>{
       const ps=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden), u=ps[ps.length-1];
-      return {on:[...u.querySelectorAll(".segbtn")].filter(x=>x.classList.contains("on")).map(x=>x.textContent)[0],
+      return {on:[...u.querySelectorAll(".msortbtn")].filter(x=>x.classList.contains("on")).map(x=>x.textContent)[0],
         rows:u.querySelectorAll(".moderow").length};});
     say("a nonsense stored sort falls back to quietest, with every mode still there",
-      r.on==="Quietest" && r.rows===26);
+      r.on==="Quietest" && r.rows===(await s3.evaluate(()=>MODES.length)));
     await s3.close(); }
 
   // the control has to survive the narrowest phone without clipping a label
   { const s4=await b.newPage({viewport:{width:320,height:700,isMobile:true,hasTouch:true}});
     await s4.goto(URL+"#modes"); await s4.waitForTimeout(1200);
     const fit=await s4.evaluate(()=>{
-      const seg=document.querySelector(".seg"), w=document.querySelector(".segwrap");
-      const btns=[...seg.querySelectorAll(".segbtn")];
+      const seg=document.querySelector(".msort"), w=document.querySelector(".msortwrap");
+      const btns=[...seg.querySelectorAll(".msortbtn")];
       return {tall:btns.every(b=>b.getBoundingClientRect().height>=28),
         unclipped:btns.every(b=>b.scrollWidth<=b.clientWidth+1),
         reachable:seg.scrollWidth<=w.scrollWidth+1,
