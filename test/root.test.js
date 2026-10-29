@@ -29,21 +29,31 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("  and none are left loose", (await p.$$eval("#panelBody > .more > [data-page]",e=>e.length))===0);
   // they are about the map rather than part of it, so they read as a colophon: no filled
   // cards, an icon each, and an inset hairline above the group instead of a box around it
+  // About, How to install and Share were a pair of list rows under a hairline plus a
+  // button of a different shape. They are one stack of tinted pills now, the shape Apple
+  // Maps ends its sheet with, and the rule that divided nothing has gone with them.
   const col=await p.evaluate(()=>{ const sec=document.querySelector(".sect-learn");
-    const rows=[...sec.querySelectorAll("[data-page]")];
+    const btns=[...sec.querySelectorAll(".btnstack > button")];
     const body=document.getElementById("panelBody").getBoundingClientRect();
     const rule=getComputedStyle(sec,"::before");
-    return {grounds:rows.map(f=>getComputedStyle(f).backgroundColor),
-      icons:rows.every(f=>!!f.querySelector(".lrico svg")),
-      ruleLeft:parseFloat(rule.left)||0, ruleOn:rule.content!=="none",
-      bleeds:rows.concat([sec]).some(e=>{ const cs=getComputedStyle(e);
+    const acc=getComputedStyle(document.documentElement).getPropertyValue("--accent").trim();
+    return {n:btns.length,
+      labels:btns.map(f=>(f.querySelector(".tbl,.shlbl")||{}).textContent||""),
+      tinted:btns.every(f=>{const cs=getComputedStyle(f);
+        return !/rgba\(0, 0, 0, 0\)/.test(cs.backgroundColor) && /0\.0392157|10, 132, 255/.test(cs.color);}),
+      icons:btns.every(f=>!!f.querySelector("svg")),
+      full:btns.every(f=>Math.round(f.getBoundingClientRect().width)===Math.round(btns[0].getBoundingClientRect().width)),
+      tap:Math.min(...btns.map(f=>Math.round(f.getBoundingClientRect().height))),
+      ruleOn:rule.content!=="none",
+      bleeds:btns.concat([sec]).some(e=>{ const cs=getComputedStyle(e);
         return (parseFloat(cs.borderTopWidth)||0)>0
           && e.getBoundingClientRect().width>=body.width*0.9; })}; });
-  say("no filled cards under them ("+col.grounds.join(", ")+")",
-    col.grounds.every(g=>/rgba\(0, 0, 0, 0\)|transparent/.test(g)));
-  say("  an icon on each instead", col.icons);
-  say("  a hairline above the group, inset "+col.ruleLeft+"px to the labels",
-    col.ruleOn && col.ruleLeft>=20);
+  say("three tinted buttons: "+col.labels.join(" / "),
+    col.n===3 && col.labels.join("/")==="About this map/How to install it/Share this app");
+  say("  all in the accent colour on its own tint", col.tinted);
+  say("  an icon on each, all the same width, "+col.tap+"px tall",
+    col.icons && col.full && col.tap>=44);
+  say("  no rule above them any more", col.ruleOn===false);
   say("  and nothing bleeding across the panel", col.bleeds===false);
   // "Start here" is the style you are handed; the 17 are where the music starts. Both
   // were called start. The list row took the word the axis already prints over that region.
@@ -61,7 +71,9 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("  which is the axis's own word for that region", /Roots/.test(starts.axis));
 
   say("browse leads, then the modes", order.indexOf("browse")<order.indexOf("sect-modes"));
-  say("map hint demoted below browse", order.indexOf("ovhint")>order.indexOf("browse"));
+  // the line telling you to tap the map went: the map is the whole screen behind the
+  // sheet, and a sentence pointing at it was the panel explaining itself
+  say("no sentence pointing at the map", order.indexOf("ovhint")<0);
 
   const nFams=await p.evaluate(()=>typeof FAMS!=="undefined"?FAMS.length:-1);
   // ---- 2: the title block describes the map, so it sits on the map ----
@@ -202,8 +214,10 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("  with a count on each ("+(grp&&grp.counts.join(", "))+")", !!grp && grp.counts.every(c=>c.length>0));
   // the shaded card went: a panel is already a card, and a second one inside it pushed
   // every row in by two gutters. The rows span it and a hairline does the dividing.
-  say("  an icon on each, the rows spanning the panel (radius "+(grp&&grp.radius)+")",
-    !!grp && grp.icons && grp.oneCard && grp.radius<1);
+  // the ways in went back into their grouped card: the picks are the one list that
+  // stays out of one, since a row of album covers is already a run of squares
+  say("  an icon on each, in one card of radius "+(grp&&grp.radius),
+    !!grp && grp.icons && grp.oneCard && grp.radius>=10);
   say("  separators inset to the name ("+(grp&&grp.inset)+")", !!grp && parseFloat(grp.inset)>=40);
   say("  rows at least "+(grp&&grp.tap)+"px", !!grp && grp.tap>=44);
   // four of them open a list; the last is a destination, so it has no chevron
@@ -250,7 +264,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   // below the fold and the tap looked like it had done nothing
   const abRow=await p.evaluate(()=>{
     const r=document.querySelector('[data-page="about"]'), b=document.getElementById("panelBody");
-    return {exists:!!r, label:r?r.querySelector(".lrlbl").textContent:"",
+    return {exists:!!r, label:r?r.querySelector(".tbl").textContent:"",
       tap:r?Math.round(r.getBoundingClientRect().height):0,
       anyOpenText:!!document.querySelector(".ppage .abouthd")}; });
   say("About is a row, not a fold", abRow.exists && abRow.label==="About this map");

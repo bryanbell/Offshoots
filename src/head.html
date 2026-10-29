@@ -552,8 +552,8 @@ body.pttl .pcard .navrow .navttl.ovttl{opacity:1;transform:none}
    the list separators use. A rule across the full width is the ham-fisted one these
    folds were given shaded blocks to avoid; the inset says "these belong together"
    without drawing a line through the panel. */
-.sect-learn{margin-top:26px;padding-top:7px;position:relative}
-.sect-learn::before,.fold + .fold::before{content:"";position:absolute;left:30px;right:0;top:0;
+.sect-learn{margin-top:24px;padding-top:0;position:relative}
+.fold + .fold::before{content:"";position:absolute;left:30px;right:0;top:0;
   height:.5px;background:var(--sep)}
 .fold + .fold{position:relative}
 .fold summary::-webkit-details-marker{display:none}
@@ -710,19 +710,19 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
    where the headings start, and a hairline doing the work the card edge used to. The
    hover fill still runs to the panel edges, so a row under the finger is the full width
    of the sheet even though its content lines up with the heading above it. */
-/* the group, not the row, is what bleeds: a button sized to its content would otherwise
-   shrink-wrap the moment width:100% came off, and the hairlines would end at the label */
-.picks,.listgrp,.reads{background:transparent;border-radius:0;overflow:visible;
+/* The picks are the one list that stays out of a box: a row of album covers is already a
+   run of hard-edged squares, and a card around them frames a frame. Everything else keeps
+   its grouped ground. The group, not the row, is what bleeds: a button sized to its
+   content would shrink-wrap the moment width:100% came off, and the hairlines would end
+   at the label. */
+.picks{background:transparent;border-radius:0;overflow:visible;
   margin-inline:calc(var(--ppad) * -1)}
-.picks>.pick,.listgrp .listrow,.reads .rd{border-radius:0;background:transparent;
+.picks>.pick{border-radius:0;background:transparent;
   padding-inline:var(--ppad);width:100%;margin-inline:0;box-sizing:border-box}
 .picks>.pick:first-child,.picks>.pick:last-child{border-radius:0}
 .pick:hover,.pick:focus-visible{background:color-mix(in srgb,var(--fg) 7%,transparent)}
-/* the hairlines keep their inset but now end at the panel margin, not a card edge */
-.picks>.pick+.pick::after,.reads .rd + .rd::after{right:0}
-/* .two draws a column rule instead, which needs the gutter back */
-.listgrp.two{margin-inline:0}
-.listgrp.two .listrow{padding-inline:12px}
+/* the picks' hairline ends at the panel margin, since there is no card edge to meet */
+.picks>.pick+.pick::after{right:0}
 /* the left column starts where the heading starts; the right keeps its inset so the
    column rule between them has air on both sides */
 .modelist.two .listrow:nth-child(odd){padding-left:0}
@@ -1156,8 +1156,26 @@ button.navttl[aria-expanded="true"] .lrcv{transform:rotate(180deg);opacity:1}
 .shbtn .shg{width:17px;height:17px;opacity:.75;vertical-align:0}
 .shbtn:hover .shg{opacity:1}
 .shbtn.round{width:var(--tap);height:var(--tap);border-radius:50%;flex:none}
-.shbtn.wide{display:flex;width:100%;margin:22px 0 0;min-height:var(--tap);
-  border-radius:13px;font:600 var(--t-body)/1 var(--f-body)}
+.shbtn.wide{display:flex;width:100%;margin:0;min-height:52px;
+  border-radius:14px;font:600 var(--t-body)/1 var(--f-body)}
+/* ---------- the tinted stack that ends the sheet ----------
+   Apple Maps finishes its sheet with a column of filled pills in the accent colour, icon
+   and label centred together. The two colophon rows and the share bar were three shapes
+   doing the same job, under a hairline that divided nothing. One shape now, no rule. */
+.btnstack{display:flex;flex-direction:column;gap:11px}
+.tbtn{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;gap:9px;width:100%;min-height:52px;border-radius:14px;
+  color:var(--accent);background:color-mix(in srgb,var(--accent) 15%,transparent);
+  font:600 var(--t-body)/1 var(--f-body);transition:background .15s}
+.tbtn:hover{background:color-mix(in srgb,var(--accent) 24%,transparent)}
+.tbtn:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+.tbtn .tbi{flex:none;display:grid;place-items:center}
+.tbtn .tbi svg{width:19px;height:19px}
+/* the share button joins them rather than sitting apart as a third shape */
+.btnstack .shbtn.wide{color:var(--accent);background:color-mix(in srgb,var(--accent) 15%,transparent)}
+.btnstack .shbtn.wide:hover{background:color-mix(in srgb,var(--accent) 24%,transparent)}
+.btnstack .shbtn.wide .shg{opacity:1}
+.btnstack .shbtn.wide.done{color:var(--ok);background:color-mix(in srgb,var(--ok) 20%,transparent)}
 .shbtn.done{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}
 .shbtn.done .shg{display:none}
 .shbtn .tick{display:none;flex:none;width:17px;height:17px}
