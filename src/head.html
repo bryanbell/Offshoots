@@ -780,11 +780,16 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 .modelist.two .listrow .lrico{width:26px;height:26px;border-radius:7px}
 .modelist.two .listrow .lrico svg{width:16px;height:16px}
 .modelist.two .listrow .lrlbl{font-size:var(--t-sub)}
-/* a hairline above every row but the first two, and down the gutter on every odd one */
-.modelist.two .listrow:nth-child(n+3)::before{content:"";position:absolute;left:12px;right:0;top:0;
+/* A hairline above every row but the first two. The gutter rule used to be drawn by each
+   odd row, inset top and bottom, which left a gap at every row boundary and read as a
+   dashed line. It is one line down the whole grid now, drawn by the grid itself. */
+.modelist.two{position:relative}
+.modelist.two::after{content:"";position:absolute;left:50%;top:0;bottom:0;width:.5px;
+  background:var(--sep);pointer-events:none}
+/* each column's rule spans its own column and meets the gutter line, so the two columns
+   read as one grid rather than two lists that happen to be side by side */
+.modelist.two .listrow:nth-child(n+3)::before{content:"";position:absolute;left:0;right:0;top:0;
   height:.5px;background:var(--sep)}
-.modelist.two .listrow:nth-child(odd)::after{content:"";position:absolute;right:0;top:9px;bottom:9px;
-  width:.5px;background:var(--sep)}
 
 /* and the page it opens carries the same colour on the title */
 .ppage .bigttl.withi{display:flex;align-items:flex-start;gap:11px}

@@ -116,6 +116,27 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   say("  nothing clipped at 390"+(all.clipped.length?": "+all.clipped.join(", "):""), all.clipped.length===0);
   say("  nor spilling out of the group", all.over===false);
   say("  each row "+all.h+"px, still a tap target", all.h>=44);
+  // the gutter rule was drawn by each odd row, inset top and bottom, which left a gap at
+  // every row boundary and read as a dashed line. One line down the whole grid now.
+  const rule=await p.evaluate(()=>{
+    const g=document.querySelector(".ppage:not([hidden]) .modelist.two");
+    const af=getComputedStyle(g,"::after"), gb=g.getBoundingClientRect();
+    const gaps=[...g.querySelectorAll(".listrow:nth-child(odd)")]
+      .filter(r=>getComputedStyle(r,"::after").content!=="none").length;
+    return {on:af.content!=="none", h:Math.round(parseFloat(af.height)||0),
+      grid:Math.round(gb.height), perRow:gaps,
+      // every row's own rule spans its whole column rather than stopping short
+      short:[...g.querySelectorAll(".listrow")].filter(r=>{
+        const bf=getComputedStyle(r,"::before");
+        return bf.content!=="none" && parseFloat(bf.left)>1;}).length};});
+  say("  one unbroken gutter rule, "+rule.h+"px of "+rule.grid,
+    rule.on && rule.h===rule.grid && rule.perRow===0);
+  say("  and each row's rule spans its column", rule.short===0);
+  // the page has a link of its own, the way About and How to install do
+  const share=await p.evaluate(()=>{const c=document.querySelector(".ppage:not([hidden]) .pagecopy");
+    return c?{hash:c.dataset.aboutcopy, lbl:(c.querySelector(".lbl")||{}).textContent}:null;});
+  say("  with a link to copy ("+(share&&share.lbl)+")",
+    !!share && share.hash==="modes" && /copy a link/i.test(share.lbl));
   await p.click("#panelBack"); await p.waitForTimeout(700);
 
   // ---------- how loud it is ----------

@@ -780,11 +780,16 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 .modelist.two .listrow .lrico{width:26px;height:26px;border-radius:7px}
 .modelist.two .listrow .lrico svg{width:16px;height:16px}
 .modelist.two .listrow .lrlbl{font-size:var(--t-sub)}
-/* a hairline above every row but the first two, and down the gutter on every odd one */
-.modelist.two .listrow:nth-child(n+3)::before{content:"";position:absolute;left:12px;right:0;top:0;
+/* A hairline above every row but the first two. The gutter rule used to be drawn by each
+   odd row, inset top and bottom, which left a gap at every row boundary and read as a
+   dashed line. It is one line down the whole grid now, drawn by the grid itself. */
+.modelist.two{position:relative}
+.modelist.two::after{content:"";position:absolute;left:50%;top:0;bottom:0;width:.5px;
+  background:var(--sep);pointer-events:none}
+/* each column's rule spans its own column and meets the gutter line, so the two columns
+   read as one grid rather than two lists that happen to be side by side */
+.modelist.two .listrow:nth-child(n+3)::before{content:"";position:absolute;left:0;right:0;top:0;
   height:.5px;background:var(--sep)}
-.modelist.two .listrow:nth-child(odd)::after{content:"";position:absolute;right:0;top:9px;bottom:9px;
-  width:.5px;background:var(--sep)}
 
 /* and the page it opens carries the same colour on the title */
 .ppage .bigttl.withi{display:flex;align-items:flex-start;gap:11px}
@@ -4506,8 +4511,8 @@ function openShareSheet(btn){
 // every style has a URL: the page plus #id, which boot() already reads back
 function styleURL(id){ return location.origin + location.pathname + location.search + "#" + encodeURIComponent(id); }
 // "about" is the one hash that is not a style id
-const ABOUT_HASH="about", INSTALL_HASH="install";
-const FOLDS={[ABOUT_HASH]:".aboutwrap", [INSTALL_HASH]:".installwrap"};
+const ABOUT_HASH="about", INSTALL_HASH="install", MODES_HASH="modes";
+const FOLDS={[ABOUT_HASH]:".aboutwrap", [INSTALL_HASH]:".installwrap", [MODES_HASH]:".modelist"};
 function foldURL(hash){ return location.origin + location.pathname + location.search + "#" + hash; }
 function openAbout(scroll,hash){
   // these two used to be folds on the root panel; they are pages now, so the hash that
@@ -4868,7 +4873,7 @@ const PAGES_DEF={
   },
   modes:()=>({title:"Ways in",
     lede:"Twenty-six moods, places and tasks, quietest first. Each one opens a dozen styles that suit it. The circles on the way in reorder themselves around the ones you open; this list does not.",
-    html:modeListHtml()}),
+    html:modeListHtml()+copyRow("modes")}),
   roots:()=>({title:"Roots",
     lede:"Styles with nothing before them here. Everything else on the map descends from these.",
     html:styleRows(firstLevel(),x=>x.year<1950?x.disp:x.year)}),
@@ -4898,6 +4903,13 @@ const PAGES_DEF={
   install:()=>({title:"How to install it", html:`<div class="about">${openInRow()}<p>Offshoots is a web page, so there is nothing to download and no app store. Every platform below can pin it to a home screen or dock, where it opens full screen with no browser chrome around it.</p><h4 class="subh">iPhone and iPad</h4><ol class="steps"><li>Open this page in <b>Safari</b>. Chrome and Firefox on iOS cannot do this.</li><li>Tap the <b>Share</b> button, the square with an arrow coming out of it: ${SHAREGLYPH}${shareStep()}</li><li>Scroll down the list and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li></ol><h4 class="subh">Android</h4><ol class="steps"><li>Open this page in <b>Chrome</b>.</li><li>Tap the <b>three dots</b> at the top right.</li><li>Tap <b>Add to Home screen</b>, then <b>Install</b> or <b>Add</b>. Samsung Internet and Firefox have the same item in their own menus.</li></ol><h4 class="subh">Mac</h4><ol class="steps"><li>In <b>Safari</b>, choose <b>File &rsaquo; Add to Dock</b>, then <b>Add</b>. It lands in the Dock and opens in its own window.</li><li>In <b>Chrome</b>, the same thing is under the three dots at <b>Cast, Save and Share &rsaquo; Install page as app</b>.</li></ol><h4 class="subh">Windows</h4><ol class="steps"><li>In <b>Edge</b> or <b>Chrome</b>, look for the <b>install icon</b> at the right-hand end of the address bar, a monitor with an arrow in it, and click it.</li><li>No icon there? Open the <b>three dots</b> menu and choose <b>Apps &rsaquo; Install this site as an app</b> in Edge, or <b>Cast, Save and Share &rsaquo; Install page as app</b> in Chrome.</li><li>Tick <b>Pin to taskbar</b> when it offers, and it behaves like any other app.</li></ol><h4 class="subh">What you get</h4><p>The whole map is a single file, so once it has loaded it keeps working without a connection. The playlist links still need one, since those open Apple Music or Spotify.</p><button type="button" class="aboutcopy" data-aboutcopy="install"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 11.6a3.2 3.2 0 0 0 4.6 0l2.6-2.6a3.2 3.2 0 0 0-4.6-4.6l-1 1"/><path d="M11.6 8.4a3.2 3.2 0 0 0-4.6 0L4.4 11a3.2 3.2 0 0 0 4.6 4.6l1-1"/></svg><span class="lbl">Copy a link to this</span></button></div>`})
 };
 const PAGEICON={roots:LRICON.roots,top:LRICON.top,about:"<circle cx=\"10\" cy=\"10\" r=\"7.4\"/><path d=\"M10 9.2v4.4\"/><path d=\"M10 6.5h.01\"/>",install:"<path d=\"M10 3v8.6\"/><path d=\"M6.4 8.4L10 12l3.6-3.6\"/><path d=\"M4.2 14.2v1.4a1.4 1.4 0 0 0 1.4 1.4h8.8a1.4 1.4 0 0 0 1.4-1.4v-1.4\"/>"};
+// the link that puts a page's own URL on the clipboard, which About and How to install
+// already ended with. Any page in FOLDS can be opened straight from that link.
+function copyRow(hash){
+  return `<button type="button" class="aboutcopy pagecopy" data-aboutcopy="${esc(hash)}">`
+    + `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 11.6a3.2 3.2 0 0 0 4.6 0l2.6-2.6a3.2 3.2 0 0 0-4.6-4.6l-1 1"/><path d="M11.6 8.4a3.2 3.2 0 0 0-4.6 0L4.4 11a3.2 3.2 0 0 0 4.6 4.6l1-1"/></svg>`
+    + `<span class="lbl">Copy a link to this</span></button>`;
+}
 function pageRow(key,label,count,title){
   return `<button type="button" class="listrow" data-page="${key}"${title?` title="${esc(title)}" aria-label="${esc(title)}"`:""}>`
     + `<i class="lrico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${PAGEICON[key]||""}</svg></i>`

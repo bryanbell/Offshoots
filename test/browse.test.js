@@ -117,12 +117,16 @@ const state=p=>p.evaluate(()=>{
   say("no page errors", p._errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
 
   // ---------- a deep link lands on the page itself ----------
-  const dl=await fresh(b,M,"#install");
-  await dl.waitForTimeout(700);
-  const d=await state(dl);
-  say("#install lands on the install page", d.key==="install");
-  say("  with a way back to Explore ("+d.backLbl+")", d.back && d.backLbl==="Explore");
-  await dl.close();
+  for(const [hash,key,rows] of [["#install","install",0],["#about","about",0],["#modes","modes",26]]){
+    const dl=await fresh(b,M,hash);
+    await dl.waitForTimeout(900);
+    const d=await state(dl);
+    say(hash+" lands on its own page", d.key===key);
+    say("  with a way back to Explore ("+d.backLbl+")", d.back && d.backLbl==="Explore");
+    if(rows) say("  carrying all "+rows,
+      (await dl.$$eval('.ppage:not([hidden]) .listrow',e=>e.length))===rows);
+    await dl.close();
+  }
 
   await b.close();
 })();
