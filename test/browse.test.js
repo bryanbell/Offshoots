@@ -35,7 +35,7 @@ const state=p=>p.evaluate(()=>{
   let p=await fresh(b,M);
   const rows=await p.$$eval(".sect-browse .listgrp .listrow .lrlbl",e=>e.map(x=>x.textContent));
   say("three ways in: "+rows.join(" / "), rows.join("/")==="Roots/Most influential/Surprise me");
-  const col=await p.$$eval(".sect-learn [data-page] .tbl",e=>e.map(x=>x.textContent));
+  const col=await p.$$eval(".sect-learn [data-page] .lrlbl",e=>e.map(x=>x.textContent));
   say("and a colophon of two: "+col.join(" / "), col.join("/")==="About this map/How to install it");
   say("nothing is pushed at rest", (await state(p)).pages===1);
   say("and no menu is left over from the old build", (await p.$$(".navmenu .brmenu, [data-menu='roots']")).length===0);

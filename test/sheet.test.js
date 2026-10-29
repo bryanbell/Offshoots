@@ -154,9 +154,9 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   await p.click("#sheetpull"); await p.waitForTimeout(700);
   say("  which does", await p.evaluate(()=>!document.body.classList.contains("sheetgone")));
   await ensure(); await p.waitForTimeout(500);
-  await p.$eval("#panelBody .shbtn.wide",e=>e.scrollIntoView({block:"center"})); await p.waitForTimeout(300);
-  await p.click("#panelBody .shbtn.wide"); await p.waitForTimeout(400);
-  say("the button at the foot shares", await p.evaluate(()=>window.__copied.length===1));
+  await p.$eval("#panelBody .shbtn",e=>e.scrollIntoView({block:"center"})); await p.waitForTimeout(300);
+  await p.click("#panelBody .shbtn"); await p.waitForTimeout(400);
+  say("the row at the foot shares", await p.evaluate(()=>window.__copied.length===1));
   say("and the sheet stayed open", await open());
   await p.waitForTimeout(1800);
   // the title is inert: it drags and nothing else

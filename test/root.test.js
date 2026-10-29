@@ -29,32 +29,32 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("  and none are left loose", (await p.$$eval("#panelBody > .more > [data-page]",e=>e.length))===0);
   // they are about the map rather than part of it, so they read as a colophon: no filled
   // cards, an icon each, and an inset hairline above the group instead of a box around it
-  // About, How to install and Share were a pair of list rows under a hairline plus a
-  // button of a different shape. They are one stack of tinted pills now, the shape Apple
-  // Maps ends its sheet with, and the rule that divided nothing has gone with them.
+  // About, How to install and Share are one grouped list at the foot of the panel: the
+  // share action is a row like the other two, and says a link was copied by turning its
+  // own tile green rather than by being a different shape.
   const col=await p.evaluate(()=>{ const sec=document.querySelector(".sect-learn");
-    const btns=[...sec.querySelectorAll(".btnstack > button")];
+    const grp=sec.querySelector(".listgrp"), rows=[...sec.querySelectorAll(".listrow")];
     const body=document.getElementById("panelBody").getBoundingClientRect();
-    const rule=getComputedStyle(sec,"::before");
-    const acc=getComputedStyle(document.documentElement).getPropertyValue("--accent").trim();
-    return {n:btns.length,
-      labels:btns.map(f=>(f.querySelector(".tbl,.shlbl")||{}).textContent||""),
-      tinted:btns.every(f=>{const cs=getComputedStyle(f);
-        return !/rgba\(0, 0, 0, 0\)/.test(cs.backgroundColor) && /0\.0392157|10, 132, 255/.test(cs.color);}),
-      icons:btns.every(f=>!!f.querySelector("svg")),
-      full:btns.every(f=>Math.round(f.getBoundingClientRect().width)===Math.round(btns[0].getBoundingClientRect().width)),
-      tap:Math.min(...btns.map(f=>Math.round(f.getBoundingClientRect().height))),
-      ruleOn:rule.content!=="none",
-      bleeds:btns.concat([sec]).some(e=>{ const cs=getComputedStyle(e);
+    return {n:rows.length,
+      labels:rows.map(f=>(f.querySelector(".lrlbl")||{}).textContent||""),
+      boxed:!/rgba\(0, 0, 0, 0\)/.test(getComputedStyle(grp).backgroundColor)
+        && parseFloat(getComputedStyle(grp).borderRadius)>=10,
+      icons:rows.every(f=>!!f.querySelector(".lrico svg")),
+      full:rows.every(f=>Math.round(f.getBoundingClientRect().width)
+        ===Math.round(rows[0].getBoundingClientRect().width)),
+      tap:Math.min(...rows.map(f=>Math.round(f.getBoundingClientRect().height))),
+      share:!!sec.querySelector(".listrow[data-share]"),
+      bleeds:rows.concat([sec]).some(e=>{ const cs=getComputedStyle(e);
         return (parseFloat(cs.borderTopWidth)||0)>0
           && e.getBoundingClientRect().width>=body.width*0.9; })}; });
-  say("three tinted buttons: "+col.labels.join(" / "),
+  say("three rows in one box: "+col.labels.join(" / "),
     col.n===3 && col.labels.join("/")==="About this map/How to install it/Share this app");
-  say("  all in the accent colour on its own tint", col.tinted);
+  say("  on a grouped ground with a radius", col.boxed);
   say("  an icon on each, all the same width, "+col.tap+"px tall",
     col.icons && col.full && col.tap>=44);
-  say("  no rule above them any more", col.ruleOn===false);
+  say("  the share action among them, not beside them", col.share);
   say("  and nothing bleeding across the panel", col.bleeds===false);
+
   // "Start here" is the style you are handed; the 17 are where the music starts. Both
   // were called start. The list row took the word the axis already prints over that region.
   const starts=await p.evaluate(()=>({
@@ -264,7 +264,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   // below the fold and the tap looked like it had done nothing
   const abRow=await p.evaluate(()=>{
     const r=document.querySelector('[data-page="about"]'), b=document.getElementById("panelBody");
-    return {exists:!!r, label:r?r.querySelector(".tbl").textContent:"",
+    return {exists:!!r, label:r?r.querySelector(".lrlbl").textContent:"",
       tap:r?Math.round(r.getBoundingClientRect().height):0,
       anyOpenText:!!document.querySelector(".ppage .abouthd")}; });
   say("About is a row, not a fold", abRow.exists && abRow.label==="About this map");

@@ -60,7 +60,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   // in the left track, where back sits on every other panel
   say("overview title is a heading below the row", await d.$eval(".ovcard .bigttl",e=>e.tagName==="H1"));
   const rb=await d.evaluate(()=>{ const card=document.querySelector(".ovcard"),
-    sh=document.querySelector("#panelBody .shbtn.wide"), row=card.querySelector(".navrow");
+    sh=document.querySelector("#panelBody .shbtn"), row=card.querySelector(".navrow");
     if(!sh) return null;
     const sr=sh.getBoundingClientRect(), body=document.getElementById("panelBody");
     return {label:sh.querySelector(".shlbl").textContent, width:Math.round(sr.width),
@@ -70,19 +70,20 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
       last:sh.parentNode.lastElementChild===sh,
       only:document.querySelectorAll("#panelBody [data-share]").length}; });
   say("the root shares the same way a style does ("+rb.label+")", rb.label==="Share this app");
+  // on the overview it is a row in the list that ends the panel, not a button of its own
   say("  full width, "+rb.width+" of "+rb.room, rb.width>=rb.room-48);
-  say("  in the flow at the foot of the card", rb.pos==="static" && rb.last);
+  say("  the last row of the colophon list", rb.last && rb.pos!=="absolute" && rb.pos!=="fixed");
   say("  nothing round left in the header", rb.round===0 && rb.inHeader===0);
   say("  and it is the only share control here", rb.only===1);
-  await d.$eval("#panelBody .shbtn.wide",e=>e.scrollIntoView({block:"center"})); await d.waitForTimeout(250);
-  await d.click("#panelBody .shbtn.wide"); await d.waitForTimeout(250);
+  await d.$eval("#panelBody .shbtn",e=>e.scrollIntoView({block:"center"})); await d.waitForTimeout(250);
+  await d.click("#panelBody .shbtn"); await d.waitForTimeout(250);
   const u=await d.evaluate(()=>window.__copied[0]||"");
   say("copied the map link (no #)", !u.includes("#") ? true : u);
   say("  and says so in its label",
-    await d.$eval("#panelBody .shbtn.wide .shlbl",e=>e.textContent)==="Link copied");
+    await d.$eval("#panelBody .shbtn .shlbl",e=>e.textContent)==="Link copied");
   await d.waitForTimeout(1700);
   say("  then goes back to the label",
-    await d.$eval("#panelBody .shbtn.wide .shlbl",e=>e.textContent)==="Share this app");
+    await d.$eval("#panelBody .shbtn .shlbl",e=>e.textContent)==="Share this app");
   // the title on the map is a heading, not a second way to do the same thing
   const mh=await d.evaluate(()=>{ const h=document.querySelector("#maphead .mh");
     return {tag:h.tagName, share:document.querySelectorAll("#maphead [data-share]").length,
@@ -110,10 +111,10 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   say("and shares nothing by itself", (await p.evaluate(()=>window.__copied.length))===0);
   await p.keyboard.press("Escape"); await p.waitForTimeout(250);
   await p.click("#grab").catch(()=>{}); await p.waitForTimeout(600);
-  await p.$eval(".shbtn.wide",e=>e.scrollIntoView({block:"center"})); await p.waitForTimeout(300);
-  await p.click(".shbtn.wide"); await p.waitForTimeout(300);
-  say("the button at the foot does the sharing", (await p.evaluate(()=>window.__copied.length))===1);
-  const tb=await p.$eval(".shbtn.wide",e=>[Math.round(e.getBoundingClientRect().height)]);
+  await p.$eval("#panelBody .shbtn",e=>e.scrollIntoView({block:"center"})); await p.waitForTimeout(300);
+  await p.click("#panelBody .shbtn"); await p.waitForTimeout(300);
+  say("the control at the foot does the sharing", (await p.evaluate(()=>window.__copied.length))===1);
+  const tb=await p.$eval("#panelBody .shbtn",e=>[Math.round(e.getBoundingClientRect().height)]);
   say("tap target "+tb[0]+"px tall", tb[0]>=44);
   // a long name must not let the tap area reach back on one side or the pair on the other
   await p.goto(URL+"#skapunk"); await p.waitForTimeout(100);

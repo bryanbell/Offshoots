@@ -1161,24 +1161,29 @@ button.navttl[aria-expanded="true"] .lrcv{transform:rotate(180deg);opacity:1}
 .shbtn.round{width:var(--tap);height:var(--tap);border-radius:50%;flex:none}
 .shbtn.wide{display:flex;width:100%;margin:0;min-height:52px;
   border-radius:14px;font:600 var(--t-body)/1 var(--f-body)}
-/* ---------- the tinted stack that ends the sheet ----------
-   Apple Maps finishes its sheet with a column of filled pills in the accent colour, icon
-   and label centred together. The two colophon rows and the share bar were three shapes
-   doing the same job, under a hairline that divided nothing. One shape now, no rule. */
-.btnstack{display:flex;flex-direction:column;gap:11px}
-.tbtn{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;
-  justify-content:center;gap:9px;width:100%;min-height:52px;border-radius:14px;
-  color:var(--accent);background:color-mix(in srgb,var(--accent) 15%,transparent);
-  font:600 var(--t-body)/1 var(--f-body);transition:background .15s}
-.tbtn:hover{background:color-mix(in srgb,var(--accent) 24%,transparent)}
-.tbtn:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
-.tbtn .tbi{flex:none;display:grid;place-items:center}
-.tbtn .tbi svg{width:19px;height:19px}
-/* the share button joins them rather than sitting apart as a third shape */
-.btnstack .shbtn.wide{color:var(--accent);background:color-mix(in srgb,var(--accent) 15%,transparent)}
-.btnstack .shbtn.wide:hover{background:color-mix(in srgb,var(--accent) 24%,transparent)}
-.btnstack .shbtn.wide .shg{opacity:1}
-.btnstack .shbtn.wide.done{color:var(--ok);background:color-mix(in srgb,var(--ok) 20%,transparent)}
+/* ---------- the three things at the foot of the panel ----------
+   About, How to install and Share were a pair of list rows and a button of a third shape,
+   all doing the same job. One grouped list now: the share action is a row like the other
+   two, and says a link was copied by turning its own tile green. */
+.sect-learn .listgrp{margin-top:2px}
+/* .shbtn comes later in the sheet than .listrow and would otherwise win: it is an
+   inline-flex pill that centres its label and paints its own ground, which inside a
+   grouped list shrink-wraps to the text and sits on a box of its own */
+.listgrp .listrow.shbtn{display:flex;width:100%;justify-content:flex-start;
+  background:transparent;border-radius:0;gap:13px;color:var(--fg);
+  min-height:58px;padding-block:0;font:400 var(--t-body)/1.2 var(--f-body)}
+@media (min-width:900px) and (hover:hover) and (pointer:fine){
+  .listgrp .listrow.shbtn{min-height:46px} }
+.listgrp .listrow.shbtn:hover{background:color-mix(in srgb,var(--fg) 7%,transparent)}
+.shrow .lrico{position:relative}
+.shrow .lrico svg{width:18px;height:18px;opacity:.9}
+.shrow .lrico .tick{position:absolute;inset:0;margin:auto;opacity:0;transform:scale(.7);
+  transition:opacity .16s,transform .16s cubic-bezier(.32,.72,0,1)}
+.shrow.done .lrico{background:color-mix(in srgb,var(--ok) 26%,transparent);color:var(--ok)}
+.shrow.done .lrico .shg{opacity:0}
+.shrow.done .lrico .tick{opacity:1;transform:none}
+.shrow.done .lrlbl{color:var(--ok)}
+@media (prefers-reduced-motion:reduce){ .shrow .lrico .tick{transition:none} }
 .shbtn.done{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}
 .shbtn.done .shg{display:none}
 .shbtn .tick{display:none;flex:none;width:17px;height:17px}
