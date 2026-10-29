@@ -33,7 +33,7 @@ const state=p=>p.evaluate(()=>{
 
   // ---------- mobile ----------
   let p=await fresh(b,M);
-  const rows=await p.$$eval(".listgrp .listrow .lrlbl",e=>e.map(x=>x.textContent));
+  const rows=await p.$$eval(".sect-browse .listgrp .listrow .lrlbl",e=>e.map(x=>x.textContent));
   say("three ways in: "+rows.join(" / "), rows.join("/")==="Roots/Most influential/Surprise me");
   const col=await p.$$eval(".sect-learn [data-page] .lrlbl",e=>e.map(x=>x.textContent));
   say("and a colophon of two: "+col.join(" / "), col.join("/")==="About this map/How to install it");

@@ -42,7 +42,7 @@ const EXEMPT="\\b(cnt|vt|ck|dot|sw|mi|cv|shg|upchev|svcchev|pkgo|plgo)\\b";
 // The mode chips are set 4px under the tap floor on purpose: they sit in a dense grid of
 // 24 where the gaps between them are part of the target, and the height was asked for.
 // Named rather than waived silently, so the exception stays visible.
-const SHORT=/^(chip|modechip)$/;
+const SHORT=/^(chip|lrlbl)$/;
 
 const readType=(p,scope)=>p.evaluate(([ex,sc])=>{
   const re=new RegExp(ex), out=[];
@@ -135,7 +135,7 @@ const readRules=(p)=>p.evaluate(()=>{
     if(rules.length) bad++;
 
     // open a list and confirm it is one grouped block with inset separators
-    await p.click('[data-mk="coffee"]').catch(()=>{});
+    await p.click('[data-mode="coffee"]').catch(()=>{});
     await p.waitForTimeout(700);
     const grp=await p.evaluate(()=>{
       const ps=document.querySelector(".picks"); if(!ps) return null;
@@ -170,7 +170,10 @@ const readRules=(p)=>p.evaluate(()=>{
         +chrome.map(([k,v])=>k+" "+v).join(", ")+")", smallChrome.length===0);
     if(!(mp.n>400 && mp.min>=floor-0.01) || mp.max-mp.min<2 || smallChrome.length) bad++;
 
-    // 2. a pushed page, which is where the long lists live
+    // 2. a pushed page, which is where the long lists live. The pick list above is a
+    // pushed page too, so it has to be popped before the row under it can be reached.
+    await p.click("#panelBack").catch(()=>{});
+    await p.waitForTimeout(450);
     await p.click('[data-page="roots"]').catch(()=>{});
     await p.waitForTimeout(500);
     const pg=await p.$('.ppage[data-p="roots"]');

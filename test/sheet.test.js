@@ -65,9 +65,9 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
 
   // and the things that must still not close it
   await ensure(); await setTop(0); await p.waitForTimeout(250);
-  const chip=await p.evaluate(()=>{const c=document.querySelector(".modechip"); const r=c.getBoundingClientRect(); return [Math.round(r.left+r.width/2),Math.round(r.top+r.height/2)];});
+  const chip=await p.evaluate(()=>{const c=document.querySelector(".modelist .listrow"); const r=c.getBoundingClientRect(); return [Math.round(r.left+r.width/2),Math.round(r.top+r.height/2)];});
   await swipe(chip[0],chip[1],-160,30); await p.waitForTimeout(350);
-  say("a sideways swipe over a chip leaves it open", await open());
+  say("a sideways swipe over a mode row leaves it open", await open());
   await setTop(0); await p.waitForTimeout(150);
   await swipe(195,mid,0,30); await p.waitForTimeout(350);
   say("a small downward nudge is not a pull", await open());
@@ -220,7 +220,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   say("and frosted over it", /blur/.test(tint.bf) && /rgba|\/ 0\./.test(tint.bg));
   await tp.close();
   // 1. a style chosen with the sheet open must land in the band still showing
-  await p.click('[data-mk="winddown"]'); await p.waitForTimeout(900);
+  await p.click('[data-mode="winddown"]'); await p.waitForTimeout(900);
   await p.click(".picks .pick"); await p.waitForTimeout(1200);
   const cur=await p.evaluate(()=>{const n=document.querySelector("#chart .n.cur");
     if(!n) return null; const r=n.getBoundingClientRect(), pan=document.getElementById("panel").getBoundingClientRect();

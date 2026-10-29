@@ -22,16 +22,22 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
 
   // overview with a mode open -> a style -> back
   await p.click("#grab").catch(()=>{}); await p.waitForTimeout(400);
-  await p.click('[data-mk="winddown"]'); await p.waitForTimeout(500);
-  say("still hidden after only opening a mode", (await shown(p))===false);
+  await p.click('[data-mode="winddown"]'); await p.waitForTimeout(500);
+  // a mode is a pushed page now, and a pushed page owns the back button: it points at
+  // the list you came from rather than at a style you visited
+  say("a mode page takes the button over", await shown(p));
+  say("naming the list under it", (await label(p))==="Back to Explore");
   const first=await p.$eval(".picks .pick",e=>e.dataset.go);
   await p.click(".picks .pick"); await p.waitForTimeout(600);
   say("appears after picking "+first, await shown(p));
   say("label", await label(p));
   await p.click("#panelBack"); await p.waitForTimeout(600);
   say("back lands on the overview", (await hash(p))==="");
-  say("the mode is still open", await p.$eval(".modettl",e=>e.textContent));
-  say("that chip is still lit", await p.$eval(".modechip.on",e=>e.textContent.trim()));
+  // the stack does not survive a style: back from one lands on a clean overview, with
+  // the ways in listed again rather than the page you came through
+  say("the overview is back to its own root",
+    (await p.$$(".ppage:not([data-p='root'])")).length===0);
+  say("with the ways in listed again", (await p.$$(".modelist .listrow")).length>0);
   say("hidden again at the start of the trail", (await shown(p))===false);
 
   // a four-deep lineage walk, then back out of it one at a time
@@ -134,7 +140,7 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
     say("  and not there at all", k.shown===false);
     say("  so nothing covers the strip when there is nowhere to go", k.shown===false); }
   await p.click("#grab").catch(()=>{}); await p.waitForTimeout(400);
-  await p.click('[data-mk="winddown"]'); await p.waitForTimeout(500);
+  await p.click('[data-mode="winddown"]'); await p.waitForTimeout(500);
   await p.click(".picks .pick"); await p.waitForTimeout(600);
   say("home shown one step out", await home(p));
   const hwalk=["hardcore","thrash"];
@@ -172,7 +178,7 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
   say("back is cleared away with it", (await shown(p))===false);
   // and the trail really is empty, not merely hidden: the next move starts from the map
   await p.click("#grab").catch(()=>{}); await p.waitForTimeout(400);
-  await p.click('[data-mk="winddown"]'); await p.waitForTimeout(500);
+  await p.click('[data-mode="winddown"]'); await p.waitForTimeout(500);
   await p.click(".picks .pick"); await p.waitForTimeout(600);
   say("the next step starts a fresh trail", await label(p));
   say("not the walk from before", (await label(p))==="Back to the map");

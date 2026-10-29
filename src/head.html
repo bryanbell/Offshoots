@@ -637,6 +637,41 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 .plist .listrow .dot{flex:none;width:10px;height:10px;border-radius:50%;margin-left:4px}
 .plist .listrow{min-height:50px}
 /* the colophon is about the map rather than part of it, so its rows carry no card */
+/* the mode list: the energy colour that used to fill a chip now tints its icon tile */
+.modelist .listrow .lrico{background:color-mix(in srgb,var(--lvc) 24%,transparent);color:var(--lvc)}
+.moderow{--lvc:#9aa0a6}
+.moderow.lv1{--lvc:#7aa2f7}
+.moderow.lv2{--lvc:#5bbda4}
+.moderow.lv3{--lvc:#e8c24a}
+.moderow.lv4{--lvc:#ee8f4e}
+.moderow.lv5{--lvc:#e2604a}
+.moderow .lrico svg{width:18px;height:18px}
+/* twenty-five rows is a long column, so they run two abreast: the hairlines turn into a
+   grid, and the chevron goes because the label needs every pixel at half width */
+.modelist.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.modelist.two .listrow{padding:0 12px;gap:10px;min-height:52px;position:relative}
+.modelist.two .listrow .lrcv{display:none}
+.modelist.two .listrow .lrico{width:26px;height:26px;border-radius:7px}
+.modelist.two .listrow .lrico svg{width:16px;height:16px}
+.modelist.two .listrow .lrlbl{font-size:var(--t-sub)}
+/* a hairline above every row but the first two, and down the gutter on every odd one */
+.modelist.two .listrow:nth-child(n+3)::before{content:"";position:absolute;left:12px;right:0;top:0;
+  height:.5px;background:var(--sep)}
+.modelist.two .listrow:nth-child(odd)::after{content:"";position:absolute;right:0;top:9px;bottom:9px;
+  width:.5px;background:var(--sep)}
+
+/* and the page it opens carries the same colour on the title */
+.ppage .bigttl.withi{display:flex;align-items:flex-start;gap:11px}
+.ppage .bigttl.withi .mn{display:block;min-width:0}
+.ppage .bigttl .pgi{flex:none;margin-top:3px;display:grid;place-items:center;width:34px;height:34px;
+  border-radius:10px;margin-top:3px;background:color-mix(in srgb,var(--lvc) 24%,transparent);color:var(--lvc)}
+.ppage .bigttl .pgi svg{width:19px;height:19px}
+.ppage{--lvc:#9aa0a6}
+.ppage.lv1{--lvc:#7aa2f7}
+.ppage.lv2{--lvc:#5bbda4}
+.ppage.lv3{--lvc:#e8c24a}
+.ppage.lv4{--lvc:#ee8f4e}
+.ppage.lv5{--lvc:#e2604a}
 .colrows{display:block}
 .colrows .listrow{background:transparent;padding-left:0;min-height:46px}
 .colrows .listrow:hover{background:color-mix(in srgb,var(--fg) 5%,transparent);border-radius:10px}
