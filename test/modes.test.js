@@ -59,6 +59,23 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
       share:Math.round(100*g[0].getBoundingClientRect().width
         /g[0].closest(".mco").getBoundingClientRect().width)};});
   say("  every glyph is solid, not stroked", gl.n>0 && gl.filled && gl.paths);
+  // Remix Icon is Apache 2.0, which wants its notice carried with the work. The map is
+  // one file that anyone can save, so the notice lives on the About page inside it.
+  say("  and the set it came from is credited", await p.evaluate(async()=>{
+    document.querySelector('[data-page="about"]').click();
+    await new Promise(r=>setTimeout(r,700));
+    const t=(document.querySelector(".ppage:not([hidden])")||{}).textContent||"";
+    const ok=/Remix Icon/.test(t) && /Apache License 2\.0/.test(t);
+    document.getElementById("panelBack").click();
+    await new Promise(r=>setTimeout(r,700));
+    return ok;}));
+  // no glyph may be worn by two modes: a shared icon makes two rows look like one
+  say("  no two modes wear the same glyph", await p.evaluate(()=>{
+    const seen=new Set();
+    for(const x of document.querySelectorAll(".mcirc .mco svg")){
+      const k=x.innerHTML.replace(/\s+/g," ").trim();
+      if(seen.has(k)) return false; seen.add(k);
+    } return seen.size===26;}));
   say("  filling "+gl.share+"% of its circle", gl.share>=45 && gl.share<=60);
   // a mouse has no momentum of its own, so the row carries a flick after the button is up
   const fling=await p.evaluate(async()=>{
