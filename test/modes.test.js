@@ -215,6 +215,20 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   say("Focus pushes a page ("+pg.title+")", pg.key==="mode:focus" && pg.title && pg.title.length>0);
   say("  one page shown of "+pg.pages, pg.shown===1);
   say("  with its own icon and its why-text", pg.icon && pg.lede && pg.lede.length>20);
+  // the mark on the page is the circle you tapped, arrived at: a filled circle in the
+  // same colour, the size of the cover art in the list underneath it
+  const mark=await p.evaluate(()=>{
+    const i=document.querySelector(".ppage:not([hidden]) .pgi");
+    const art=document.querySelector(".ppage:not([hidden]) .pick img.pcov,.ppage:not([hidden]) .pick .pcovph");
+    if(!i) return null;
+    const q=i.getBoundingClientRect(), cs=getComputedStyle(i);
+    return {w:Math.round(q.width), round:/50%|9999px/.test(cs.borderRadius)
+        && Math.abs(q.width-q.height)<=1,
+      filled:!/rgba\(0, 0, 0, 0\)/.test(cs.backgroundColor) || /gradient/.test(cs.backgroundImage),
+      art:art?Math.round(art.getBoundingClientRect().width):0};});
+  say("  a circle of "+(mark&&mark.w)+"px, filled", !!mark && mark.round && mark.filled);
+  say("  the size of the cover art below it ("+(mark&&mark.art)+")",
+    !!mark && mark.art>0 && Math.abs(mark.w-mark.art)<=2);
   say("  coloured by how loud it is (lv"+pg.lvc+")", /^[1-5]$/.test(pg.lvc||""));
   say("  listing "+pg.picks+" picks", pg.picks===12);
   say("  starting at the top", pg.top===0);

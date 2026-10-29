@@ -793,17 +793,25 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
   height:.5px;background:var(--sep)}
 
 /* and the page it opens carries the same colour on the title */
-.ppage .bigttl.withi{display:flex;align-items:flex-start;gap:11px}
+/* The title mark is the circle you tapped, arrived at: same fill, same colour, the size
+   of the cover art in the list below it, so the page opens on the thing you pressed. */
+.ppage .bigttl.withi{display:flex;align-items:center;gap:14px}
 .ppage .bigttl.withi .mn{display:block;min-width:0}
-.ppage .bigttl .pgi{flex:none;margin-top:3px;display:grid;place-items:center;width:34px;height:34px;
-  border-radius:10px;margin-top:3px;background:color-mix(in srgb,var(--lvc) 24%,transparent);color:var(--lvc)}
-.ppage .bigttl .pgi svg{width:19px;height:19px}
-.ppage{--lvc:#9aa0a6}
-.ppage.lv1{--lvc:#7aa2f7}
-.ppage.lv2{--lvc:#5bbda4}
-.ppage.lv3{--lvc:#e8c24a}
-.ppage.lv4{--lvc:#ee8f4e}
-.ppage.lv5{--lvc:#e2604a}
+.ppage .bigttl .pgi{flex:none;display:grid;place-items:center;width:76px;height:76px;
+  border-radius:50%;color:#fff;
+  background:linear-gradient(160deg,color-mix(in srgb,var(--lvf) 80%,#fff) 0%,var(--lvf) 55%,
+    color-mix(in srgb,var(--lvf) 74%,#000) 100%);
+  box-shadow:0 1px 3px rgb(0 0 0 / .26)}
+.ppage .bigttl .pgi svg{width:36px;height:36px}
+@media (max-width:420px){ .ppage .bigttl.withi{gap:12px} }
+/* --lvc tints a small tile; --lvf fills a circle under a white glyph, the darker pair the
+   browse circles already use */
+.ppage{--lvc:#9aa0a6;--lvf:#6b6b73}
+.ppage.lv1{--lvc:#7aa2f7;--lvf:#4a6fc4}
+.ppage.lv2{--lvc:#5bbda4;--lvf:#2f8c73}
+.ppage.lv3{--lvc:#e8c24a;--lvf:#a8821c}
+.ppage.lv4{--lvc:#ee8f4e;--lvf:#bd5a1e}
+.ppage.lv5{--lvc:#e2604a;--lvf:#c23f2b}
 .colrows{display:block}
 .colrows .listrow{background:transparent;padding-left:0;min-height:46px}
 .colrows .listrow:hover{background:color-mix(in srgb,var(--fg) 5%,transparent);border-radius:10px}
