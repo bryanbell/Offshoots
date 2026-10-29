@@ -32,27 +32,36 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   // About, How to install and Share are one grouped list at the foot of the panel: the
   // share action is a row like the other two, and says a link was copied by turning its
   // own tile green rather than by being a different shape.
+  // About and How to install open something, so they are rows in a box. Share acts, so
+  // it is a button under the box, and the one blue thing on the page: a family skin
+  // repaints --accent on a style panel, which is why this blue is its own token.
   const col=await p.evaluate(()=>{ const sec=document.querySelector(".sect-learn");
     const grp=sec.querySelector(".listgrp"), rows=[...sec.querySelectorAll(".listrow")];
-    const body=document.getElementById("panelBody").getBoundingClientRect();
+    const sh=sec.querySelector(".shbtn"), body=document.getElementById("panelBody").getBoundingClientRect();
+    const blue=getComputedStyle(document.documentElement).getPropertyValue("--blue").trim();
+    const hex=h=>{h=h.replace("#","");return [0,2,4].map(i=>parseInt(h.substr(i,2),16)).join(", ");};
     return {n:rows.length,
       labels:rows.map(f=>(f.querySelector(".lrlbl")||{}).textContent||""),
       boxed:!/rgba\(0, 0, 0, 0\)/.test(getComputedStyle(grp).backgroundColor)
         && parseFloat(getComputedStyle(grp).borderRadius)>=10,
       icons:rows.every(f=>!!f.querySelector(".lrico svg")),
-      full:rows.every(f=>Math.round(f.getBoundingClientRect().width)
-        ===Math.round(rows[0].getBoundingClientRect().width)),
-      tap:Math.min(...rows.map(f=>Math.round(f.getBoundingClientRect().height))),
-      share:!!sec.querySelector(".listrow[data-share]"),
+      tap:Math.min(...rows.concat(sh?[sh]:[]).map(f=>Math.round(f.getBoundingClientRect().height))),
+      shLbl:sh?(sh.querySelector(".shlbl")||{}).textContent:"",
+      shBlue:!!sh && getComputedStyle(sh).color.indexOf(hex(blue))>=0,
+      shOut:!!sh && !grp.contains(sh) && !!(grp.compareDocumentPosition(sh)&4),
+      onlyBlue:[...document.querySelectorAll("#panelBody *")].filter(e=>{
+        const c=getComputedStyle(e).color; return c.indexOf(hex(blue))>=0;})
+        .filter(e=>!(sh&&sh.contains(e))).length,
       bleeds:rows.concat([sec]).some(e=>{ const cs=getComputedStyle(e);
         return (parseFloat(cs.borderTopWidth)||0)>0
           && e.getBoundingClientRect().width>=body.width*0.9; })}; });
-  say("three rows in one box: "+col.labels.join(" / "),
-    col.n===3 && col.labels.join("/")==="About this map/How to install it/Share this app");
+  say("two rows in one box: "+col.labels.join(" / "),
+    col.n===2 && col.labels.join("/")==="About this map/How to install it");
   say("  on a grouped ground with a radius", col.boxed);
-  say("  an icon on each, all the same width, "+col.tap+"px tall",
-    col.icons && col.full && col.tap>=44);
-  say("  the share action among them, not beside them", col.share);
+  say("  an icon on each, nothing under "+col.tap+"px", col.icons && col.tap>=44);
+  say("  with Share as a button under it ("+col.shLbl+")",
+    col.shLbl==="Share this app" && col.shOut);
+  say("  in blue, and the only blue on the panel", col.shBlue && col.onlyBlue===0);
   say("  and nothing bleeding across the panel", col.bleeds===false);
 
   // "Start here" is the style you are handed; the 17 are where the music starts. Both

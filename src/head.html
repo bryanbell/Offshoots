@@ -18,7 +18,7 @@
    so the app can't render light even if data-theme is missing or set to "light". */
 :root{
   --sectline:#5a5a60; --sectw:1px; --sep:color-mix(in srgb,#f5f5f7 15%,transparent); --bg:#000000; --band:#141416; --mapbg:#0f0f11; --panel:#2b2b2f; --fg:#f5f5f7; --muted:#b0b0b6; --line:#3a3a3c; --grid:#232326; --roots:#161618;
-  --fill:#3d3d41; --fill2:#37373a; --scrim:rgb(0 0 0 / .6); --halo:#0f0f11; --ok:#30d158; --accent:#0a84ff; --accent-fg:#ffffff;
+  --fill:#3d3d41; --fill2:#37373a; --scrim:rgb(0 0 0 / .6); --halo:#0f0f11; --ok:#30d158; --accent:#0a84ff; --accent-fg:#ffffff; --blue:#0a84ff;
   --glass:rgb(44 44 48 / .86); --shadow:0 1px 2px rgb(0 0 0 / .4), 0 10px 30px rgb(0 0 0 / .5);
   --bar:0px; --gutter:16px;
   --node-s:72%; --node-l:64%; color-scheme:dark;
@@ -43,12 +43,12 @@
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#000000; --band:#141416; --mapbg:#0f0f11; --panel:#2b2b2f; --fg:#f5f5f7; --muted:#b0b0b6; --line:#3a3a3c; --grid:#232326; --roots:#161618;
-  --fill:#3d3d41; --fill2:#37373a; --scrim:rgb(0 0 0 / .6); --halo:#0f0f11; --ok:#30d158; --accent:#0a84ff; --accent-fg:#ffffff;
+  --fill:#3d3d41; --fill2:#37373a; --scrim:rgb(0 0 0 / .6); --halo:#0f0f11; --ok:#30d158; --accent:#0a84ff; --accent-fg:#ffffff; --blue:#0a84ff;
   --glass:rgb(44 44 48 / .86); --shadow:0 1px 2px rgb(0 0 0 / .4), 0 10px 30px rgb(0 0 0 / .5);
   --node-s:72%; --node-l:64%; --sectline:#5a5a60; --sectw:1px; --sep:color-mix(in srgb,#f5f5f7 15%,transparent); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#000000; --band:#141416; --mapbg:#0f0f11; --panel:#2b2b2f; --fg:#f5f5f7; --muted:#b0b0b6; --line:#3a3a3c; --grid:#232326; --roots:#161618;
-  --fill:#3d3d41; --fill2:#37373a; --scrim:rgb(0 0 0 / .6); --halo:#0f0f11; --ok:#30d158; --accent:#0a84ff; --accent-fg:#ffffff;
+  --fill:#3d3d41; --fill2:#37373a; --scrim:rgb(0 0 0 / .6); --halo:#0f0f11; --ok:#30d158; --accent:#0a84ff; --accent-fg:#ffffff; --blue:#0a84ff;
   --glass:rgb(44 44 48 / .86); --shadow:0 1px 2px rgb(0 0 0 / .4), 0 10px 30px rgb(0 0 0 / .5);
   --node-s:72%; --node-l:64%; --sectline:#5a5a60; --sectw:1px; --sep:color-mix(in srgb,#f5f5f7 15%,transparent); color-scheme:dark}
 *{box-sizing:border-box}
@@ -1161,29 +1161,17 @@ button.navttl[aria-expanded="true"] .lrcv{transform:rotate(180deg);opacity:1}
 .shbtn.round{width:var(--tap);height:var(--tap);border-radius:50%;flex:none}
 .shbtn.wide{display:flex;width:100%;margin:0;min-height:52px;
   border-radius:14px;font:600 var(--t-body)/1 var(--f-body)}
-/* ---------- the three things at the foot of the panel ----------
-   About, How to install and Share were a pair of list rows and a button of a third shape,
-   all doing the same job. One grouped list now: the share action is a row like the other
-   two, and says a link was copied by turning its own tile green. */
+/* ---------- the one button on the page ----------
+   Everything else in a panel opens something; Share acts. So it is the only thing shaped
+   like a button and the only thing in blue, and it keeps that blue on a style panel too,
+   where a family skin repaints --accent but not --blue. */
 .sect-learn .listgrp{margin-top:2px}
-/* .shbtn comes later in the sheet than .listrow and would otherwise win: it is an
-   inline-flex pill that centres its label and paints its own ground, which inside a
-   grouped list shrink-wraps to the text and sits on a box of its own */
-.listgrp .listrow.shbtn{display:flex;width:100%;justify-content:flex-start;
-  background:transparent;border-radius:0;gap:13px;color:var(--fg);
-  min-height:58px;padding-block:0;font:400 var(--t-body)/1.2 var(--f-body)}
-@media (min-width:900px) and (hover:hover) and (pointer:fine){
-  .listgrp .listrow.shbtn{min-height:46px} }
-.listgrp .listrow.shbtn:hover{background:color-mix(in srgb,var(--fg) 7%,transparent)}
-.shrow .lrico{position:relative}
-.shrow .lrico svg{width:18px;height:18px;opacity:.9}
-.shrow .lrico .tick{position:absolute;inset:0;margin:auto;opacity:0;transform:scale(.7);
-  transition:opacity .16s,transform .16s cubic-bezier(.32,.72,0,1)}
-.shrow.done .lrico{background:color-mix(in srgb,var(--ok) 26%,transparent);color:var(--ok)}
-.shrow.done .lrico .shg{opacity:0}
-.shrow.done .lrico .tick{opacity:1;transform:none}
-.shrow.done .lrlbl{color:var(--ok)}
-@media (prefers-reduced-motion:reduce){ .shrow .lrico .tick{transition:none} }
+.shbtn.wide{color:var(--blue);background:color-mix(in srgb,var(--blue) 15%,transparent)}
+.shbtn.wide:hover{background:color-mix(in srgb,var(--blue) 25%,transparent)}
+.shbtn.wide:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 40%,transparent)}
+.shbtn.wide .shg{opacity:1}
+.shbtn.wide.done{color:var(--ok);background:color-mix(in srgb,var(--ok) 20%,transparent)}
+.sect-learn .shbtn.wide{margin-top:16px}
 .shbtn.done{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}
 .shbtn.done .shg{display:none}
 .shbtn .tick{display:none;flex:none;width:17px;height:17px}

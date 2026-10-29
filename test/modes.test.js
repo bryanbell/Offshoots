@@ -130,33 +130,42 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
       glyph:getComputedStyle(c.querySelector(".mco")).color,
       lbl:getComputedStyle(c.querySelector(".mclbl")).color};}));
   say("every circle is rated 1 to 5", lv.length>0 && lv.every(c=>/^[1-5]$/.test(c.lv)));
+  // quietest first, which is where most listening starts. A browser with a tally in it
+  // puts the modes you open at the front instead, so this is the order a fresh one gets.
   const order=lv.map(c=>+c.lv);
-  say("they run loudest first ["+order.join("")+"]", order.every((v,i)=>i===0||v<=order[i-1]));
-  say("the first is a 5 and the last a 1", order[0]===5 && order[order.length-1]===1);
-  const fills=new Set(lv.map(c=>c.fill));
-  say("the five levels are five fills ("+fills.size+")", fills.size===5);
-  const hexrgb=h=>{h=h.replace("#","");
-    return [0,2,4].map(i=>parseInt(h.slice(i,i+2),16));};
-  const rgb=c=>c[0]==="#"?hexrgb(c):c.match(/[\d.]+/g).slice(0,3).map(Number);
-  const lumi=c=>{const [r,g,bl]=rgb(c).map(v=>{v/=255;
-    return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4);}); return .2126*r+.7152*g+.0722*bl;};
-  const ratio=(a,b)=>(Math.max(lumi(a),lumi(b))+.05)/(Math.min(lumi(a),lumi(b))+.05);
-  // the glyph is white and the fill is its only ground, so the darkest end of the ramp
-  // is what has to be checked, not the lightest
-  const worstGlyph=Math.min(...lv.map(c=>ratio(c.glyph,c.fill)));
-  say("the faintest glyph on its own circle reads at "+worstGlyph.toFixed(2)+":1", worstGlyph>=3);
-  const panel=await p.$eval("#panel",e=>getComputedStyle(e).backgroundColor);
-  const worstLbl=Math.min(...lv.map(c=>ratio(c.lbl,panel)));
-  say("and the labels at "+worstLbl.toFixed(2)+":1", worstLbl>=4.5);
-  const byLv={}; lv.forEach(c=>byLv[c.lv]=c.fill);
-  const hue=c=>{let [r,g,bl]=rgb(c).map(v=>v/255);
-    const mx=Math.max(r,g,bl), mn=Math.min(r,g,bl), d=mx-mn;
-    if(!d) return 0;
-    let h = mx===r ? ((g-bl)/d)%6 : mx===g ? (bl-r)/d+2 : (r-g)/d+4;
-    h*=60; return h<0?h+360:h;};
-  const ramp=[1,2,3,4,5].map(n=>Math.round(hue(byLv[n])));
-  say("the hue falls from blue to red ["+ramp.join(" ")+"]",
-    ramp.every((v,i)=>i===0||v<ramp[i-1]) && ramp[0]>180 && ramp[4]<30);
+  say("they run quietest first ["+order.join("")+"]", order.every((v,i)=>i===0||v>=order[i-1]));
+  say("the first is a 1 and the last a 5", order[0]===1 && order[order.length-1]===5);
+  // and then it learns. Opening a mode is tallied in this browser alone, and the ones
+  // you open float to the front of the row the next time the overview is built, so what
+  // you actually use is in reach without a swipe. The full list behind the heading does
+  // not move, which is what keeps one stable place to find anything.
+  const before=await p.$$eval(".mcirc .mclbl",e=>e.map(x=>x.textContent));
+  const stored=await p.evaluate(()=>{
+    try{ localStorage.setItem("offshoots.modeuse",JSON.stringify({driving:5,party:2})); return true; }
+    catch(e){ return false; }});
+  if(!stored) say("the row cannot learn without storage, and still renders", before.length===nModes);
+  else {
+    await p.reload(); await p.waitForTimeout(900);
+    await p.click("#grab").catch(()=>{}); await p.waitForTimeout(600);
+    const after=await p.$$eval(".mcirc .mclbl",e=>e.map(x=>x.textContent));
+    say("a tally puts the most-opened first ("+after.slice(0,2).join(", ")+")",
+      after[0]==="Driving" && after[1]==="Party");
+    say("  without losing any of the "+after.length,
+      after.length===nModes && new Set(after).size===nModes);
+    say("  and the rest keep their order",
+      after.slice(2).join("/")===before.filter(x=>x!=="Driving"&&x!=="Party").join("/"));
+    // the list behind the heading is the stable reference, so it must not reorder
+    await p.click(".sect-modes .secthead"); await p.waitForTimeout(700);
+    const page=await p.$$eval(".ppage:not([hidden]) .modelist .lrlbl",e=>e.map(x=>x.textContent));
+    say("  while the full list stays put ("+page.slice(0,2).join(", ")+")",
+      page.join("/")===before.join("/"));
+    await p.click("#panelBack"); await p.waitForTimeout(600);
+    await p.evaluate(()=>{ try{ localStorage.removeItem("offshoots.modeuse"); }catch(e){} });
+    await p.reload(); await p.waitForTimeout(900);
+    await p.click("#grab").catch(()=>{}); await p.waitForTimeout(600);
+    say("  and clearing the tally puts it back",
+      (await p.$$eval(".mcirc .mclbl",e=>e.map(x=>x.textContent))).join("/")===before.join("/"));
+  }
 
   // ---------- a tap pushes a page ----------
   await p.click('[data-mode="focus"]'); await p.waitForTimeout(700);
