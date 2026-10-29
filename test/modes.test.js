@@ -172,14 +172,22 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   // you actually use is in reach without a swipe. The full list behind the heading does
   // not move, which is what keeps one stable place to find anything.
   const before=await p.$$eval(".mcirc .mclbl",e=>e.map(x=>x.textContent));
-  const stored=await p.evaluate(()=>{
-    try{ localStorage.setItem("offshoots.modeuse",JSON.stringify({driving:5,party:2})); return true; }
-    catch(e){ return false; }});
-  if(!stored) say("the row cannot learn without storage, and still renders", before.length===nModes);
-  else {
-    await p.reload(); await p.waitForTimeout(900);
-    await p.click("#grab").catch(()=>{}); await p.waitForTimeout(600);
-    const after=await p.$$eval(".mcirc .mclbl",e=>e.map(x=>x.textContent));
+  // The tally is seeded into a fresh page rather than written and reloaded. Chromium's
+  // localStorage under file:// does not reliably survive a reload, so write-then-reload
+  // turned a real behaviour into a coin toss; an init script runs before the page's own
+  // scripts on every navigation, so the row always sees the tally it is being tested on.
+  const seeded=async use=>{
+    const q=await b.newPage({viewport:M});
+    await q.addInitScript(u=>{ try{ u ? localStorage.setItem("offshoots.modeuse",JSON.stringify(u))
+      : localStorage.removeItem("offshoots.modeuse"); }catch(e){} }, use);
+    await q.goto(URL); await q.waitForTimeout(800);
+    await q.click("#grab").catch(()=>{});
+    await q.waitForSelector(".mcirc",{state:"attached",timeout:8000}).catch(()=>{});
+    await q.waitForTimeout(250);
+    return q; };
+
+  { const q=await seeded({driving:5,party:2});
+    const after=await q.$$eval(".mcirc .mclbl",e=>e.map(x=>x.textContent));
     say("a tally puts the most-opened first ("+after.slice(0,2).join(", ")+")",
       after[0]==="Driving" && after[1]==="Party");
     say("  without losing any of the "+after.length,
@@ -187,17 +195,16 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     say("  and the rest keep their order",
       after.slice(2).join("/")===before.filter(x=>x!=="Driving"&&x!=="Party").join("/"));
     // the list behind the heading is the stable reference, so it must not reorder
-    await p.click(".sect-modes .secthead"); await p.waitForTimeout(700);
-    const page=await p.$$eval(".ppage:not([hidden]) .modelist .lrlbl",e=>e.map(x=>x.textContent));
+    await q.click(".sect-modes .secthead"); await q.waitForTimeout(700);
+    const page=await q.$$eval(".ppage:not([hidden]) .modelist .lrlbl",e=>e.map(x=>x.textContent));
     say("  while the full list stays put ("+page.slice(0,2).join(", ")+")",
       page.join("/")===before.join("/"));
-    await p.click("#panelBack"); await p.waitForTimeout(600);
-    await p.evaluate(()=>{ try{ localStorage.removeItem("offshoots.modeuse"); }catch(e){} });
-    await p.reload(); await p.waitForTimeout(900);
-    await p.click("#grab").catch(()=>{}); await p.waitForTimeout(600);
+    await q.close(); }
+
+  { const q=await seeded(null);
     say("  and clearing the tally puts it back",
-      (await p.$$eval(".mcirc .mclbl",e=>e.map(x=>x.textContent))).join("/")===before.join("/"));
-  }
+      (await q.$$eval(".mcirc .mclbl",e=>e.map(x=>x.textContent))).join("/")===before.join("/"));
+    await q.close(); }
 
   // ---------- a tap pushes a page ----------
   await p.click('[data-mode="focus"]'); await p.waitForTimeout(700);

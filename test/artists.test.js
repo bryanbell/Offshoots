@@ -222,5 +222,62 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
       plain.tag==="BUTTON" && plain.go===true);
     await p.close(); }
 
+  // ---------- the two circle rows are one component ----------
+  // Key artists on a style panel and the ways in on the overview are the same shape: a
+  // heading that opens the full set, then filled circles you swipe. They were written
+  // twice and drifted — a 76px circle against 80, a 36px glyph against 41, two label
+  // sizes, two heading weights — which reads as a near-miss rather than a hierarchy.
+  // This measures them against each other instead of against numbers typed here, so the
+  // next change to one has to be made to both.
+  { const M={width:393,height:852,isMobile:true,hasTouch:true,deviceScaleFactor:2};
+    const c2=await b.newContext(M);
+    const geom=async (hash,tile,circ,lbl,row,head)=>{
+      const q=await c2.newPage();
+      await q.goto(URL+hash); await q.waitForTimeout(900);
+      await q.click("#grab").catch(()=>{});
+      // wait for the row itself rather than a stopwatch: under a loaded machine the sheet
+      // can still be opening, and a missing row would read as the two rows disagreeing
+      await q.waitForSelector(tile,{state:"attached",timeout:8000}).catch(()=>{});
+      await q.waitForTimeout(250);
+      const g=await q.evaluate(([tile,circ,lbl,row,head])=>{
+        const t=document.querySelector(tile); if(!t) return null;
+        const co=t.querySelector(circ), l=t.querySelector(lbl),
+              r=document.querySelector(row), h=document.querySelector(head),
+              sv=co.querySelector("svg"), cv=h&&h.querySelector(".sectcv svg");
+        // the chevron is a sibling of the title, not inside it: measure type off whichever
+        // element carries the words, and the chevron off the heading as a whole
+        const ht=(h&&h.querySelector(".secttl"))||h;
+        const cs=getComputedStyle, px=e=>+e.getBoundingClientRect().width.toFixed(1);
+        return {tile:px(t), circle:px(co), glyph:px(sv), gap:cs(r).gap,
+          label:cs(l).fontSize+"/"+cs(l).fontWeight,
+          stack:cs(t).gap, radius:cs(co).borderRadius,
+          head:ht?cs(ht).fontSize+"/"+cs(ht).fontWeight:"none",
+          chev:cv?px(cv):0};
+      },[tile,circ,lbl,row,head]);
+      await q.close(); return g; };
+
+    const ways = await geom("", ".mcirc", ".mco", ".mclbl", ".mrow", ".secthead.sectgo");
+    const arts = await geom("#gospel", ".acirc", ".aco", ".aclbl", ".acrow", ".subh.subgo");
+    if(!ways || !arts) say("both circle rows are on screen to compare", false);
+    else {
+      const same=k=>String(ways[k])===String(arts[k]);
+      const show=k=>k+" "+ways[k]+" vs "+arts[k];
+      const off=["tile","circle","glyph","gap","label","stack","radius"].filter(k=>!same(k));
+      say("the ways in and key artists circles are the same component"
+        +(off.length?" — "+off.map(show).join(", "):" ("+ways.circle+"px circle, "
+          +ways.glyph+"px glyph, "+ways.gap+" apart, "+ways.label.split("/")[0]+" label)"),
+        off.length===0);
+      // the heading above each row carries the same weight: a lighter one on either side
+      // would say the rows rank differently when they do not
+      say("  and their headings match"+(ways.head===arts.head?" ("+ways.head+")":": "
+        +ways.head+" vs "+arts.head), ways.head===arts.head);
+      say("  down to the chevron that opens them", ways.chev===arts.chev && ways.chev>0);
+      // the measured tile is what forces a half circle at the right edge; if it ever goes
+      // back to a fixed width the peek is a coincidence again
+      say("  sized so one is cut off at the edge, not by a fixed guess",
+        ways.tile>ways.circle && ways.tile<ways.circle*1.6);
+    }
+    await c2.close(); }
+
   await b.close();
 })();
