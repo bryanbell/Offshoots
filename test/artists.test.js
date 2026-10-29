@@ -99,6 +99,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     await p.evaluate(()=>{const n=document.querySelector("#chart .n[data-id=dub]");
       n.dispatchEvent(new MouseEvent("click",{bubbles:true}));});
     await p.waitForTimeout(1100);
+    const chipNames=await p.$$eval(".whorow .am span",e=>e.map(x=>x.textContent));
     const row=await p.evaluate(()=>{
       const r=document.querySelector(".whorow"), h=document.querySelector(".subh.subgo");
       if(!r) return null;
@@ -120,22 +121,29 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
       const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
       const rows=[...u.querySelectorAll(".amrow")];
       return {title:(u.querySelector(".bigttl .mn")||{}).textContent,
-        n:rows.length, keyed:u.querySelectorAll(".amkey").length,
+        n:rows.length, years:u.querySelectorAll(".amyr").length,
+        spans:[...u.querySelectorAll(".amyr")].map(x=>x.textContent),
         names:rows.map(x=>x.querySelector(".lrlbl").textContent),
         blank:rows.every(x=>x.target==="_blank" && /noopener/.test(x.rel)),
         hrefs:rows.every(x=>/^https?:/.test(x.href)),
         tap:Math.min(...rows.map(x=>Math.round(x.getBoundingClientRect().height)))};});
     say("tapping it lists all "+pg.n+" on a page called "+pg.title,
       pg.title==="Key artists" && pg.n===(row&&row.count));
-    say("  the panel's own marked, and first", pg.keyed===(row&&row.chips)
-      && pg.names.slice(0,row.chips).join("/")!==""); 
+    // the panel's three or four lead the page, and each row carries the years that
+    // artist was making music, which is the one fact a bare name withholds
+    say("  the panel's own first", pg.names.slice(0,row.chips).join("/")
+      ===chipNames.join("/"));
+    say("  "+pg.years+" of "+pg.n+" carrying their years", pg.years>=Math.ceil(pg.n*0.6));
+    say("  every span a plausible shape",
+      pg.spans.every(t=>/^(1[89]|20)\d\d(\u2013((1[89]|20)?\d\d)?)?$/.test(t)));
     say("  nobody listed twice", new Set(pg.names).size===pg.n);
     say("  each opening safely in its own tab", pg.blank && pg.hrefs);
     say("  rows at least "+pg.tap+"px", pg.tap>=(row?row.floor:44));
     say("no page errors", errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
     await p.close(); }
 
-  // a style with no roster keeps a plain heading rather than a control that opens nothing
+  // a style with no roster opens a page too: the row scrolls, so the page is the only
+  // place the whole set sits still, however short it is
   { const p=await ctx.newPage();
     await p.goto(URL); await p.waitForTimeout(1200);
     const plain=await p.evaluate(async()=>{
@@ -151,8 +159,8 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
       return {id:bare, tag:h?h.tagName:"", go:!!document.querySelector(".subh.subgo")};});
     if(!plain) say("every style with artists has a roster behind it", true);
     else if(plain.skip) say("the no-roster style is off the rendered map", true);
-    else say("a style with no roster keeps a plain heading ("+plain.id+")",
-      plain.tag==="H4" && plain.go===false);
+    else say("a style with no roster still opens a page ("+plain.id+")",
+      plain.tag==="BUTTON" && plain.go===true);
     await p.close(); }
 
   await b.close();

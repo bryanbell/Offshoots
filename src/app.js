@@ -534,7 +534,7 @@ function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   const fams=new Set([...on].map(k=>byId[k].fam));
   // [data-fam], so the filler above the first family is never dimmed along with them
   $("lanes").querySelectorAll(".lane[data-fam]").forEach(l=>l.classList.toggle("dim",!fams.has(l.dataset.fam)));
-  const fromNote=n.note.replace(/^[^:]{0,40}:\s*/,"").split(/;|\s·\s/)[0].replace(/\s*\([^)]*\)/g,"").replace(/'[^']*'/g,"").replace(/\s+,/g,",").replace(/,\s*,/g,",").trim().replace(/^,|,$/g,"");
+  const fromNote=n.note.replace(/^[^:]{0,40}:\s*/,"").split(/;|\s·\s/)[0].replace(/\s*\([^)]*\)/g,"").replace(/'[^']*'/g,"").replace(/\s+,/g,",").replace(/,\s*,/g,",").replace(/\s{2,}/g," ").trim().replace(/^,|,$/g,"");
   // a note that is just a list of names becomes the artist list; prose stays a note
   const JOIN=new Set(["in","the","of","and","a","an","on","at","for","to","de","la","le","du","des","el","y"]);
   const titleish = s=>{ const w=s.split(/\s+/); return w.length<=6 && w.every(x=> x==="&" || x==="+" || /^[("\u2018\u201c]*[A-Z0-9]/.test(x) || JOIN.has(x.toLowerCase().replace(/[^a-z]/g,""))); };
@@ -873,6 +873,18 @@ function lineageTitle(n){
 }
 // every artist the map knows for a style: the three or four named on the panel, then the
 // roster behind them, which 135 styles carry and nothing has ever shown until now
+// the years an artist was making music: first release to last, or an open end for anyone
+// still going. ACTIVE is partial by design, so a row with no entry simply shows no span
+// rather than a guess, and fills in as the table does.
+function activeYears(name){
+  const a=(typeof ACTIVE!=="undefined" && ACTIVE[name]) || null;
+  if(!a || !a[0]) return "";
+  if(!a[1]) return a[0]+"\u2013";
+  if(a[1]===a[0]) return String(a[0]);
+  // the two-digit tail only reads right inside one century: 1959\u201321 is a wrong number
+  const short = Math.floor(a[0]/100)===Math.floor(a[1]/100);
+  return a[0]+"\u2013"+(short?String(a[1]).slice(-2):a[1]);
+}
 function artistAll(n){
   const key=n.whoList||[];
   const more=(n.roster||[]).filter(x=>key.indexOf(x)<0);
@@ -884,12 +896,12 @@ function listenSect(n,who,artistsHtml){
   // the chips used to wrap across three ragged lines, which gave the longest name the
   // widest row and left a hole beside the shortest. One line that scrolls, with the rest
   // behind the heading, the same way the ways in work on the overview.
-  const all=artistAll(n), rest=all.length-who.length;
-  const whoHead = rest>0
-    ? `<button type="button" class="subh subgo${pb?" gap":""}" data-page="artists"`
+  // every style with artists opens a page, whether or not there is a roster behind the
+  // chips: the row scrolls, so the page is also the only place the whole set sits still
+  const all=artistAll(n);
+  const whoHead = `<button type="button" class="subh subgo${pb?" gap":""}" data-page="artists"`
       + ` aria-label="Key artists, see all ${all.length}">Key artists`
-      + `<span class="subct">${all.length}</span><span class="sectcv">${GOCHEV}</span></button>`
-    : `<h4 class="subh${pb?" gap":""}">Key artists</h4>`;
+      + `<span class="subct">${all.length}</span><span class="sectcv">${GOCHEV}</span></button>`;
   const body = (pb||"") + (who.length?whoHead+artistsHtml:"");
   const head = `<div class="secthead"><h3 class="secttl">Listen on ${svcPicker("inline")}</h3></div>`;
   return `<div class="sect sect-listen">${head}<div class="secbody">${body}</div></div>`;
@@ -1464,7 +1476,7 @@ const PAGES_DEF={
     const row=(x,i)=>`<a class="listrow amrow" href="${svcHref(x)}" data-name="${esc(x)}"`
       + ` target="_blank" rel="noopener" title="Open ${esc(x)} in ${svcName()}">`
       + `<span class="lrlbl">${esc(x)}</span>`
-      + (i<key.length?`<em class="lrct amkey">key</em>`:"")
+      + (activeYears(x)?`<em class="lrct amyr">${esc(activeYears(x))}</em>`:"")
       + `<i class="lrcv lrgov">${OPENGO}</i></a>`;
     return {title:"Key artists",
       lede:`Everyone the map names for ${n.name}, the three or four on the panel first. Each one opens in ${svcName()}.`,
