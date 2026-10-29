@@ -729,9 +729,10 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 .pick:hover,.pick:focus-visible{background:color-mix(in srgb,var(--fg) 7%,transparent)}
 /* the picks' hairline ends at the panel margin, since there is no card edge to meet */
 .picks>.pick+.pick::after{right:0}
-/* the left column starts where the heading starts; the right keeps its inset so the
-   column rule between them has air on both sides */
-.modelist.two .listrow:nth-child(odd){padding-left:0}
+/* The left column used to start flush at the card edge, from when this list sat unboxed
+   on the Explore panel and had to line up with the heading. It lives in a card now, so
+   both columns take the same inset from their own edge: the card on the left, the gutter
+   rule on the right. */
 .listgrp.sep > * + *::before{right:0}
 /* ---------- the Places row ----------
    Apple Maps opens on a row of filled circles you swipe sideways, each one a way in,
@@ -775,7 +776,7 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 .secthead.sectgo:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent);
   border-radius:8px}
 .modelist.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
-.modelist.two .listrow{padding:0 12px;gap:10px;min-height:52px;position:relative}
+.modelist.two .listrow{padding:0 14px;gap:10px;min-height:52px;position:relative}
 .modelist.two .listrow .lrcv{display:none}
 .modelist.two .listrow .lrico{width:26px;height:26px;border-radius:7px}
 .modelist.two .listrow .lrico svg{width:16px;height:16px}

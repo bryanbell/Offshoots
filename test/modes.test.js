@@ -132,6 +132,16 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   say("  one unbroken gutter rule, "+rule.h+"px of "+rule.grid,
     rule.on && rule.h===rule.grid && rule.perRow===0);
   say("  and each row's rule spans its column", rule.short===0);
+  // the left column once started flush at the card edge, from when this list sat unboxed
+  // on the Explore panel. In a card both columns take the same inset from their own edge
+  const inset=await p.evaluate(()=>{
+    const g=document.querySelector(".ppage:not([hidden]) .modelist.two");
+    const r=[...g.querySelectorAll(".listrow")], gb=g.getBoundingClientRect();
+    const mid=gb.left+gb.width/2;
+    return {l:Math.round(r[0].querySelector(".lrico").getBoundingClientRect().left-gb.left),
+      r:Math.round(r[1].querySelector(".lrico").getBoundingClientRect().left-mid)};});
+  say("  both columns inset the same ("+inset.l+" / "+inset.r+")",
+    inset.l===inset.r && inset.l>=10);
   // the page has a link of its own, the way About and How to install do
   const share=await p.evaluate(()=>{const c=document.querySelector(".ppage:not([hidden]) .pagecopy");
     return c?{hash:c.dataset.aboutcopy, lbl:(c.querySelector(".lbl")||{}).textContent}:null;});
