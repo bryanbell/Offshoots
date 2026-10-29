@@ -483,7 +483,32 @@ body.pscrolled .pcard .navrow{border-radius:0}
   font:700 34px/1.1 var(--f-body);letter-spacing:-.03em;color:var(--fg)}
 .ovcard .bigttl{margin:4px 0 10px;padding:0}   /* flush with the section headings below */
 @media (min-width:900px) and (hover:hover) and (pointer:fine){ .ovcard .bigttl,.ovcard .bigttl .mn{font-size:28px} }
+/* ---------- the header bar carries the screen's name once the title has gone ----------
+   The panel had a bar with nothing in it on Explore, and a page you had scrolled into
+   gave no sign of which page it was. The big title hands its name to the bar as it
+   passes under, the way a phone app does, and takes it back on the way up. */
 .ovcard .navrow .navgap{min-height:0}
+/* the back and close buttons are full-size and float over a row that stays short, so the
+   band that comes in on scroll has to cover their height without taking any: a painted
+   pseudo-element rather than a taller row, which would shove the large title down and
+   make the content jump the moment you touched it */
+body.pscrolled .pcard .navrow::before{content:"";position:absolute;left:0;right:0;top:0;
+  height:var(--tap);background:var(--panel);box-shadow:0 .5px 0 var(--line);z-index:0}
+/* the back button and the close button are both positioned out of the grid, which leaves
+   the title as the only item in flow and parks it in the first column. It spans the bar
+   instead, and the side tracks keep it clear of the two buttons. */
+.pcard .navrow .navttl.ovttl{position:absolute;left:0;right:0;top:0;height:var(--tap);
+  display:grid;place-items:center;text-align:center;z-index:1;
+  padding-inline:calc(var(--tap) + 6px);
+  opacity:0;transform:translateY(7px);pointer-events:none;
+  transition:opacity .2s ease,transform .2s cubic-bezier(.32,.72,0,1)}
+.pcard .navrow .navttl.ovttl .mn{font:600 var(--t-head)/1.2 var(--f-body);
+  letter-spacing:-.014em;color:var(--fg)}
+body.pttl .pcard .navrow .navttl.ovttl{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){ .pcard .navrow .navttl.ovttl{transition:none} }
+/* the back button names where it goes; once the bar carries a title too, the pair would
+   crowd a phone, so the label gives way and the arrow speaks for itself */
+@media (max-width:420px){ body.pttl .ovcard .navleft .navback.topage .bklbl{display:none} }
 @media (max-width:899px){ .ovcard .bigttl{margin:4px 0 8px} }
 /* beside the share button there is no room for the destination's name, and the two
    glyphs already say map and back */
@@ -702,6 +727,45 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
    column rule between them has air on both sides */
 .modelist.two .listrow:nth-child(odd){padding-left:0}
 .listgrp.sep > * + *::before{right:0}
+/* ---------- the Places row ----------
+   Apple Maps opens on a row of filled circles you swipe sideways, each one a way in,
+   with the whole set behind the heading. The circles carry the energy ramp the list
+   carried, so the row reads loud to quiet from left to right. */
+.mrow{display:flex;gap:16px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+  margin-inline:calc(var(--ppad) * -1);padding:2px var(--ppad) 4px;scroll-padding-inline:var(--ppad)}
+.mrow::-webkit-scrollbar{display:none}
+.mcirc{all:unset;box-sizing:border-box;cursor:pointer;flex:none;width:74px;
+  display:flex;flex-direction:column;align-items:center;gap:8px;scroll-snap-align:start;
+  text-align:center;-webkit-tap-highlight-color:transparent}
+.mcirc .mco{display:grid;place-items:center;width:62px;height:62px;border-radius:50%;color:#fff;
+  background:linear-gradient(160deg,color-mix(in srgb,var(--lvc) 80%,#fff) 0%,var(--lvc) 55%,
+    color-mix(in srgb,var(--lvc) 74%,#000) 100%);
+  box-shadow:0 1px 3px rgb(0 0 0 / .26);transition:transform .16s cubic-bezier(.32,.72,0,1)}
+.mcirc .mco svg{width:28px;height:28px;stroke-width:1.6}
+.mcirc:hover .mco,.mcirc:focus-visible .mco{transform:scale(1.045)}
+.mcirc:active .mco{transform:scale(.95)}
+.mcirc:focus-visible .mco{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 55%,transparent)}
+.mclbl{font:400 var(--t-foot)/var(--t-foot-lh) var(--f-body);color:var(--fg);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* the same five levels as the list, but a different job: the list tints a tile and draws
+   the icon in the colour, so it wants a light one; the circle is filled and the glyph on
+   it is white, so it wants a dark one. These clear 3:1 against white, which the pleasant
+   yellow did not (2.1:1). */
+.mcirc.lv1{--lvc:#4a6fc4} .mcirc.lv2{--lvc:#2f8c73} .mcirc.lv3{--lvc:#a8821c}
+.mcirc.lv4{--lvc:#bd5a1e} .mcirc.lv5{--lvc:#c23f2b}
+/* a heading that opens the fuller list is the control that opens it */
+.secthead.sectgo{all:unset;box-sizing:border-box;display:flex;align-items:center;
+  justify-content:space-between;gap:8px;width:100%;min-height:var(--tap);cursor:pointer;
+  margin:-7px 0 7px}
+.secthead.sectgo .secttl{flex:none}
+.secthead.sectgo .sectaside{margin-left:auto}
+.secthead.sectgo .sectcv{flex:none;display:grid;place-items:center;color:var(--muted);opacity:.75;
+  transition:transform .16s,opacity .16s}
+.secthead.sectgo .sectcv svg{width:17px;height:17px;stroke-width:2.4}
+.secthead.sectgo:hover .sectcv{opacity:1;transform:translateX(2px)}
+.secthead.sectgo:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent);
+  border-radius:8px}
 .modelist.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 .modelist.two .listrow{padding:0 12px;gap:10px;min-height:52px;position:relative}
 .modelist.two .listrow .lrcv{display:none}

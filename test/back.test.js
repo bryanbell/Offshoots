@@ -37,7 +37,7 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
   // the ways in listed again rather than the page you came through
   say("the overview is back to its own root",
     (await p.$$(".ppage:not([data-p='root'])")).length===0);
-  say("with the ways in listed again", (await p.$$(".modelist .listrow")).length>0);
+  say("with the ways in on the overview again", (await p.$$(".mcirc")).length>0);
   say("hidden again at the start of the trail", (await shown(p))===false);
 
   // a four-deep lineage walk, then back out of it one at a time

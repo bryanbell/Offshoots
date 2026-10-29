@@ -281,8 +281,11 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
     (await p.$eval('.ppage[data-p="root"] .bigttl .mn',e=>e.textContent))==="Explore");
   say("families stated once", (await p.$eval("#panelBody",e=>e.textContent)).split("families").length-1);
 
-  // ---- 6: aside ----
-  say("mode aside", await p.$eval(".sect-modes .sectaside",e=>e.textContent));
+  // ---- 6: the heading is the way to the full set ----
+  // the count that used to sit beside it went when the heading became a control: the
+  // title, a count and a chevron do not fit a phone, and the page itself says how many
+  say("mode heading opens the set", await p.$eval(".sect-modes .secthead",
+    e=>e.tagName==="BUTTON" && e.dataset.page==="modes" && !e.querySelector(".sectaside")));
 
   // ---- space saved ----
   const hgt=await p.$eval("#panelBody",e=>{const a=e.querySelector(".ovcard").getBoundingClientRect(),

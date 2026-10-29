@@ -390,8 +390,16 @@ function readSect(n){
     `<span class="sectaside">${rows.length} ${rows.length===1?"source":"sources"}</span>`);
 }
 
-function sect(key,label,html,aside){
-  const head = label ? `<div class="secthead"><h3 class="secttl">${esc(label)}</h3>${aside||""}</div>` : "";
+function sect(key,label,html,aside,page){
+  // a heading that opens a fuller version of what is under it becomes the control that
+  // opens it, chevron and all, rather than sitting beside a separate row that does
+  const inner = `<h3 class="secttl">${esc(label)}</h3>${aside||""}`
+    + (page?`<span class="sectcv">${GOCHEV}</span>`:"");
+  const head = label
+    ? (page ? `<button type="button" class="secthead sectgo" data-page="${esc(page)}"
+         aria-label="${esc(label)}, see all">${inner}</button>`
+             : `<div class="secthead">${inner}</div>`)
+    : "";
   return `<div class="sect sect-${key}${label?"":" nohead"}">${head}<div class="secbody">${html}</div></div>`;
 }
 const HOPS=2; // generations of lineage drawn on the map
@@ -645,7 +653,21 @@ let PBAR={t:"",s:""};
 function setPbar(t,s){ PBAR={t:t||"",s:s||""}; const a1=$("pbarTitle"), a2=$("pbarSub"); if(a1) a1.textContent=PBAR.t; if(a2) a2.textContent=PBAR.s; }
 (function(){
   const body=$("panelBody"), bar=$("pbar"), btn=$("mapSearch"); if(!body||!bar) return;
-  const sync=()=>{ document.body.classList.toggle("pscrolled", body.scrollTop>2); };
+  // the big title scrolling under the bar is what brings the compact one in, the way a
+  // phone app hands a screen's name to its header. Measured rather than guessed at a
+  // pixel count, since the title is one line on some pages and three on others.
+  const sync=()=>{
+    document.body.classList.toggle("pscrolled", body.scrollTop>2);
+    const pages=[...body.querySelectorAll(".ppage")].filter(x=>!x.hidden);
+    const big=(pages[0]||body).querySelector(".bigttl");
+    const nav=body.querySelector(".pcard .navrow");
+    let under=false;
+    if(big&&nav) under = big.getBoundingClientRect().bottom <= nav.getBoundingClientRect().bottom + 2;
+    document.body.classList.toggle("pttl", under);
+    const slot=nav&&nav.querySelector(".navttl.ovttl .mn");
+    if(slot&&big){ const t=(big.querySelector(".mn")||big).textContent.trim();
+      if(slot.textContent!==t) slot.textContent=t; }
+  };
   body.addEventListener("scroll",sync,{passive:true});
   addEventListener("resize",sync);
   if(btn){
@@ -1289,8 +1311,28 @@ function modeSect(){
     + ` title="${esc(m[2])}" aria-label="${esc(m[1])}. ${esc(m[2])}">`
     + `<i class="lrico mi">${MODEICON[m[0]]||""}</i>`
     + `<span class="lrlbl">${esc(m[1])}</span>${GOCHEV}</button>`).join("");
-  return sect("modes","Browse by mood, place or task",`<div class="listgrp modelist two">${rows}</div>`,
-              `<span class="sectaside">${MODES.length} ways in</span>`);
+  // Apple Maps puts its Places on a row of filled circles you swipe through, with the
+  // whole set one tap away behind the heading. Twenty-six modes suit that exactly: the
+  // loudest few are in reach, the heading opens the lot, and nothing is buried under a
+  // scroll of its own.
+  const circles=MODES.slice().sort((a,b)=>(b[5]||3)-(a[5]||3)).map(m=>
+    `<button type="button" class="mcirc lv${m[5]||3}" data-mode="${esc(m[0])}"`
+    + ` title="${esc(m[2])}" aria-label="${esc(m[1])}. ${esc(m[2])}">`
+    + `<i class="mco mi">${MODEICON[m[0]]||""}</i>`
+    + `<span class="mclbl">${esc(m[1])}</span></button>`).join("");
+  return sect("modes","Browse by mood, place or task",
+    `<div class="mrow" role="list">${circles}</div>`,
+    "", "modes");
+}
+// the same twenty-six as a page you can read down, which is what the row's heading opens
+function modeListHtml(){
+  if(typeof MODES==="undefined") return "";
+  const rows=MODES.slice().sort((a,b)=>(b[5]||3)-(a[5]||3)).map(m=>
+    `<button type="button" class="listrow moderow lv${m[5]||3}" data-mode="${esc(m[0])}"`
+    + ` title="${esc(m[2])}" aria-label="${esc(m[1])}. ${esc(m[2])}">`
+    + `<i class="lrico mi">${MODEICON[m[0]]||""}</i>`
+    + `<span class="lrlbl">${esc(m[1])}</span>${GOCHEV}</button>`).join("");
+  return `<div class="listgrp modelist two">${rows}</div>`;
 }
 
 // ---------- the panel as a stack of pages ----------
@@ -1338,6 +1380,7 @@ function pushPage(key){
     setTimeout(()=>{ cur.hidden=true; cur.classList.remove("pgout"); },240);
   }
   body.scrollTop=0; setOpen(true); syncBack(); closeNav();
+  body.dispatchEvent(new Event("scroll"));
   return true;
 }
 function popPage(){
@@ -1350,9 +1393,11 @@ function popPage(){
     requestAnimationFrame(()=>prev.classList.remove("pgout")); } }
   if(reduce) cur.remove();
   else { cur.classList.add("pgin");
-    setTimeout(()=>{ cur.remove(); if(prev) body.scrollTop=was.scroll||0; },240); }
+    setTimeout(()=>{ cur.remove(); if(prev) body.scrollTop=was.scroll||0;
+      body.dispatchEvent(new Event("scroll")); },240); }
   if(reduce && prev) body.scrollTop=was.scroll||0;
   syncBack();
+  body.dispatchEvent(new Event("scroll"));
   return true;
 }
 
@@ -1368,6 +1413,9 @@ function styleRows(ids,detail){
       + `<em class="lrct">${detail(x)}</em>${GOCHEV}</button>`; }).join("") + `</div>`;
 }
 const PAGES_DEF={
+  modes:()=>({title:"Ways in",
+    lede:"Twenty-six moods, places and tasks, loudest first. Each one opens a dozen styles that suit it.",
+    html:modeListHtml()}),
   roots:()=>({title:"Roots",
     lede:"Styles with nothing before them here. Everything else on the map descends from these.",
     html:styleRows(firstLevel(),x=>x.year<1950?x.disp:x.year)}),
@@ -1410,7 +1458,7 @@ function emptyPanel(){
   const np=playable().length;
   const withSrc=DATA.filter(r=>Array.isArray(r[7])&&r[7].length).length;
   resetPages();
-  $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="navrow"><div class="navleft"><button id="panelBack" class="navback" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg><span class="bklbl"></span><svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.4L7.4 3.4v11.2L2.8 16.6z"/><path d="M7.4 3.4l5.2 2v11.2l-5.2-2z"/><path d="M12.6 5.4l4.6-2v11.2l-4.6 2z"/></svg></button></div><div class="navttl navgap" aria-hidden="true"></div>${CLOSEBTN}</div><h1 class="bigttl"><span class="mn">Explore</span></h1><div class="more">
+  $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="navrow"><div class="navleft"><button id="panelBack" class="navback" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg><span class="bklbl"></span><svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.4L7.4 3.4v11.2L2.8 16.6z"/><path d="M7.4 3.4l5.2 2v11.2l-5.2-2z"/><path d="M12.6 5.4l4.6-2v11.2l-4.6 2z"/></svg></button></div><div class="navttl navgap ovttl"><span class="mn">Explore</span></div>${CLOSEBTN}</div><h1 class="bigttl"><span class="mn">Explore</span></h1><div class="more">
     ${browseRow()}
     ${modeSect()}
     <p class="note ovhint">Or tap any style on the map to trace where it came from and what it led to.</p>

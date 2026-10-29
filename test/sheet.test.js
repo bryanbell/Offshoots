@@ -65,9 +65,9 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
 
   // and the things that must still not close it
   await ensure(); await setTop(0); await p.waitForTimeout(250);
-  const chip=await p.evaluate(()=>{const c=document.querySelector(".modelist .listrow"); const r=c.getBoundingClientRect(); return [Math.round(r.left+r.width/2),Math.round(r.top+r.height/2)];});
+  const chip=await p.evaluate(()=>{const c=document.querySelector(".mcirc"); const r=c.getBoundingClientRect(); return [Math.round(r.left+r.width/2),Math.round(r.top+r.height/2)];});
   await swipe(chip[0],chip[1],-160,30); await p.waitForTimeout(350);
-  say("a sideways swipe over a mode row leaves it open", await open());
+  say("a sideways swipe over a mode circle leaves it open", await open());
   await setTop(0); await p.waitForTimeout(150);
   await swipe(195,mid,0,30); await p.waitForTimeout(350);
   say("a small downward nudge is not a pull", await open());
@@ -161,6 +161,10 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   await p.waitForTimeout(1800);
   // the title is inert: it drags and nothing else
   await p.evaluate(()=>{window.__copied=[];});
+  // the share button above left the card scrolled, which puts the title off screen: click
+  // where it is NOW and the tap lands on the map behind, which selects a style and takes
+  // the overview card away. Back to the top first, then measure.
+  await p.evaluate(()=>{document.getElementById("panelBody").scrollTop=0;}); await p.waitForTimeout(400);
   const ttl=await p.evaluate(()=>{const r=document.querySelector(".ovcard .bigttl").getBoundingClientRect(); return [Math.round(r.left+r.width/2),Math.round(r.top+r.height/2)];});
   await p.mouse.click(ttl[0],ttl[1]); await p.waitForTimeout(400);
   say("tapping the title shares nothing", await p.evaluate(()=>window.__copied.length===0));

@@ -22,58 +22,90 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
 (async()=>{
   const b=await chromium.launch();
 
-  // ---------- the list ----------
+  // ---------- the Places row ----------
+  // The overview opens on a row of circles you swipe sideways, the way Apple Maps opens
+  // on its Places. The full set is a tap away behind the heading, so what matters here
+  // is that the row is scrollable, that the first few are reachable without it, and that
+  // the heading really does open the rest.
   let p=await fresh(b,M);
   const nModes=await p.evaluate(()=>typeof MODES!=="undefined"?MODES.length:-1);
-  const rows=await p.$$(".modelist .listrow");
-  say("one row per mode ("+nModes+")", nModes>0 && rows.length===nModes);
-  say("and no chips left over from the old build", (await p.$$(".modechip")).length===0);
-  say("counted in the aside", (await p.$eval(".sect-modes .sectaside",e=>e.textContent))===nModes+" ways in");
+  const rows=await p.$$(".mcirc");
+  say("one circle per mode ("+nModes+")", nModes>0 && rows.length===nModes);
+  say("and no chips or rows left over", (await p.$$(".modechip")).length===0
+    && (await p.$$(".sect-modes .listrow")).length===0);
   say("no picks before a tap", (await p.$$(".picks .pick")).length===0);
-  // the chevron that says a tap goes somewhere, not that a fold opens
-  say("every row carries an icon and a label", await p.$$eval(".modelist .listrow",
-    e=>e.every(x=>x.querySelector(".lrico svg") && x.querySelector(".lrlbl").textContent.trim().length>0)));
+  say("every circle carries an icon and a label", await p.$$eval(".mcirc",
+    e=>e.every(x=>x.querySelector(".mco svg") && x.querySelector(".mclbl").textContent.trim().length>0)));
 
-  // two abreast: the point of the layout is that twenty-five rows fit without a scroll
-  // the length of the panel, so the two things to watch are the column count and whether
-  // halving the width starts clipping the longer labels
   const lay=await p.evaluate(()=>{
-    const r=[...document.querySelectorAll(".modelist .listrow")];
-    const lefts=[...new Set(r.map(x=>Math.round(x.getBoundingClientRect().left)))].sort((a,b)=>a-b);
-    const grp=document.querySelector(".modelist").getBoundingClientRect();
-    return {cols:lefts.length, lefts,
+    const r=[...document.querySelectorAll(".mcirc")], row=document.querySelector(".mrow");
+    const rb=row.getBoundingClientRect();
+    const vis=r.filter(x=>{const b=x.getBoundingClientRect(); return b.left>=rb.left-1 && b.right<=rb.right+1;});
+    const c=r[0].querySelector(".mco").getBoundingClientRect();
+    return {scrolls:row.scrollWidth>row.clientWidth+1, vis:vis.length,
+      round:Math.abs(c.width-c.height)<=1 && c.width>=52,
+      clipped:r.filter(x=>{const l=x.querySelector(".mclbl"); return l.scrollHeight>l.clientHeight+1;})
+               .map(x=>x.querySelector(".mclbl").textContent),
+      tap:Math.min(...r.map(x=>Math.round(x.getBoundingClientRect().height)))};});
+  say("the row scrolls sideways", lay.scrolls);
+  say("  with "+lay.vis+" in reach before it does", lay.vis>=3);
+  say("  each a circle of "+Math.round(lay.tap)+"px", lay.round && lay.tap>=44);
+  say("  and no label cut off"+(lay.clipped.length?": "+lay.clipped.join(", "):""), lay.clipped.length===0);
+
+  // the heading is the control that opens the rest, chevron and all, and it has to be
+  // big enough to hit: as a plain <h3> turned button it came out 25px tall
+  const sh=await p.evaluate(()=>{const h=document.querySelector(".sect-modes .secthead");
+    return {go:h.tagName==="BUTTON" && h.dataset.page==="modes",
+      cv:!!h.querySelector(".sectcv svg"), h:Math.round(h.getBoundingClientRect().height)};});
+  say("the heading opens the full set", sh.go && sh.cv);
+  say("  and is "+sh.h+"px tall", sh.h>=44);
+  await p.click(".sect-modes .secthead"); await p.waitForTimeout(700);
+  const all=await p.evaluate(()=>{
+    const r=[...document.querySelectorAll(".ppage:not([hidden]) .modelist .listrow")];
+    const grp=document.querySelector(".ppage:not([hidden]) .modelist");
+    return {n:r.length, cols:new Set(r.map(x=>Math.round(x.getBoundingClientRect().left))).size,
       clipped:r.filter(x=>{const l=x.querySelector(".lrlbl"); return l.scrollWidth>l.clientWidth+1;})
                .map(x=>x.querySelector(".lrlbl").textContent),
-      over:r.some(x=>x.getBoundingClientRect().right>grp.right+1),
-      h:Math.round(r[0].getBoundingClientRect().height)};});
-  say("they run two abreast", lay.cols===2);
-  say("and nothing is clipped at 390"+(lay.clipped.length?": "+lay.clipped.join(", "):""), lay.clipped.length===0);
-  say("nor spills out of the group", lay.over===false);
-  say("each row is "+lay.h+"px, still a tap target", lay.h>=44);
+      over:grp?r.some(x=>x.getBoundingClientRect().right>grp.getBoundingClientRect().right+1):true,
+      h:r.length?Math.round(r[0].getBoundingClientRect().height):0};});
+  say("listing all "+all.n+" two abreast", all.n===nModes && all.cols===2);
+  say("  nothing clipped at 390"+(all.clipped.length?": "+all.clipped.join(", "):""), all.clipped.length===0);
+  say("  nor spilling out of the group", all.over===false);
+  say("  each row "+all.h+"px, still a tap target", all.h>=44);
+  await p.click("#panelBack"); await p.waitForTimeout(700);
 
   // ---------- how loud it is ----------
-  // every mode carries a level, and the icon takes its colour from that. The ramp has to
-  // read in order, so the five levels are five distinct colours running cool to hot.
-  const lv=await p.evaluate(()=>[...document.querySelectorAll(".modelist .listrow")].map(c=>{
+  // every mode carries a level, and the circle is filled with it. The ramp has to read
+  // in order, so the five levels are five distinct fills running cool to hot, and the
+  // white glyph has to hold up on every one of them.
+  const lv=await p.evaluate(()=>[...document.querySelectorAll(".mcirc")].map(c=>{
     const m=(c.className.match(/\blv([1-5])\b/)||[])[1];
-    return {name:c.querySelector(".lrlbl").textContent, lv:m,
-      fg:getComputedStyle(c.querySelector(".lrlbl")).color,
-      bg:getComputedStyle(c).backgroundColor,
-      icon:getComputedStyle(c.querySelector(".lrico")).color};}));
-  say("every row is rated 1 to 5", lv.length>0 && lv.every(c=>/^[1-5]$/.test(c.lv)));
+    const cs=getComputedStyle(c);
+    return {name:c.querySelector(".mclbl").textContent, lv:m,
+      fill:cs.getPropertyValue("--lvc").trim(),
+      glyph:getComputedStyle(c.querySelector(".mco")).color,
+      lbl:getComputedStyle(c.querySelector(".mclbl")).color};}));
+  say("every circle is rated 1 to 5", lv.length>0 && lv.every(c=>/^[1-5]$/.test(c.lv)));
   const order=lv.map(c=>+c.lv);
   say("they run loudest first ["+order.join("")+"]", order.every((v,i)=>i===0||v<=order[i-1]));
   say("the first is a 5 and the last a 1", order[0]===5 && order[order.length-1]===1);
-  const icons=new Set(lv.map(c=>c.icon));
-  say("the five levels are five icon colours ("+icons.size+")", icons.size===5);
-  const lumi=c=>{const [r,g,bl]=c.match(/[\d.]+/g).slice(0,3).map(Number).map(v=>{v/=255;
+  const fills=new Set(lv.map(c=>c.fill));
+  say("the five levels are five fills ("+fills.size+")", fills.size===5);
+  const hexrgb=h=>{h=h.replace("#","");
+    return [0,2,4].map(i=>parseInt(h.slice(i,i+2),16));};
+  const rgb=c=>c[0]==="#"?hexrgb(c):c.match(/[\d.]+/g).slice(0,3).map(Number);
+  const lumi=c=>{const [r,g,bl]=rgb(c).map(v=>{v/=255;
     return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4);}); return .2126*r+.7152*g+.0722*bl;};
   const ratio=(a,b)=>(Math.max(lumi(a),lumi(b))+.05)/(Math.min(lumi(a),lumi(b))+.05);
-  const card=await p.$eval(".listgrp",e=>getComputedStyle(e).backgroundColor);
-  const worst=Math.min(...lv.map(c=>ratio(c.fg,/rgba\(0, 0, 0, 0\)/.test(c.bg)?card:c.bg)));
-  say("the faintest label reads at "+worst.toFixed(2)+":1", worst>=4.5);
-  const byLv={}; lv.forEach(c=>byLv[c.lv]=c.icon);
-  const hue=c=>{let [r,g,bl]=c.match(/[\d.]+/g).slice(0,3).map(Number).map(v=>v/255);
+  // the glyph is white and the fill is its only ground, so the darkest end of the ramp
+  // is what has to be checked, not the lightest
+  const worstGlyph=Math.min(...lv.map(c=>ratio(c.glyph,c.fill)));
+  say("the faintest glyph on its own circle reads at "+worstGlyph.toFixed(2)+":1", worstGlyph>=3);
+  const panel=await p.$eval("#panel",e=>getComputedStyle(e).backgroundColor);
+  const worstLbl=Math.min(...lv.map(c=>ratio(c.lbl,panel)));
+  say("and the labels at "+worstLbl.toFixed(2)+":1", worstLbl>=4.5);
+  const byLv={}; lv.forEach(c=>byLv[c.lv]=c.fill);
+  const hue=c=>{let [r,g,bl]=rgb(c).map(v=>v/255);
     const mx=Math.max(r,g,bl), mn=Math.min(r,g,bl), d=mx-mn;
     if(!d) return 0;
     let h = mx===r ? ((g-bl)/d)%6 : mx===g ? (bl-r)/d+2 : (r-g)/d+4;
@@ -133,8 +165,8 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     e=>e.every(x=>x.scrollWidth<=x.clientWidth+1)));
 
   await p.click("#panelBack"); await p.waitForTimeout(700);
-  say("back returns to the list",
-    (await p.$$(".modelist .listrow")).length===nModes
+  say("back returns to the overview",
+    (await p.$$(".mcirc")).length===nModes
     && (await p.evaluate(()=>document.getElementById("panelBack").hidden))===true);
 
   // switching modes replaces rather than stacks
@@ -168,12 +200,15 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
 
   // ---------- desktop ----------
   const d=await fresh(b,Dk);
+  say("the sidebar opens on circles too", (await d.$$(".mcirc")).length===nModes);
+  await d.click(".sect-modes .secthead"); await d.waitForTimeout(700);
   const dl=await d.evaluate(()=>{
-    const r=[...document.querySelectorAll(".modelist .listrow")];
+    const r=[...document.querySelectorAll(".ppage:not([hidden]) .modelist .listrow")];
     return {cols:new Set(r.map(x=>Math.round(x.getBoundingClientRect().left))).size,
       clipped:r.filter(x=>{const l=x.querySelector(".lrlbl"); return l.scrollWidth>l.clientWidth+1;})
                .map(x=>x.querySelector(".lrlbl").textContent)};});
-  say("the sidebar runs two abreast too", dl.cols===2);
+  say("and its full set runs two abreast", dl.cols===2);
+  await d.click("#panelBack"); await d.waitForTimeout(600);
   say("and clips nothing"+(dl.clipped.length?": "+dl.clipped.join(", "):""), dl.clipped.length===0);
   await d.click('[data-mode="sit"]'); await d.waitForTimeout(600);
   say("tapping one pushes a page of picks",
