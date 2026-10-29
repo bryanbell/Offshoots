@@ -871,11 +871,26 @@ function lineageTitle(n){
     + lineageCol("from",from) + lineageCol("led",led)
     + `</div></div></div>`;
 }
+// every artist the map knows for a style: the three or four named on the panel, then the
+// roster behind them, which 135 styles carry and nothing has ever shown until now
+function artistAll(n){
+  const key=n.whoList||[];
+  const more=(n.roster||[]).filter(x=>key.indexOf(x)<0);
+  return key.concat(more);
+}
 function listenSect(n,who,artistsHtml){
   const pb=plist(n);
   if(!pb && !who.length) return "";
-  const body = (pb||"")
-             + (who.length?`<h4 class="subh${pb?" gap":""}">Key artists</h4>${artistsHtml}`:"");
+  // the chips used to wrap across three ragged lines, which gave the longest name the
+  // widest row and left a hole beside the shortest. One line that scrolls, with the rest
+  // behind the heading, the same way the ways in work on the overview.
+  const all=artistAll(n), rest=all.length-who.length;
+  const whoHead = rest>0
+    ? `<button type="button" class="subh subgo${pb?" gap":""}" data-page="artists"`
+      + ` aria-label="Key artists, see all ${all.length}">Key artists`
+      + `<span class="subct">${all.length}</span><span class="sectcv">${GOCHEV}</span></button>`
+    : `<h4 class="subh${pb?" gap":""}">Key artists</h4>`;
+  const body = (pb||"") + (who.length?whoHead+artistsHtml:"");
   const head = `<div class="secthead"><h3 class="secttl">Listen on ${svcPicker("inline")}</h3></div>`;
   return `<div class="sect sect-listen">${head}<div class="secbody">${body}</div></div>`;
 }
@@ -888,7 +903,7 @@ function shareBtn(n){
 function panel(n,anc,desc){
   const dfams=new Set([...desc.keys()].map(k=>byId[k].fam));
   const who=n.whoList||[];
-  const artistsHtml = `<div class="who">${who.map(am).join("")}</div>`;
+  const artistsHtml = `<div class="who whorow">${who.map(am).join("")}</div>`;
   resetPages();
   $("panelBody").innerHTML = PHEAD + `<div class="more">
     ${listenSect(n,who,artistsHtml)}
@@ -1443,6 +1458,18 @@ function styleRows(ids,detail){
       + `<em class="lrct">${detail(x)}</em>${GOCHEV}</button>`; }).join("") + `</div>`;
 }
 const PAGES_DEF={
+  artists:()=>{
+    const n=state.sel?byId[state.sel]:null; if(!n) return null;
+    const all=artistAll(n), key=n.whoList||[];
+    const row=(x,i)=>`<a class="listrow amrow" href="${svcHref(x)}" data-name="${esc(x)}"`
+      + ` target="_blank" rel="noopener" title="Open ${esc(x)} in ${svcName()}">`
+      + `<span class="lrlbl">${esc(x)}</span>`
+      + (i<key.length?`<em class="lrct amkey">key</em>`:"")
+      + `<i class="lrcv lrgov">${OPENGO}</i></a>`;
+    return {title:"Key artists",
+      lede:`Everyone the map names for ${n.name}, the three or four on the panel first. Each one opens in ${svcName()}.`,
+      html:`<div class="listgrp sep amlist">${all.map(row).join("")}</div>`};
+  },
   modes:()=>({title:"Ways in",
     lede:"Twenty-six moods, places and tasks, quietest first. Each one opens a dozen styles that suit it. The circles on the way in reorder themselves around the ones you open; this list does not.",
     html:modeListHtml()}),
@@ -1588,7 +1615,7 @@ $("panelBody").addEventListener("error",e=>{
   const stopGlide=()=>{ if(glide) cancelAnimationFrame(glide); glide=0; };
   body.addEventListener("pointerdown",e=>{
     if(e.pointerType!=="mouse"||e.button!==0) return;
-    const row=e.target.closest&&e.target.closest(".mrow"); if(!row) return;
+    const row=e.target.closest&&e.target.closest(".mrow,.whorow"); if(!row) return;
     stopGlide();
     drag={row,id:e.pointerId,x:e.clientX,from:row.scrollLeft,on:false,
           marks:[[performance.now(),e.clientX]]};
@@ -1630,7 +1657,7 @@ $("panelBody").addEventListener("error",e=>{
   body.addEventListener("pointerup",release);
   body.addEventListener("pointercancel",release);
   // a new scroll of the panel, or a tap anywhere, should not fight a glide still running
-  body.addEventListener("pointerdown",e=>{ if(!e.target.closest||!e.target.closest(".mrow")) stopGlide(); });
+  body.addEventListener("pointerdown",e=>{ if(!e.target.closest||!e.target.closest(".mrow,.whorow")) stopGlide(); });
 })();
 
 function panelTop(){ const pb=$("panelBody"); if(!pb) return; pb.scrollTop=0; document.body.classList.remove("pscrolled"); setTimeout(()=>{ pb.scrollTop=0; document.body.classList.remove("pscrolled"); },60); }

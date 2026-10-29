@@ -823,6 +823,37 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 .rdn{display:block;margin-top:4px;font:400 var(--t-sub)/1.4 var(--f-body);
   color:color-mix(in srgb,var(--fg) 82%,transparent)}
 .who{display:flex;flex-wrap:wrap;gap:7px}
+/* ---------- the artists on one line ----------
+   Wrapped across three rows the chips gave the longest name the widest row and left a
+   hole beside the shortest. One line that scrolls, the rest behind the heading. */
+.whorow{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;touch-action:pan-x;
+  margin-inline:calc(var(--ppad) * -1);padding:2px var(--ppad) 4px;gap:8px}
+.whorow::-webkit-scrollbar{display:none}
+.whorow a.am{flex:none;white-space:nowrap}
+.whorow a.am span{overflow-wrap:normal}
+.whorow.dragging{cursor:grabbing}
+.whorow.dragging a.am{pointer-events:none}
+/* a sub-heading that opens a page is a control, so it is sized and marked like one */
+.subh.subgo{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:8px;
+  width:100%;min-height:var(--tap);cursor:pointer;
+  font:600 var(--t-head)/var(--t-head-lh) var(--f-body);letter-spacing:-.01em;color:var(--fg);
+  margin:0 0 10px}
+.subh.subgo.gap{margin-top:16px}
+.subh.subgo .subct{margin-left:auto;font:400 var(--t-sub)/1 var(--f-mono);color:var(--muted);
+  font-variant-numeric:tabular-nums}
+.subh.subgo .sectcv{flex:none;display:grid;place-items:center;color:var(--muted);opacity:.75;
+  transition:transform .16s,opacity .16s}
+.subh.subgo .sectcv svg{width:16px;height:16px;stroke-width:2.4}
+.subh.subgo:hover .sectcv{opacity:1;transform:translateX(2px)}
+.subh.subgo:focus-visible{outline:0;border-radius:8px;
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+/* no icon tile on these rows, so the hairline starts where the name does */
+.amlist > *{--seplead:var(--ppad)}
+.amlist .listrow{text-decoration:none}
+.amlist .lrct.amkey{font:600 var(--t-foot)/1 var(--f-body);letter-spacing:.04em;
+  text-transform:uppercase;color:var(--muted);opacity:.7}
+.amlist .lrcv svg{width:15px;height:15px}
 .pcard .links{display:none}
 body.open .pcard .links{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin-top:16px}
 body.open .pcard>h3.sec{display:block}

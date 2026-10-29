@@ -823,6 +823,37 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 .rdn{display:block;margin-top:4px;font:400 var(--t-sub)/1.4 var(--f-body);
   color:color-mix(in srgb,var(--fg) 82%,transparent)}
 .who{display:flex;flex-wrap:wrap;gap:7px}
+/* ---------- the artists on one line ----------
+   Wrapped across three rows the chips gave the longest name the widest row and left a
+   hole beside the shortest. One line that scrolls, the rest behind the heading. */
+.whorow{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;touch-action:pan-x;
+  margin-inline:calc(var(--ppad) * -1);padding:2px var(--ppad) 4px;gap:8px}
+.whorow::-webkit-scrollbar{display:none}
+.whorow a.am{flex:none;white-space:nowrap}
+.whorow a.am span{overflow-wrap:normal}
+.whorow.dragging{cursor:grabbing}
+.whorow.dragging a.am{pointer-events:none}
+/* a sub-heading that opens a page is a control, so it is sized and marked like one */
+.subh.subgo{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:8px;
+  width:100%;min-height:var(--tap);cursor:pointer;
+  font:600 var(--t-head)/var(--t-head-lh) var(--f-body);letter-spacing:-.01em;color:var(--fg);
+  margin:0 0 10px}
+.subh.subgo.gap{margin-top:16px}
+.subh.subgo .subct{margin-left:auto;font:400 var(--t-sub)/1 var(--f-mono);color:var(--muted);
+  font-variant-numeric:tabular-nums}
+.subh.subgo .sectcv{flex:none;display:grid;place-items:center;color:var(--muted);opacity:.75;
+  transition:transform .16s,opacity .16s}
+.subh.subgo .sectcv svg{width:16px;height:16px;stroke-width:2.4}
+.subh.subgo:hover .sectcv{opacity:1;transform:translateX(2px)}
+.subh.subgo:focus-visible{outline:0;border-radius:8px;
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+/* no icon tile on these rows, so the hairline starts where the name does */
+.amlist > *{--seplead:var(--ppad)}
+.amlist .listrow{text-decoration:none}
+.amlist .lrct.amkey{font:600 var(--t-foot)/1 var(--f-body);letter-spacing:.04em;
+  text-transform:uppercase;color:var(--muted);opacity:.7}
+.amlist .lrcv svg{width:15px;height:15px}
 .pcard .links{display:none}
 body.open .pcard .links{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin-top:16px}
 body.open .pcard>h3.sec{display:block}
@@ -4220,11 +4251,26 @@ function lineageTitle(n){
     + lineageCol("from",from) + lineageCol("led",led)
     + `</div></div></div>`;
 }
+// every artist the map knows for a style: the three or four named on the panel, then the
+// roster behind them, which 135 styles carry and nothing has ever shown until now
+function artistAll(n){
+  const key=n.whoList||[];
+  const more=(n.roster||[]).filter(x=>key.indexOf(x)<0);
+  return key.concat(more);
+}
 function listenSect(n,who,artistsHtml){
   const pb=plist(n);
   if(!pb && !who.length) return "";
-  const body = (pb||"")
-             + (who.length?`<h4 class="subh${pb?" gap":""}">Key artists</h4>${artistsHtml}`:"");
+  // the chips used to wrap across three ragged lines, which gave the longest name the
+  // widest row and left a hole beside the shortest. One line that scrolls, with the rest
+  // behind the heading, the same way the ways in work on the overview.
+  const all=artistAll(n), rest=all.length-who.length;
+  const whoHead = rest>0
+    ? `<button type="button" class="subh subgo${pb?" gap":""}" data-page="artists"`
+      + ` aria-label="Key artists, see all ${all.length}">Key artists`
+      + `<span class="subct">${all.length}</span><span class="sectcv">${GOCHEV}</span></button>`
+    : `<h4 class="subh${pb?" gap":""}">Key artists</h4>`;
+  const body = (pb||"") + (who.length?whoHead+artistsHtml:"");
   const head = `<div class="secthead"><h3 class="secttl">Listen on ${svcPicker("inline")}</h3></div>`;
   return `<div class="sect sect-listen">${head}<div class="secbody">${body}</div></div>`;
 }
@@ -4237,7 +4283,7 @@ function shareBtn(n){
 function panel(n,anc,desc){
   const dfams=new Set([...desc.keys()].map(k=>byId[k].fam));
   const who=n.whoList||[];
-  const artistsHtml = `<div class="who">${who.map(am).join("")}</div>`;
+  const artistsHtml = `<div class="who whorow">${who.map(am).join("")}</div>`;
   resetPages();
   $("panelBody").innerHTML = PHEAD + `<div class="more">
     ${listenSect(n,who,artistsHtml)}
@@ -4792,6 +4838,18 @@ function styleRows(ids,detail){
       + `<em class="lrct">${detail(x)}</em>${GOCHEV}</button>`; }).join("") + `</div>`;
 }
 const PAGES_DEF={
+  artists:()=>{
+    const n=state.sel?byId[state.sel]:null; if(!n) return null;
+    const all=artistAll(n), key=n.whoList||[];
+    const row=(x,i)=>`<a class="listrow amrow" href="${svcHref(x)}" data-name="${esc(x)}"`
+      + ` target="_blank" rel="noopener" title="Open ${esc(x)} in ${svcName()}">`
+      + `<span class="lrlbl">${esc(x)}</span>`
+      + (i<key.length?`<em class="lrct amkey">key</em>`:"")
+      + `<i class="lrcv lrgov">${OPENGO}</i></a>`;
+    return {title:"Key artists",
+      lede:`Everyone the map names for ${n.name}, the three or four on the panel first. Each one opens in ${svcName()}.`,
+      html:`<div class="listgrp sep amlist">${all.map(row).join("")}</div>`};
+  },
   modes:()=>({title:"Ways in",
     lede:"Twenty-six moods, places and tasks, quietest first. Each one opens a dozen styles that suit it. The circles on the way in reorder themselves around the ones you open; this list does not.",
     html:modeListHtml()}),
@@ -4937,7 +4995,7 @@ $("panelBody").addEventListener("error",e=>{
   const stopGlide=()=>{ if(glide) cancelAnimationFrame(glide); glide=0; };
   body.addEventListener("pointerdown",e=>{
     if(e.pointerType!=="mouse"||e.button!==0) return;
-    const row=e.target.closest&&e.target.closest(".mrow"); if(!row) return;
+    const row=e.target.closest&&e.target.closest(".mrow,.whorow"); if(!row) return;
     stopGlide();
     drag={row,id:e.pointerId,x:e.clientX,from:row.scrollLeft,on:false,
           marks:[[performance.now(),e.clientX]]};
@@ -4979,7 +5037,7 @@ $("panelBody").addEventListener("error",e=>{
   body.addEventListener("pointerup",release);
   body.addEventListener("pointercancel",release);
   // a new scroll of the panel, or a tap anywhere, should not fight a glide still running
-  body.addEventListener("pointerdown",e=>{ if(!e.target.closest||!e.target.closest(".mrow")) stopGlide(); });
+  body.addEventListener("pointerdown",e=>{ if(!e.target.closest||!e.target.closest(".mrow,.whorow")) stopGlide(); });
 })();
 
 function panelTop(){ const pb=$("panelBody"); if(!pb) return; pb.scrollTop=0; document.body.classList.remove("pscrolled"); setTimeout(()=>{ pb.scrollTop=0; document.body.classList.remove("pscrolled"); },60); }

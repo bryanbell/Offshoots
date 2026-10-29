@@ -89,5 +89,71 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
       three>0 && quoted===0);
     await p.close(); }
 
+  // ---------- the row, and the roster behind it ----------
+  // The chips wrapped across three ragged rows, which gave the longest name the widest
+  // row and a hole beside the shortest. One line that scrolls now, with every artist the
+  // map knows behind the heading: 135 styles carry a roster that nothing had ever shown.
+  { const p=await ctx.newPage(); const errs=[];
+    p.on("pageerror",e=>errs.push(String(e)));
+    await p.goto(URL); await p.waitForTimeout(1200);
+    await p.evaluate(()=>{const n=document.querySelector("#chart .n[data-id=dub]");
+      n.dispatchEvent(new MouseEvent("click",{bubbles:true}));});
+    await p.waitForTimeout(1100);
+    const row=await p.evaluate(()=>{
+      const r=document.querySelector(".whorow"), h=document.querySelector(".subh.subgo");
+      if(!r) return null;
+      return {chips:r.children.length, nowrap:getComputedStyle(r).flexWrap==="nowrap",
+        scrolls:r.scrollWidth>r.clientWidth+1,
+        oneLine:[...new Set([...r.children].map(x=>Math.round(x.getBoundingClientRect().top)))].length===1,
+        isBtn:!!h && h.tagName==="BUTTON" && h.dataset.page==="artists",
+        count:h?+(h.querySelector(".subct")||{}).textContent:0,
+        // the tap floor steps down on a pointer tier, so ask the page rather than assume
+        floor:parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--tap"))||44,
+        tap:h?Math.round(h.getBoundingClientRect().height):0};});
+    say("the key artists are one scrolling line of "+(row&&row.chips),
+      !!row && row.nowrap && row.oneLine && row.scrolls);
+    say("  with a heading that opens the rest ("+(row&&row.count)+")",
+      !!row && row.isBtn && row.count>row.chips);
+    say("  and that heading is "+(row&&row.tap)+"px to tap", !!row && row.tap>=row.floor);
+    await p.click(".subh.subgo"); await p.waitForTimeout(800);
+    const pg=await p.evaluate(()=>{
+      const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
+      const rows=[...u.querySelectorAll(".amrow")];
+      return {title:(u.querySelector(".bigttl .mn")||{}).textContent,
+        n:rows.length, keyed:u.querySelectorAll(".amkey").length,
+        names:rows.map(x=>x.querySelector(".lrlbl").textContent),
+        blank:rows.every(x=>x.target==="_blank" && /noopener/.test(x.rel)),
+        hrefs:rows.every(x=>/^https?:/.test(x.href)),
+        tap:Math.min(...rows.map(x=>Math.round(x.getBoundingClientRect().height)))};});
+    say("tapping it lists all "+pg.n+" on a page called "+pg.title,
+      pg.title==="Key artists" && pg.n===(row&&row.count));
+    say("  the panel's own marked, and first", pg.keyed===(row&&row.chips)
+      && pg.names.slice(0,row.chips).join("/")!==""); 
+    say("  nobody listed twice", new Set(pg.names).size===pg.n);
+    say("  each opening safely in its own tab", pg.blank && pg.hrefs);
+    say("  rows at least "+pg.tap+"px", pg.tap>=(row?row.floor:44));
+    say("no page errors", errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
+    await p.close(); }
+
+  // a style with no roster keeps a plain heading rather than a control that opens nothing
+  { const p=await ctx.newPage();
+    await p.goto(URL); await p.waitForTimeout(1200);
+    const plain=await p.evaluate(async()=>{
+      // no ROSTER entry at all means there is nothing behind the chips to open
+      const bare=DATA.map(r=>r[0]).find(id=>
+        (ART[id]||[]).length && !(typeof ROSTER!=="undefined" && ROSTER[id]));
+      if(!bare) return null;
+      const node=document.querySelector(`#chart .n[data-id="${bare}"]`);
+      if(!node) return {skip:true};
+      node.dispatchEvent(new MouseEvent("click",{bubbles:true}));
+      await new Promise(r=>setTimeout(r,1000));
+      const h=document.querySelector(".subh");
+      return {id:bare, tag:h?h.tagName:"", go:!!document.querySelector(".subh.subgo")};});
+    if(!plain) say("every style with artists has a roster behind it", true);
+    else if(plain.skip) say("the no-roster style is off the rendered map", true);
+    else say("a style with no roster keeps a plain heading ("+plain.id+")",
+      plain.tag==="H4" && plain.go===false);
+    await p.close(); }
+
   await b.close();
 })();
