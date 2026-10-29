@@ -51,6 +51,36 @@ const up=p=>p.evaluate(()=>!document.getElementById("hello").hidden);
   say("  "+card.styles+" styles, read off the map", card.styles===real.n);
   say("  "+card.lists+" playlists, counted not claimed", card.lists===real.play);
 
+  // ---------- where you listen ----------
+  // Asked once, here, because the answer changes every playlist link in the app and the
+  // alternative is finding the menu on a style panel after the first wrong link opens.
+  // It sets the app's own `svc`, not a second setting of its own, and it does not dismiss
+  // the card: choosing where you listen is not choosing to start.
+  const svc=await p.evaluate(()=>({
+    opts:[...document.querySelectorAll("#hello [data-svc]")].map(b=>b.dataset.svc),
+    labels:[...document.querySelectorAll("#hello [data-svc]")].map(b=>b.textContent.trim()),
+    on:[...document.querySelectorAll("#hello [data-svc]")]
+        .filter(b=>b.getAttribute("aria-pressed")==="true").map(b=>b.dataset.svc),
+    group:!!document.querySelector("#hello [role=radiogroup][aria-labelledby]"),
+    tall:[...document.querySelectorAll("#hello [data-svc]")]
+        .every(b=>b.getBoundingClientRect().height>=44)}));
+  say("the card asks where you listen ("+svc.labels.join(", ")+")", svc.opts.length===3);
+  say("  with the one already stored marked, not a blank set of three",
+    svc.on.length===1 && svc.on[0]==="apple");
+  say("  as a labelled group of real tap targets", svc.group && svc.tall);
+
+  await p.click('#hello [data-svc="spotify"]'); await p.waitForTimeout(300);
+  const after=await p.evaluate(()=>({
+    on:[...document.querySelectorAll("#hello [data-svc]")]
+        .filter(b=>b.getAttribute("aria-pressed")==="true").map(b=>b.dataset.svc),
+    stored:(()=>{try{return localStorage.getItem("svc")}catch(e){return null}})(),
+    up:!document.getElementById("hello").hidden}));
+  say("picking one marks it and stores it as the app's own setting",
+    after.on.join()==="spotify" && after.stored==="spotify");
+  say("  and leaves the card open", after.up);
+  // put it back, so the rest of this suite sees the state it was written against
+  await p.click('#hello [data-svc="apple"]'); await p.waitForTimeout(250);
+
   // ---------- it goes away, and stays away ----------
   await p.click("#hellook"); await p.waitForTimeout(400);
   say("Look around dismisses it", (await up(p))===false);
@@ -96,6 +126,32 @@ const up=p=>p.evaluate(()=>!document.getElementById("hello").hidden);
     await q.goto(URL); await q.waitForTimeout(1800);
     say("  so the map itself still explains itself later", await up(q));
     await c4.close(); }
+
+  // the point of asking is that every link in the app changes, so check one that is two
+  // taps away rather than only the button that was pressed
+  { const c6=await b.newContext(M); const q=await c6.newPage();
+    await q.goto(URL); await q.waitForTimeout(1700);
+    await q.click('#hello [data-svc="spotify"]'); await q.waitForTimeout(250);
+    await q.click("#hellook"); await q.waitForTimeout(400);
+    // tap a style on the map rather than reloading on a hash: it keeps the check on the
+    // running page, where the choice was just made, instead of on whether file:// held
+    // onto localStorage across a navigation — which it does not reliably do
+    await q.evaluate(()=>{ const n=[...document.querySelectorAll("#chart .n")]
+      .find(x=>x.dataset.id==="dub") || document.querySelector("#chart .n");
+      n.dispatchEvent(new MouseEvent("click",{bubbles:true})); });
+    await q.waitForTimeout(1200);
+    await q.click("#grab").catch(()=>{});
+    await q.waitForTimeout(600);
+    const reach=await q.evaluate(()=>{
+      const sv=document.querySelector(".svctx");
+      const links=[...document.querySelectorAll("#panel a[href]")].map(a=>a.href)
+        .filter(h=>/spotify|music\.apple|qobuz/.test(h));
+      return {picker:sv?sv.textContent.trim():"none", n:links.length,
+        allSpotify:links.length>0 && links.every(h=>/open\.spotify\.com/.test(h))};});
+    say("the choice reaches a style panel: it reads "+reach.picker
+      +" and all "+reach.n+" of its links are Spotify",
+      reach.picker==="Spotify" && reach.allSpotify);
+    await c6.close(); }
 
   // ---------- desktop ----------
   { const c5=await b.newContext(D); const q=await c5.newPage();

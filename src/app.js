@@ -1886,6 +1886,11 @@ function openHello(){
   const ic=$("helloicon"); if(ic) ic.src=ICONSRC();
   const n=$("hellon"); if(n) n.textContent=nodes.length;
   const p=$("hellop"); if(p) p.textContent=playable().length;
+  // the service picker shows what is already stored rather than a blank set of three:
+  // a default nobody chose is still the answer until somebody changes it, and saying so
+  // is honest about what will happen if they just carry on
+  w.querySelectorAll("[data-svc]").forEach(bt=>
+    bt.setAttribute("aria-pressed",String(bt.dataset.svc===SVC)));
   w.hidden=false; document.body.classList.add("hello-open");
   // the card takes focus, not the button: a ring on a primary button reads as pressed,
   // and the dialog still announces itself and still hands Tab to the button
@@ -1895,6 +1900,13 @@ function openHello(){
   if(w){
     w.addEventListener("click",e=>{
       if(e.target.closest("[data-hclose]")) { closeHello(); return; }
+      // the picker sets the app's own preference, the same one the panel's menu sets, and
+      // leaves the card open: choosing where you listen is not choosing to start
+      { const sv=e.target.closest("[data-svc]");
+        if(sv){ setSvc(sv.dataset.svc);
+          w.querySelectorAll("[data-svc]").forEach(bt=>
+            bt.setAttribute("aria-pressed",String(bt.dataset.svc===sv.dataset.svc)));
+          return; } }
       if(e.target.closest("#hellook")) { closeHello(); return; }
       if(e.target.closest("#hellomood")){
         closeHello(()=>{ setOpen(true); setTimeout(()=>pushPage("modes"),120); });

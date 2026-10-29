@@ -929,7 +929,26 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 .helloi{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:9px;
   background:color-mix(in srgb,var(--blue) 16%,transparent);color:var(--blue);margin-top:1px}
 .helloi svg{width:18px;height:18px}
-.hellogo{display:flex;flex-direction:column;gap:4px}
+/* Which service to open playlists in, asked once, here, where it costs one tap and
+   nothing to undo. The app already stores this under `svc`; the welcome just sets the
+   same thing, so a person who picks Spotify here never sees an Apple Music link.
+   Each option wears its own brand colour when chosen, which is the quickest way to tell
+   at a glance which one is on without reading all three. */
+.hellosvc{margin:18px 0 0}
+.hellosvc h3{font:600 var(--t-sub)/1.2 var(--f-body);color:var(--fg);margin:0 0 8px}
+.svcpick{display:flex;gap:6px}
+.svcopt{flex:1 1 0;min-width:0;box-sizing:border-box;cursor:pointer;
+  border:.5px solid var(--line);background:var(--fill2);color:var(--muted);
+  font:600 var(--t-foot)/1.15 var(--f-body);letter-spacing:-.01em;
+  padding:9px 6px;min-height:var(--tap);border-radius:11px;text-align:center;
+  transition:background .16s,color .16s,border-color .16s}
+.svcopt:hover{color:var(--ink)}
+.svcopt[aria-pressed="true"]{background:var(--sv);border-color:transparent;color:#fff}
+.svcopt:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+.s-apple{--sv:#fa233b} .s-spotify{--sv:#1db954} .s-qobuz{--sv:#0070ef}
+.hellosvcn{font:400 var(--t-cap)/1.35 var(--f-body);color:var(--muted);margin:8px 0 0}
+@media (prefers-reduced-motion:reduce){ .svcopt{transition:none} }
+.hellogo{display:flex;flex-direction:column;gap:4px;margin-top:16px}
 .hellogo .shbtn.wide{margin:0}
 .hellolink{all:unset;box-sizing:border-box;display:block;width:100%;min-height:var(--tap);
   cursor:pointer;text-align:center;color:var(--muted);
@@ -1578,10 +1597,19 @@ a.am .amgo{display:none}
       <li><i class="helloi" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 16.8V9.2h2v7.6zM2 20h20v2H2zM4.5 3h2v10h-2zM11 2h2v8h-2zM17.5 6h2v7h-2z"/></svg></i>
         <span><b>Time runs left to right.</b> Follow a line backwards and you find what a sound is made of.</span></li>
       <li><i class="helloi" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 13.535V3h7v2h-5v10a4 4 0 1 1-2-3.465z"/></svg></i>
-        <span><b id="hellop">304</b><b> playlists</b>, so you can hear a style rather than read about it. They open in Apple Music or Spotify.</span></li>
+        <span><b id="hellop">304</b><b> playlists</b>, so you can hear a style rather than read about it. They open in whichever service you pick below.</span></li>
       <li><i class="helloi" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26A6.99 6.99 0 0 1 12 2zM9 19h6v1a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z"/></svg></i>
         <span><b>Not sure where to start?</b> Browse by mood, place or task, and pick the one that matches your afternoon.</span></li>
     </ul>
+    <div class="hellosvc">
+      <h3 id="hellosvcl">Where do you listen?</h3>
+      <div class="svcpick" role="radiogroup" aria-labelledby="hellosvcl">
+        <button type="button" data-svc="apple" class="svcopt s-apple">Apple Music</button>
+        <button type="button" data-svc="spotify" class="svcopt s-spotify">Spotify</button>
+        <button type="button" data-svc="qobuz" class="svcopt s-qobuz">Qobuz</button>
+      </div>
+      <p class="hellosvcn">You can change this any time, on any style.</p>
+    </div>
     <div class="hellogo">
       <button type="button" id="hellomood" class="shbtn wide">Browse by mood</button>
       <button type="button" id="hellook" class="hellolink">Look around the map</button>
@@ -5419,6 +5447,11 @@ function openHello(){
   const ic=$("helloicon"); if(ic) ic.src=ICONSRC();
   const n=$("hellon"); if(n) n.textContent=nodes.length;
   const p=$("hellop"); if(p) p.textContent=playable().length;
+  // the service picker shows what is already stored rather than a blank set of three:
+  // a default nobody chose is still the answer until somebody changes it, and saying so
+  // is honest about what will happen if they just carry on
+  w.querySelectorAll("[data-svc]").forEach(bt=>
+    bt.setAttribute("aria-pressed",String(bt.dataset.svc===SVC)));
   w.hidden=false; document.body.classList.add("hello-open");
   // the card takes focus, not the button: a ring on a primary button reads as pressed,
   // and the dialog still announces itself and still hands Tab to the button
@@ -5428,6 +5461,13 @@ function openHello(){
   if(w){
     w.addEventListener("click",e=>{
       if(e.target.closest("[data-hclose]")) { closeHello(); return; }
+      // the picker sets the app's own preference, the same one the panel's menu sets, and
+      // leaves the card open: choosing where you listen is not choosing to start
+      { const sv=e.target.closest("[data-svc]");
+        if(sv){ setSvc(sv.dataset.svc);
+          w.querySelectorAll("[data-svc]").forEach(bt=>
+            bt.setAttribute("aria-pressed",String(bt.dataset.svc===sv.dataset.svc)));
+          return; } }
       if(e.target.closest("#hellook")) { closeHello(); return; }
       if(e.target.closest("#hellomood")){
         closeHello(()=>{ setOpen(true); setTimeout(()=>pushPage("modes"),120); });
