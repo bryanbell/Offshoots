@@ -1,90 +1,128 @@
-// The Browse list and the one menu that hangs off it.
+// The panel as a stack of pages.
 //
-// It used to cover three chips — Families, Playlists, Most influential — and their
-// drill-down menus. Those were reference lists, and the panel kept only the two rows
-// that are ways into the map: Roots, which opens a menu, and Surprise me, which does
-// not. What survives from the old suite is everything about how that menu behaves:
-// it is portaled to <body> so the panel's overflow cannot clip it, it is placed against
-// the row rather than at some fixed inset, and on a phone, where a bottom sheet leaves
-// no room beneath, it flips above the row instead.
+// Roots and Most influential used to drop a menu over the panel, portaled to <body> so
+// the panel's own overflow could not clip it, and About and How to install were folds
+// that unrolled under your thumb at the bottom of a long scroll. All four are pages now:
+// tapping pushes one in from the right, the panel's back button pops it.
 //
-// The menu builders for the removed lists are still in app.js, unreachable.
+// What this suite holds onto: only one page is ever shown, the back button says where it
+// goes, picking a style from a list still selects it, Escape unwinds, and a fresh panel
+// starts from a clean stack rather than remembering where you were.
 const {chromium}=require("playwright");
 const URL="file://"+__dirname+"/../index.html";
 const M={width:390,height:844,isMobile:true,hasTouch:true,deviceScaleFactor:2};
 const Dk={width:1280,height:900};
 const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typeof v!=="boolean"?": "+v:""));
 
-async function fresh(b,vp){ const p=await b.newPage({viewport:vp}); const errs=[];
+async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const errs=[];
   p.on("pageerror",e=>errs.push(String(e)));
-  await p.goto(URL); await p.waitForTimeout(700); p._errs=errs; return p; }
-const vis=async(p,sel)=>p.$eval(sel,e=>{const r=e.getBoundingClientRect();
-  return r.width>0&&r.height>0&&r.top<innerHeight&&r.bottom>0&&r.left<innerWidth&&r.right>0;});
+  await p.goto(URL+(hash||"")); await p.waitForTimeout(800);
+  if(vp===M){ await p.click("#grab").catch(()=>{}); await p.waitForTimeout(500); }
+  p._errs=errs; return p; }
+const state=p=>p.evaluate(()=>{
+  const pages=[...document.querySelectorAll(".ppage")];
+  const up=pages.filter(x=>!x.hidden);
+  const b=document.getElementById("panelBack");
+  return {pages:pages.length, shown:up.length, key:up.length?up[0].dataset.p:null,
+    title:up.length?(up[0].querySelector(".bigttl .mn")||{}).textContent:null,
+    back:!b.hidden, backLbl:(b.querySelector(".bklbl")||{}).textContent,
+    scroll:document.getElementById("panelBody").scrollTop};});
 
 (async()=>{
   const b=await chromium.launch();
 
   // ---------- mobile ----------
   let p=await fresh(b,M);
-  await p.click("#grab").catch(()=>{}); await p.waitForTimeout(400);
-  say("the old chip sections are gone", (await p.$$(".sect-fams, .sect-top")).length===0);
-  say("and so are the chips themselves", (await p.$$(".brbtn, .brlbl")).length===0);
   const rows=await p.$$eval(".listgrp .listrow .lrlbl",e=>e.map(x=>x.textContent));
-  say("three rows: "+rows.join(" / "), rows.join("/")==="Roots/Most influential/Surprise me");
-  say("menus closed at rest", (await p.$$(".navmenu:not([hidden])")).length===0);
+  say("three ways in: "+rows.join(" / "), rows.join("/")==="Roots/Most influential/Surprise me");
+  const col=await p.$$eval(".sect-learn [data-page] .lrlbl",e=>e.map(x=>x.textContent));
+  say("and a colophon of two: "+col.join(" / "), col.join("/")==="About this map/How to install it");
+  say("nothing is pushed at rest", (await state(p)).pages===1);
+  say("and no menu is left over from the old build", (await p.$$(".navmenu .brmenu, [data-menu='roots']")).length===0);
 
-  await p.click('[data-menu="roots"]'); await p.waitForTimeout(400);
-  say("the menu is portaled to body", (await p.$$('body > .navmenu')).length===1);
-  say("and on screen", await vis(p,'.navmenu:not([hidden])'));
-  const box=await p.evaluate(()=>{
-    const m=[...document.querySelectorAll(".navmenu")].find(x=>!x.hidden);
-    const r=document.querySelector('[data-menu="roots"]');
-    const mb=m.getBoundingClientRect(), rb=r.getBoundingClientRect();
-    return {w:Math.round(mb.width), rw:Math.round(rb.width),
-      dx:Math.round(mb.left-rb.left), above:mb.bottom<=rb.top+1,
-      inView:Math.round(mb.top)>=0 && Math.round(mb.bottom)<=innerHeight,
-      n:m.querySelectorAll("[data-go]").length}; });
-  // it hangs off a full-width row, so it takes that width rather than its own
-  say("the menu is the row's width ("+box.w+" vs "+box.rw+")", box.w===box.rw && box.dx===0);
-  say("listing "+box.n+" styles", box.n===17);
-  // which side it opens on follows the room there is, which changed when Browse moved to
-  // the top of the panel. The rule that matters is that all of it is reachable.
-  say("opens "+(box.above?"above":"below")+" the row on a phone", true);
-  say("and fully on screen", box.inView);
-  await p.click('.navmenu:not([hidden]) [data-go]'); await p.waitForTimeout(600);
-  say("picking one selects it ("+(await p.evaluate(()=>location.hash))+")",
-    (await p.evaluate(()=>location.hash)).length>1);
-  say("and the menu closed behind it", (await p.$$(".navmenu:not([hidden])")).length===0);
+  await p.click('[data-page="roots"]'); await p.waitForTimeout(600);
+  let st=await state(p);
+  say("Roots pushes a page ("+st.title+")", st.key==="roots" && st.title==="Roots");
+  say("  two pages exist but only one is shown", st.pages===2 && st.shown===1);
+  say("  back appears, naming where it goes ("+st.backLbl+")", st.back && st.backLbl==="Explore");
+  say("  and the name is actually painted",
+    await p.evaluate(()=>{const l=document.querySelector("#panelBack .bklbl");
+      return getComputedStyle(l).display!=="none" && l.getBoundingClientRect().width>20;}));
+  say("  it starts at the top", st.scroll===0);
+  const n=await p.$$eval('.ppage[data-p="roots"] .listrow',e=>e.length);
+  say("  listing "+n+" styles", n===17);
+  say("  each row points the way it goes",
+    await p.$$eval('.ppage[data-p="roots"] .listrow .lrcv',e=>e.length>0 && e.every(x=>x.classList.contains("lrgov"))));
+
+  // pushing the same page twice would stack it on itself
+  await p.evaluate(()=>{const r=document.querySelector('[data-page="roots"]'); if(r) r.click();});
+  await p.waitForTimeout(300);
+  say("  and the row under it cannot be tapped again", (await state(p)).pages===2);
+
+  await p.click("#panelBack"); await p.waitForTimeout(600);
+  st=await state(p);
+  say("back pops it", st.pages===1 && st.key==="root" && st.title==="Explore");
+  say("  and takes the back button with it", st.back===false);
+
+  // Escape unwinds before it closes the panel
+  await p.click('[data-page="top"]'); await p.waitForTimeout(600);
+  const top=await p.$$eval('.ppage[data-p="top"] .listrow',e=>e.length);
+  say("Most influential pushes "+top+" styles", top===24);
+  say("  with a count on every row",
+    await p.$$eval('.ppage[data-p="top"] .lrct',e=>e.length===24 && e.every(x=>/^\d+$/.test(x.textContent))));
+  await p.keyboard.press("Escape"); await p.waitForTimeout(600);
+  st=await state(p);
+  say("Escape pops the page rather than closing the panel",
+    st.pages===1 && (await p.$eval("body",e=>e.classList.contains("open")))===true);
+
+  // picking a style leaves the stack behind
+  await p.click('[data-page="roots"]'); await p.waitForTimeout(600);
+  await p.click('.ppage[data-p="roots"] [data-go]'); await p.waitForTimeout(800);
+  const hash=await p.evaluate(()=>location.hash);
+  say("picking from a page selects it ("+hash+")", hash.length>1);
+  say("  and the style panel starts from a clean stack",
+    (await p.$$(".ppage")).length<=1 && (await p.$$('.ppage[data-p="roots"]')).length===0);
+  say("no page errors", p._errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
+  await p.close();
+
+  // ---------- the colophon ----------
+  p=await fresh(b,M);
+  await p.click('[data-page="install"]'); await p.waitForTimeout(600);
+  st=await state(p);
+  say("How to install pushes its own page ("+st.title+")", st.key==="install");
+  say("  with the platform sections on it",
+    (await p.$$eval('.ppage[data-p="install"] .subh',e=>e.length))>=4);
+  say("  and About is not pushed with it", (await p.$$('.ppage[data-p="about"]')).length===0);
+  await p.click("#panelBack"); await p.waitForTimeout(600);
+  await p.click('[data-page="about"]'); await p.waitForTimeout(600);
+  say("About pushes its own", (await state(p)).key==="about");
+  say("  carrying the app icon and the stats line",
+    (await p.$$('.ppage[data-p="about"] .abouthd .appicon')).length===1
+    && (await p.$$('.ppage[data-p="about"] .stats')).length===1);
   say("no page errors", p._errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
   await p.close();
 
   // ---------- desktop ----------
   p=await fresh(b,Dk);
-  await p.click('[data-menu="roots"]'); await p.waitForTimeout(400);
-  const dbox=await p.evaluate(()=>{
-    const m=[...document.querySelectorAll(".navmenu")].find(x=>!x.hidden);
-    const r=document.querySelector('[data-menu="roots"]');
-    const mb=m.getBoundingClientRect(), rb=r.getBoundingClientRect();
-    return {w:Math.round(mb.width), rw:Math.round(rb.width), dx:Math.round(mb.left-rb.left),
-      below:mb.top>=rb.bottom-1, inView:Math.round(mb.right)<=innerWidth}; });
-  say("the menu is the row's width here too ("+dbox.w+" vs "+dbox.rw+")",
-    dbox.w===dbox.rw && dbox.dx===0);
-  // a sidebar has room underneath, so it drops rather than flips
-  say("dropped below the row on a desktop", dbox.below);
-  say("and inside the window", dbox.inView);
-  // the whole point of portaling: the panel scrolls and clips, the menu must not be clipped
-  say("not clipped by the panel", await p.evaluate(()=>{
-    const m=[...document.querySelectorAll(".navmenu")].find(x=>!x.hidden);
-    return m.parentNode===document.body && getComputedStyle(m).position==="fixed"; }));
-  await p.keyboard.press("Escape"); await p.waitForTimeout(300);
-  say("Escape closes it", (await p.$$(".navmenu:not([hidden])")).length===0);
-
-  // Surprise me is a destination, not a list: it opens nothing and goes somewhere
-  await p.click("[data-random]"); await p.waitForTimeout(700);
-  const h=await p.evaluate(()=>location.hash);
-  say("Surprise me lands on a style ("+h+")", h.length>1);
-  say("without opening a menu", (await p.$$(".navmenu:not([hidden])")).length===0);
+  await p.click('[data-page="roots"]'); await p.waitForTimeout(600);
+  st=await state(p);
+  say("the sidebar pushes pages the same way", st.key==="roots" && st.shown===1);
+  say("  and the back button is there too", st.back && st.backLbl==="Explore");
+  const fits=await p.evaluate(()=>{
+    const pg=document.querySelector('.ppage[data-p="roots"]'), b=document.getElementById("panelBody");
+    return Math.round(pg.getBoundingClientRect().width)<=Math.round(b.getBoundingClientRect().width);});
+  say("  the page stays inside the panel", fits);
+  await p.click("#panelBack"); await p.waitForTimeout(600);
+  say("  and back works there", (await state(p)).key==="root");
   say("no page errors", p._errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
+
+  // ---------- a deep link lands on the page itself ----------
+  const dl=await fresh(b,M,"#install");
+  await dl.waitForTimeout(700);
+  const d=await state(dl);
+  say("#install lands on the install page", d.key==="install");
+  say("  with a way back to Explore ("+d.backLbl+")", d.back && d.backLbl==="Explore");
+  await dl.close();
 
   await b.close();
 })();

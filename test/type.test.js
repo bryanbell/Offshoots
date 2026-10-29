@@ -170,14 +170,14 @@ const readRules=(p)=>p.evaluate(()=>{
         +chrome.map(([k,v])=>k+" "+v).join(", ")+")", smallChrome.length===0);
     if(!(mp.n>400 && mp.min>=floor-0.01) || mp.max-mp.min<2 || smallChrome.length) bad++;
 
-    // 2. a menu, which is where the uppercase section header lived
-    await p.click('[data-menu="roots"]').catch(()=>{});
-    await p.waitForTimeout(400);
-    const menu=await p.$(".navmenu:not([hidden])");
-    if(menu){
-      check(name+" menu", await readType(p,".navmenu:not([hidden])"),
-                          await readTaps(p,".navmenu:not([hidden])",TIER.tap));
-    } else say(name+" menu: opened", false), bad++;
+    // 2. a pushed page, which is where the long lists live
+    await p.click('[data-page="roots"]').catch(()=>{});
+    await p.waitForTimeout(500);
+    const pg=await p.$('.ppage[data-p="roots"]');
+    if(pg){
+      check(name+" roots page", await readType(p,'.ppage[data-p="roots"]'),
+                                await readTaps(p,'.ppage[data-p="roots"]',TIER.tap));
+    } else say(name+" roots page: opened", false), bad++;
     await p.close();
     // 3. a style panel, on a fresh page: hash navigation on a loaded page does not select
     p=await ctx.newPage();

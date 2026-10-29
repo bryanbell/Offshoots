@@ -23,24 +23,24 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("one section heading: "+groups.join(" / "),
     groups.length===1 && /^Browse by /.test(groups[0]));
   say("  not Find: these are for when you do not know what you want", !/find/i.test(groups[0]));
-  say("  the folds are still their own section", (await p.$$(".sect-learn .fold")).length===2);
+  say("  the colophon is still its own section", (await p.$$(".sect-learn [data-page]")).length===2);
   say("  with no heading on it", (await p.$$(".sect-learn .secthead")).length===0);
   say("  and the list under the title has none either", (await p.$$(".sect-browse .secthead")).length===0);
-  say("  and none are left loose", (await p.$$eval("#panelBody > .more > .fold",e=>e.length))===0);
+  say("  and none are left loose", (await p.$$eval("#panelBody > .more > [data-page]",e=>e.length))===0);
   // they are about the map rather than part of it, so they read as a colophon: no filled
   // cards, an icon each, and an inset hairline above the group instead of a box around it
   const col=await p.evaluate(()=>{ const sec=document.querySelector(".sect-learn");
-    const folds=[...sec.querySelectorAll(".fold")];
+    const rows=[...sec.querySelectorAll("[data-page]")];
     const body=document.getElementById("panelBody").getBoundingClientRect();
     const rule=getComputedStyle(sec,"::before");
-    return {grounds:folds.map(f=>getComputedStyle(f).backgroundColor),
-      icons:folds.every(f=>!!f.querySelector("summary .foldi svg")),
+    return {grounds:rows.map(f=>getComputedStyle(f).backgroundColor),
+      icons:rows.every(f=>!!f.querySelector(".lrico svg")),
       ruleLeft:parseFloat(rule.left)||0, ruleOn:rule.content!=="none",
-      bleeds:folds.concat([sec]).some(e=>{ const cs=getComputedStyle(e);
+      bleeds:rows.concat([sec]).some(e=>{ const cs=getComputedStyle(e);
         return (parseFloat(cs.borderTopWidth)||0)>0
           && e.getBoundingClientRect().width>=body.width*0.9; })}; });
   say("no filled cards under them ("+col.grounds.join(", ")+")",
-    col.grounds.every(c=>/rgba\(0, 0, 0, 0\)|transparent/.test(c)));
+    col.grounds.every(g=>/rgba\(0, 0, 0, 0\)|transparent/.test(g)));
   say("  an icon on each instead", col.icons);
   say("  a hairline above the group, inset "+col.ruleLeft+"px to the labels",
     col.ruleOn && col.ruleLeft>=20);
@@ -122,7 +122,10 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   // the app icon left the header and moved into About, so check both ends of that:
   // a bare .appicon count would now find the one inside the collapsed details
   say("no app icon in the header", (await p.$$(".ovcard .navrow .appicon")).length===0);
-  say("it moved into About", (await p.$$(".aboutwrap .abouthd .appicon")).length===1);
+  { await p.click('[data-page="about"]'); await p.waitForTimeout(600);
+    say("it moved onto the About page", (await p.$$('.ppage[data-p="about"] .abouthd .appicon')).length===1);
+    await p.click("#panelBack"); await p.waitForTimeout(500);
+    await p.evaluate(()=>{document.getElementById("panelBody").scrollTop=0;}); await p.waitForTimeout(200); }
 
   // ---- the root panel's header and its list of ways in ----
   // the header carries nothing now: the title is a large one under it, the roots moved
@@ -172,21 +175,12 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("  and the title starts "+xo.titleTop+"px into the card", xo.titleTop<=24);
   say("  with the title clear of it by "+xo.clearsTitle+"px", xo.clearsTitle>0);
 
-  // the rows open a menu in place, so their chevron is a disclosure one
-  const cv=await p.evaluate(async()=>{
-    const r=document.querySelector('[data-menu="roots"]');
-    // read the state, not the animation: sampling a 180ms transition is a race, and under
-    // load it reads the identity matrix it started from
-    r.querySelector(".lrcv").style.transition="none";
-    const at=()=>getComputedStyle(r.querySelector(".lrcv")).transform;
-    const shut=at(); r.click(); await new Promise(z=>setTimeout(z,350));
-    const out={shut, open:at(), expanded:r.getAttribute("aria-expanded"),
-      points:r.querySelector(".lrcv").innerHTML};
-    r.click(); await new Promise(z=>setTimeout(z,300));   // leave it shut for what follows
-    return out; });
-  say("  the chevron points down at rest", /M3 6l5 5 5-5/.test(cv.points));
-  say("  and turns over when the menu opens ("+cv.open+")",
-    cv.expanded==="true" && cv.open!==cv.shut && /-1, 0, 0, -1/.test(cv.open));
+  // the rows go somewhere now rather than unfolding, so the chevron points that way
+  const cv=await p.evaluate(()=>{
+    const r=document.querySelector('[data-page="roots"]');
+    return {points:r.querySelector(".lrcv").innerHTML,
+      forward:r.querySelector(".lrcv").classList.contains("lrgov")}; });
+  say("  the chevron points the way the row goes", /M6 3l5 5-5 5/.test(cv.points) && cv.forward);
 
   // the ways in are one grouped list, the way a phone app lists collections
   const grp=await p.evaluate(()=>{ const g=document.querySelector(".sect-browse .listgrp");
@@ -214,16 +208,23 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("  the first two open a list, the last does not", !!grp &&
     grp.chevrons[0]===true && grp.chevrons[1]===true && grp.chevrons[2]===false);
 
-  await p.click(".sect-browse .listrow"); await p.waitForTimeout(400);
-  const menu=await p.evaluate(()=>{ const m=[...document.querySelectorAll(".navmenu")].find(x=>!x.hidden);
-    if(!m) return null;
-    const items=[...m.querySelectorAll("[data-go]")].map(x=>x.dataset.go);
-    return {head:(m.querySelector(".navhd")||{}).textContent||null, n:items.length,
+  // Roots pushes a page rather than dropping a menu, so the test follows it in and back
+  await p.click('[data-page="roots"]'); await p.waitForTimeout(600);
+  const pg=await p.evaluate(()=>{ const page=document.querySelector('.ppage[data-p="roots"]');
+    if(!page || page.hidden) return null;
+    const items=[...page.querySelectorAll("[data-go]")].map(x=>x.dataset.go);
+    return {title:(page.querySelector(".bigttl .mn")||{}).textContent, n:items.length,
+      lede:!!page.querySelector(".pglede"),
+      back:!document.getElementById("panelBack").hidden,
+      backLbl:(document.querySelector("#panelBack .bklbl")||{}).textContent,
+      rootHidden:document.querySelector('.ppage[data-p="root"]').hidden,
       allRoots:items.every(id=>{ const row=DATA.find(d=>d[0]===id); return !!row && !(row[4]||"").trim(); })}; });
-  // the row it opens from is directly above it and already says Roots
-  say("  the roots row opens an unheaded menu", !!menu && menu.head===null);
-  say("  listing "+(menu&&menu.n)+" styles, every one of them a root", !!menu && menu.allRoots && menu.n===17);
-  await p.click(".navmenu:not([hidden]) [data-go]"); await p.waitForTimeout(700);
+  say("  the roots row pushes a page titled "+(pg&&pg.title), !!pg && pg.title==="Roots");
+  say("  listing "+(pg&&pg.n)+" styles, every one of them a root", !!pg && pg.allRoots && pg.n===17);
+  say("  with a line saying what they are", !!pg && pg.lede);
+  say("  the page it came from is put away", !!pg && pg.rootHidden===true);
+  say("  and back says where it goes ("+(pg&&pg.backLbl)+")", !!pg && pg.back && pg.backLbl==="Explore");
+  await p.click('.ppage[data-p="roots"] [data-go]'); await p.waitForTimeout(700);
   say("  and picking one selects it ("+(await p.evaluate(()=>location.hash))+")",
     await p.evaluate(()=>location.hash.length>1));
   await p.goto(URL); await p.waitForTimeout(900);
@@ -242,27 +243,27 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
       (await mini.$$(".sect-feat, .featpick, .shuf, [data-shuffle]")).length===0);
     await mini.close(); }
 
-  // ---- 5: about disclosure ----
-  say("about starts closed", (await p.$eval(".aboutwrap",e=>e.open))===false);
-  const shut=await p.$eval(".aboutwrap",e=>Math.round(e.getBoundingClientRect().height));
-  say("collapsed about is "+shut+"px (summary only)", shut<60);
-  // About is the last thing in the panel, so opening it laid the text out below the
-  // fold and the tap looked like it had done nothing at all.
-  const abState=()=>p.evaluate(()=>{
-    const b=document.getElementById("panelBody"), d=document.querySelector(".aboutwrap"),
-          t=d.querySelector(".about"), br=b.getBoundingClientRect();
-    return {open:d.open, top:Math.round(d.getBoundingClientRect().top-br.top),
-      textTop:t?Math.round(t.getBoundingClientRect().top-br.top):null,
-      h:b.clientHeight, atEnd:Math.round(b.scrollHeight-b.clientHeight-b.scrollTop)<=1};
-  });
-  const abBefore=await abState();
-  await p.click(".aboutwrap summary"); await p.waitForTimeout(900);
-  const abAfter=await abState();
-  say("opens on tap", abAfter.open);
-  say("it started "+abBefore.top+"px down, past the fold", abBefore.top > abBefore.h*0.6);
-  say("opening scrolls it up to "+abAfter.top+"px", abAfter.top < abBefore.top - 100);
-  say("as far up as the panel can go"+(abAfter.atEnd?" (scroller at its end)":""),
-      abAfter.top <= 12 || abAfter.atEnd);
+  // ---- 5: About as a pushed page ----
+  // it used to be a fold at the bottom of the panel, where opening it laid the text out
+  // below the fold and the tap looked like it had done nothing
+  const abRow=await p.evaluate(()=>{
+    const r=document.querySelector('[data-page="about"]'), b=document.getElementById("panelBody");
+    return {exists:!!r, label:r?r.querySelector(".lrlbl").textContent:"",
+      tap:r?Math.round(r.getBoundingClientRect().height):0,
+      anyOpenText:!!document.querySelector(".ppage .abouthd")}; });
+  say("About is a row, not a fold", abRow.exists && abRow.label==="About this map");
+  say("  tap target "+abRow.tap+"px", abRow.tap>=44);
+  say("  and its text is not in the panel until you ask", abRow.anyOpenText===false);
+  await p.click('[data-page="about"]'); await p.waitForTimeout(700);
+  const ab=await p.evaluate(()=>{
+    const pg=document.querySelector('.ppage[data-p="about"]'), b=document.getElementById("panelBody");
+    return {up:!!pg&&!pg.hidden, title:(pg.querySelector(".bigttl .mn")||{}).textContent,
+      top:Math.round(pg.getBoundingClientRect().top-b.getBoundingClientRect().top),
+      scroll:b.scrollTop, stats:(pg.querySelector(".stats")||{}).textContent||""}; });
+  say("tapping it pushes the page", ab.up && ab.title==="About this map");
+  say("  landing at the top rather than past the fold ("+ab.top+"px, scroll "+ab.scroll+")",
+    ab.scroll===0 && ab.top<=80);
+  say("  stats line inside", ab.stats);
 
   // the last block used to sit flush against the panel's bottom edge
   const tail=await p.evaluate(()=>{
@@ -272,17 +273,19 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
     return Math.round(b.getBoundingClientRect().bottom-last.getBoundingClientRect().bottom);
   });
   say("air below the last block ("+tail+"px)", tail>=12);
-  say("stats line inside", await p.$eval(".aboutwrap .stats",e=>e.textContent));
+  await p.click("#panelBack"); await p.waitForTimeout(600);
+  await p.evaluate(()=>{document.getElementById("panelBody").scrollTop=0;});
+  say("back returns to Explore",
+    (await p.$eval('.ppage[data-p="root"] .bigttl .mn',e=>e.textContent))==="Explore");
   say("families stated once", (await p.$eval("#panelBody",e=>e.textContent)).split("families").length-1);
 
   // ---- 6: aside ----
   say("mode aside", await p.$eval(".sect-modes .sectaside",e=>e.textContent));
 
   // ---- space saved ----
-  await p.click(".aboutwrap summary"); await p.waitForTimeout(250);  // close it again
   const hgt=await p.$eval("#panelBody",e=>{const a=e.querySelector(".ovcard").getBoundingClientRect(),
-    z=e.querySelector(".aboutwrap").getBoundingClientRect(); return Math.round(z.bottom-a.top);});
-  say("root panel height, about collapsed (was 765)", hgt);
+    z=e.querySelector(".sect-learn").getBoundingClientRect(); return Math.round(z.bottom-a.top);});
+  say("root panel height, colophon included (was 765 with About collapsed)", hgt);
   await p.screenshot({path:__dirname+"/screens/r-m-root.png"});
   // the lane bands are family-coloured at two opacities; the rhythm only survives while
   // every low row stays darker than every high row, whichever families sit next to each other

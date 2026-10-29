@@ -217,20 +217,22 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   const ab=await fresh(b,M);
   await ab.click("#grab").catch(()=>{});
   await ab.waitForTimeout(600);
-  await ab.click(".aboutwrap summary"); await ab.waitForTimeout(800);
-  say("About carries a copy control", (await ab.$$(".aboutwrap [data-aboutcopy]")).length===1);
-  await ab.click(".aboutwrap [data-aboutcopy]"); await ab.waitForTimeout(400);
+  await ab.click('[data-page="about"]'); await ab.waitForTimeout(700);
+  say("About carries a copy control", (await ab.$$('.ppage[data-p="about"] [data-aboutcopy]')).length===1);
+  await ab.click('.ppage[data-p="about"] [data-aboutcopy]'); await ab.waitForTimeout(400);
   const copied=await ab.evaluate(()=>window.__copied.slice(-1)[0]||"");
   say("it copies a #about link ("+copied.split("/").pop()+")", /#about$/.test(copied));
-  say("and says so", (await ab.$eval(".aboutwrap .aboutcopy .lbl",e=>e.textContent))==="Link copied");
+  say("and says so", (await ab.$eval('.ppage[data-p="about"] .aboutcopy .lbl',e=>e.textContent))==="Link copied");
   // the install fold sits below it and carries a link of its own, not About's
-  say("install sits below About", await ab.$eval(".aboutwrap",e=>
-    e.compareDocumentPosition(document.querySelector(".installwrap"))===Node.DOCUMENT_POSITION_FOLLOWING));
-  await ab.click(".installwrap summary"); await ab.waitForTimeout(700);
-  say("its heading", await ab.$eval(".installwrap summary span",e=>e.textContent));
-  say("a section per platform", (await ab.$$eval(".installwrap .subh",e=>e.map(x=>x.textContent))).join(" / "));
-  say("each one with numbered steps", (await ab.$$(".installwrap .steps")).length>=4);
-  await ab.click(".installwrap [data-aboutcopy]"); await ab.waitForTimeout(400);
+  // back out of About and into install, which is the row under it
+  await ab.click("#panelBack"); await ab.waitForTimeout(500);
+  say("install sits below About", await ab.$eval('[data-page="about"]',e=>
+    e.compareDocumentPosition(document.querySelector('[data-page="install"]'))===Node.DOCUMENT_POSITION_FOLLOWING));
+  await ab.click('[data-page="install"]'); await ab.waitForTimeout(700);
+  say("its heading", await ab.$eval('.ppage[data-p="install"] .bigttl .mn',e=>e.textContent));
+  say("a section per platform", (await ab.$$eval('.ppage[data-p="install"] .subh',e=>e.map(x=>x.textContent))).join(" / "));
+  say("each one with numbered steps", (await ab.$$('.ppage[data-p="install"] .steps')).length>=4);
+  await ab.click('.ppage[data-p="install"] [data-aboutcopy]'); await ab.waitForTimeout(400);
   const icop=await ab.evaluate(()=>window.__copied.slice(-1)[0]||"");
   say("it copies a #install link ("+icop.split("/").pop()+")", /#install$/.test(icop));
   await ab.close();
@@ -239,13 +241,14 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   const al=await fresh(b,M,"#about");
   await al.waitForTimeout(1500);
   const land=await al.evaluate(()=>{
-    const d=document.querySelector(".aboutwrap"), body=document.getElementById("panelBody");
-    return {open:d.open, sheet:document.body.classList.contains("open"),
-      top:Math.round(d.getBoundingClientRect().top-body.getBoundingClientRect().top),
-      hash:location.hash};});
+    const d=document.querySelector('.ppage[data-p="about"]'), body=document.getElementById("panelBody");
+    return {page:!!d&&!d.hidden, sheet:document.body.classList.contains("open"),
+      scroll:body.scrollTop,
+      back:!document.getElementById("panelBack").hidden, hash:location.hash};});
   say("the link opens the sheet", land.sheet);
-  say("with About expanded", land.open);
-  say("scrolled to it ("+land.top+"px from the top)", land.top<=16);
+  say("on the About page", land.page);
+  say("scrolled to the top of it", land.scroll===0);
+  say("with a way back", land.back);
   say("and keeps the hash", land.hash==="#about");
   say("no errors following it", al._errs.length===0 ? true : al._errs.join(" | "));
   await al.close();
@@ -254,15 +257,15 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   const il=await fresh(b,M,"#install");
   await il.waitForTimeout(1500);
   const iland=await il.evaluate(()=>{
-    const d=document.querySelector(".installwrap"), body=document.getElementById("panelBody");
-    return {open:d.open, about:document.querySelector(".aboutwrap").open,
+    const d=document.querySelector('.ppage[data-p="install"]'), body=document.getElementById("panelBody");
+    return {page:!!d&&!d.hidden, about:!!document.querySelector('.ppage[data-p="about"]'),
       sheet:document.body.classList.contains("open"),
-      top:Math.round(d.getBoundingClientRect().top-body.getBoundingClientRect().top),
+      scroll:body.scrollTop,
       hash:location.hash};});
   say("#install opens the sheet", iland.sheet);
-  say("with the install fold expanded", iland.open);
-  say("and About left alone", iland.about===false);
-  say("scrolled to it ("+iland.top+"px from the top)", iland.top<=16);
+  say("on the install page", iland.page);
+  say("and About was not pushed with it", iland.about===false);
+  say("scrolled to the top of it", iland.scroll===0);
   say("and keeps the hash", iland.hash==="#install");
   say("no errors following it", il._errs.length===0 ? true : il._errs.join(" | "));
   await il.close();

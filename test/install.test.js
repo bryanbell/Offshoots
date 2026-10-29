@@ -72,8 +72,9 @@ const UA={
   { const ctx=await b.newContext({userAgent:UA.ioschrome,viewport:{width:390,height:844}});
     const p=await ctx.newPage(); await p.goto(URL+"#about"); await p.waitForTimeout(1500);
     const inside=await p.evaluate(()=>{ const a=document.querySelector(".openin");
-      return a?!!a.closest(".installwrap"):"absent"; });
-    say("it lives inside the install fold ("+inside+")", inside===true);
+      return a?(a.closest('.ppage[data-p="install"]')?"on install":"loose"):"absent"; });
+    // the row is built by the install page, so on any other page it does not exist at all
+    say("it exists only on the install page (on About: "+inside+")", inside==="absent");
     await ctx.close(); }
 
   // the step that says to tap Share can open the sheet itself, which is where
@@ -86,7 +87,7 @@ const UA={
     await p.goto(URL+"#install"); await p.waitForTimeout(1500);
     const r=await p.evaluate(()=>{ const btn=document.querySelector("[data-sharesheet]");
       return {btn:!!btn, tap:btn?Math.round(btn.getBoundingClientRect().height):0,
-        glyphs:document.querySelectorAll(".installwrap .steps svg.shg").length,
+        glyphs:document.querySelectorAll('.ppage[data-p="install"] .steps svg.shg').length,
         inStep:btn?/Share/.test(btn.closest("li").textContent):false}; });
     let fired=false;
     if(r.btn){ await p.$eval("[data-sharesheet]",e=>e.click()); await p.waitForTimeout(250);

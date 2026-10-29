@@ -467,9 +467,18 @@ function syncBack(){
   if(hm){ hm.hidden = !state.sel; hm.disabled = false; }
   // back itself lives in the panel now, where it is not sitting beside a From button
   const b=$("panelBack"); if(!b) return;
+  // a pushed page owns the back button while it is up: it is the nearer thing to leave
+  if(PSTACK.length){
+    const under = PSTACK.length>1 ? PSTACK[PSTACK.length-2].title : (state.sel ? byId[state.sel].name : "Explore");
+    b.hidden=false; b.setAttribute("aria-label","Back to "+under); b.setAttribute("title","Back to "+under);
+    const t0=b.querySelector(".bklbl"); if(t0) t0.textContent=under;
+    b.classList.remove("tomap"); b.classList.add("topage");
+    return;
+  }
   const l=backLabel();
   b.hidden=!l; if(!l) return;
   b.setAttribute("aria-label",l); b.setAttribute("title",l);
+  b.classList.remove("topage");
   const v=TRAIL[TRAIL.length-1], toMap=!(v&&v.sel&&byId[v.sel]);
   const t=b.querySelector(".bklbl");
   if(t) t.textContent = toMap ? "" : byId[v.sel].name;
@@ -729,7 +738,7 @@ function sheetMax(){ return Math.round(innerHeight*0.7); }
     begin(e,false);
   });
 })();
-document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ if(!$("wikiwrap").hidden){ closeWiki(); return; } if(OPEN) closePanel(); else if(state.sel&&document.activeElement!==$("q")) clearSel(); } });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ if(!$("wikiwrap").hidden){ closeWiki(); return; } if(popPage()) return; if(OPEN) closePanel(); else if(state.sel&&document.activeElement!==$("q")) clearSel(); } });
 
 const chip = (id,extra)=>{ const n=byId[id]; const yr=n.year<1950?n.disp:n.year;
   const tip=esc(n.name+" · "+yr+(extra?" · "+extra:"")+(n.done?" · playlist":""));
@@ -848,6 +857,7 @@ function panel(n,anc,desc){
   const dfams=new Set([...desc.keys()].map(k=>byId[k].fam));
   const who=n.whoList||[];
   const artistsHtml = `<div class="who">${who.map(am).join("")}</div>`;
+  resetPages();
   $("panelBody").innerHTML = PHEAD + `<div class="more">
     ${listenSect(n,who,artistsHtml)}
     ${sect("about","What it is",
@@ -855,6 +865,7 @@ function panel(n,anc,desc){
       + `<p class="tally">${anc.size} ancestor styles · ${desc.size} descendant styles${desc.size?` across ${dfams.size} ${dfams.size===1?"family":"families"}`:""}</p>`)}
     ${readSect(n)}
     ${shareBtn(n)}</div></div>`;
+  wrapStack(panelCard());
   paintPlay();
 }
 $("panel").addEventListener("change",e=>{ if(e.target&&e.target.classList.contains("svcsel")) setSvc(e.target.value); });
@@ -944,6 +955,8 @@ $("panel").addEventListener("click",e=>{
     return; }
   if(e.target.closest("#ptoggle")||e.target.closest("#grab")) return;   // the handle runs its own tap/drag logic
   const sv=e.target.closest("[data-svc]"); if(sv){ setSvc(sv.dataset.svc); return; }
+  { const pg=e.target.closest("[data-page]");
+    if(pg){ e.preventDefault(); pushPage(pg.dataset.page); return; } }
   { const rr=e.target.closest("[data-random]");
     if(rr){ const pool=nodes.filter(n=>n.id!==state.sel);
       const pick=pool[Math.floor(Math.random()*pool.length)];
@@ -1059,10 +1072,9 @@ const ABOUT_HASH="about", INSTALL_HASH="install";
 const FOLDS={[ABOUT_HASH]:".aboutwrap", [INSTALL_HASH]:".installwrap"};
 function foldURL(hash){ return location.origin + location.pathname + location.search + "#" + hash; }
 function openAbout(scroll,hash){
-  const d=document.querySelector(FOLDS[hash||ABOUT_HASH]); if(!d) return false;
-  if(!d.open) d.open=true;            // the toggle listener does the scrolling
-  else if(scroll) d.dispatchEvent(new Event("toggle"));
-  return true;
+  // these two used to be folds on the root panel; they are pages now, so the hash that
+  // deep-links them pushes one
+  return pushPage(hash||ABOUT_HASH);
 }
 function setHash(id){
   const want = id ? "#"+encodeURIComponent(id) : "";
@@ -1109,7 +1121,7 @@ function shareSel(){
   } else copy();
 }
 { const sp=$("sheetpull"); if(sp) sp.addEventListener("click",()=>{ restoreSheet(); }); }
-{ const pn=$("panel"); if(pn) pn.addEventListener("click",e=>{ if(e.target.closest("#panelBack")){ e.preventDefault(); e.stopPropagation(); goBack(); } },true); }
+{ const pn=$("panel"); if(pn) pn.addEventListener("click",e=>{ if(e.target.closest("#panelBack")){ e.preventDefault(); e.stopPropagation(); if(!popPage()) goBack(); } },true); }
 { const hb=$("mapHome"); if(hb) hb.addEventListener("click",e=>{ e.preventDefault(); goHome(); }); }
 // the hardware/browser back gesture should feel the same as the button
 addEventListener("keydown",e=>{
@@ -1216,6 +1228,8 @@ function plStylesHtml(k){
 }
 
 const LRICON={"roots": "<path d=\"M10 17V7\"/><path d=\"M10 11C10 8.5 8 6.5 5.5 6.5\"/><path d=\"M10 13.5c0-2 1.7-3.6 3.7-3.6\"/><path d=\"M10 7a2.6 2.6 0 1 0 0-5.2A2.6 2.6 0 0 0 10 7z\"/>", "fams": "<path d=\"M3.2 6.6L10 3.2l6.8 3.4L10 10z\"/><path d=\"M3.2 10L10 13.4 16.8 10\"/><path d=\"M3.2 13.4L10 16.8l6.8-3.4\"/>", "pl": "<path d=\"M4 5.5h8\"/><path d=\"M4 10h8\"/><path d=\"M4 14.5h5\"/><path d=\"M15.2 13.6V6.2l2.3-.7\"/><circle cx=\"13.8\" cy=\"14\" r=\"1.6\"/>", "top": "<path d=\"M3 13.5l4-4.2 3.1 2.8L17 5.5\"/><path d=\"M13.2 5.5H17V9\"/>"};
+// a row that takes you somewhere points that way; the down chevron means unfold
+const GOCHEV="<svg class=\"lrcv lrgov\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 3l5 5-5 5\"/></svg>";
 const LRCHEV="<svg class=\"lrcv\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 6l5 5 5-5\"/></svg>";
 // every way of browsing the map is a collection you open, so they are one grouped list:
 // icon, name, how many, chevron, hairlines starting at the name. They used to be three
@@ -1249,8 +1263,10 @@ function appShareBtn(){
     + `<span class="shlbl">Share this app</span></button>`;
 }
 function browseRow(){
-  return sect("browse","",`<div class="listgrp">`+rootsRow()
-    + browseBtn("top","Most influential",TOPN,"The "+TOPN+" styles that led to the most",topMenuHtml())
+  const nr=firstLevel().length;
+  return sect("browse","",`<div class="listgrp">`
+    + pageRow("roots","Roots",nr,`Roots: ${nr} styles with nothing before them here`)
+    + pageRow("top","Most influential",TOPN,`The ${TOPN} styles that led to the most`)
     + randomRow()+`</div>`);
 }
 const MODEICON={"showkid":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 2.4a4.7 4.7 0 0 0-2.8 8.5c.5.4.8 1 .8 1.6v.2h4v-.2c0-.6.3-1.2.8-1.6A4.7 4.7 0 0 0 10 2.4z\"/><path d=\"M8.2 15.2h3.6\"/><path d=\"M8.8 17.4h2.4\"/></svg>","sleep":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M11.9 2.8h5.3l-5.3 5.6h5.3\"/><path d=\"M6.9 9.1h4.3l-4.3 4.5h4.3\"/><path d=\"M2.8 14.2h3.1l-3.1 3.2h3.1\"/></svg>","coding":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 6.2 3.2 10 7 13.8\"/><path d=\"M13 6.2 16.8 10 13 13.8\"/><path d=\"M11.3 4.4 8.7 15.6\"/></svg>","focus":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"10\" r=\"6.8\"/><circle cx=\"10\" cy=\"10\" r=\"2.4\"/></svg>","workout":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.4 7.4v5.2\"/><path d=\"M15.6 7.4v5.2\"/><path d=\"M7 6v8\"/><path d=\"M13 6v8\"/><path d=\"M7 10h6\"/></svg>","miles":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2.4 10.4h3.1l1.7-4.6 2.9 9.1 2-4.5h5.5\"/></svg>","winddown":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M16.2 12.3A6.7 6.7 0 0 1 7.7 3.8a6.9 6.9 0 1 0 8.5 8.5z\"/></svg>","party":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"11.6\" r=\"5.4\"/><path d=\"M10 6.2V3\"/><path d=\"M4.7 10.4h10.6\"/><path d=\"M10 6.2V17\"/></svg>","houseparty":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5.1 4.4h9.8l-1.2 12.1a.9.9 0 0 1-.9.8H7.2a.9.9 0 0 1-.9-.8z\"/><path d=\"M5.6 9.2h8.8\"/></svg>","driving":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.2 12.6h13.6\"/><path d=\"M4.8 12.6l1.3-4.1a1.7 1.7 0 0 1 1.6-1.2h4.6a1.7 1.7 0 0 1 1.6 1.2l1.3 4.1\"/><circle cx=\"6.6\" cy=\"14\" r=\"1.5\"/><circle cx=\"13.4\" cy=\"14\" r=\"1.5\"/></svg>","dinner":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6.4 3v4.6\"/><path d=\"M9.1 3v4.6\"/><path d=\"M7.75 7.6V17\"/><path d=\"M14.4 3c1.5 1.7 1.5 5.3 0 6.6V17\"/></svg>","coffee":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.2 6.4h9.4v4.8a3.5 3.5 0 0 1-3.5 3.5H7.7a3.5 3.5 0 0 1-3.5-3.5z\"/><path d=\"M13.6 7.6h1.2a2 2 0 0 1 0 4h-1.2\"/><path d=\"M5.6 16.8h7.6\"/></svg>","cocktails":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.6 4.4h12.8L10 10.9z\"/><path d=\"M10 10.9v5.1\"/><path d=\"M7.2 16h5.6\"/></svg>","nightcap":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.8 5.2h10.4l-1 10.1a1 1 0 0 1-1 .9H6.8a1 1 0 0 1-1-.9z\"/><path d=\"M5.4 10.6h9.2\"/></svg>","gaming":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2.6\" y=\"6.6\" width=\"14.8\" height=\"8.8\" rx=\"4.1\"/><path d=\"M6.6 9.8v2.4\"/><path d=\"M5.4 11h2.4\"/><circle cx=\"13.4\" cy=\"10.5\" r=\".95\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"15.1\" cy=\"12.4\" r=\".95\" fill=\"currentColor\" stroke=\"none\"/></svg>","lift":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"10\" r=\"3.5\"/><path d=\"M10 2.4v1.7\"/><path d=\"M10 15.9v1.7\"/><path d=\"M2.4 10h1.7\"/><path d=\"M15.9 10h1.7\"/><path d=\"M4.6 4.6l1.2 1.2\"/><path d=\"M14.2 14.2l1.2 1.2\"/><path d=\"M15.4 4.6l-1.2 1.2\"/><path d=\"M5.8 14.2l-1.2 1.2\"/></svg>","burn":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 2.6c3 3.4 5.1 5.6 5.1 8.5a5.1 5.1 0 0 1-10.2 0c0-1.6.6-2.9 1.7-4.1.5 1.1 1.2 1.7 2 1.9C8.2 6.7 8.8 4.7 10 2.6z\"/></svg>","sit":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6.4 12.3a3.2 3.2 0 0 1 .4-6.4 4.3 4.3 0 0 1 8.1 1.4 2.7 2.7 0 0 1-.5 5\"/><path d=\"M7.6 14.8v2.1\"/><path d=\"M11 14.8v2.7\"/><path d=\"M14.3 14.8v2.1\"/></svg>","together":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"7.3\" cy=\"7.4\" r=\"2.4\"/><circle cx=\"13.5\" cy=\"8.3\" r=\"2\"/><path d=\"M3 16.6a4.4 4.4 0 0 1 8.7 0\"/><path d=\"M12.7 12.7a3.8 3.8 0 0 1 4.3 3.9\"/></svg>","family":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2.6 10.2 10 4.1l7.4 6.1\"/><path d=\"M4.6 9v7.3h10.8V9\"/><path d=\"M8.3 16.3v-3.5h3.4v3.5\"/></svg>","deep":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.2 13v-2.6a5.8 5.8 0 0 1 11.6 0V13\"/><path d=\"M4.2 12.3h1.5a1.4 1.4 0 0 1 1.4 1.4v1.6a1.4 1.4 0 0 1-1.4 1.4h-.9a.6.6 0 0 1-.6-.6z\"/><path d=\"M15.8 12.3h-1.5a1.4 1.4 0 0 0-1.4 1.4v1.6a1.4 1.4 0 0 0 1.4 1.4h.9a.6.6 0 0 0 .6-.6z\"/></svg>","restless":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7.6 2.8h4.8l3.1 14.4H4.5z\"/><path d=\"M4.9 13.9h10.2\"/><path d=\"M10 14.2 13 4.6\"/></svg>","chores":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7.3 3.1l1.15 3.05L11.5 7.3 8.45 8.45 7.3 11.5 6.15 8.45 3.1 7.3l3.05-1.15z\"/><path d=\"M14.1 10.6l.72 1.9 1.9.72-1.9.72-.72 1.9-.72-1.9-1.9-.72 1.9-.72z\"/></svg>","hype":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M11.6 2.4L5.2 11h4.1l-.9 6.6L14.8 9h-4.1z\"/></svg>","onmind":"<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M16.6 10.9a2.9 2.9 0 0 1-2.9 2.9H8.4l-3.9 3.1V6.4a2.9 2.9 0 0 1 2.9-2.9h6.3a2.9 2.9 0 0 1 2.9 2.9z\"/><circle cx=\"7.6\" cy=\"8.6\" r=\".85\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"10.5\" cy=\"8.6\" r=\".85\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"13.4\" cy=\"8.6\" r=\".85\" fill=\"currentColor\" stroke=\"none\"/></svg>"};
@@ -1262,20 +1278,84 @@ function modeSect(){
   return sect("modes","Browse by mood, place or task",`<div class="chips modechips">${chips}</div>${out}`,
               `<span class="sectaside">${MODES.length} ways in</span>`);
 }
-function emptyPanel(){
-  setTint("");
-  syncBack();                      // so the map pill is in its home state from the first paint
-  setExpandLabel("", "About this map", "About");
-  setPbar("Offshoots", FAMS.length+" families · "+nodes.length+" styles");
-  syncPull();
-  const top=[...nodes].sort((a,b)=>b.children.length-a.children.length||a.year-b.year).slice(0,12);
-  const np=playable().length;
-  const withSrc=DATA.filter(r=>Array.isArray(r[7])&&r[7].length).length;
-  $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="navrow"><div class="navleft"><button id="panelBack" class="navback" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg><span class="bklbl"></span><svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.4L7.4 3.4v11.2L2.8 16.6z"/><path d="M7.4 3.4l5.2 2v11.2l-5.2-2z"/><path d="M12.6 5.4l4.6-2v11.2l-4.6 2z"/></svg></button></div><div class="navttl navgap" aria-hidden="true"></div>${CLOSEBTN}</div><h1 class="bigttl"><span class="mn">Explore</span></h1><div class="more">
-    ${browseRow()}
-    ${modeSect()}
-    <p class="note ovhint">Or tap any style on the map to trace where it came from and what it led to.</p>
-    <div class="sect sect-learn nohead"><div class="secbody"><details class="fold aboutwrap"><summary><i class="foldi"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><path d="M10 9.2v4.4"/><path d="M10 6.5h.01"/></svg></i><span>About this map</span><svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg></summary>
+
+// ---------- the panel as a stack of pages ----------
+// Pushing slides the new page in from the right and the old one a little to the left,
+// and the panel's own back button pops it. The alternative was a menu thrown over the
+// top of the panel, which told you nothing about where you had been.
+let PSTACK=[];
+function panelCard(){ return $("panelBody").querySelector(".pcard"); }
+function wrapStack(card){
+  if(!card || card.querySelector(":scope > .pstack")) return null;
+  const nav=card.querySelector(":scope > .navrow");
+  const stack=document.createElement("div"); stack.className="pstack";
+  const page=document.createElement("div"); page.className="ppage"; page.dataset.p="root";
+  [...card.children].forEach(k=>{ if(k!==nav) page.appendChild(k); });
+  stack.appendChild(page); card.appendChild(stack);
+  return stack;
+}
+function resetPages(){ PSTACK=[]; }
+function pushPage(key){
+  const def=PAGES_DEF[key]; if(!def) return false;
+  const card=panelCard(); if(!card) return false;
+  const stack=card.querySelector(":scope > .pstack") || wrapStack(card);
+  if(!stack) return false;
+  if(PSTACK.length && PSTACK[PSTACK.length-1].key===key) return true;
+  const body=$("panelBody"), cur=stack.lastElementChild, d=def();
+  const page=document.createElement("div");
+  page.className="ppage pgin"; page.dataset.p=key;
+  page.innerHTML=`<h1 class="bigttl"><span class="mn">${esc(d.title)}</span></h1>`
+    + (d.lede?`<p class="note pglede">${esc(d.lede)}</p>`:"")
+    + `<div class="more pgbody">${d.html}</div>`;
+  PSTACK.push({key,title:d.title,scroll:body.scrollTop});
+  stack.appendChild(page);
+  if(reduce){ cur.hidden=true; page.classList.remove("pgin"); }
+  else {
+    cur.classList.add("pgout");
+    requestAnimationFrame(()=>page.classList.remove("pgin"));
+    setTimeout(()=>{ cur.hidden=true; cur.classList.remove("pgout"); },240);
+  }
+  body.scrollTop=0; setOpen(true); syncBack(); closeNav();
+  return true;
+}
+function popPage(){
+  if(!PSTACK.length) return false;
+  const card=panelCard(), stack=card&&card.querySelector(":scope > .pstack");
+  if(!stack){ PSTACK=[]; syncBack(); return false; }
+  const body=$("panelBody"), cur=stack.lastElementChild, prev=cur.previousElementSibling;
+  const was=PSTACK.pop();
+  if(prev){ prev.hidden=false; if(!reduce){ prev.classList.add("pgout");
+    requestAnimationFrame(()=>prev.classList.remove("pgout")); } }
+  if(reduce) cur.remove();
+  else { cur.classList.add("pgin");
+    setTimeout(()=>{ cur.remove(); if(prev) body.scrollTop=was.scroll||0; },240); }
+  if(reduce && prev) body.scrollTop=was.scroll||0;
+  syncBack();
+  return true;
+}
+
+// ---------- pages inside the panel ----------
+// A panel is a stack. Tapping a row pushes a page in from the right and the back button
+// pops it, rather than unfolding a block under your thumb or throwing a menu over the
+// top: a list of seventeen styles is a place you go, not a thing that drops down.
+function styleRows(ids,detail){
+  return `<div class="listgrp plist">` + ids.map(id=>{ const x=byId[id];
+    return `<button type="button" class="listrow" data-go="${x.id}">`
+      + `<i class="dot" style="background:${FAM[x.fam].c}"></i>`
+      + `<span class="lrlbl">${esc(x.name)}</span>`
+      + `<em class="lrct">${detail(x)}</em>${GOCHEV}</button>`; }).join("") + `</div>`;
+}
+const PAGES_DEF={
+  roots:()=>({title:"Roots",
+    lede:"Styles with nothing before them here. Everything else on the map descends from these.",
+    html:styleRows(firstLevel(),x=>x.year<1950?x.disp:x.year)}),
+  top:()=>({title:"Most influential",
+    lede:"The styles that led to the most, counted by what came directly out of them.",
+    html:styleRows([...nodes].sort((a,b)=>b.children.length-a.children.length||a.year-b.year)
+      .slice(0,TOPN).map(x=>x.id), x=>x.children.length)}),
+  about:()=>{ const np=playable().length,
+      withSrc=DATA.filter(r=>Array.isArray(r[7])&&r[7].length).length;
+    return {title:"About this map", html:`
     <div class="about"><div class="abouthd"><img class="appicon" alt="" src="${ICONSRC()}"><p class="stats">${$("stats").textContent} · ${np} with a playlist</p></div>
     <h4 class="subh">What it is for</h4>
     <p>Every style here is placed at the year it cohered into a named, recorded scene, and joined to the styles it grew out of. Time runs left to right, so following a line backwards shows you what a sound is made of.</p>
@@ -1289,7 +1369,34 @@ function emptyPanel(){
     <p>So a playlist starts just outside its own style and arrives at it, which is the same move the map makes. If the opening tracks sound like something else, that is the point: that is what it grew out of.</p>
     <h4 class="subh">Reading the map</h4>
     <p>A play triangle inside a dot marks a style with a playlist, linked in its panel. The bigger the name, the more styles grew out of it. Everything before 1950 sits left of the divider, on its own compressed scale, and is set in italic. Zoomed out, the styles that led nowhere show as plain dots.</p>
-    <button type="button" class="aboutcopy" data-aboutcopy="about"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 11.6a3.2 3.2 0 0 0 4.6 0l2.6-2.6a3.2 3.2 0 0 0-4.6-4.6l-1 1"/><path d="M11.6 8.4a3.2 3.2 0 0 0-4.6 0L4.4 11a3.2 3.2 0 0 0 4.6 4.6l1-1"/></svg><span class="lbl">Copy a link to this</span></button></div></details><details class="fold installwrap"><summary><i class="foldi"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3v8.6"/><path d="M6.4 8.4L10 12l3.6-3.6"/><path d="M4.2 14.2v1.4a1.4 1.4 0 0 0 1.4 1.4h8.8a1.4 1.4 0 0 0 1.4-1.4v-1.4"/></svg></i><span>How to install it</span><svg class="cv" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg></summary><div class="about">${openInRow()}<p>Offshoots is a web page, so there is nothing to download and no app store. Every platform below can pin it to a home screen or dock, where it opens full screen with no browser chrome around it.</p><h4 class="subh">iPhone and iPad</h4><ol class="steps"><li>Open this page in <b>Safari</b>. Chrome and Firefox on iOS cannot do this.</li><li>Tap the <b>Share</b> button, the square with an arrow coming out of it: ${SHAREGLYPH}${shareStep()}</li><li>Scroll down the list and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li></ol><h4 class="subh">Android</h4><ol class="steps"><li>Open this page in <b>Chrome</b>.</li><li>Tap the <b>three dots</b> at the top right.</li><li>Tap <b>Add to Home screen</b>, then <b>Install</b> or <b>Add</b>. Samsung Internet and Firefox have the same item in their own menus.</li></ol><h4 class="subh">Mac</h4><ol class="steps"><li>In <b>Safari</b>, choose <b>File &rsaquo; Add to Dock</b>, then <b>Add</b>. It lands in the Dock and opens in its own window.</li><li>In <b>Chrome</b>, the same thing is under the three dots at <b>Cast, Save and Share &rsaquo; Install page as app</b>.</li></ol><h4 class="subh">Windows</h4><ol class="steps"><li>In <b>Edge</b> or <b>Chrome</b>, look for the <b>install icon</b> at the right-hand end of the address bar, a monitor with an arrow in it, and click it.</li><li>No icon there? Open the <b>three dots</b> menu and choose <b>Apps &rsaquo; Install this site as an app</b> in Edge, or <b>Cast, Save and Share &rsaquo; Install page as app</b> in Chrome.</li><li>Tick <b>Pin to taskbar</b> when it offers, and it behaves like any other app.</li></ol><h4 class="subh">What you get</h4><p>The whole map is a single file, so once it has loaded it keeps working without a connection. The playlist links still need one, since those open Apple Music or Spotify.</p><button type="button" class="aboutcopy" data-aboutcopy="install"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 11.6a3.2 3.2 0 0 0 4.6 0l2.6-2.6a3.2 3.2 0 0 0-4.6-4.6l-1 1"/><path d="M11.6 8.4a3.2 3.2 0 0 0-4.6 0L4.4 11a3.2 3.2 0 0 0 4.6 4.6l1-1"/></svg><span class="lbl">Copy a link to this</span></button></div></details></div>${appShareBtn()}</div></div>`;
+    <button type="button" class="aboutcopy" data-aboutcopy="about"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 11.6a3.2 3.2 0 0 0 4.6 0l2.6-2.6a3.2 3.2 0 0 0-4.6-4.6l-1 1"/><path d="M11.6 8.4a3.2 3.2 0 0 0-4.6 0L4.4 11a3.2 3.2 0 0 0 4.6 4.6l1-1"/></svg><span class="lbl">Copy a link to this</span></button></div>`}; },
+  install:()=>({title:"How to install it", html:`<div class="about">${openInRow()}<p>Offshoots is a web page, so there is nothing to download and no app store. Every platform below can pin it to a home screen or dock, where it opens full screen with no browser chrome around it.</p><h4 class="subh">iPhone and iPad</h4><ol class="steps"><li>Open this page in <b>Safari</b>. Chrome and Firefox on iOS cannot do this.</li><li>Tap the <b>Share</b> button, the square with an arrow coming out of it: ${SHAREGLYPH}${shareStep()}</li><li>Scroll down the list and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li></ol><h4 class="subh">Android</h4><ol class="steps"><li>Open this page in <b>Chrome</b>.</li><li>Tap the <b>three dots</b> at the top right.</li><li>Tap <b>Add to Home screen</b>, then <b>Install</b> or <b>Add</b>. Samsung Internet and Firefox have the same item in their own menus.</li></ol><h4 class="subh">Mac</h4><ol class="steps"><li>In <b>Safari</b>, choose <b>File &rsaquo; Add to Dock</b>, then <b>Add</b>. It lands in the Dock and opens in its own window.</li><li>In <b>Chrome</b>, the same thing is under the three dots at <b>Cast, Save and Share &rsaquo; Install page as app</b>.</li></ol><h4 class="subh">Windows</h4><ol class="steps"><li>In <b>Edge</b> or <b>Chrome</b>, look for the <b>install icon</b> at the right-hand end of the address bar, a monitor with an arrow in it, and click it.</li><li>No icon there? Open the <b>three dots</b> menu and choose <b>Apps &rsaquo; Install this site as an app</b> in Edge, or <b>Cast, Save and Share &rsaquo; Install page as app</b> in Chrome.</li><li>Tick <b>Pin to taskbar</b> when it offers, and it behaves like any other app.</li></ol><h4 class="subh">What you get</h4><p>The whole map is a single file, so once it has loaded it keeps working without a connection. The playlist links still need one, since those open Apple Music or Spotify.</p><button type="button" class="aboutcopy" data-aboutcopy="install"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 11.6a3.2 3.2 0 0 0 4.6 0l2.6-2.6a3.2 3.2 0 0 0-4.6-4.6l-1 1"/><path d="M11.6 8.4a3.2 3.2 0 0 0-4.6 0L4.4 11a3.2 3.2 0 0 0 4.6 4.6l1-1"/></svg><span class="lbl">Copy a link to this</span></button></div>`})
+};
+const PAGEICON={roots:LRICON.roots,top:LRICON.top,about:"<circle cx=\"10\" cy=\"10\" r=\"7.4\"/><path d=\"M10 9.2v4.4\"/><path d=\"M10 6.5h.01\"/>",install:"<path d=\"M10 3v8.6\"/><path d=\"M6.4 8.4L10 12l3.6-3.6\"/><path d=\"M4.2 14.2v1.4a1.4 1.4 0 0 0 1.4 1.4h8.8a1.4 1.4 0 0 0 1.4-1.4v-1.4\"/>"};
+function pageRow(key,label,count,title){
+  return `<button type="button" class="listrow" data-page="${key}"${title?` title="${esc(title)}" aria-label="${esc(title)}"`:""}>`
+    + `<i class="lrico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${PAGEICON[key]||""}</svg></i>`
+    + `<span class="lrlbl">${esc(label)}</span>${count!=null?`<em class="lrct">${count}</em>`:""}${GOCHEV}</button>`;
+}
+function emptyPanel(){
+  setTint("");
+  syncBack();                      // so the map pill is in its home state from the first paint
+  setExpandLabel("", "About this map", "About");
+  setPbar("Offshoots", FAMS.length+" families · "+nodes.length+" styles");
+  syncPull();
+  const top=[...nodes].sort((a,b)=>b.children.length-a.children.length||a.year-b.year).slice(0,12);
+  const np=playable().length;
+  const withSrc=DATA.filter(r=>Array.isArray(r[7])&&r[7].length).length;
+  resetPages();
+  $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="navrow"><div class="navleft"><button id="panelBack" class="navback" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg><span class="bklbl"></span><svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.4L7.4 3.4v11.2L2.8 16.6z"/><path d="M7.4 3.4l5.2 2v11.2l-5.2-2z"/><path d="M12.6 5.4l4.6-2v11.2l-4.6 2z"/></svg></button></div><div class="navttl navgap" aria-hidden="true"></div>${CLOSEBTN}</div><h1 class="bigttl"><span class="mn">Explore</span></h1><div class="more">
+    ${browseRow()}
+    ${modeSect()}
+    <p class="note ovhint">Or tap any style on the map to trace where it came from and what it led to.</p>
+    <div class="sect sect-learn nohead"><div class="secbody"><div class="colrows">
+    ${pageRow("about","About this map")}
+    ${pageRow("install","How to install it")}
+    </div></div>${appShareBtn()}</div></div>`;
+  wrapStack(panelCard());
 }
 
 
