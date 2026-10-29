@@ -1167,7 +1167,7 @@ function shareSel(){
   // nothing selected: share the map itself rather than doing nothing
   const url = n ? styleURL(id) : location.origin+location.pathname+location.search;
   const title = n ? "Offshoots · "+n.name : "Offshoots";
-  const text  = n ? n.name+" on Offshoots" : "Offshoots — what grew out of what in North American music";
+  const text  = n ? n.name+" on Offshoots" : "Offshoots — what grew out of what in popular music";
   const btn=document.querySelector("#panel [data-share]");
   // the wide button says what happened in words; the round one has no room for words, so
   // .done swaps its glyph for a tick and that is the whole message

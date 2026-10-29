@@ -1,7 +1,9 @@
 # Offshoots
 
-Interactive map of North American music styles: trace what any style grew out of
-and what grew out of it. Built for the School of Listening class.
+Interactive map of popular music styles: trace what any style grew out of
+and what grew out of it. The spine is American, but the lines cross oceans —
+Jamaica, the UK, Brazil, West Africa, Cuba and more are all in here, because
+the music does not stay put. Built for the School of Listening class.
 
 Live: https://offshoots.netlify.app/
 
