@@ -13,7 +13,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   const b=await chromium.launch();
   const ctx=await b.newContext({viewport:{width:1440,height:900}});
   const who=async id=>{ const p=await ctx.newPage(); await p.goto(URL+"#"+id); await p.waitForTimeout(700);
-    const w=await p.$$eval(".who a, .who button, .who .am", e=>e.map(x=>x.textContent.trim()).filter(Boolean));
+    const w=await p.$$eval(".acrow .acirc .aclbl", e=>e.map(x=>x.textContent.trim()).filter(Boolean));
     await p.close(); return w; };
 
   // a place at the head of the note is not a key artist
@@ -99,13 +99,18 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     await p.evaluate(()=>{const n=document.querySelector("#chart .n[data-id=dub]");
       n.dispatchEvent(new MouseEvent("click",{bubbles:true}));});
     await p.waitForTimeout(1100);
-    const chipNames=await p.$$eval(".whorow .am span",e=>e.map(x=>x.textContent));
+    const chipNames=await p.$$eval(".acrow .aclbl",e=>e.map(x=>x.textContent));
     const row=await p.evaluate(()=>{
-      const r=document.querySelector(".whorow"), h=document.querySelector(".subh.subgo");
+      const r=document.querySelector(".acrow"), h=document.querySelector(".subh.subgo");
       if(!r) return null;
-      return {chips:r.children.length, nowrap:getComputedStyle(r).flexWrap==="nowrap",
+      const c=[...r.querySelectorAll(".acirc")];
+      return {chips:c.length, nowrap:getComputedStyle(r).flexWrap==="nowrap",
         scrolls:r.scrollWidth>r.clientWidth+1,
-        oneLine:[...new Set([...r.children].map(x=>Math.round(x.getBoundingClientRect().top)))].length===1,
+        oneLine:[...new Set(c.map(x=>Math.round(x.getBoundingClientRect().top)))].length===1,
+        // a symbol per kind of act, so a row of artists reads before you read a name
+        symbols:c.every(x=>!!x.querySelector(".aco svg") && /\br-\w+/.test(x.className)),
+        round:c.every(x=>{const q=x.querySelector(".aco").getBoundingClientRect();
+          return Math.abs(q.width-q.height)<=1 && q.width>=56;}),
         isBtn:!!h && h.tagName==="BUTTON" && h.dataset.page==="artists",
         count:h?+(h.querySelector(".subct")||{}).textContent:0,
         // the tap floor steps down on a pointer tier, so ask the page rather than assume
@@ -113,6 +118,8 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
         tap:h?Math.round(h.getBoundingClientRect().height):0};});
     say("the key artists are one scrolling line of "+(row&&row.chips),
       !!row && row.nowrap && row.oneLine && row.scrolls);
+    say("  each a circle carrying a symbol for what the act is",
+      !!row && row.symbols && row.round);
     say("  with a heading that opens the rest ("+(row&&row.count)+")",
       !!row && row.isBtn && row.count>row.chips);
     say("  and that heading is "+(row&&row.tap)+"px to tap", !!row && row.tap>=row.floor);
@@ -139,7 +146,45 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     say("  nobody listed twice", new Set(pg.names).size===pg.n);
     say("  each opening safely in its own tab", pg.blank && pg.hrefs);
     say("  rows at least "+pg.tap+"px", pg.tap>=(row?row.floor:44));
+    // the eight kinds are eight colours, each one readable with a white symbol on it
+    const pal=await p.evaluate(()=>{
+      const want=["band","voice","mc","guitar","keys","player","dj","studio","none"];
+      const probe=document.createElement("i"); probe.style.display="none";
+      document.body.appendChild(probe);
+      const out={};
+      for(const r of want){ probe.className="acirc r-"+r;
+        out[r]=getComputedStyle(probe).getPropertyValue("--rc").trim(); }
+      probe.remove(); return out;});
+    const hex=h=>[1,3,5].map(i=>parseInt(h.substr(i,2),16));
+    const lum=h=>{const [r,g,b]=hex(h).map(v=>{v/=255;
+      return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4);}); return .2126*r+.7152*g+.0722*b;};
+    const vals=Object.values(pal);
+    say("eight kinds, "+new Set(vals).size+" colours, plus a fallback",
+      vals.every(v=>/^#[0-9a-f]{6}$/i.test(v)) && new Set(vals).size===vals.length);
+    const worst=Math.min(...vals.map(v=>1.05/(lum(v)+.05)));
+    say("  the faintest reads at "+worst.toFixed(2)+":1 under a white symbol", worst>=3);
     say("no page errors", errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
+    await p.close(); }
+
+  // the roles themselves: what the map claims about each act, checked for shape
+  { const p=await ctx.newPage();
+    await p.goto(URL); await p.waitForTimeout(1200);
+    const t=await p.evaluate(()=>{
+      const OK=["band","voice","mc","guitar","keys","player","dj","studio"];
+      const vals=Object.values(ROLE);
+      const key=new Set(); for(const d of DATA) (ART[d[0]]||[]).forEach(x=>key.add(x));
+      const spread={}; vals.forEach(v=>spread[v]=(spread[v]||0)+1);
+      return {n:vals.length, odd:vals.filter(v=>OK.indexOf(v)<0).length,
+        kinds:Object.keys(spread).length,
+        covered:[...key].filter(x=>ROLE[x]).length, key:key.size,
+        spread};});
+    say(t.n+" acts classified, all into one of the eight", t.odd===0 && t.kinds===8);
+    say("  covering "+t.covered+" of the "+t.key+" key artists",
+      t.covered>=Math.floor(t.key*0.9));
+    // one bucket swallowing everything would mean the symbols say nothing
+    say("  no kind holding more than half ("
+      +Object.entries(t.spread).sort((a,b)=>b[1]-a[1])[0].join(" ")+")",
+      Math.max(...Object.values(t.spread))<t.n*0.5);
     await p.close(); }
 
   // a style with no roster opens a page too: the row scrolls, so the page is the only

@@ -832,14 +832,35 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 /* ---------- the artists on one line ----------
    Wrapped across three rows the chips gave the longest name the widest row and left a
    hole beside the shortest. One line that scrolls, the rest behind the heading. */
-.whorow{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;
+.whorow{display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;
   -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;touch-action:pan-x;
   margin-inline:calc(var(--ppad) * -1);padding:2px var(--ppad) 4px;gap:8px}
 .whorow::-webkit-scrollbar{display:none}
 .whorow a.am{flex:none;white-space:nowrap}
 .whorow a.am span{overflow-wrap:normal}
 .whorow.dragging{cursor:grabbing}
-.whorow.dragging a.am{pointer-events:none}
+.whorow.dragging a.am,.whorow.dragging a.acirc{pointer-events:none}
+/* ---------- an artist as a circle ----------
+   The chips were all the same shape, so a row of them said nothing until you read every
+   name. A symbol per kind of act reads first: who sings, who plays, who is a whole band,
+   who makes it alone in a room. Eight kinds, eight colours. */
+.acrow{gap:12px;align-items:flex-start}
+.acirc{all:unset;box-sizing:border-box;cursor:pointer;flex:none;width:84px;
+  display:flex;flex-direction:column;align-items:center;gap:9px;text-align:center;
+  -webkit-tap-highlight-color:transparent}
+.acirc .aco{display:grid;place-items:center;width:72px;height:72px;border-radius:50%;color:#fff;
+  background:linear-gradient(160deg,color-mix(in srgb,var(--rc) 80%,#fff) 0%,var(--rc) 55%,
+    color-mix(in srgb,var(--rc) 74%,#000) 100%);
+  box-shadow:0 1px 3px rgb(0 0 0 / .26);transition:transform .16s cubic-bezier(.32,.72,0,1)}
+.acirc .aco svg{width:36px;height:36px;display:block}
+.acirc:hover .aco,.acirc:focus-visible .aco{transform:scale(1.045)}
+.acirc:active .aco{transform:scale(.95)}
+.acirc:focus-visible .aco{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 55%,transparent)}
+.aclbl{font:500 var(--t-foot)/1.3 var(--f-body);color:var(--fg);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.r-band{--rc:#3d6fc4} .r-dj{--rc:#6a54c0} .r-studio{--rc:#2f7f8c} .r-keys{--rc:#2f8a62}
+.r-guitar{--rc:#7a7222} .r-player{--rc:#9c6a1c} .r-mc{--rc:#b4582a} .r-voice{--rc:#b53f45}
+.r-none{--rc:#6b6b73}
 /* a sub-heading that opens a page is a control, so it is sized and marked like one */
 .subh.subgo{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:8px;
   width:100%;min-height:var(--tap);cursor:pointer;
@@ -1363,7 +1384,7 @@ a.wk.pl:hover,a.wk.sp:hover{background:color-mix(in srgb,var(--ink,var(--fg)) 84
 .plrow.off img.pcov{opacity:.5}
 .plrow.off .plttl{opacity:.6}
 .plrow.off .plgo{display:none}
-@media (max-width:899px){ .plrow{padding:9px 16px 9px 9px;gap:12px} .plrow img.pcov,.plrow .pcovph{width:78px;height:78px} .plrow .pcovph b{font-size:26px} }
+@media (max-width:899px){ .plrow{padding:9px 16px 9px 9px;gap:13px} .plrow img.pcov,.plrow .pcovph{width:98px;height:98px} .plrow .pcovph b{font-size:32px} }
 
 /* the service switch fills the row beside "Listen on", three equal thirds */
 .sect-listen .secthead{gap:14px}
