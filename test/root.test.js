@@ -1,4 +1,5 @@
 const {chromium}=require("playwright");
+const skipWelcome=require("./_hello");
 const URL="file://"+__dirname+"/../index.html";
 const M={width:390,height:844,isMobile:true,hasTouch:true,deviceScaleFactor:2};
 const Dk={width:1280,height:900};
@@ -8,7 +9,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   await p.goto(URL+(hash||"")); await p.waitForTimeout(850); p._errs=errs; return p; }
 
 (async()=>{
-  const b=await chromium.launch();
+  const b=await chromium.launch(); skipWelcome(b);
   let p=await fresh(b,M);
   await p.click("#grab").catch(()=>{}); await p.waitForTimeout(450);
 

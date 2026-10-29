@@ -7,6 +7,7 @@
 // Tinted style panels are not covered here. They derive --muted and --fill from the
 // family's own ink and ground with color-mix, so the root tokens do not reach them.
 const {chromium}=require("playwright");
+const skipWelcome=require("./_hello");
 const URL="file://"+__dirname+"/../index.html";
 const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typeof v!=="boolean"?": "+v:""));
 
@@ -16,7 +17,7 @@ const ratio=(a,b)=>+(((Math.max(lum(a),lum(b))+.05)/(Math.min(lum(a),lum(b))+.05
 const parse=s=>s.match(/[\d.]+/g).slice(0,3).map(Number);
 
 (async()=>{
-  const b=await chromium.launch();
+  const b=await chromium.launch(); skipWelcome(b);
   for(const [name,vp,mob] of [["mobile",{width:390,height:844},true],["desktop",{width:1440,height:900},false]]){
     const ctx=await b.newContext({viewport:vp,isMobile:mob,hasTouch:mob,deviceScaleFactor:2});
     const p=await ctx.newPage();

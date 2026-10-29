@@ -6,6 +6,7 @@
 // the selection, or select whatever the cursor happened to stop over. The pan also has
 // to stay out of the way of everything that already answers a click.
 const {chromium}=require("playwright");
+const skipWelcome=require("./_hello");
 const URL="file://"+__dirname+"/../index.html";
 const Dk={width:1280,height:900};
 const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typeof v!=="boolean"?": "+v:""));
@@ -26,7 +27,7 @@ async function drag(p,x,y,dx,dy,steps){ steps=steps||8;
   await p.mouse.up(); await p.waitForTimeout(250); return mid; }
 
 (async()=>{
-  const b=await chromium.launch();
+  const b=await chromium.launch(); skipWelcome(b);
 
   let p=await fresh(b);
   say("the background offers a grab cursor",

@@ -2,6 +2,7 @@
 // differently per browser, and it is offered over http(s) only, so this suite serves the
 // built page rather than reading it off disk like the others.
 const {chromium}=require("playwright");
+const skipWelcome=require("./_hello");
 const http=require("http"), fs=require("fs"), path=require("path");
 const FILE=path.join(__dirname,"..","index.html");
 const PORT=8741, URL="http://127.0.0.1:"+PORT+"/";
@@ -25,7 +26,7 @@ const UA={
 (async()=>{
   const srv=http.createServer((q,r)=>{ r.writeHead(200,{"Content-Type":"text/html; charset=utf-8"});
     r.end(fs.readFileSync(FILE)); }).listen(PORT);
-  const b=await chromium.launch();
+  const b=await chromium.launch(); skipWelcome(b);
   const row=async(ua,hash)=>{
     const ctx=await b.newContext({userAgent:UA[ua],viewport:{width:390,height:844}});
     const p=await ctx.newPage(); const errs=[]; p.on("pageerror",e=>errs.push(String(e)));

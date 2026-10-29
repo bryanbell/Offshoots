@@ -9,6 +9,7 @@
 // goes, picking a style from a list still selects it, Escape unwinds, and a fresh panel
 // starts from a clean stack rather than remembering where you were.
 const {chromium}=require("playwright");
+const skipWelcome=require("./_hello");
 const URL="file://"+__dirname+"/../index.html";
 const M={width:390,height:844,isMobile:true,hasTouch:true,deviceScaleFactor:2};
 const Dk={width:1280,height:900};
@@ -29,7 +30,7 @@ const state=p=>p.evaluate(()=>{
     scroll:document.getElementById("panelBody").scrollTop};});
 
 (async()=>{
-  const b=await chromium.launch();
+  const b=await chromium.launch(); skipWelcome(b);
 
   // ---------- mobile ----------
   let p=await fresh(b,M);

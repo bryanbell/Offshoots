@@ -6,11 +6,12 @@
 // must stay. Each style opens on a fresh page: a hash change on a loaded page is a
 // same-document navigation and does not re-select.
 const {chromium}=require("playwright");
+const skipWelcome=require("./_hello");
 const URL="file://"+__dirname+"/../index.html";
 const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typeof v!=="boolean"?": "+v:""));
 
 (async()=>{
-  const b=await chromium.launch();
+  const b=await chromium.launch(); skipWelcome(b);
   const ctx=await b.newContext({viewport:{width:1440,height:900}});
   const who=async id=>{ const p=await ctx.newPage(); await p.goto(URL+"#"+id); await p.waitForTimeout(700);
     const w=await p.$$eval(".acrow .acirc .aclbl", e=>e.map(x=>x.textContent.trim()).filter(Boolean));

@@ -11,11 +11,12 @@
 // the sheet with a real p.click("#grab"). An evaluate-click leaves the sheet shut, which
 // makes every "it closed" assertion pass without testing anything.
 const {chromium}=require("playwright");
+const skipWelcome=require("./_hello");
 const URL="file://"+__dirname+"/../index.html";
 const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typeof v!=="boolean"?": "+v:""));
 
 (async()=>{
-  const b=await chromium.launch();
+  const b=await chromium.launch(); skipWelcome(b);
   const ctx=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2});
   const p=await ctx.newPage(); const errs=[]; p.on("pageerror",e=>errs.push(String(e)));
   await p.goto(URL); await p.waitForTimeout(900);

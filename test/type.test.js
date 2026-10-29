@@ -16,6 +16,7 @@
 // the all-caps check passed against the very CSS it was written to catch, because every
 // all-caps label lived in the style panel and the menus.
 const {chromium}=require("playwright");
+const skipWelcome=require("./_hello");
 const URL="file://"+__dirname+"/../index.html";
 const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typeof v!=="boolean"?": "+v:""));
 
@@ -98,7 +99,7 @@ const readRules=(p)=>p.evaluate(()=>{
 });
 
 (async()=>{
-  const b=await chromium.launch();
+  const b=await chromium.launch(); skipWelcome(b);
   let bad=0;
   let TIER=TIERS.touch;
   const check=(label,type,taps)=>{

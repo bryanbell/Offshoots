@@ -6,12 +6,13 @@
 // the rendering: every row complete, every link https and unique, no encyclopedias, and
 // a note on every one, since the note is what makes it worth a tap.
 const {chromium}=require("playwright");
+const skipWelcome=require("./_hello");
 const URL="file://"+__dirname+"/../index.html";
 const M={width:390,height:844,isMobile:true,hasTouch:true,deviceScaleFactor:2};
 const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typeof v!=="boolean"?": "+v:""));
 
 (async()=>{
-  const b=await chromium.launch();
+  const b=await chromium.launch(); skipWelcome(b);
   let p=await b.newPage({viewport:M}); const errs=[];
   p.on("pageerror",e=>errs.push(String(e)));
   await p.goto(URL); await p.waitForTimeout(900);

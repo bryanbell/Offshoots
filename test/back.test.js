@@ -1,4 +1,5 @@
 const {chromium}=require("playwright");
+const skipWelcome=require("./_hello");
 const URL="file://"+__dirname+"/../index.html";
 const M={width:390,height:844,isMobile:true,hasTouch:true,deviceScaleFactor:2};
 const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typeof v!=="boolean"?": "+v:""));
@@ -15,7 +16,7 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
   { await p.click("#grab").catch(()=>{}); await p.waitForTimeout(450); } };
 
 (async()=>{
-  const b=await chromium.launch();
+  const b=await chromium.launch(); skipWelcome(b);
   let p=await fresh(b,M);
 
   say("hidden with nothing behind you", (await shown(p))===false);

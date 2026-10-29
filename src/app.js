@@ -1810,6 +1810,50 @@ addEventListener("resize",()=>{ clearTimeout(rt); rt=setTimeout(()=>{
   const wasOverlay=OVERLAY; render(); if(state.sel) select(state.sel,{scroll:false});
 
 },150); });
+// ---------- the welcome ----------
+// Shown once per browser, and never to somebody arriving on a shared link: they came for
+// a particular style, not for an explanation of the map. A browser that refuses storage
+// gets it once this session rather than on every reload.
+const HELLO_KEY="offshoots.seen";
+let helloShown=false;
+function helloSeen(){
+  if(helloShown) return true;
+  try{ return localStorage.getItem(HELLO_KEY)==="1"; }catch(e){ return false; }
+}
+function markHello(){
+  helloShown=true;
+  try{ localStorage.setItem(HELLO_KEY,"1"); }catch(e){}
+}
+function closeHello(then){
+  const w=$("hello"); if(!w||w.hidden) return;
+  w.hidden=true; markHello();
+  document.body.classList.remove("hello-open");
+  if(typeof then==="function") then();
+}
+function openHello(){
+  const w=$("hello"); if(!w) return;
+  const ic=$("helloicon"); if(ic) ic.src=ICONSRC();
+  const n=$("hellon"); if(n) n.textContent=nodes.length;
+  const p=$("hellop"); if(p) p.textContent=playable().length;
+  w.hidden=false; document.body.classList.add("hello-open");
+  // the card takes focus, not the button: a ring on a primary button reads as pressed,
+  // and the dialog still announces itself and still hands Tab to the button
+  const c=$("hellocard"); if(c) setTimeout(()=>c.focus({preventScroll:true}),60);
+}
+{ const w=$("hello");
+  if(w){
+    w.addEventListener("click",e=>{
+      if(e.target.closest("[data-hclose]")) { closeHello(); return; }
+      if(e.target.closest("#hellook")) { closeHello(); return; }
+      if(e.target.closest("#hellomood")){
+        closeHello(()=>{ setOpen(true); setTimeout(()=>pushPage("modes"),120); });
+      }
+    });
+    document.addEventListener("keydown",e=>{
+      if(e.key==="Escape" && !w.hidden){ e.stopPropagation(); closeHello(); }
+    },true);
+  } }
+
 function boot(){
   lastW=innerWidth; lastH=innerHeight; render(); updZoom();
   const h=(location.hash||"").slice(1);
@@ -1820,6 +1864,8 @@ function boot(){
   }
   else if(byId[h]) select(h,{smooth:false});
   else { emptyPanel(); scroller.scrollLeft = 0; scroller.scrollTop = 0; syncPeek(); }
+  // a hash of any kind means somebody was sent here, so the map speaks for itself
+  if(!h && !helloSeen()) setTimeout(openHello,260);
 }
 (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(boot,boot);
 function kb(){

@@ -9,6 +9,7 @@
 // loud it is, two abreast without clipping a label, and a tap that pushes a page of
 // twelve picks you can select from.
 const {chromium}=require("playwright");
+const skipWelcome=require("./_hello");
 const URL="file://"+__dirname+"/../index.html";
 const fresh=async(b,vp)=>{ const p=await b.newPage({viewport:vp}); const errs=[];
   p.on("pageerror",e=>errs.push(String(e))); p.on("console",m=>{if(m.type()==="error")errs.push(m.text());});
@@ -20,7 +21,7 @@ const Dk={width:1280,height:900};
 const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typeof v!=="boolean"?": "+v:""));
 
 (async()=>{
-  const b=await chromium.launch();
+  const b=await chromium.launch(); skipWelcome(b);
 
   // ---------- the Places row ----------
   // The overview opens on a row of circles you swipe sideways, the way Apple Maps opens

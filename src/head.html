@@ -859,6 +859,46 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
    and the tiles start one gutter in, so the span the circles have to fill is 100% + ppad.
    A custom property holding a percentage resolves where it is USED, so this one is only
    ever read on .acirc, whose containing block is the row. */
+/* ---------- the first thing a new visitor sees ----------
+   A map of 461 dots with lines between them does not explain itself, and the playlists,
+   which are the reason to stay, are two taps down. So: what it is, that you can hear it,
+   and one way in. Shown once per browser, skipped entirely on a shared link, since
+   somebody following one came for a particular style and not for an explanation. */
+/* display:grid beats the hidden attribute's own display:none, and a full-screen layer that
+   is invisible but still laid out swallows every tap on the map. So say it explicitly. */
+#hello[hidden]{display:none}
+#hello{position:fixed;inset:0;z-index:120;display:grid;place-items:center;
+  padding:max(18px,env(safe-area-inset-left,0px)) 18px max(18px,env(safe-area-inset-bottom,0px))}
+#hellobd{position:absolute;inset:0;background:rgb(0 0 0 / .62);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#hellocard:focus{outline:0}
+#hellocard{position:relative;width:min(400px,100%);max-height:calc(100% - 8px);overflow:auto;
+  background:var(--panel);border-radius:22px;padding:26px 22px 20px;
+  box-shadow:0 20px 60px rgb(0 0 0 / .5),0 0 0 .5px var(--line);
+  animation:helloin .32s cubic-bezier(.32,.72,0,1) both}
+@keyframes helloin{from{opacity:0;transform:translateY(14px) scale(.97)}}
+@media (prefers-reduced-motion:reduce){ #hellocard{animation:none} }
+#hellocard .appicon{display:block;width:62px;height:62px;border-radius:14px;margin:0 0 16px;
+  box-shadow:0 1px 3px rgb(0 0 0 / .3)}
+#hellottl{font:700 var(--t-title2)/1.1 var(--f-body);letter-spacing:-.025em;margin:0 0 8px;
+  text-wrap:balance}
+.hellolede{font-size:var(--t-body);line-height:var(--t-body-lh);color:var(--muted);margin:0 0 20px}
+.hellolede b{color:var(--fg);font-weight:600;font-variant-numeric:tabular-nums}
+.hellolist{list-style:none;margin:0 0 22px;padding:0;display:flex;flex-direction:column;gap:15px}
+.hellolist li{display:flex;gap:13px;align-items:flex-start;
+  font-size:var(--t-sub);line-height:var(--t-sub-lh);color:var(--muted)}
+.hellolist b{color:var(--fg);font-weight:600;font-variant-numeric:tabular-nums}
+.helloi{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:9px;
+  background:color-mix(in srgb,var(--blue) 16%,transparent);color:var(--blue);margin-top:1px}
+.helloi svg{width:18px;height:18px}
+.hellogo{display:flex;flex-direction:column;gap:4px}
+.hellogo .shbtn.wide{margin:0}
+.hellolink{all:unset;box-sizing:border-box;display:block;width:100%;min-height:var(--tap);
+  cursor:pointer;text-align:center;color:var(--muted);
+  font:500 var(--t-sub)/var(--tap) var(--f-body)}
+.hellolink:hover{color:var(--fg)}
+.hellolink:focus-visible{outline:0;border-radius:10px;
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
 .acrow{gap:var(--acgap);align-items:flex-start;--acgap:12px;--acw:clamp(84px,
   calc((100% + var(--ppad) - var(--acgap) * 3) / 3.5),118px)}
 .acirc{all:unset;box-sizing:border-box;cursor:pointer;flex:none;width:var(--acw);
@@ -1502,6 +1542,26 @@ a.am .amgo{display:none}
   <aside id="panel" aria-live="polite"><div id="grab" role="button" tabindex="0" aria-label="Expand details" aria-expanded="false"></div>
   <button id="pclose" data-close aria-label="Collapse details"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l5-5 5 5"/></svg></button>  <div id="pbar"><div id="pbarTxt"><span id="pbarTitle"></span><span id="pbarSub"></span></div></div>
   <div id="panelBody"></div><div id="ptoggle"><button id="expand" aria-label="Show details" aria-expanded="false"><span class="lbl">Details</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg></button></div></aside>
+</div>
+<div id="hello" hidden>
+  <div id="hellobd" data-hclose></div>
+  <div id="hellocard" role="dialog" aria-modal="true" aria-labelledby="hellottl" tabindex="-1">
+    <img class="appicon" alt="" id="helloicon">
+    <h2 id="hellottl">What grew out of what</h2>
+    <p class="hellolede">A map of <b id="hellon">461</b> North American music styles, each one joined to the styles it came out of.</p>
+    <ul class="hellolist">
+      <li><i class="helloi" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 16.8V9.2h2v7.6zM2 20h20v2H2zM4.5 3h2v10h-2zM11 2h2v8h-2zM17.5 6h2v7h-2z"/></svg></i>
+        <span><b>Time runs left to right.</b> Follow a line backwards and you find what a sound is made of.</span></li>
+      <li><i class="helloi" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 13.535V3h7v2h-5v10a4 4 0 1 1-2-3.465z"/></svg></i>
+        <span><b id="hellop">304</b><b> playlists</b>, so you can hear a style rather than read about it. They open in Apple Music or Spotify.</span></li>
+      <li><i class="helloi" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26A6.99 6.99 0 0 1 12 2zM9 19h6v1a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z"/></svg></i>
+        <span><b>Not sure where to start?</b> Browse by mood, place or task, and pick the one that matches your afternoon.</span></li>
+    </ul>
+    <div class="hellogo">
+      <button type="button" id="hellomood" class="shbtn wide">Browse by mood</button>
+      <button type="button" id="hellook" class="hellolink">Look around the map</button>
+    </div>
+  </div>
 </div>
 <div id="wikiwrap" hidden>
   <div id="wikibd" data-wclose></div>
