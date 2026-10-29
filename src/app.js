@@ -1034,6 +1034,18 @@ $("panel").addEventListener("click",e=>{
     if(rr){ const pool=nodes.filter(n=>n.id!==state.sel);
       const pick=pool[Math.floor(Math.random()*pool.length)];
       if(pick){ closeNav(); select(pick.id); panelTop(); } return; } }
+  // the sort swaps the rows where they stand rather than rebuilding the page: a rebuild
+  // would throw away the scroll position, and the whole point of re-sorting is to look
+  // at the same twenty-six from somewhere else
+  { const sb=e.target.closest("[data-msort]");
+    if(sb){ e.preventDefault();
+      setModeSort(sb.dataset.msort);
+      const seg=sb.closest(".seg");
+      if(seg) seg.querySelectorAll(".segbtn").forEach(b=>{
+        const on=b===sb; b.classList.toggle("on",on); b.setAttribute("aria-selected",on); });
+      const page=sb.closest(".ppage"), list=page&&page.querySelector(".modelist");
+      if(list) list.outerHTML=modeListHtml();
+      return; } }
   { const md=e.target.closest("[data-mode]");
     if(md){ e.preventDefault(); pushPage("mode:"+md.dataset.mode); return; } }
   const fm=e.target.closest("[data-fam]");
@@ -1379,6 +1391,42 @@ function modeOrder(adaptive){
     return ub-ua || a[1]-b[1];
   }).map(x=>x[0]);
 }
+
+// ---------- the sort on the list ----------
+// The row learns on its own and the list did not, which is the right split for the row but
+// leaves the list with one order whether you are reading down it to pick a feeling or
+// hunting a name you already know. So the list gets the choice stated out loud: quiet to
+// loud, loud to quiet, what this browser opens most, or plain A to Z. Quietest stays the
+// default, so nothing moves until it is asked to.
+const MODESORT_KEY="offshoots.modesort";
+const MODESORTS=[["quiet","Quietest"],["loud","Loudest"],["used","Most used"],["az","A–Z"]];
+function modeSort(){
+  try{ const v=localStorage.getItem(MODESORT_KEY);
+    return MODESORTS.some(s=>s[0]===v) ? v : "quiet";
+  }catch(e){ return "quiet"; }
+}
+function setModeSort(v){ try{ localStorage.setItem(MODESORT_KEY,v); }catch(e){} }
+function modeOrderBy(how){
+  const lv=m=>m[5]||3, quiet=MODES.slice().sort((a,b)=>lv(a)-lv(b));
+  if(how==="loud") return quiet.slice().reverse();
+  if(how==="az")   return MODES.slice().sort((a,b)=>a[1].localeCompare(b[1]));
+  if(how==="used"){
+    // ties fall back to the quiet order, so an untouched browser still reads quiet to loud
+    // rather than scrambling into whatever order MODES happens to be declared in
+    const use=modeUse();
+    return quiet.map((m,i)=>[m,i]).sort((a,b)=>
+      ((+use[b[0][0]]||0)-(+use[a[0][0]]||0)) || a[1]-b[1]).map(x=>x[0]);
+  }
+  return quiet;
+}
+function modeSortHtml(){
+  const now=modeSort();
+  return `<div class="segwrap"><div class="seg" role="tablist" aria-label="Sort the ways in">`
+    + MODESORTS.map(([k,lbl])=>
+        `<button type="button" role="tab" class="segbtn${k===now?" on":""}"`
+        + ` data-msort="${k}" aria-selected="${k===now}">${esc(lbl)}</button>`).join("")
+    + `</div></div>`;
+}
 function modeSect(){
   if(typeof MODES==="undefined") return "";
   // Apple Maps puts its Places on a row of filled circles you swipe through, with the
@@ -1397,7 +1445,7 @@ function modeSect(){
 // the same twenty-six as a page you can read down, which is what the row's heading opens
 function modeListHtml(){
   if(typeof MODES==="undefined") return "";
-  const rows=modeOrder(false).map(m=>
+  const rows=modeOrderBy(modeSort()).map(m=>
     `<button type="button" class="listrow moderow lv${m[5]||3}" data-mode="${esc(m[0])}"`
     + ` title="${esc(m[2])}" aria-label="${esc(m[1])}. ${esc(m[2])}">`
     + `<i class="lrico mi">${MODEICON[m[0]]||""}</i>`
@@ -1497,8 +1545,8 @@ const PAGES_DEF={
       html:`<div class="listgrp sep amlist">${all.map(row).join("")}</div>`};
   },
   modes:()=>({title:"Ways in",
-    lede:"Twenty-six moods, places and tasks, quietest first. Each one opens a dozen styles that suit it. The circles on the way in reorder themselves around the ones you open; this list does not.",
-    html:modeListHtml()+copyRow("modes")}),
+    lede:"Twenty-six moods, places and tasks. Each one opens a dozen styles that suit it. The circles on the way in reorder themselves around the ones you open; this list sorts how you ask.",
+    html:modeSortHtml()+modeListHtml()+copyRow("modes")}),
   roots:()=>({title:"Roots",
     lede:"Styles with nothing before them here. Everything else on the map descends from these.",
     html:styleRows(firstLevel(),x=>x.year<1950?x.disp:x.year)}),

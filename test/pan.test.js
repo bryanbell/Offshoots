@@ -15,10 +15,27 @@ async function fresh(b,hash){ const p=await b.newPage({viewport:Dk}); const errs
   p.on("pageerror",e=>errs.push(String(e)));
   await p.goto(URL+(hash||"")); await p.waitForTimeout(1100); p._errs=errs; return p; }
 const at=async p=>p.evaluate(()=>[scroller.scrollLeft,scroller.scrollTop]);
-// an empty patch: low and right of centre, clear of the lane rail and the sidebar
-async function empty(p){ const b=await p.$eval("#scroller",x=>{const r=x.getBoundingClientRect();
-  return {x:r.x,y:r.y,w:r.width,h:r.height};});
-  return [b.x+b.w*0.55, b.y+b.h*0.72]; }
+// An empty patch to grab the map by. This used to be a fixed fraction of the viewport,
+// which is a guess about where the labels are not: it held until a browser with different
+// font metrics moved a label under it, and then the drag started on a style and the suite
+// blamed the app. So ask the page instead, and sweep a band low and right of centre until
+// a point answers with nothing — clear of the lane rail on the left and the sidebar.
+async function empty(p){
+  const pt=await p.evaluate(()=>{
+    const r=document.getElementById("scroller").getBoundingClientRect();
+    const free=(x,y)=>{ const t=document.elementFromPoint(x,y);
+      return t && !t.closest(".n") && !t.closest("#lanes") && !t.closest(".pcard")
+        && !t.closest("#sidebar") && !t.closest("button") && !t.closest("a"); };
+    for(let fy=.72; fy<=.94; fy+=.03)
+      for(let fx=.55; fx<=.92; fx+=.03){
+        const x=r.x+r.width*fx, y=r.y+r.height*fy;
+        if(free(x,y)) return [x,y];
+      }
+    return null;
+  });
+  if(!pt) throw new Error("no empty ground found to grab the map by");
+  return pt;
+}
 async function drag(p,x,y,dx,dy,steps){ steps=steps||8;
   await p.mouse.move(x,y); await p.mouse.down();
   for(let i=1;i<=steps;i++) await p.mouse.move(x+dx*i/steps, y+dy*i/steps);

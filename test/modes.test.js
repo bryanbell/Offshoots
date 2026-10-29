@@ -318,5 +318,97 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   await d.screenshot({path:__dirname+"/screens/d-modes.png"});
   say("no desktop page errors", d._errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
 
+  // ---------- the sort on the Ways in page ----------
+  // The circle row learns on its own; this list does what it is told instead. Four orders,
+  // quietest the default, and the choice is remembered. What matters: all twenty-six
+  // survive every sort (a sort that drops a mode is worse than no sort), the orders are
+  // really different from each other, the control says which one is on, and the stored
+  // choice is honoured the next time the page is built.
+  //
+  // Persistence is checked by seeding storage before load rather than by reloading:
+  // Chromium's localStorage under file:// is unreliable across a reload, and that is the
+  // harness, not the page. The click path and the load path are both covered either way.
+  { const s=await b.newPage({viewport:M}); const serrs=[];
+    s.on("pageerror",e=>serrs.push(String(e)));
+    await s.goto(URL+"#modes"); await s.waitForTimeout(1200);
+
+    const read=()=>s.evaluate(()=>{
+      const ps=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden), u=ps[ps.length-1];
+      return {on:[...u.querySelectorAll(".segbtn")].filter(x=>x.classList.contains("on")).map(x=>x.textContent),
+        labels:[...u.querySelectorAll(".moderow .lrlbl")].map(x=>x.textContent),
+        stored:(()=>{try{return localStorage.getItem("offshoots.modesort")}catch(e){return null}})()};});
+
+    const start=await read();
+    say("the ways in page has a sort, defaulting to quietest",
+      start.on.length===1 && start.on[0]==="Quietest");
+
+    const seen={quiet:start.labels.join("|")};
+    const total=start.labels.length;
+    let kept=total===26, named=true;
+    for(const [k,lbl] of [["loud","Loudest"],["used","Most used"],["az","A–Z"]]){
+      // wait on the control actually flipping rather than on a stopwatch: under a loaded
+      // machine a fixed pause is a coin toss, and a half-rendered list reads as a bug
+      await s.click(`[data-msort="${k}"]`);
+      await s.waitForFunction(key=>{
+        const b=document.querySelector(`[data-msort="${key}"]`);
+        return b && b.classList.contains("on");
+      },k,{timeout:5000});
+      const r=await read();
+      seen[k]=r.labels.join("|");
+      if(r.labels.length!==total) kept=false;
+      if(r.on.length!==1 || r.on[0]!==lbl || r.stored!==k) named=false;
+    }
+    say("  all "+total+" modes survive every sort", kept && total===26);
+    say("  and the control marks and stores the one that is on", named);
+    say("  quietest and loudest are mirror images",
+      seen.quiet===seen.loud.split("|").reverse().join("|"));
+    say("  A–Z really is alphabetical", seen.az===seen.az.split("|").slice()
+      .sort((x,y)=>x.localeCompare(y)).join("|"));
+    // nothing has been opened in this browser, so "most used" has no tally to go on and
+    // must fall back to the quiet order rather than to however MODES is declared
+    say("  most used falls back to quietest when nothing has been opened", seen.used===seen.quiet);
+    say("  no page errors from sorting", serrs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
+    await s.close(); }
+
+  // the stored choice is honoured when the page is built, not just when it is clicked
+  { const s2=await b.newPage({viewport:M});
+    await s2.addInitScript(()=>{ try{ localStorage.setItem("offshoots.modesort","az"); }catch(e){} });
+    await s2.goto(URL+"#modes"); await s2.waitForTimeout(1200);
+    const r=await s2.evaluate(()=>{
+      const ps=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden), u=ps[ps.length-1];
+      return {on:[...u.querySelectorAll(".segbtn")].filter(x=>x.classList.contains("on")).map(x=>x.textContent)[0],
+        first:(u.querySelector(".moderow .lrlbl")||{}).textContent};});
+    say("a remembered sort is honoured next time the page opens",
+      r.on==="A–Z" && r.first==="Burn it off");
+    await s2.close(); }
+
+  // a stored value that is not one of the four must not strand the page on an empty list
+  { const s3=await b.newPage({viewport:M});
+    await s3.addInitScript(()=>{ try{ localStorage.setItem("offshoots.modesort","nonsense"); }catch(e){} });
+    await s3.goto(URL+"#modes"); await s3.waitForTimeout(1200);
+    const r=await s3.evaluate(()=>{
+      const ps=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden), u=ps[ps.length-1];
+      return {on:[...u.querySelectorAll(".segbtn")].filter(x=>x.classList.contains("on")).map(x=>x.textContent)[0],
+        rows:u.querySelectorAll(".moderow").length};});
+    say("a nonsense stored sort falls back to quietest, with every mode still there",
+      r.on==="Quietest" && r.rows===26);
+    await s3.close(); }
+
+  // the control has to survive the narrowest phone without clipping a label
+  { const s4=await b.newPage({viewport:{width:320,height:700,isMobile:true,hasTouch:true}});
+    await s4.goto(URL+"#modes"); await s4.waitForTimeout(1200);
+    const fit=await s4.evaluate(()=>{
+      const seg=document.querySelector(".seg"), w=document.querySelector(".segwrap");
+      const btns=[...seg.querySelectorAll(".segbtn")];
+      return {tall:btns.every(b=>b.getBoundingClientRect().height>=28),
+        unclipped:btns.every(b=>b.scrollWidth<=b.clientWidth+1),
+        reachable:seg.scrollWidth<=w.scrollWidth+1,
+        nopush:document.documentElement.scrollWidth<=320+1};});
+    say("at 320px the sort still fits, taps big enough and nothing clipped",
+      fit.tall && fit.unclipped && fit.nopush);
+    say("  and every option is reachable", fit.reachable);
+    await s4.screenshot({path:__dirname+"/screens/m-modesort.png"});
+    await s4.close(); }
+
   await b.close();
 })();
