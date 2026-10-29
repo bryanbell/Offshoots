@@ -844,15 +844,25 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
    The chips were all the same shape, so a row of them said nothing until you read every
    name. A symbol per kind of act reads first: who sings, who plays, who is a whole band,
    who makes it alone in a room. Eight kinds, eight colours. */
-.acrow{gap:12px;align-items:flex-start}
-.acirc{all:unset;box-sizing:border-box;cursor:pointer;flex:none;width:84px;
+/* Three and a half fit, whatever the phone is: four circles landing exactly on the edge
+   looked like the end of the row, so the width is derived from the row rather than fixed,
+   and the fourth is always cut in half. 3 gaps sit between 3.5 items. */
+/* 100% here is the panel's content box; the row itself is wider by one gutter each side,
+   and the tiles start one gutter in, so the span the circles have to fill is 100% + ppad.
+   A custom property holding a percentage resolves where it is USED, so this one is only
+   ever read on .acirc, whose containing block is the row. */
+.acrow{gap:var(--acgap);align-items:flex-start;--acgap:12px;--acw:clamp(84px,
+  calc((100% + var(--ppad) - var(--acgap) * 3) / 3.5),118px)}
+.acirc{all:unset;box-sizing:border-box;cursor:pointer;flex:none;width:var(--acw);
   display:flex;flex-direction:column;align-items:center;gap:9px;text-align:center;
   -webkit-tap-highlight-color:transparent}
-.acirc .aco{display:grid;place-items:center;width:72px;height:72px;border-radius:50%;color:#fff;
+.acirc .aco{display:grid;place-items:center;width:76px;height:76px;border-radius:50%;color:#fff;
   background:linear-gradient(160deg,color-mix(in srgb,var(--rc) 80%,#fff) 0%,var(--rc) 55%,
     color-mix(in srgb,var(--rc) 74%,#000) 100%);
   box-shadow:0 1px 3px rgb(0 0 0 / .26);transition:transform .16s cubic-bezier(.32,.72,0,1)}
 .acirc .aco svg{width:36px;height:36px;display:block}
+@media (min-width:900px) and (hover:hover) and (pointer:fine){
+  .acrow{--acgap:11px} .acirc .aco svg{width:33px;height:33px} }
 .acirc:hover .aco,.acirc:focus-visible .aco{transform:scale(1.045)}
 .acirc:active .aco{transform:scale(.95)}
 .acirc:focus-visible .aco{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 55%,transparent)}

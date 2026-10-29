@@ -120,6 +120,19 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
       !!row && row.nowrap && row.oneLine && row.scrolls);
     say("  each a circle carrying a symbol for what the act is",
       !!row && row.symbols && row.round);
+    // four circles landing exactly on the screen edge read as the end of the row, so the
+    // tile is sized from the row and the fourth is always cut about in half
+    const peek=await p.evaluate(()=>{
+      const row=document.querySelector(".acrow"), rb=row.getBoundingClientRect();
+      const c=[...row.querySelectorAll(".acirc")];
+      const part=c.filter(x=>{const q=x.getBoundingClientRect();
+        return q.left<rb.right-6 && q.right>rb.right+6;});
+      if(!part.length) return {frac:0};
+      const q=part[0].getBoundingClientRect();
+      return {frac:Math.round(100*(rb.right-q.left)/q.width),
+        full:c.filter(x=>x.getBoundingClientRect().right<=rb.right+0.5).length};});
+    say("  with one cut "+peek.frac+"% at the edge, after "+peek.full,
+      peek.frac>=25 && peek.frac<=75);
     say("  with a heading that opens the rest ("+(row&&row.count)+")",
       !!row && row.isBtn && row.count>row.chips);
     say("  and that heading is "+(row&&row.tap)+"px to tap", !!row && row.tap>=row.floor);
