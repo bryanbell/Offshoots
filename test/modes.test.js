@@ -103,6 +103,21 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   say("  listing "+pg.picks+" picks", pg.picks===12);
   say("  starting at the top", pg.top===0);
   say("  and a way back ("+pg.backLbl+")", pg.back && pg.backLbl==="Explore");
+  // every pick carries its playlist's cover, or, where there is no file, the same square
+  // filled with the family colour and the style's initials. Never a gap: the three lines
+  // of text are laid out against that column.
+  await p.waitForTimeout(900);
+  const art=await p.evaluate(()=>{const r=[...document.querySelectorAll(".ppage:not([hidden]) .pick")];
+    return {n:r.length, img:r.filter(x=>x.querySelector("img.pcov")).length,
+      ph:r.filter(x=>x.querySelector(".pcovph")).length,
+      sq:r.every(x=>{const c=x.querySelector("img.pcov,.pcovph"); if(!c) return false;
+        const b=c.getBoundingClientRect();
+        return b.width>=40 && Math.abs(b.width-b.height)<=1;}),
+      inked:r.filter(x=>x.querySelector(".pcovph")).every(x=>{
+        const t=x.querySelector(".pcovph b");
+        return t && /^[A-Z0-9]{1,2}$/.test(t.textContent.trim());})};});
+  say("  all "+art.n+" carry a square ("+art.img+" covers, "+art.ph+" tiles)", art.n>0 && art.sq);
+  say("  and a tile says which style it stands for", art.inked);
   const box=await p.$eval(".ppage:not([hidden]) .picks [data-go]",e=>{const r=e.getBoundingClientRect();
     return [Math.round(r.height),Math.round(r.width)];});
   say("a pick row is "+box.join(" x "), box[0]>=44 && box[1]<=390-24);

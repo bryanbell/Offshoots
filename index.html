@@ -662,6 +662,22 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 .listrow .lrct{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;
   white-space:nowrap;font-size:var(--t-sub)}
 .listrow .lrlbl{flex:1 1 auto;min-width:0}
+/* a pick carries its playlist's cover: the square is what you recognise before the name,
+   and it gives the three lines of text something to sit against. It replaces the family
+   dot rather than joining it, since the tile already carries the family colour. */
+.picks>.pick.withart{grid-template-columns:var(--pkart) 1fr;column-gap:12px;align-items:start;
+  --pkart:56px}
+.picks>.pick.withart::before{display:none}
+.pick.withart img.pcov,.pick.withart .pcovph{grid-row:1 / span 3;align-self:start;margin:1px 0 0;
+  width:var(--pkart);height:var(--pkart);border-radius:9px;aspect-ratio:1;object-fit:cover;
+  box-shadow:0 0 0 .5px var(--line),0 1px 3px rgb(0 0 0 / .14)}
+.pick.withart .pcovph{display:grid;place-items:center;
+  background:linear-gradient(145deg,color-mix(in srgb,var(--c) 70%,#000) 0%,color-mix(in srgb,var(--c) 32%,#000) 100%)}
+.pick.withart .pcovph b{font:700 19px var(--f-body);color:#fff;opacity:.92}
+/* the hairline starts past the art so the eye runs down the names */
+.picks:has(.pick.withart){--seplead:84px}
+@media (max-width:899px){ .picks:has(.pick.withart){--seplead:77px}
+  .picks>.pick.withart{--pkart:54px;column-gap:11px} .pick.withart .pcovph b{font-size:18px} }
 .modelist.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 .modelist.two .listrow{padding:0 12px;gap:10px;min-height:52px;position:relative}
 .modelist.two .listrow .lrcv{display:none}
@@ -4378,7 +4394,11 @@ function modePicks(m){
   return m[4].map(([id,why])=>{
     const n=byId[id]; if(!n) return "";
     const play=(typeof PLAY!=="undefined"&&PLAY[id])||(typeof SPLAY!=="undefined"&&SPLAY[id]);
-    return `<button type="button" class="pick c" style="--c:${FAM[n.fam].c}" data-go="${esc(id)}" title="Show ${esc(n.name)} on the map">`
+    // the playlist's own cover, which is the thing you would recognise before you
+    // recognised the name. Where there is no file the shared handler swaps in the tile
+    // it uses on the playlist row: family colour, initials, same square.
+    return `<button type="button" class="pick c withart" style="--c:${FAM[n.fam].c}" data-go="${esc(id)}" title="Show ${esc(n.name)} on the map">`
+      + cover(id,n)
       + `<span class="pknm">${esc(n.name)}${play?`<i class="pkgo" aria-label="has a playlist">${PLAYGO}</i>`:""}</span>`
       + `<span class="pkwhy">${esc(why)}</span>`
       + `<span class="pkfam">${esc(FAM[n.fam].short)} · ${n.year}</span></button>`;

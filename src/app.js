@@ -1156,7 +1156,11 @@ function modePicks(m){
   return m[4].map(([id,why])=>{
     const n=byId[id]; if(!n) return "";
     const play=(typeof PLAY!=="undefined"&&PLAY[id])||(typeof SPLAY!=="undefined"&&SPLAY[id]);
-    return `<button type="button" class="pick c" style="--c:${FAM[n.fam].c}" data-go="${esc(id)}" title="Show ${esc(n.name)} on the map">`
+    // the playlist's own cover, which is the thing you would recognise before you
+    // recognised the name. Where there is no file the shared handler swaps in the tile
+    // it uses on the playlist row: family colour, initials, same square.
+    return `<button type="button" class="pick c withart" style="--c:${FAM[n.fam].c}" data-go="${esc(id)}" title="Show ${esc(n.name)} on the map">`
+      + cover(id,n)
       + `<span class="pknm">${esc(n.name)}${play?`<i class="pkgo" aria-label="has a playlist">${PLAYGO}</i>`:""}</span>`
       + `<span class="pkwhy">${esc(why)}</span>`
       + `<span class="pkfam">${esc(FAM[n.fam].short)} · ${n.year}</span></button>`;
