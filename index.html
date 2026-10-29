@@ -731,22 +731,22 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
    Apple Maps opens on a row of filled circles you swipe sideways, each one a way in,
    with the whole set behind the heading. The circles carry the energy ramp the list
    carried, so the row reads loud to quiet from left to right. */
-.mrow{display:flex;gap:16px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;
+.mrow{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;
   -webkit-overflow-scrolling:touch;scrollbar-width:none;
   margin-inline:calc(var(--ppad) * -1);padding:2px var(--ppad) 4px;scroll-padding-inline:var(--ppad)}
 .mrow::-webkit-scrollbar{display:none}
-.mcirc{all:unset;box-sizing:border-box;cursor:pointer;flex:none;width:74px;
-  display:flex;flex-direction:column;align-items:center;gap:8px;scroll-snap-align:start;
+.mcirc{all:unset;box-sizing:border-box;cursor:pointer;flex:none;width:88px;
+  display:flex;flex-direction:column;align-items:center;gap:9px;scroll-snap-align:start;
   text-align:center;-webkit-tap-highlight-color:transparent}
-.mcirc .mco{display:grid;place-items:center;width:62px;height:62px;border-radius:50%;color:#fff;
+.mcirc .mco{display:grid;place-items:center;width:80px;height:80px;border-radius:50%;color:#fff;
   background:linear-gradient(160deg,color-mix(in srgb,var(--lvc) 80%,#fff) 0%,var(--lvc) 55%,
     color-mix(in srgb,var(--lvc) 74%,#000) 100%);
   box-shadow:0 1px 3px rgb(0 0 0 / .26);transition:transform .16s cubic-bezier(.32,.72,0,1)}
-.mcirc .mco svg{width:28px;height:28px;stroke-width:1.6}
+.mcirc .mco svg{width:35px;height:35px;stroke-width:1.5}
 .mcirc:hover .mco,.mcirc:focus-visible .mco{transform:scale(1.045)}
 .mcirc:active .mco{transform:scale(.95)}
 .mcirc:focus-visible .mco{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 55%,transparent)}
-.mclbl{font:400 var(--t-foot)/var(--t-foot-lh) var(--f-body);color:var(--fg);
+.mclbl{font:500 var(--t-sub)/var(--t-sub-lh) var(--f-body);color:var(--fg);
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 /* the same five levels as the list, but a different job: the list tints a tile and draws
    the icon in the colour, so it wants a light one; the circle is filled and the glyph on
