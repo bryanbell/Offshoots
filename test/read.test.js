@@ -22,7 +22,9 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     const urls=rows.map(([,r])=>r[0]);
     return {styles:Object.keys(READ).length, n:rows.length,
       known:Object.keys(READ).every(k=>ids.has(k)),
-      wide:rows.every(([,r])=>r.length===8),
+      // eight fields, and a ninth on a 33 1/3 naming the record it is about
+      wide:rows.every(([,r])=>r.length===8 || (r.length===9 && r[4]==="33 1/3")),
+      byd:rows.filter(([,r])=>r.length===9).length,
       https:urls.every(u=>u.indexOf("https://")===0),
       // one piece can legitimately cover two styles, so the rule is per style
       uniq:Object.keys(READ).every(k=>{const u=READ[k].map(r=>r[0]);
@@ -30,7 +32,11 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
       shared:urls.length-new Set(urls).size,
       enc:urls.filter(u=>/wikipedia|britannica|fandom|discogs|allmusic|rateyourmusic/i.test(u)).length,
       aids:urls.filter(u=>/findingaids|archival_objects|\/repositories\/\d|archivesspace/i.test(u)).length,
-      noted:rows.every(([,r])=>typeof r[6]==="string" && r[6].length>20),
+      // every row has to earn its tap. A 33 1/3 earns it by naming the record, since
+       // the series and the title say the rest; everything else needs a note saying why.
+      noted:rows.every(([,r])=>{
+        const note = typeof r[6]==="string" && r[6].length>20;
+        return r[4]==="33 1/3" ? (note || (r[8]||"").length>0) : note;}),
       dashes:rows.filter(([,r])=>/—/.test(r[6])).length,
       years:rows.every(([,r])=>r[3]>=1900 && r[3]<=2026),
       access:[...new Set(rows.map(([,r])=>r[5]))].sort().join("|"),
@@ -39,13 +45,13 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
 
   say(t.n+" reads across "+t.styles+" styles", t.n>0 && t.styles>0);
   say("every style key is a style on the map", t.known);
-  say("every row carries all eight fields", t.wide);
+  say("every row carries its fields, "+t.byd+" of them naming a record", t.wide);
   say("every link is https", t.https);
   say("no link appears twice on one style", t.uniq);
   say("and "+t.shared+" placements of a piece on more than one style", t.shared>=0);
   say("no encyclopedias or databases ("+t.enc+")", t.enc===0);
   say("no catalogue records or finding aids ("+t.aids+")", t.aids===0);
-  say("every one says why it is worth reading", t.noted);
+  say("every one says why it is worth opening", t.noted);
   say("and says it without an em dash", t.dashes===0);
   say("years are plausible", t.years);
   say("access is blank or named ("+t.access+")",
@@ -68,7 +74,9 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
       head:s.querySelector(".secttl").textContent,
       aside:s.querySelector(".sectaside").textContent,
       n:a.length,
-      full:a.every(x=>x.querySelector(".rdt")&&x.querySelector(".rdm")&&x.querySelector(".rdn")),
+      // a note is optional now: a 33 1/3 whose kicker names the record says enough
+      full:a.every(x=>x.querySelector(".rdt")&&x.querySelector(".rdm")
+        && (x.querySelector(".rdn")||x.querySelector(".rdby"))),
       blank:a.every(x=>x.target==="_blank"&&/noopener/.test(x.rel)),
       tap:Math.min(...a.map(x=>Math.round(x.getBoundingClientRect().height))),
       beforeShare:!!(s.compareDocumentPosition(document.querySelector("[data-share]"))&4),
@@ -107,11 +115,22 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
       +(missing.length?" (missing "+missing.join(", ")+")":""), missing.length===0); }
   // and no row repeats itself: an audio piece must not read "Audio Listen"
   // a 33 1/3 is one book about one record and gets the series badge
-  say("the 33 1/3 entries are badged", await p.evaluate(()=>{
-    const ser=[...document.querySelectorAll("a.rd")].filter(x=>x.querySelector(".rds"));
+  // the badge is drawn once, on the tile. It used to be drawn again as the first word of
+  // the kicker, which spent the most valuable line in the row saying what the tile said.
+  say("the 33 1/3 entries are badged, once", await p.evaluate(()=>{
+    const ser=[...document.querySelectorAll("a.rd.rd-series")];
     return ser.length>=2 && ser.length<=4
-      && ser.every(x=>/33\u2153/.test(x.querySelector(".rds").textContent)
-      && x.classList.contains("rd-series"));}));
+      && ser.every(x=>/33\u2153/.test(x.querySelector(".rdi .rdser").textContent))
+      && ser.every(x=>!/33\u2153/.test(x.querySelector(".rdm").textContent));}));
+  // and spends that line on the record instead, which the title alone withholds
+  say("and name the record they are about", await p.evaluate(()=>
+    [...document.querySelectorAll("a.rd.rd-series")].every(x=>{
+      const by=x.querySelector(".rdby");
+      return !by || by.textContent.trim().length>1;})));
+  say("no row says the same thing twice", await p.evaluate(()=>
+    [...document.querySelectorAll("a.rd")].every(x=>{
+      const k=x.querySelector(".rdm").textContent, t=x.querySelector(".rdt").textContent.trim();
+      return k.indexOf(t)<0;})));
   say("the medium is never said twice", await p.evaluate(()=>
     [...document.querySelectorAll("a.rd .rdm")].every(x=>
       !/Audio\s+Listen|Documentary\s+Watch/.test(x.textContent))));

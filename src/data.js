@@ -1176,7 +1176,8 @@ const MODES = [
     ["post_metal","Heavy music built like a symphony"],
     ["idm","Rhythm as a puzzle"],
     ["thirdstream","Jazz and the concert hall, arguing"],
-    ["tape","The studio itself used as the instrument"]],1]
+    ["tape","The studio itself used as the instrument"]],1],
+  ["morning", "Morning", "The first hour of the day", "Bright without being loud, and already moving. Nothing that asks you to decide anything, since you have not had the coffee yet.", [["sunshine", "Written to sound like a clear morning"], ["bossa", "Warm, unhurried, nothing raised above speaking"], ["souljazz", "Organ and brushes, awake but not in a hurry"], ["highlife", "Guitars that sound like good weather"], ["citypop", "Shiny, easy, built for a commute"], ["jangle", "Chiming guitars and no weight at all"], ["gospel", "Sunday morning, as literally as it gets"], ["rocksteady", "Slower than ska and twice as warm"], ["cool", "Cool and even, nothing startling in it"], ["baroquepop", "Pretty, arranged, over before you tire of it"], ["calypso", "Light on its feet from the first bar"], ["newgrass", "Fast picking that still feels relaxed"]], 2]
 ];
 // ROSTER: every artist on a style's playlist, for search only. ART stays the three
 // names the panel shows; this is the long tail, joined from the curriculum workbook
@@ -1199,205 +1200,205 @@ const SONGS = {"acidhouse":["Washing Machine","No Way Back","Acid Tracks","Land 
 // [url, title, publication, year, kind, access, note]
 const READ = {
 "chillwave": [
-  ["https://booksonbroad.com/book/9781501390449","Blue Bell Knoll","Chris Tapley",2025,"33 1/3","","A whole short book about this one record by Cocteau Twins.","book"]
+  ["https://booksonbroad.com/book/9781501390449","Blue Bell Knoll","Chris Tapley",2025,"33 1/3","","", "book", "Cocteau Twins"]
 ],
 "underground": [
-  ["https://www.harvard.com/book/9781501389238","Madvillainy","Will Hagle",2023,"33 1/3","","A whole short book about this one record by Madvillain.","book"]
+  ["https://www.harvard.com/book/9781501389238","Madvillainy","Will Hagle",2023,"33 1/3","","", "book", "Madvillain"]
 ],
 "electropop": [
-  ["https://www.harvard.com/book/9781501377594","Blackout","Natasha Lasky",2022,"33 1/3","","A whole short book about this one record by Britney Spears.","book"],
-  ["https://agendabookshop.com/products/kylie-minogues-kylie","Kylie","Adrian Renzo and Liz Giuffre",2023,"33 1/3","","A whole short book about this one record by Kylie Minogue.","book"]
+  ["https://www.harvard.com/book/9781501377594","Blackout","Natasha Lasky",2022,"33 1/3","","", "book", "Britney Spears"],
+  ["https://agendabookshop.com/products/kylie-minogues-kylie","Kylie","Adrian Renzo and Liz Giuffre",2023,"33 1/3","","", "book", "Kylie Minogue"]
 ],
 "ac": [
-  ["https://atomicbooks.com/products/33-1-3-carole-kings-tapestry","Tapestry","Loren Glass",2021,"33 1/3","","A whole short book about this one record by Carole King.","book"]
+  ["https://atomicbooks.com/products/33-1-3-carole-kings-tapestry","Tapestry","Loren Glass",2021,"33 1/3","","", "book", "Carole King"]
 ],
 "quiet_storm": [
-  ["https://greenapplebooks.com/book/9781501355028","The Velvet Rope","Ayanna Dozier",2020,"33 1/3","","A whole short book about this one record by Janet Jackson.","book"],
-  ["https://aalbc.com/books/9798765106716","3 + 3","Darell M. McNeill",2024,"33 1/3","","A whole short book about this one record by The Isley Brothers.","book"]
+  ["https://greenapplebooks.com/book/9781501355028","The Velvet Rope","Ayanna Dozier",2020,"33 1/3","","", "book", "Janet Jackson"],
+  ["https://aalbc.com/books/9798765106716","3 + 3","Darell M. McNeill",2024,"33 1/3","","", "book", "The Isley Brothers"]
 ],
 "broadway": [
-  ["https://atomicbooks.com/products/33-1-3-judy-garlands-judy-at-carnegie-hall","Judy at Carnegie Hall","Manuel Betancourt",2020,"33 1/3","","A whole short book about this one record by Judy Garland.","book"]
+  ["https://atomicbooks.com/products/33-1-3-judy-garlands-judy-at-carnegie-hall","Judy at Carnegie Hall","Manuel Betancourt",2020,"33 1/3","","", "book", "Judy Garland"]
 ],
 "tinpan": [
-  ["https://atomicbooks.com/products/33-1-3-judy-garlands-judy-at-carnegie-hall","Judy at Carnegie Hall","Manuel Betancourt",2020,"33 1/3","","A whole short book about this one record by Judy Garland.","book"]
+  ["https://atomicbooks.com/products/33-1-3-judy-garlands-judy-at-carnegie-hall","Judy at Carnegie Hall","Manuel Betancourt",2020,"33 1/3","","", "book", "Judy Garland"]
 ],
 "neosoul": [
-  ["https://atomicbooks.com/products/33-1-3-volume-144-dangelos-voodoo","Voodoo","Faith A. Pennick",2020,"33 1/3","","A whole short book about this one record by D'Angelo.","book"]
+  ["https://atomicbooks.com/products/33-1-3-volume-144-dangelos-voodoo","Voodoo","Faith A. Pennick",2020,"33 1/3","","", "book", "D'Angelo"]
 ],
 "midwestemo": [
-  ["https://atomicbooks.com/products/33-1-3-jawbreakers-24-hour-revenge-therapy","24 Hour Revenge Therapy","Ronen Givony",2018,"33 1/3","","A whole short book about this one record by Jawbreaker.","book"]
+  ["https://atomicbooks.com/products/33-1-3-jawbreakers-24-hour-revenge-therapy","24 Hour Revenge Therapy","Ronen Givony",2018,"33 1/3","","", "book", "Jawbreaker"]
 ],
 "poppunk": [
-  ["https://atomicbooks.com/products/33-1-3-jawbreakers-24-hour-revenge-therapy","24 Hour Revenge Therapy","Ronen Givony",2018,"33 1/3","","A whole short book about this one record by Jawbreaker.","book"]
+  ["https://atomicbooks.com/products/33-1-3-jawbreakers-24-hour-revenge-therapy","24 Hour Revenge Therapy","Ronen Givony",2018,"33 1/3","","", "book", "Jawbreaker"]
 ],
 "southern_hh": [
-  ["https://northtownbooks.com/book/9781628929461","The Geto Boys","Rolf Potts",2016,"33 1/3","","A whole short book about this one record by Geto Boys.","book"]
+  ["https://northtownbooks.com/book/9781628929461","The Geto Boys","Rolf Potts",2016,"33 1/3","","", "book", "Geto Boys"]
 ],
 "jamband": [
-  ["https://tleavesbooks.com/book/9781628929249","Workingman's Dead","Buzz Poole",2016,"33 1/3","","A whole short book about this one record by Grateful Dead.","book"]
+  ["https://tleavesbooks.com/book/9781628929249","Workingman's Dead","Buzz Poole",2016,"33 1/3","","", "book", "Grateful Dead"]
 ],
 "cool": [
-  ["https://northtownbooks.com/book/9781628929430","Bitches Brew","George Grella",2015,"33 1/3","","A whole short book about this one record by Miles Davis.","book"]
+  ["https://northtownbooks.com/book/9781628929430","Bitches Brew","George Grella",2015,"33 1/3","","", "book", "Miles Davis"]
 ],
 "synthpunk": [
-  ["https://timesbookshop.co.uk/devos-freedom-of-choice-9781623563448","Freedom of Choice","Evie Nagy",2015,"33 1/3","","A whole short book about this one record by Devo.","book"]
+  ["https://timesbookshop.co.uk/devos-freedom-of-choice-9781623563448","Freedom of Choice","Evie Nagy",2015,"33 1/3","","", "book", "Devo"]
 ],
 "southern_soul": [
-  ["https://tleavesbooks.com/book/9781441148889","Amazing Grace","Aaron Cohen",2011,"33 1/3","","A whole short book about this one record by Aretha Franklin.","book"]
+  ["https://tleavesbooks.com/book/9781441148889","Amazing Grace","Aaron Cohen",2011,"33 1/3","","", "book", "Aretha Franklin"]
 ],
 "swamp_blues": [
-  ["https://wordupbooks.com/book/9781441192806","Some Girls","Cyrus Patell",2011,"33 1/3","","A whole short book about this one record by The Rolling Stones.","book"]
+  ["https://wordupbooks.com/book/9781441192806","Some Girls","Cyrus Patell",2011,"33 1/3","","", "book", "The Rolling Stones"]
 ],
 "mathrock": [
-  ["https://atomicbooks.com/products/33-1-3-slints-spiderland","Spiderland","Scott Tennent",2010,"33 1/3","","A whole short book about this one record by Slint.","book"]
+  ["https://atomicbooks.com/products/33-1-3-slints-spiderland","Spiderland","Scott Tennent",2010,"33 1/3","","", "book", "Slint"]
 ],
 "hypnagogic": [
-  ["https://atomicbooks.com/products/33-1-3-brian-enos-another-green-world","Another Green World","Geeta Dayal",2009,"33 1/3","","A whole short book about this one record by Brian Eno.","book"]
+  ["https://atomicbooks.com/products/33-1-3-brian-enos-another-green-world","Another Green World","Geeta Dayal",2009,"33 1/3","","", "book", "Brian Eno"]
 ],
 "postrock": [
-  ["https://atomicbooks.com/products/33-1-3-brian-enos-another-green-world","Another Green World","Geeta Dayal",2009,"33 1/3","","A whole short book about this one record by Brian Eno.","book"],
-  ["https://atomicbooks.com/products/33-1-3-slints-spiderland","Spiderland","Scott Tennent",2010,"33 1/3","","A whole short book about this one record by Slint.","book"]
+  ["https://atomicbooks.com/products/33-1-3-brian-enos-another-green-world","Another Green World","Geeta Dayal",2009,"33 1/3","","", "book", "Brian Eno"],
+  ["https://atomicbooks.com/products/33-1-3-slints-spiderland","Spiderland","Scott Tennent",2010,"33 1/3","","", "book", "Slint"]
 ],
 "dreampop": [
-  ["https://atomicbooks.com/products/33-1-3-brian-enos-another-green-world","Another Green World","Geeta Dayal",2009,"33 1/3","","A whole short book about this one record by Brian Eno.","book"],
-  ["https://atomicbooks.com/products/33-1-3-flaming-lips-zaireeka","Zaireeka","Mark Richardson",2009,"33 1/3","","A whole short book about this one record by The Flaming Lips.","book"],
-  ["https://prairielights.com/book/9798765106679","And Then Nothing Turned Itself Inside-Out","Elliott Simpson",2025,"33 1/3","","A whole short book about this one record by Yo La Tengo.","book"],
-  ["https://booksonbroad.com/book/9781501390449","Blue Bell Knoll","Chris Tapley",2025,"33 1/3","","A whole short book about this one record by Cocteau Twins.","book"]
+  ["https://atomicbooks.com/products/33-1-3-brian-enos-another-green-world","Another Green World","Geeta Dayal",2009,"33 1/3","","", "book", "Brian Eno"],
+  ["https://atomicbooks.com/products/33-1-3-flaming-lips-zaireeka","Zaireeka","Mark Richardson",2009,"33 1/3","","", "book", "The Flaming Lips"],
+  ["https://prairielights.com/book/9798765106679","And Then Nothing Turned Itself Inside-Out","Elliott Simpson",2025,"33 1/3","","", "book", "Yo La Tengo"],
+  ["https://booksonbroad.com/book/9781501390449","Blue Bell Knoll","Chris Tapley",2025,"33 1/3","","", "book", "Cocteau Twins"]
 ],
 "gangsta": [
-  ["https://northtownbooks.com/book/9781628929461","The Geto Boys","Rolf Potts",2016,"33 1/3","","A whole short book about this one record by Geto Boys.","book"],
-  ["https://www.waterstones.com/book/nass-illmatic/matthew-gasteier/9780826429070","Illmatic","Matthew Gasteier",2009,"33 1/3","","A whole short book about this one record by Nas.","book"],
-  ["https://mitpressbookstore.mit.edu/book/9781501377471","To Pimp a Butterfly","Sequoia L. Maner",2022,"33 1/3","","A whole short book about this one record by Kendrick Lamar.","book"]
+  ["https://northtownbooks.com/book/9781628929461","The Geto Boys","Rolf Potts",2016,"33 1/3","","", "book", "Geto Boys"],
+  ["https://www.waterstones.com/book/nass-illmatic/matthew-gasteier/9780826429070","Illmatic","Matthew Gasteier",2009,"33 1/3","","", "book", "Nas"],
+  ["https://mitpressbookstore.mit.edu/book/9781501377471","To Pimp a Butterfly","Sequoia L. Maner",2022,"33 1/3","","", "book", "Kendrick Lamar"]
 ],
 "bakersfield": [
-  ["https://buffalostreetbooks.com/book/9780826429032","The Gilded Palace of Sin","Bob Proehl",2008,"33 1/3","","A whole short book about this one record by The Flying Burrito Brothers.","book"],
-  ["https://www.harvard.com/book/merle_haggards_okie_from_muskogee_33_13/","Okie from Muskogee","Rachel Rubin",2018,"33 1/3","","A whole short book about this one record by Merle Haggard.","book"]
+  ["https://buffalostreetbooks.com/book/9780826429032","The Gilded Palace of Sin","Bob Proehl",2008,"33 1/3","","", "book", "The Flying Burrito Brothers"],
+  ["https://www.harvard.com/book/merle_haggards_okie_from_muskogee_33_13/","Okie from Muskogee","Rachel Rubin",2018,"33 1/3","","", "book", "Merle Haggard"]
 ],
 "chamberpop": [
-  ["https://lighthousebookshop.com/book/9780826428189","If You're Feeling Sinister","Scott Plagenhoef",2007,"33 1/3","","A whole short book about this one record by Belle and Sebastian.","book"]
+  ["https://lighthousebookshop.com/book/9780826428189","If You're Feeling Sinister","Scott Plagenhoef",2007,"33 1/3","","", "book", "Belle and Sebastian"]
 ],
 "jazzrap": [
-  ["https://www.harvard.com/book/9780826419231","People's Instinctive Travels and the Paths of Rhythm","Shawn Taylor",2007,"33 1/3","","A whole short book about this one record by A Tribe Called Quest.","book"],
-  ["https://citylights.com/blues-rb/33-j-dilla-donuts","Donuts","Jordan Ferguson",2014,"33 1/3","","A whole short book about this one record by J Dilla.","book"],
-  ["https://mitpressbookstore.mit.edu/book/9781501377471","To Pimp a Butterfly","Sequoia L. Maner",2022,"33 1/3","","A whole short book about this one record by Kendrick Lamar.","book"]
+  ["https://www.harvard.com/book/9780826419231","People's Instinctive Travels and the Paths of Rhythm","Shawn Taylor",2007,"33 1/3","","", "book", "A Tribe Called Quest"],
+  ["https://citylights.com/blues-rb/33-j-dilla-donuts","Donuts","Jordan Ferguson",2014,"33 1/3","","", "book", "J Dilla"],
+  ["https://mitpressbookstore.mit.edu/book/9781501377471","To Pimp a Butterfly","Sequoia L. Maner",2022,"33 1/3","","", "book", "Kendrick Lamar"]
 ],
 "posthc": [
-  ["https://www.harvard.com/book/9780826427878","Double Nickels on the Dime","Michael T. Fournier",2007,"33 1/3","","A whole short book about this one record by Minutemen.","book"],
-  ["https://atomicbooks.com/products/33-1-3-slints-spiderland","Spiderland","Scott Tennent",2010,"33 1/3","","A whole short book about this one record by Slint.","book"],
-  ["https://avidreader.com.au/p/fugazi-s-in-on-the-kill-taker-33-1-3","In on the Kill Taker","Joe Gross",2018,"33 1/3","","A whole short book about this one record by Fugazi.","book"]
+  ["https://www.harvard.com/book/9780826427878","Double Nickels on the Dime","Michael T. Fournier",2007,"33 1/3","","", "book", "Minutemen"],
+  ["https://atomicbooks.com/products/33-1-3-slints-spiderland","Spiderland","Scott Tennent",2010,"33 1/3","","", "book", "Slint"],
+  ["https://avidreader.com.au/p/fugazi-s-in-on-the-kill-taker-33-1-3","In on the Kill Taker","Joe Gross",2018,"33 1/3","","", "book", "Fugazi"]
 ],
 "motown": [
-  ["https://vromansbookstore.com/book/9780826419262","Songs in the Key of Life","Zeth Lundy",2007,"33 1/3","","A whole short book about this one record by Stevie Wonder.","book"],
-  ["https://aalbc.com/books/9798765106716","3 + 3","Darell M. McNeill",2024,"33 1/3","","A whole short book about this one record by The Isley Brothers.","book"]
+  ["https://vromansbookstore.com/book/9780826419262","Songs in the Key of Life","Zeth Lundy",2007,"33 1/3","","", "book", "Stevie Wonder"],
+  ["https://aalbc.com/books/9798765106716","3 + 3","Darell M. McNeill",2024,"33 1/3","","", "book", "The Isley Brothers"]
 ],
 "indiepop": [
-  ["https://prologuebookshop.com/book/9780826419255","69 Love Songs","LD Beghtol",2006,"33 1/3","","A whole short book about this one record by The Magnetic Fields.","book"],
-  ["https://lighthousebookshop.com/book/9780826428189","If You're Feeling Sinister","Scott Plagenhoef",2007,"33 1/3","","A whole short book about this one record by Belle and Sebastian.","book"]
+  ["https://prologuebookshop.com/book/9780826419255","69 Love Songs","LD Beghtol",2006,"33 1/3","","", "book", "The Magnetic Fields"],
+  ["https://lighthousebookshop.com/book/9780826428189","If You're Feeling Sinister","Scott Plagenhoef",2007,"33 1/3","","", "book", "Belle and Sebastian"]
 ],
 "altpop": [
-  ["https://prologuebookshop.com/book/9780826419255","69 Love Songs","LD Beghtol",2006,"33 1/3","","A whole short book about this one record by The Magnetic Fields.","book"],
-  ["https://lighthousebookshop.com/book/9780826428189","If You're Feeling Sinister","Scott Plagenhoef",2007,"33 1/3","","A whole short book about this one record by Belle and Sebastian.","book"]
+  ["https://prologuebookshop.com/book/9780826419255","69 Love Songs","LD Beghtol",2006,"33 1/3","","", "book", "The Magnetic Fields"],
+  ["https://lighthousebookshop.com/book/9780826428189","If You're Feeling Sinister","Scott Plagenhoef",2007,"33 1/3","","", "book", "Belle and Sebastian"]
 ],
 "powerpop": [
-  ["https://sunriverbooks.com/book/9780826417435","The Who Sell Out","John Dougan",2006,"33 1/3","","A whole short book about this one record by The Who.","book"],
-  ["https://www.harvard.com/book/9780826428981","Radio City","Bruce Eaton",2009,"33 1/3","","A whole short book about this one record by Big Star.","book"],
-  ["https://www.abbeys.com.au/book/blondies-parallel-lines.do","Parallel Lines","Kembrew McLeod",2016,"33 1/3","","A whole short book about this one record by Blondie.","book"]
+  ["https://sunriverbooks.com/book/9780826417435","The Who Sell Out","John Dougan",2006,"33 1/3","","", "book", "The Who"],
+  ["https://www.harvard.com/book/9780826428981","Radio City","Bruce Eaton",2009,"33 1/3","","", "book", "Big Star"],
+  ["https://www.abbeys.com.au/book/blondies-parallel-lines.do","Parallel Lines","Kembrew McLeod",2016,"33 1/3","","", "book", "Blondie"]
 ],
 "grunge": [
-  ["https://atomicbooks.com/products/33-1-3-pearl-jams-vs","Vs.","Clint Brownlee",2021,"33 1/3","","A whole short book about this one record by Pearl Jam.","book"],
-  ["https://parnassusbooks.net/book/9780826417763","In Utero","Gillian G. Gaar",2006,"33 1/3","","A whole short book about this one record by Nirvana.","book"],
-  ["https://parnassusbooks.net/book/9780826428998","Master of Reality","John Darnielle",2008,"33 1/3","","A whole short book about this one record by Black Sabbath.","book"],
-  ["https://shop.roughtrade.com/products/33-1-3-hole-live-through-this","Live Through This","Anwen Crawford",2014,"33 1/3","","A whole short book about this one record by Hole.","book"]
+  ["https://atomicbooks.com/products/33-1-3-pearl-jams-vs","Vs.","Clint Brownlee",2021,"33 1/3","","", "book", "Pearl Jam"],
+  ["https://parnassusbooks.net/book/9780826417763","In Utero","Gillian G. Gaar",2006,"33 1/3","","", "book", "Nirvana"],
+  ["https://parnassusbooks.net/book/9780826428998","Master of Reality","John Darnielle",2008,"33 1/3","","", "book", "Black Sabbath"],
+  ["https://shop.roughtrade.com/products/33-1-3-hole-live-through-this","Live Through This","Anwen Crawford",2014,"33 1/3","","", "book", "Hole"]
 ],
 "fusion": [
-  ["https://nantucketbookpartners.com/book/9780826417442","There's a Riot Goin' On","Miles Marshall Lewis",2006,"33 1/3","","A whole short book about this one record by Sly and the Family Stone.","book"],
-  ["https://northtownbooks.com/book/9781628929430","Bitches Brew","George Grella",2015,"33 1/3","","A whole short book about this one record by Miles Davis.","book"]
+  ["https://nantucketbookpartners.com/book/9780826417442","There's a Riot Goin' On","Miles Marshall Lewis",2006,"33 1/3","","", "book", "Sly and the Family Stone"],
+  ["https://northtownbooks.com/book/9781628929430","Bitches Brew","George Grella",2015,"33 1/3","","", "book", "Miles Davis"]
 ],
 "alt_hh": [
-  ["https://www.harvard.com/book/9780826419231","People's Instinctive Travels and the Paths of Rhythm","Shawn Taylor",2007,"33 1/3","","A whole short book about this one record by A Tribe Called Quest.","book"],
-  ["https://bookloft.com/book/9780826417411","Paul's Boutique","Dan Le Roy",2006,"33 1/3","","A whole short book about this one record by Beastie Boys.","book"],
-  ["https://coles-books.co.uk/kanye-west-s-my-beautiful-dark-twisted-fantasy-by-kirk-walker-graves-writer-usa","My Beautiful Dark Twisted Fantasy","Kirk Walker Graves",2014,"33 1/3","","A whole short book about this one record by Kanye West.","book"],
-  ["https://mitpressbookstore.mit.edu/book/9781501377471","To Pimp a Butterfly","Sequoia L. Maner",2022,"33 1/3","","A whole short book about this one record by Kendrick Lamar.","book"]
+  ["https://www.harvard.com/book/9780826419231","People's Instinctive Travels and the Paths of Rhythm","Shawn Taylor",2007,"33 1/3","","", "book", "A Tribe Called Quest"],
+  ["https://bookloft.com/book/9780826417411","Paul's Boutique","Dan Le Roy",2006,"33 1/3","","", "book", "Beastie Boys"],
+  ["https://coles-books.co.uk/kanye-west-s-my-beautiful-dark-twisted-fantasy-by-kirk-walker-graves-writer-usa","My Beautiful Dark Twisted Fantasy","Kirk Walker Graves",2014,"33 1/3","","", "book", "Kanye West"],
+  ["https://mitpressbookstore.mit.edu/book/9781501377471","To Pimp a Butterfly","Sequoia L. Maner",2022,"33 1/3","","", "book", "Kendrick Lamar"]
 ],
 "roots_rock": [
-  ["https://greenapplebooks.com/book/9780826417718","Music from Big Pink","John Niven",2005,"33 1/3","","A whole short book about this one record by The Band.","book"],
-  ["https://mitpressbookstore.mit.edu/book/9780826417756","Highway 61 Revisited","Mark Polizzotti",2006,"33 1/3","","A whole short book about this one record by Bob Dylan.","book"],
-  ["https://buffalostreetbooks.com/book/9780826429032","The Gilded Palace of Sin","Bob Proehl",2008,"33 1/3","","A whole short book about this one record by The Flying Burrito Brothers.","book"],
-  ["https://wordupbooks.com/book/9781441192806","Some Girls","Cyrus Patell",2011,"33 1/3","","A whole short book about this one record by The Rolling Stones.","book"]
+  ["https://greenapplebooks.com/book/9780826417718","Music from Big Pink","John Niven",2005,"33 1/3","","", "book", "The Band"],
+  ["https://mitpressbookstore.mit.edu/book/9780826417756","Highway 61 Revisited","Mark Polizzotti",2006,"33 1/3","","", "book", "Bob Dylan"],
+  ["https://buffalostreetbooks.com/book/9780826429032","The Gilded Palace of Sin","Bob Proehl",2008,"33 1/3","","", "book", "The Flying Burrito Brothers"],
+  ["https://wordupbooks.com/book/9781441192806","Some Girls","Cyrus Patell",2011,"33 1/3","","", "book", "The Rolling Stones"]
 ],
 "noisepop": [
-  ["https://page158books.com/book/9780826416841","Low","Hugo Wilcken",2005,"33 1/3","","A whole short book about this one record by David Bowie.","book"],
-  ["https://backstory.london/products/9780826417428","The Stone Roses","Alex Green",2006,"33 1/3","","A whole short book about this one record by The Stone Roses.","book"],
-  ["https://gibsonsbookstore.com/book/9781441187789","You're Living All Over Me","Nick Attfield",2011,"33 1/3","","A whole short book about this one record by Dinosaur Jr..","book"],
-  ["https://coles-books.co.uk/oasis-definitely-maybe-by-alex-niven","Definitely Maybe","Alex Niven",2014,"33 1/3","","A whole short book about this one record by Oasis.","book"]
+  ["https://page158books.com/book/9780826416841","Low","Hugo Wilcken",2005,"33 1/3","","", "book", "David Bowie"],
+  ["https://backstory.london/products/9780826417428","The Stone Roses","Alex Green",2006,"33 1/3","","", "book", "The Stone Roses"],
+  ["https://gibsonsbookstore.com/book/9781441187789","You're Living All Over Me","Nick Attfield",2011,"33 1/3","","", "book", "Dinosaur Jr"],
+  ["https://coles-books.co.uk/oasis-definitely-maybe-by-alex-niven","Definitely Maybe","Alex Niven",2014,"33 1/3","","", "book", "Oasis"]
 ],
 "britpop": [
-  ["https://page158books.com/book/9780826416841","Low","Hugo Wilcken",2005,"33 1/3","","A whole short book about this one record by David Bowie.","book"],
-  ["https://backstory.london/products/9780826417428","The Stone Roses","Alex Green",2006,"33 1/3","","A whole short book about this one record by The Stone Roses.","book"],
-  ["https://gibsonsbookstore.com/book/9781441187789","You're Living All Over Me","Nick Attfield",2011,"33 1/3","","A whole short book about this one record by Dinosaur Jr..","book"],
-  ["https://coles-books.co.uk/oasis-definitely-maybe-by-alex-niven","Definitely Maybe","Alex Niven",2014,"33 1/3","","A whole short book about this one record by Oasis.","book"]
+  ["https://page158books.com/book/9780826416841","Low","Hugo Wilcken",2005,"33 1/3","","", "book", "David Bowie"],
+  ["https://backstory.london/products/9780826417428","The Stone Roses","Alex Green",2006,"33 1/3","","", "book", "The Stone Roses"],
+  ["https://gibsonsbookstore.com/book/9781441187789","You're Living All Over Me","Nick Attfield",2011,"33 1/3","","", "book", "Dinosaur Jr"],
+  ["https://coles-books.co.uk/oasis-definitely-maybe-by-alex-niven","Definitely Maybe","Alex Niven",2014,"33 1/3","","", "book", "Oasis"]
 ],
 "triphop": [
-  ["https://store.wexarts.org/books/dj-shadow-s-endtroducing","Endtroducing.....","Eliot Wilder",2005,"33 1/3","","A whole short book about this one record by DJ Shadow.","book"],
-  ["https://mitpressbookstore.mit.edu/book/9781441194497","Dummy","RJ Wheaton",2011,"33 1/3","","A whole short book about this one record by Portishead.","book"],
-  ["https://www.harvard.com/book/9781501339691","Blue Lines","Ian Bourland",2019,"33 1/3","","A whole short book about this one record by Massive Attack.","book"]
+  ["https://store.wexarts.org/books/dj-shadow-s-endtroducing","Endtroducing.....","Eliot Wilder",2005,"33 1/3","","", "book", "DJ Shadow"],
+  ["https://mitpressbookstore.mit.edu/book/9781441194497","Dummy","RJ Wheaton",2011,"33 1/3","","", "book", "Portishead"],
+  ["https://www.harvard.com/book/9781501339691","Blue Lines","Ian Bourland",2019,"33 1/3","","", "book", "Massive Attack"]
 ],
 "sunshine": [
-  ["https://thirdplacebooks.com/book/9780826416704","Pet Sounds","Jim Fusilli",2005,"33 1/3","","A whole short book about this one record by The Beach Boys.","book"]
+  ["https://thirdplacebooks.com/book/9780826416704","Pet Sounds","Jim Fusilli",2005,"33 1/3","","", "book", "The Beach Boys"]
 ],
 "surfpop": [
-  ["https://thirdplacebooks.com/book/9780826416704","Pet Sounds","Jim Fusilli",2005,"33 1/3","","A whole short book about this one record by The Beach Boys.","book"]
+  ["https://thirdplacebooks.com/book/9780826416704","Pet Sounds","Jim Fusilli",2005,"33 1/3","","", "book", "The Beach Boys"]
 ],
 "yacht": [
-  ["https://thirdplacebooks.com/book/9780826416704","Pet Sounds","Jim Fusilli",2005,"33 1/3","","A whole short book about this one record by The Beach Boys.","book"],
-  ["https://mitpressbookstore.mit.edu/book/9780826427830","Aja","Don Breithaupt",2007,"33 1/3","","A whole short book about this one record by Steely Dan.","book"],
-  ["https://bookshop.org/p/books/tusk-rob-trucks/10805169","Tusk","Rob Trucks",2011,"33 1/3","","A whole short book about this one record by Fleetwood Mac.","book"]
+  ["https://thirdplacebooks.com/book/9780826416704","Pet Sounds","Jim Fusilli",2005,"33 1/3","","", "book", "The Beach Boys"],
+  ["https://mitpressbookstore.mit.edu/book/9780826427830","Aja","Don Breithaupt",2007,"33 1/3","","", "book", "Steely Dan"],
+  ["https://bookshop.org/p/books/tusk-rob-trucks/10805169","Tusk","Rob Trucks",2011,"33 1/3","","", "book", "Fleetwood Mac"]
 ],
 "baroquepop": [
-  ["https://thirdplacebooks.com/book/9780826416704","Pet Sounds","Jim Fusilli",2005,"33 1/3","","A whole short book about this one record by The Beach Boys.","book"],
-  ["https://greenapplebooks.com/book/9780826427908","Pink Moon","Amanda Petrusich",2007,"33 1/3","","A whole short book about this one record by Nick Drake.","book"],
-  ["https://www.harvard.com/book/9780826428981","Radio City","Bruce Eaton",2009,"33 1/3","","A whole short book about this one record by Big Star.","book"],
-  ["https://wordupbooks.com/book/9781441192806","Some Girls","Cyrus Patell",2011,"33 1/3","","A whole short book about this one record by The Rolling Stones.","book"]
+  ["https://thirdplacebooks.com/book/9780826416704","Pet Sounds","Jim Fusilli",2005,"33 1/3","","", "book", "The Beach Boys"],
+  ["https://greenapplebooks.com/book/9780826427908","Pink Moon","Amanda Petrusich",2007,"33 1/3","","", "book", "Nick Drake"],
+  ["https://www.harvard.com/book/9780826428981","Radio City","Bruce Eaton",2009,"33 1/3","","", "book", "Big Star"],
+  ["https://wordupbooks.com/book/9781441192806","Some Girls","Cyrus Patell",2011,"33 1/3","","", "book", "The Rolling Stones"]
 ],
 "southern_rock": [
-  ["https://mitpressbookstore.mit.edu/book/9780826416582","Led Zeppelin IV","Erik Davis",2005,"33 1/3","","A whole short book about this one record by Led Zeppelin.","book"]
+  ["https://mitpressbookstore.mit.edu/book/9780826416582","Led Zeppelin IV","Erik Davis",2005,"33 1/3","","", "book", "Led Zeppelin"]
 ],
 "british_blues": [
-  ["https://bookshop.org/p/books/tusk-rob-trucks/10805169","Tusk","Rob Trucks",2011,"33 1/3","","A whole short book about this one record by Fleetwood Mac.","book"],
-  ["https://mitpressbookstore.mit.edu/book/9780826416582","Led Zeppelin IV","Erik Davis",2005,"33 1/3","","A whole short book about this one record by Led Zeppelin.","book"],
-  ["https://wordupbooks.com/book/9781441192806","Some Girls","Cyrus Patell",2011,"33 1/3","","A whole short book about this one record by The Rolling Stones.","book"]
+  ["https://bookshop.org/p/books/tusk-rob-trucks/10805169","Tusk","Rob Trucks",2011,"33 1/3","","", "book", "Fleetwood Mac"],
+  ["https://mitpressbookstore.mit.edu/book/9780826416582","Led Zeppelin IV","Erik Davis",2005,"33 1/3","","", "book", "Led Zeppelin"],
+  ["https://wordupbooks.com/book/9781441192806","Some Girls","Cyrus Patell",2011,"33 1/3","","", "book", "The Rolling Stones"]
 ],
 "college": [
-  ["https://atomicbooks.com/products/33-1-3-they-might-be-giants-flood","Flood","Reed and Sandifer",2013,"33 1/3","","A whole short book about this one record by They Might Be Giants.","book"],
-  ["https://www.northshire.com/book/9780826416339","Let It Be","Colin Meloy",2004,"33 1/3","","A whole short book about this one record by The Replacements.","book"],
-  ["https://www.charterbookstore.com/book/9780826416728","Murmur","J. Niimi",2005,"33 1/3","","A whole short book about this one record by R.E.M..","book"],
-  ["https://www.harvard.com/book/9780826417749","Doolittle","Ben Sisario",2006,"33 1/3","","A whole short book about this one record by Pixies.","book"]
+  ["https://atomicbooks.com/products/33-1-3-they-might-be-giants-flood","Flood","Reed and Sandifer",2013,"33 1/3","","", "book", "They Might Be Giants"],
+  ["https://www.northshire.com/book/9780826416339","Let It Be","Colin Meloy",2004,"33 1/3","","", "book", "The Replacements"],
+  ["https://www.charterbookstore.com/book/9780826416728","Murmur","J. Niimi",2005,"33 1/3","","", "book", "R.E.M"],
+  ["https://www.harvard.com/book/9780826417749","Doolittle","Ben Sisario",2006,"33 1/3","","", "book", "Pixies"]
 ],
 "emo": [
-  ["https://www.northshire.com/book/9780826416339","Let It Be","Colin Meloy",2004,"33 1/3","","A whole short book about this one record by The Replacements.","book"],
-  ["https://atomicbooks.com/products/33-1-3-jawbreakers-24-hour-revenge-therapy","24 Hour Revenge Therapy","Ronen Givony",2018,"33 1/3","","A whole short book about this one record by Jawbreaker.","book"]
+  ["https://www.northshire.com/book/9780826416339","Let It Be","Colin Meloy",2004,"33 1/3","","", "book", "The Replacements"],
+  ["https://atomicbooks.com/products/33-1-3-jawbreakers-24-hour-revenge-therapy","24 Hour Revenge Therapy","Ronen Givony",2018,"33 1/3","","", "book", "Jawbreaker"]
 ],
 "altrock": [
-  ["https://www.nextchapterbooksellers.com/book/9780826416636","OK Computer","Dai Griffiths",2004,"33 1/3","","A whole short book about this one record by Radiohead.","book"],
-  ["https://www.northshire.com/book/9780826416339","Let It Be","Colin Meloy",2004,"33 1/3","","A whole short book about this one record by The Replacements.","book"],
-  ["https://www.charterbookstore.com/book/9780826416728","Murmur","J. Niimi",2005,"33 1/3","","A whole short book about this one record by R.E.M..","book"],
-  ["https://www.harvard.com/book/9780826417749","Doolittle","Ben Sisario",2006,"33 1/3","","A whole short book about this one record by Pixies.","book"]
+  ["https://www.nextchapterbooksellers.com/book/9780826416636","OK Computer","Dai Griffiths",2004,"33 1/3","","", "book", "Radiohead"],
+  ["https://www.northshire.com/book/9780826416339","Let It Be","Colin Meloy",2004,"33 1/3","","", "book", "The Replacements"],
+  ["https://www.charterbookstore.com/book/9780826416728","Murmur","J. Niimi",2005,"33 1/3","","", "book", "R.E.M"],
+  ["https://www.harvard.com/book/9780826417749","Doolittle","Ben Sisario",2006,"33 1/3","","", "book", "Pixies"]
 ],
 "noiserock": [
-  ["https://mitpressbookstore.mit.edu/book/9780826415509","The Velvet Underground & Nico","Joe Harvard",2004,"33 1/3","","A whole short book about this one record by The Velvet Underground.","book"],
-  ["https://www.harvard.com/book/9780826417749","Doolittle","Ben Sisario",2006,"33 1/3","","A whole short book about this one record by Pixies.","book"],
-  ["https://gibsonsbookstore.com/book/9780826417404","Daydream Nation","Matthew Stearns",2006,"33 1/3","","A whole short book about this one record by Sonic Youth.","book"],
-  ["https://gibsonsbookstore.com/book/9781441187789","You're Living All Over Me","Nick Attfield",2011,"33 1/3","","A whole short book about this one record by Dinosaur Jr..","book"]
+  ["https://mitpressbookstore.mit.edu/book/9780826415509","The Velvet Underground & Nico","Joe Harvard",2004,"33 1/3","","", "book", "The Velvet Underground"],
+  ["https://www.harvard.com/book/9780826417749","Doolittle","Ben Sisario",2006,"33 1/3","","", "book", "Pixies"],
+  ["https://gibsonsbookstore.com/book/9780826417404","Daydream Nation","Matthew Stearns",2006,"33 1/3","","", "book", "Sonic Youth"],
+  ["https://gibsonsbookstore.com/book/9781441187789","You're Living All Over Me","Nick Attfield",2011,"33 1/3","","", "book", "Dinosaur Jr"]
 ],
 "slowcore": [
-  ["https://mitpressbookstore.mit.edu/book/9780826415509","The Velvet Underground & Nico","Joe Harvard",2004,"33 1/3","","A whole short book about this one record by The Velvet Underground.","book"],
-  ["https://mitpressbookstore.mit.edu/book/9781501377938","Moon Pix","Donna Kozloskie",2022,"33 1/3","","A whole short book about this one record by Cat Power.","book"]
+  ["https://mitpressbookstore.mit.edu/book/9780826415509","The Velvet Underground & Nico","Joe Harvard",2004,"33 1/3","","", "book", "The Velvet Underground"],
+  ["https://mitpressbookstore.mit.edu/book/9781501377938","Moon Pix","Donna Kozloskie",2022,"33 1/3","","", "book", "Cat Power"]
 ],
 "nowave": [
-  ["https://banksquarebooks.com/book/9780826415493","Unknown Pleasures","Chris Ott",2004,"33 1/3","","A whole short book about this one record by Joy Division.","book"],
-  ["https://backstory.london/products/9780826417428","The Stone Roses","Alex Green",2006,"33 1/3","","A whole short book about this one record by The Stone Roses.","book"],
-  ["https://gibsonsbookstore.com/book/9780826417404","Daydream Nation","Matthew Stearns",2006,"33 1/3","","A whole short book about this one record by Sonic Youth.","book"],
-  ["https://atomicbooks.com/products/33-1-3-volume-062-wires-pink-flag","Pink Flag","Wilson Neate",2009,"33 1/3","","A whole short book about this one record by Wire.","book"]
+  ["https://banksquarebooks.com/book/9780826415493","Unknown Pleasures","Chris Ott",2004,"33 1/3","","", "book", "Joy Division"],
+  ["https://backstory.london/products/9780826417428","The Stone Roses","Alex Green",2006,"33 1/3","","", "book", "The Stone Roses"],
+  ["https://gibsonsbookstore.com/book/9780826417404","Daydream Nation","Matthew Stearns",2006,"33 1/3","","", "book", "Sonic Youth"],
+  ["https://atomicbooks.com/products/33-1-3-volume-062-wires-pink-flag","Pink Flag","Wilson Neate",2009,"33 1/3","","", "book", "Wire"]
 ],
 "ranchera": [
   ["https://folkways-media.si.edu/docs/folkways/artwork/SFW40559.pdf","Tradicion, Arte y Pasion","Daniel E. Sheehy",2015,"history","","Bilingual booklet tracing radio XEW and film to the ranchera singers, Spanish included.","read"],
@@ -1440,17 +1441,17 @@ const READ = {
   ["https://electrofunkroots.co.uk/articles/the_building_blocks_of_boogie.html","The Building Blocks of Boogie","Greg Wilson",2006,"history","","A DJ who was there separates boogie from electro-funk and lists the essential cuts.","read"]
 ],
 "invasion": [
-  ["https://sunriverbooks.com/book/9780826417435","The Who Sell Out","John Dougan",2006,"33 1/3","","A whole short book about this one record by The Who.","book"],
-  ["https://wordupbooks.com/book/9781441192806","Some Girls","Cyrus Patell",2011,"33 1/3","","A whole short book about this one record by The Rolling Stones.","book"],
+  ["https://sunriverbooks.com/book/9780826417435","The Who Sell Out","John Dougan",2006,"33 1/3","","", "book", "The Who"],
+  ["https://wordupbooks.com/book/9781441192806","Some Girls","Cyrus Patell",2011,"33 1/3","","", "book", "The Rolling Stones"],
   ["https://worldradiohistory.com/UK/Record-Mirror/60s/64/Record-Mirror-1964-02-29-S-OCR.pdf","Record Mirror, 29 February 1964","Record Mirror",1964,"scene report","","A whole weekly from the moment itself: charts, gig ads, gossip, club listings.","look"],
   ["https://www.wlrn.org/2014-05-01/the-animals-the-british-invasion-that-wasnt","The British Invasion That Wasn't","Fresh Air",2014,"audio","","Ed Ward plays the records while arguing the Animals never fit the invasion story.","listen"],
   ["https://rockhall.com/wp-content/uploads/2024/03/The_Dave_Clark_Five_2008.pdf","The Dave Clark Five","Rock Hall",2008,"history","","Rob Bowman on how Clark ran his own band as manager and owned the tapes.","read"]
 ],
 "newwave": [
-  ["https://timesbookshop.co.uk/devos-freedom-of-choice-9781623563448","Freedom of Choice","Evie Nagy",2015,"33 1/3","","A whole short book about this one record by Devo.","book"],
-  ["https://page158books.com/book/9780826416841","Low","Hugo Wilcken",2005,"33 1/3","","A whole short book about this one record by David Bowie.","book"],
-  ["https://www.hatchards.co.uk/book/9781441186058","Marquee Moon","Bryan Waterman",2011,"33 1/3","","A whole short book about this one record by Television.","book"],
-  ["https://mitpressbookstore.mit.edu/book/9781441121004","Fear of Music","Jonathan Lethem",2012,"33 1/3","","A whole short book about this one record by Talking Heads.","book"],
+  ["https://timesbookshop.co.uk/devos-freedom-of-choice-9781623563448","Freedom of Choice","Evie Nagy",2015,"33 1/3","","", "book", "Devo"],
+  ["https://page158books.com/book/9780826416841","Low","Hugo Wilcken",2005,"33 1/3","","", "book", "David Bowie"],
+  ["https://www.hatchards.co.uk/book/9781441186058","Marquee Moon","Bryan Waterman",2011,"33 1/3","","", "book", "Television"],
+  ["https://mitpressbookstore.mit.edu/book/9781441121004","Fear of Music","Jonathan Lethem",2012,"33 1/3","","", "book", "Talking Heads"],
   ["https://interviewmagazine.com/music/new-again-the-b-52s","New Again: The B-52's","Interview",1979,"longform","","Glenn O'Brien talking to the band before anyone knew what they were, reprinted whole.","read"],
   ["https://www.electronicsound.co.uk/features/long-reads/summer-1978-new-yorks-new-wave-heatwave-devo/","Summer 1978: Devo in New York","Electronic Sound",2018,"longform","","Details Casale hustling Devo into CBGB and the Warner versus Virgin tug of war.","read"],
   ["https://www.ijpr.org/2015-08-21/akron-loves-devo","Akron Loves Devo","WCPN",2015,"audio","","Short radio piece on the Rust Belt town that produced the hazmat suits.","listen"]
@@ -1477,8 +1478,8 @@ const READ = {
   ["https://freshairarchive.org/segments/all-bluegrass-can-be-traced-back-one-man-bill-monroe","All Bluegrass Traced Back to One Man","Fresh Air",1995,"review","","Seven minutes of Milo Miles playing and judging Monroe's anthology on air.","listen"]
 ],
 "chicago_blues": [
-  ["https://bookshop.org/p/books/tusk-rob-trucks/10805169","Tusk","Rob Trucks",2011,"33 1/3","","A whole short book about this one record by Fleetwood Mac.","book"],
-  ["https://wordupbooks.com/book/9781441192806","Some Girls","Cyrus Patell",2011,"33 1/3","","A whole short book about this one record by The Rolling Stones.","book"],
+  ["https://bookshop.org/p/books/tusk-rob-trucks/10805169","Tusk","Rob Trucks",2011,"33 1/3","","", "book", "Fleetwood Mac"],
+  ["https://wordupbooks.com/book/9781441192806","Some Girls","Cyrus Patell",2011,"33 1/3","","", "book", "The Rolling Stones"],
   ["https://www.tabletmag.com/sections/arts-letters/articles/marshall-chess-rolling-stones","Record Master Marshall Chess","Tablet",2023,"oral history","","Leonard Chess's son on the label from inside, including the ugly parts.","read"],
   ["https://digital-release.wgnradio.com/nocturnal-journal-with-dave-hoekstra/marshall-chess-an-inside-look-at-the-birthplace-of-rock-and-roll-chess-records/amp","Marshall Chess: Inside Chess Records","WGN Radio",2017,"oral history","","Long radio conversation about 2120 South Michigan and who worked there.","listen"],
   ["https://www.npr.org/transcripts/498653533","Phil Chess of Chess Records Dies","NPR",2016,"obituary","","Carries archival tape of Phil Chess describing how the tracks were layered.","read"]
@@ -1506,32 +1507,32 @@ const READ = {
   ["https://www.tpr.org/2025-08-28/roots-of-r-b-singer-ruth-brown","Roots of R&B: Ruth Brown","NPR",2025,"audio","","Brown signed her Atlantic contract from a hospital bed and later fought for royalties.","listen"]
 ],
 "funk": [
-  ["https://www.nextchapterbooksellers.com/book/9780826415479","Sign o' the Times","Michaelangelo Matos",2004,"33 1/3","","A whole short book about this one record by Prince.","book"],
-  ["https://www.nextchapterbooksellers.com/book/9780826415721","Live at the Apollo","Douglas Wolk",2004,"33 1/3","","A whole short book about this one record by James Brown.","book"],
-  ["https://nantucketbookpartners.com/book/9780826417442","There's a Riot Goin' On","Miles Marshall Lewis",2006,"33 1/3","","A whole short book about this one record by Sly and the Family Stone.","book"],
-  ["https://atomicbooks.com/products/33-1-3-volume-144-dangelos-voodoo","Voodoo","Faith A. Pennick",2020,"33 1/3","","A whole short book about this one record by D'Angelo.","book"],
+  ["https://www.nextchapterbooksellers.com/book/9780826415479","Sign o' the Times","Michaelangelo Matos",2004,"33 1/3","","", "book", "Prince"],
+  ["https://www.nextchapterbooksellers.com/book/9780826415721","Live at the Apollo","Douglas Wolk",2004,"33 1/3","","", "book", "James Brown"],
+  ["https://nantucketbookpartners.com/book/9780826417442","There's a Riot Goin' On","Miles Marshall Lewis",2006,"33 1/3","","", "book", "Sly and the Family Stone"],
+  ["https://atomicbooks.com/products/33-1-3-volume-144-dangelos-voodoo","Voodoo","Faith A. Pennick",2020,"33 1/3","","", "book", "D'Angelo"],
   ["https://memphismagazine.com/culture/the-day-the-music-died/","The Day the Music Died","Memphis Magazine",2007,"longform","","Bar-Kays trumpeter Ben Cauley recounts the 1967 crash he alone survived.","read"],
   ["https://maximumfun.org/transcripts/bullseye-with-jesse-thorn/transcript-bullseye-with-jesse-thorn-robert-kool-bell-of-kool-the-gang","Robert 'Kool' Bell of Kool & the Gang","Maximum Fun",2023,"oral history","","Bell walks through the single session that produced Jungle Boogie and Funky Stuff.","read"],
   ["https://www.wunc.org/2013-01-31/paying-tribute-to-funks-sugarfoot-bonner","Paying Tribute to Funk's 'Sugarfoot' Bonner","NPR",2013,"obituary","","Two funk historians argue Bonner smuggled country blues phrasing into Ohio funk.","listen"]
 ],
 "hardcore": [
-  ["https://www.harvard.com/book/9781623567309","Fresh Fruit for Rotting Vegetables","Michael Stewart Foley",2015,"33 1/3","","A whole short book about this one record by Dead Kennedys.","book"],
-  ["https://www.harvard.com/book/9780826427878","Double Nickels on the Dime","Michael T. Fournier",2007,"33 1/3","","A whole short book about this one record by Minutemen.","book"],
+  ["https://www.harvard.com/book/9781623567309","Fresh Fruit for Rotting Vegetables","Michael Stewart Foley",2015,"33 1/3","","", "book", "Dead Kennedys"],
+  ["https://www.harvard.com/book/9780826427878","Double Nickels on the Dime","Michael T. Fournier",2007,"33 1/3","","", "book", "Minutemen"],
   ["https://www.motherjones.com/politics/2013/06/hard-art-lucian-perkins-dc-punk-bad-brains-dischord/","A Pulitzer Winner's Photos of Early DC Punk","Mother Jones",2013,"photo essay","","Perkins shot Bad Brains in a gallery in 1979; the frames ran nowhere for decades.","look"],
   ["https://vice.com/en/article/theres-no-shortage-of-blood-and-crazy-motherfuckers-an-interview-with-john-brannon-of-negative-approach","An Interview with John Brannon","Vice",2013,"oral history","","Brannon names the Freezer Theater and why Midwest hardcore sounded unlike either coast.","read"],
   ["https://www.criterion.com/current/posts/6476-the-truth-about-punk-according-to-penelope-spheeris","The Truth About Punk, According to Penelope Spheeris","Criterion",2015,"longform","","How an outsider in her thirties got LA punks to drop their guard on camera.","read"],
   ["https://www.criterionchannel.com/the-decline-of-western-civilization","The Decline of Western Civilization","Criterion",1981,"documentary","paywall","Circle Jerks and Black Flag filmed in 1979 clubs, before anyone performed for history.","watch"]
 ],
 "soul": [
-  ["https://vromansbookstore.com/book/9780826419262","Songs in the Key of Life","Zeth Lundy",2007,"33 1/3","","A whole short book about this one record by Stevie Wonder.","book"],
-  ["https://tleavesbooks.com/book/9781441148889","Amazing Grace","Aaron Cohen",2011,"33 1/3","","A whole short book about this one record by Aretha Franklin.","book"],
+  ["https://vromansbookstore.com/book/9780826419262","Songs in the Key of Life","Zeth Lundy",2007,"33 1/3","","", "book", "Stevie Wonder"],
+  ["https://tleavesbooks.com/book/9781441148889","Amazing Grace","Aaron Cohen",2011,"33 1/3","","", "book", "Aretha Franklin"],
   ["https://www.npr.org/2012/01/27/138985700/etta-james-the-1994-fresh-air-interview","Etta James: The 1994 Fresh Air Interview","NPR",2012,"audio","","James forged travel permission at sixteen to reach the session that started her.","listen"],
   ["https://www.npr.org/2010/10/11/130487413/fresh-air-remembers-soul-singer-solomon-burke","Fresh Air Remembers Solomon Burke","NPR",2010,"obituary","","A 1986 interview with the preacher and mortician who carried gospel into secular records.","listen"],
   ["https://www.npr.org/2024/05/27/1197967700/stax-records","The Stax Records Soul Sound","NPR",2024,"audio","","Cropper, Booker T. and Isaac Hayes on how a house band built the records.","listen"],
   ["https://www.theartsdesk.com/node/2387","Solomon Burke, c 1940-2010","The Arts Desk",2010,"obituary","","Argues the greatest singer of his era never got a mainstream career.","read"]
 ],
 "psych_rock": [
-  ["https://tleavesbooks.com/book/9781628929249","Workingman's Dead","Buzz Poole",2016,"33 1/3","","A whole short book about this one record by Grateful Dead.","book"],
+  ["https://tleavesbooks.com/book/9781628929249","Workingman's Dead","Buzz Poole",2016,"33 1/3","","", "book", "Grateful Dead"],
   ["https://www.npr.org/2013/05/24/185827139/remembering-ray-manzarek-keyboardist-for-the-doors","Remembering Ray Manzarek","NPR",2013,"obituary","","Manzarek on covering bass with his left hand and building Light My Fire from Bach.","listen"],
   ["https://www.soundonsound.com/techniques/classic-tracks-doors-strange-days","Classic Tracks: The Doors, Strange Days","Sound On Sound",2003,"history","","Engineer Bruce Botnick on the consoles, mics and tape echo behind the record.","read"],
   ["https://www.mixonline.com/recording/classic-tracks/classic-tracks-the-doors-the-end","Classic Tracks: The Doors, The End","Mix",1995,"history","","A whole day to set up, one wasted take, and a master spliced from two.","read"],
@@ -1544,9 +1545,9 @@ const READ = {
   ["https://www.criterionchannel.com/the-blues-accordin-to-lightnin-hopkins","The Blues Accordin' to Lightnin' Hopkins","Criterion",1968,"documentary","paywall","Les Blank follows Hopkins through Texas while he plays and talks, unstaged.","watch"]
 ],
 "synthpop": [
-  ["https://rep.club/products/donna-summers-once-upon-a-time","Once Upon a Time","Alex Jeffery",2021,"33 1/3","","A whole short book about this one record by Donna Summer.","book"],
-  ["https://www.harvard.com/book/9781501378980","Computer World","Steve Tupai Francis",2022,"33 1/3","","A whole short book about this one record by Kraftwerk.","book"],
-  ["https://betterread.com.au/book/depeche-modes-101.do","101","Mary Valle",2024,"33 1/3","","A whole short book about this one record by Depeche Mode.","book"],
+  ["https://rep.club/products/donna-summers-once-upon-a-time","Once Upon a Time","Alex Jeffery",2021,"33 1/3","","", "book", "Donna Summer"],
+  ["https://www.harvard.com/book/9781501378980","Computer World","Steve Tupai Francis",2022,"33 1/3","","", "book", "Kraftwerk"],
+  ["https://betterread.com.au/book/depeche-modes-101.do","101","Mary Valle",2024,"33 1/3","","", "book", "Depeche Mode"],
   ["https://www.muzines.co.uk/articles/orchestral-manoeuvres-in-the-dark/3645","Orchestral Manoeuvres in the Dark","E&MM",1981,"longform","","OMD mic their synths for grit and stack Mellotron loops at uneven speeds.","read"],
   ["https://www.muzines.co.uk/articles/downstairs-at-erics/1592","Downstairs at Eric's","E&MM",1984,"longform","","Vince Clarke and Eric Radcliffe on the church studio and Fairlight rig behind their records.","read"],
   ["https://www.soundonsound.com/people/vince-clarke-electronic-music-pioneer","Vince Clarke: Electronic Music Pioneer","Sound On Sound",2020,"longform","","Clarke traces his sequencing method from the ARP and MC-4 to now.","read"]
@@ -1557,18 +1558,18 @@ const READ = {
   ["https://www.thefader.com/2011/12/20/gen-f-lex-luger","GEN F: Lex Luger","The FADER",2011,"scene report","","Caught at nineteen, mid-breakout, before anyone called the sound a genre.","read"]
 ],
 "folkrock": [
-  ["https://greenapplebooks.com/book/9780826417718","Music from Big Pink","John Niven",2005,"33 1/3","","A whole short book about this one record by The Band.","book"],
-  ["https://mitpressbookstore.mit.edu/book/9780826417756","Highway 61 Revisited","Mark Polizzotti",2006,"33 1/3","","A whole short book about this one record by Bob Dylan.","book"],
+  ["https://greenapplebooks.com/book/9780826417718","Music from Big Pink","John Niven",2005,"33 1/3","","", "book", "The Band"],
+  ["https://mitpressbookstore.mit.edu/book/9780826417756","Highway 61 Revisited","Mark Polizzotti",2006,"33 1/3","","", "book", "Bob Dylan"],
   ["https://www.npr.org/transcripts/693790065","Buffalo Springfield's Anthem to the Curfew Riots","NPR",2019,"audio","","Stills reports why the song was written and what it later meant to veterans.","read"],
   ["https://www.muzines.co.uk/articles/in-like-mcguinn/7041","In Like McGuinn","Making Music",1986,"review","","McGuinn himself weighs the label folk rock and explains the Byrds' sound.","read"],
   ["https://daily.jstor.org/everybody-look-whats-going-down-the-sunset-strip-riots","The Sunset Strip Riots","JSTOR Daily",2022,"history","","Shows the police curfew fight that the music was actually reacting to.","read"],
   ["https://lapl.org/collections-resources/blogs/lapl/pandoras-box","Pandora's Box","LA Public Library",2019,"photo essay","","Serves 1966 Herald Examiner photos, a club menu and street maps of the scene.","look"]
 ],
 "postpunk": [
-  ["https://banksquarebooks.com/book/9780826415493","Unknown Pleasures","Chris Ott",2004,"33 1/3","","A whole short book about this one record by Joy Division.","book"],
-  ["https://backstory.london/products/9780826417428","The Stone Roses","Alex Green",2006,"33 1/3","","A whole short book about this one record by The Stone Roses.","book"],
-  ["https://gibsonsbookstore.com/book/9780826417404","Daydream Nation","Matthew Stearns",2006,"33 1/3","","A whole short book about this one record by Sonic Youth.","book"],
-  ["https://atomicbooks.com/products/33-1-3-volume-062-wires-pink-flag","Pink Flag","Wilson Neate",2009,"33 1/3","","A whole short book about this one record by Wire.","book"],
+  ["https://banksquarebooks.com/book/9780826415493","Unknown Pleasures","Chris Ott",2004,"33 1/3","","", "book", "Joy Division"],
+  ["https://backstory.london/products/9780826417428","The Stone Roses","Alex Green",2006,"33 1/3","","", "book", "The Stone Roses"],
+  ["https://gibsonsbookstore.com/book/9780826417404","Daydream Nation","Matthew Stearns",2006,"33 1/3","","", "book", "Sonic Youth"],
+  ["https://atomicbooks.com/products/33-1-3-volume-062-wires-pink-flag","Pink Flag","Wilson Neate",2009,"33 1/3","","", "book", "Wire"],
   ["https://thequietus.com/?p=1163","Simon Reynolds: Talking Totally Wired","The Quietus",2009,"longform","","Reynolds argues with his own interviewees about what post-punk was for.","read"],
   ["https://www.kqed.org/arts/13820039/mark-e-smith-an-uncompromising-essential-voice-from-musics-fringe","Mark E. Smith: An Essential Voice from the Fringe","KQED",2018,"obituary","","Geeta Dayal pins down what made the Fall's forty-year method unrepeatable.","read"],
   ["https://penguinrandomhouse.com/books/291130/rip-it-up-and-start-again-by-simon-reynolds","Rip It Up and Start Again","Simon Reynolds",2006,"history","","The standard narrative history, built from hundreds of first-hand interviews.","book"]
@@ -1580,17 +1581,17 @@ const READ = {
   ["https://loudersound.com/features/judas-priest-the-making-of-british-steel","The Making of British Steel","Metal Hammer",2020,"oral history","","Band and producer explain the studio tricks that fixed metal's template.","read"]
 ],
 "techno": [
-  ["https://www.harvard.com/book/9781501378980","Computer World","Steve Tupai Francis",2022,"33 1/3","","A whole short book about this one record by Kraftwerk.","book"],
+  ["https://www.harvard.com/book/9781501378980","Computer World","Steve Tupai Francis",2022,"33 1/3","","", "book", "Kraftwerk"],
   ["https://daily.redbullmusicacademy.com/2017/05/interview-jeff-mills","Interview: Jeff Mills","RBMA",2017,"oral history","","Mills explains radio mixing, Underground Resistance economics and his own records.","read"],
   ["https://daily.redbullmusicacademy.com/2017/07/neil-rushton-interview","Interview: Neil Rushton","RBMA",2017,"oral history","","The man who packaged Detroit for Britain on how the word techno stuck.","read"],
   ["https://toneglow.substack.com/p/tone-glow-151-juan-atkins","Juan Atkins","Tone Glow",2024,"oral history","","Hours of Atkins on Belleville, Mojo radio and what techno was supposed to mean.","read"],
   ["https://afropop.org/articles/juan-atkins-interview","Juan Atkins Interview","Afropop Worldwide",2011,"oral history","","Atkins on the Music Institute and the Black musical lineage behind techno.","read"]
 ],
 "indierock": [
-  ["https://prairielights.com/book/9798765106679","And Then Nothing Turned Itself Inside-Out","Elliott Simpson",2025,"33 1/3","","A whole short book about this one record by Yo La Tengo.","book"],
-  ["https://www.northshire.com/book/9780826416339","Let It Be","Colin Meloy",2004,"33 1/3","","A whole short book about this one record by The Replacements.","book"],
-  ["https://www.charterbookstore.com/book/9780826416728","Murmur","J. Niimi",2005,"33 1/3","","A whole short book about this one record by R.E.M..","book"],
-  ["https://www.harvard.com/book/9780826417749","Doolittle","Ben Sisario",2006,"33 1/3","","A whole short book about this one record by Pixies.","book"],
+  ["https://prairielights.com/book/9798765106679","And Then Nothing Turned Itself Inside-Out","Elliott Simpson",2025,"33 1/3","","", "book", "Yo La Tengo"],
+  ["https://www.northshire.com/book/9780826416339","Let It Be","Colin Meloy",2004,"33 1/3","","", "book", "The Replacements"],
+  ["https://www.charterbookstore.com/book/9780826416728","Murmur","J. Niimi",2005,"33 1/3","","", "book", "R.E.M"],
+  ["https://www.harvard.com/book/9780826417749","Doolittle","Ben Sisario",2006,"33 1/3","","", "book", "Pixies"],
   ["https://www.npr.org/2009/07/05/106260795/american-indie-20-years-of-merge-records","20 Years of Merge Records","NPR",2009,"audio","","Superchunk's founders explain running a label as a deliberate economic choice.","listen"],
   ["https://toneglow.substack.com/p/0345-ira-kaplan-yo-la-tengo","Ira Kaplan of Yo La Tengo","Tone Glow",2020,"oral history","","Kaplan walks through how the band actually writes and records together.","read"],
   ["https://www.vice.com/en/article/modest-mouse-lonesome-crowded-west-1997-the-year-emo-broke/","Lonesome Crowded West Bridged Indie and Emo","VICE",2017,"longform","","Makes a contestable case that this record joined two scenes nobody linked.","read"],
@@ -1614,16 +1615,16 @@ const READ = {
   ["https://daily.redbullmusicacademy.com/2015/07/the-birth-of-mantronix","The Birth of Mantronix","RBMA",2015,"oral history","","Mantronik narrates building Fresh Is The Word from a record-shop counter.","read"]
 ],
 "hardrock": [
-  ["https://mitpressbookstore.mit.edu/book/9781441190284","Highway to Hell","Joe Bonomo",2010,"33 1/3","","A whole short book about this one record by AC/DC.","book"],
-  ["https://mitpressbookstore.mit.edu/book/9780826416582","Led Zeppelin IV","Erik Davis",2005,"33 1/3","","A whole short book about this one record by Led Zeppelin.","book"],
-  ["https://sunriverbooks.com/book/9780826417435","The Who Sell Out","John Dougan",2006,"33 1/3","","A whole short book about this one record by The Who.","book"],
-  ["https://greenapplebooks.com/book/9780826419248","Use Your Illusion I and II","Eric Weisbard",2006,"33 1/3","","A whole short book about this one record by Guns N' Roses.","book"],
+  ["https://mitpressbookstore.mit.edu/book/9781441190284","Highway to Hell","Joe Bonomo",2010,"33 1/3","","", "book", "AC/DC"],
+  ["https://mitpressbookstore.mit.edu/book/9780826416582","Led Zeppelin IV","Erik Davis",2005,"33 1/3","","", "book", "Led Zeppelin"],
+  ["https://sunriverbooks.com/book/9780826417435","The Who Sell Out","John Dougan",2006,"33 1/3","","", "book", "The Who"],
+  ["https://greenapplebooks.com/book/9780826419248","Use Your Illusion I and II","Eric Weisbard",2006,"33 1/3","","", "book", "Guns N' Roses"],
   ["https://thequietus.com/?p=22076","Revisiting AC/DC's Let There Be Rock","The Quietus",2017,"longform","","Takes the record apart bar by bar and argues why this one mattered most.","read"],
   ["https://vintageking.com/blogs/making-of/acdc-back-in-black","The Making of Back in Black","Vintage King",2026,"longform","","Engineer Tony Platt on mic placement, room ambience and how that snare was caught.","read"],
   ["https://www.musicradar.com/news/paul-rodgers-free-all-right-now-interview-paul-kossoff","Paul Rodgers on Free's All Right Now","MusicRadar",2024,"oral history","","Rodgers on the arrangement choice of holding the bass back through the verses.","read"]
 ],
 "gospel": [
-  ["https://tleavesbooks.com/book/9781441148889","Amazing Grace","Aaron Cohen",2011,"33 1/3","","A whole short book about this one record by Aretha Franklin.","book"],
+  ["https://tleavesbooks.com/book/9781441148889","Amazing Grace","Aaron Cohen",2011,"33 1/3","","", "book", "Aretha Franklin"],
   ["https://www.pbs.org/video/the-birth-of-gospel-iuomhc","Chicago Stories: The Birth of Gospel","PBS",2022,"documentary","","Hour-long film on the Chicago churches and composers where gospel was built.","watch"],
   ["https://www.npr.org/2019/06/20/711817532/wade-in-the-water-ep-16-the-gospel-song-legacy-of-thomas-andrew-dorsey","Wade in the Water: Thomas Andrew Dorsey","NPR",2019,"audio","","Bernice Johnson Reagon traces Dorsey from blues pianist to architect of the gospel song.","listen"],
   ["https://www.loc.gov/collections/blues-gospel-and-the-fort-valley-music-festivals/about-this-collection/","Blues, Gospel and the Fort Valley Festivals","Library of Congress",1943,"audio","","Roughly 100 field recordings you can play, including wartime rewrites of gospel songs.","listen"]
@@ -1644,26 +1645,26 @@ const READ = {
   ["https://www.npr.org/transcripts/10090759","Heard on the Street","NPR",2007,"scene report","","A DC quartet still singing on corners in gold medallions, recorded where they stand.","read"]
 ],
 "rocknroll": [
-  ["https://mitpressbookstore.mit.edu/book/9780826416582","Led Zeppelin IV","Erik Davis",2005,"33 1/3","","A whole short book about this one record by Led Zeppelin.","book"],
-  ["https://www.charterbookstore.com/book/9780826416728","Murmur","J. Niimi",2005,"33 1/3","","A whole short book about this one record by R.E.M..","book"],
-  ["https://atomicbooks.com/products/33-1-3-bruce-springsteens-born-in-the-u-s-a","Born in the U.S.A.","Geoffrey Himes",2005,"33 1/3","","A whole short book about this one record by Bruce Springsteen.","book"],
-  ["https://parnassusbooks.net/book/9780826417763","In Utero","Gillian G. Gaar",2006,"33 1/3","","A whole short book about this one record by Nirvana.","book"],
+  ["https://mitpressbookstore.mit.edu/book/9780826416582","Led Zeppelin IV","Erik Davis",2005,"33 1/3","","", "book", "Led Zeppelin"],
+  ["https://www.charterbookstore.com/book/9780826416728","Murmur","J. Niimi",2005,"33 1/3","","", "book", "R.E.M"],
+  ["https://atomicbooks.com/products/33-1-3-bruce-springsteens-born-in-the-u-s-a","Born in the U.S.A.","Geoffrey Himes",2005,"33 1/3","","", "book", "Bruce Springsteen"],
+  ["https://parnassusbooks.net/book/9780826417763","In Utero","Gillian G. Gaar",2006,"33 1/3","","", "book", "Nirvana"],
   ["https://lantern.mediahist.org/catalog/variety203-1956-08_0176","Variety, 15 August 1956","Variety",1956,"scene report","","Trade page covering city bans on the music and the civil-liberties fight over them.","read"],
   ["https://www.npr.org/sections/thetwo-way/2017/10/25/522583856/fats-domino-architect-of-rock-and-roll-dead-at-89","Fats Domino, Architect of Rock and Roll","NPR",2017,"obituary","","Covers the segregated tours and riots he played through, not just the hits.","read"],
   ["https://www.npr.org/2022/10/28/533979071/jerry-lee-lewis-dies","Jerry Lee Lewis Has Died at 87","NPR",2022,"obituary","","Long and unsparing on the Sun sessions and the scandal that ended his run.","read"]
 ],
 "krautrock": [
-  ["https://store.wexarts.org/books/dj-shadow-s-endtroducing","Endtroducing.....","Eliot Wilder",2005,"33 1/3","","A whole short book about this one record by DJ Shadow.","book"],
-  ["https://page158books.com/book/9780826416841","Low","Hugo Wilcken",2005,"33 1/3","","A whole short book about this one record by David Bowie.","book"],
-  ["https://sunriverbooks.com/book/9780826417435","The Who Sell Out","John Dougan",2006,"33 1/3","","A whole short book about this one record by The Who.","book"],
-  ["https://timesbookshop.co.uk/lcd-soundsystems-sound-of-silver-9781501325618","Sound of Silver","Ryan Leas",2016,"33 1/3","","A whole short book about this one record by LCD Soundsystem.","book"],
+  ["https://store.wexarts.org/books/dj-shadow-s-endtroducing","Endtroducing.....","Eliot Wilder",2005,"33 1/3","","", "book", "DJ Shadow"],
+  ["https://page158books.com/book/9780826416841","Low","Hugo Wilcken",2005,"33 1/3","","", "book", "David Bowie"],
+  ["https://sunriverbooks.com/book/9780826417435","The Who Sell Out","John Dougan",2006,"33 1/3","","", "book", "The Who"],
+  ["https://timesbookshop.co.uk/lcd-soundsystems-sound-of-silver-9781501325618","Sound of Silver","Ryan Leas",2016,"33 1/3","","", "book", "LCD Soundsystem"],
   ["https://toneglow.substack.com/p/tone-glow-148-michael-rother","Michael Rother","Tone Glow",2024,"oral history","","Hours of Rother on Neu!, the Forst farmhouse and what Harmonia was trying to do.","read"],
   ["https://thequietus.com/?p=4090","Cluster: Nobility in the Blood","The Quietus",2010,"oral history","","Moebius and Roedelius on working with almost no gear and the move to Forst.","read"],
   ["https://thequietus.com/?p=18057","The Strange World of Amon Duul","The Quietus",2015,"longform","","The Munich commune, the 1968 Essen festival and the split that made Amon Duul II.","read"]
 ],
 "contemp_rnb": [
-  ["https://booktavern.com/book/9781623566319","Dangerous","Susan Fast",2014,"33 1/3","","A whole short book about this one record by Michael Jackson.","book"],
-  ["https://greenapplebooks.com/book/9781501355028","The Velvet Rope","Ayanna Dozier",2020,"33 1/3","","A whole short book about this one record by Janet Jackson.","book"],
+  ["https://booktavern.com/book/9781623566319","Dangerous","Susan Fast",2014,"33 1/3","","", "book", "Michael Jackson"],
+  ["https://greenapplebooks.com/book/9781501355028","The Velvet Rope","Ayanna Dozier",2020,"33 1/3","","", "book", "Janet Jackson"],
   ["https://www.rollingstone.com/music/music-news/the-soul-behind-the-face-82091/","The Soul Behind the Face","Rolling Stone",1994,"longform","","Babyface profiled at his commercial peak, with his writing routine described in detail.","read"],
   ["https://daily.redbullmusicacademy.com/2017/05/teddy-riley-new-jack-swing-oral-history","Teddy Riley and New Jack Swing","RBMA",2017,"oral history","","Riley, engineers and rappers describe how the drum programming and the scene came together.","read"],
   ["https://www.npr.org/transcripts/1130422457","Babyface on a New Generation","NPR",2022,"oral history","","Babyface compares how the business treated women singers then and now.","read"]
@@ -1675,7 +1676,7 @@ const READ = {
   ["https://vice.com/en/article/wolfgang-gartner-shows-us-how-he-was-made-in-a-minute","Wolfgang Gartner Shows Us How He Was Made","VICE",2013,"longform","","Traces one producer from a dorm-room label funded by his parents to festival headliner.","read"]
 ],
 "folkrevival": [
-  ["https://atomicbooks.com/products/33-1-3-volume-136-odettas-one-grain-of-sand","One Grain of Sand","Matthew Frye Jacobson",2019,"33 1/3","","A whole short book about this one record by Odetta.","book"],
+  ["https://atomicbooks.com/products/33-1-3-volume-136-odettas-one-grain-of-sand","One Grain of Sand","Matthew Frye Jacobson",2019,"33 1/3","","", "book", "Odetta"],
   ["https://elijahwald.com/Van-Ronk-singout.html","Dave Van Ronk profile","Sing Out!",1996,"oral history","","Van Ronk argues the revival needed interpreters, not only songwriters, and rejects purist labels.","read"],
   ["https://www.pbs.org/newshour/show/famed-civils-rights-folk-singer-odetta-dies","Odetta Dies","PBS NewsHour",2008,"obituary","","Ties her voice to the civil rights movement and to what first moved Dylan.","read"],
   ["https://www.npr.org/sections/allsongs/2018/05/01/607172246/at-70-smithsonian-folkways-is-an-antidote-to-music-algorithms","Smithsonian Folkways at 70","NPR",2018,"audio","","Folkways' curator on Moses Asch and a 60,000-track catalogue, with a long playlist.","listen"],
@@ -1688,8 +1689,8 @@ const READ = {
   ["https://thedig.howard.edu/all-stories/walking-rhythm-blackbyrds-enduring-legacy-howard-university-international-stage","The Blackbyrds' Enduring Legacy","Howard University",2026,"oral history","","Original members recall recording as students trying not to embarrass their professor.","read"]
 ],
 "ambient": [
-  ["https://atomicbooks.com/products/33-1-3-brian-enos-another-green-world","Another Green World","Geeta Dayal",2009,"33 1/3","","A whole short book about this one record by Brian Eno.","book"],
-  ["https://atomicbooks.com/products/33-1-3-aphex-twins-selected-ambient-works-vol-2","Selected Ambient Works Volume II","Marc Weidenbaum",2014,"33 1/3","","A whole short book about this one record by Aphex Twin.","book"],
+  ["https://atomicbooks.com/products/33-1-3-brian-enos-another-green-world","Another Green World","Geeta Dayal",2009,"33 1/3","","", "book", "Brian Eno"],
+  ["https://atomicbooks.com/products/33-1-3-aphex-twins-selected-ambient-works-vol-2","Selected Ambient Works Volume II","Marc Weidenbaum",2014,"33 1/3","","", "book", "Aphex Twin"],
   ["https://www.moredarkthanshark.org/eno_int_chic-jul79.html","Brian Eno: Mind Over Music","Chic",1979,"longform","","Eno says he designs a system then rides it, and is uninterested in self-expression.","read"],
   ["https://daily.bandcamp.com/features/hiroshi-yoshimura-surround-feature","The Legacy of Yoshimura's Surround","Bandcamp Daily",2023,"longform","","A home builder commissioned this music to furnish its houses, which explains its shape.","read"],
   ["https://daily.redbullmusicacademy.com/2013/04/laraaji-interview","Interview: Laraaji","RBMA",2013,"oral history","","He traded a guitar for a zither, and building noise delayed the record six months.","read"],
@@ -1708,10 +1709,10 @@ const READ = {
   ["https://www.dukeupress.edu/real-men-don-t-sing","Real Men Don't Sing","Allison McCracken",2015,"history","","Shows crooners attacked as unmanly until Crosby made the style respectable.","book"]
 ],
 "artrock": [
-  ["https://backstory.london/products/9780826427816","Trout Mask Replica","Kevin Courrier",2007,"33 1/3","","A whole short book about this one record by Captain Beefheart.","book"],
-  ["https://northtownbooks.com/book/9781501355349","Avalon","Simon A. Morrison",2021,"33 1/3","","A whole short book about this one record by Roxy Music.","book"],
-  ["https://www.nextchapterbooksellers.com/book/9780826415479","Sign o' the Times","Michaelangelo Matos",2004,"33 1/3","","A whole short book about this one record by Prince.","book"],
-  ["https://www.nextchapterbooksellers.com/book/9780826416636","OK Computer","Dai Griffiths",2004,"33 1/3","","A whole short book about this one record by Radiohead.","book"],
+  ["https://backstory.london/products/9780826427816","Trout Mask Replica","Kevin Courrier",2007,"33 1/3","","", "book", "Captain Beefheart"],
+  ["https://northtownbooks.com/book/9781501355349","Avalon","Simon A. Morrison",2021,"33 1/3","","", "book", "Roxy Music"],
+  ["https://www.nextchapterbooksellers.com/book/9780826415479","Sign o' the Times","Michaelangelo Matos",2004,"33 1/3","","", "book", "Prince"],
+  ["https://www.nextchapterbooksellers.com/book/9780826416636","OK Computer","Dai Griffiths",2004,"33 1/3","","", "book", "Radiohead"],
   ["https://www.moredarkthanshark.org/eno_int_nme-nov72.html","Roxy: All This, and Eno Too","NME",1972,"scene report","","Nick Kent catches Roxy mid-rise, planning a deliberately cheap sounding second album.","read"],
   ["https://www.moredarkthanshark.org/eno_int_creem-may73.html","Roxy Music: Terror in the Rue Morgue","Creem",1973,"scene report","","Eno says he understood neither electronics nor music, and that was the point.","read"],
   ["https://www.rollingstone.com/music/music-features/trout-mask-replica-50th-anniversary-captain-beefheart-848521/","Why Trout Mask Replica Still Sounds Like Tomorrow","Rolling Stone",2019,"longform","","Reconstructs the house drills Van Vliet put the Magic Band through for months.","read"],
@@ -1729,7 +1730,7 @@ const READ = {
   ["https://www.npr.org/2008/03/04/87905064/louis-jordan-jukebox-king","Louis Jordan: Jukebox King","NPR",2008,"longform","","Traces the shift from big band swing to the small jump combo, year by year.","read"]
 ],
 "hardbop": [
-  ["https://northtownbooks.com/book/9781628929430","Bitches Brew","George Grella",2015,"33 1/3","","A whole short book about this one record by Miles Davis.","book"],
+  ["https://northtownbooks.com/book/9781628929430","Bitches Brew","George Grella",2015,"33 1/3","","", "book", "Miles Davis"],
   ["https://arts.gov/honors/jazz/rudy-van-gelder","Rudy Van Gelder","NEA Jazz Masters",2008,"oral history","","Van Gelder explains in his own words how he built and miked his rooms.","read"],
   ["https://www.wbur.org/artery/2016/09/01/rudy-van-gelder","Van Gelder Heard the Sound of the Future","WBUR",2016,"obituary","","Makes the case for the Blue Note sound and quotes engineers who dislike it.","read"],
   ["https://www.mixonline.com/recording/rudy-van-gelder-375282","Jazz and the Art of Technical Excellence","Mix",2005,"longform","","Engineer talks gear he built himself and why he called himself the messenger.","read"]
@@ -1742,27 +1743,27 @@ const READ = {
   ["https://www.nashvillescene.com/arts_culture/true-believer/article_e93d86f9-9939-5893-a30f-d4c137fee764.html","True Believer","Nashville Scene",1998,"obituary","","Written at Charlie Feathers' death on why Sam Phillips never pushed him as a rocker.","read"]
 ],
 "garage": [
-  ["https://atomicbooks.com/products/33-1-3-the-mc5s-kick-out-the-jams","Kick Out the Jams","Don McLeese",2005,"33 1/3","","A whole short book about this one record by MC5.","book"],
+  ["https://atomicbooks.com/products/33-1-3-the-mc5s-kick-out-the-jams","Kick Out the Jams","Don McLeese",2005,"33 1/3","","", "book", "MC5"],
   ["https://www.npr.org/transcripts/1127728187","Nuggets Turns 50","NPR",2022,"audio","","Lenny Kaye explains how he picked the songs and heard regional scenes in them.","read"],
   ["https://www.spinmagazine.com/2026/08/lenny-kaye-once-things-get-figured-out-then-its-time-to-change-them/","Lenny Kaye on Changing Things","SPIN",2026,"oral history","","Long interview with the man who wrote the phrase punk rock into liner notes.","read"],
   ["https://www.elsewhere.co.nz/absoluteelsewhere/5413/nuggets-at-40-2012-we-are-the-young-americans","Nuggets at 40","Elsewhere",2012,"longform","","Argues suburban teenage frustration, not nostalgia, is why these records still land.","read"]
 ],
 "bluesrock": [
-  ["https://mitpressbookstore.mit.edu/book/9780826416582","Led Zeppelin IV","Erik Davis",2005,"33 1/3","","A whole short book about this one record by Led Zeppelin.","book"],
-  ["https://bookshop.org/p/books/tusk-rob-trucks/10805169","Tusk","Rob Trucks",2011,"33 1/3","","A whole short book about this one record by Fleetwood Mac.","book"],
+  ["https://mitpressbookstore.mit.edu/book/9780826416582","Led Zeppelin IV","Erik Davis",2005,"33 1/3","","", "book", "Led Zeppelin"],
+  ["https://bookshop.org/p/books/tusk-rob-trucks/10805169","Tusk","Rob Trucks",2011,"33 1/3","","", "book", "Fleetwood Mac"],
   ["https://www.texasmonthly.com/arts-entertainment/johnny-winter-looks-back-through-the-songs-that-made-him-famous/","Johnny Winter Looks Back","Texas Monthly",2014,"oral history","","Winter walks through four of his own recordings months before he died.","read"],
   ["https://www.guitarplayer.com/guitarists/stevie-ray-vaughan-talks-his-number-one-strat-dumble-amps-and-craziest-gigs","Stevie Ray Vaughan on His Number One Strat","Guitar Player",1984,"oral history","","Vaughan's 1984 Q and A on tone, gear abuse and rough early gigs.","read"],
   ["https://billmilkowski.substack.com/p/a-generational-guitar-hero-remembered","A Generational Guitar Hero Remembered","Bill Milkowski",2024,"memoir","","Reporter who interviewed Vaughan in 1983 reprints his 1990 dispatch from the memorials.","read"]
 ],
 "countryrock": [
-  ["https://buffalostreetbooks.com/book/9780826429032","The Gilded Palace of Sin","Bob Proehl",2008,"33 1/3","","A whole short book about this one record by The Flying Burrito Brothers.","book"],
+  ["https://buffalostreetbooks.com/book/9780826429032","The Gilded Palace of Sin","Bob Proehl",2008,"33 1/3","","", "book", "The Flying Burrito Brothers"],
   ["https://www.lamag.com/culturefiles/drug-crazed-majesty-gram-parsons/","The Drug-Crazed Majesty of Gram Parsons","Los Angeles",2014,"longform","","Walks through the chaotic Gilded Palace of Sin sessions and why the record flopped.","read"],
   ["https://www.rollingstone.com/music/music-news/chris-hillman-flying-burrito-brothers-time-between-excerpt-1043901/","Sin City","Chris Hillman",2020,"memoir","","Hillman's own account of forming the Burritos, the 1969 tour, Manson and Altamont.","book"],
   ["https://studsterkel.wfmt.com/programs/flying-burrito-brothers-discuss-their-album-gilded-palace-sin","The Burritos Discuss Gilded Palace of Sin","Studs Terkel",1969,"oral history","partial","Terkel interviewing Parsons and Ethridge in March 1969; transcript only, audio not public.","read"],
   ["https://www.udiscovermusic.com/news/ben-fong-torres-gram-parsons-biography-republished/","Hickory Wind: The Gram Parsons Biography","Ben Fong-Torres",2021,"history","","The standard Parsons biography, sourced from Hillman, Harris and Kaufman.","book"]
 ],
 "dub": [
-  ["https://www.harvard.com/book/9781501339691","Blue Lines","Ian Bourland",2019,"33 1/3","","A whole short book about this one record by Massive Attack.","book"],
+  ["https://www.harvard.com/book/9781501339691","Blue Lines","Ian Bourland",2019,"33 1/3","","", "book", "Massive Attack"],
   ["https://old.afropop.org/articles/interview-michael-veal","Interview: Michael Veal","Afropop Worldwide",2010,"oral history","","Scholar explains dropping parts, echo as rhythm, and engineers rewiring their own gear.","read"],
   ["https://reggaeville.com/artist-details/king-tubby/news/view/interview-scientist-answers-back-part-i","Scientist Answers Back","Reggaeville",2019,"oral history","","Tubby's own protege disputes most of the legend, including who taught whom.","read"],
   ["https://www.ableton.com/es/blog/studio-as-an-instrument-part-3","The Studio as an Instrument, Part 3","Ableton",2016,"history","","Treats the mixing desk as the instrument and names Tubby's actual signal tricks.","read"],
@@ -1775,18 +1776,18 @@ const READ = {
   ["https://www.grammy.com/news/sister-nancy-interview-bam-bam-jay-z-documentary","Sister Nancy Talks Bam Bam and Longevity","Grammy.com",2025,"longform","","Recent interview tracking how a 1982 record kept being resampled without her.","read"]
 ],
 "dancepop": [
-  ["https://agendabookshop.com/products/kylie-minogues-kylie","Kylie","Adrian Renzo and Liz Giuffre",2023,"33 1/3","","A whole short book about this one record by Kylie Minogue.","book"],
+  ["https://agendabookshop.com/products/kylie-minogues-kylie","Kylie","Adrian Renzo and Liz Giuffre",2023,"33 1/3","","", "book", "Kylie Minogue"],
   ["https://www.soundonsound.com/techniques/classic-tracks-rick-astley-never-gonna-give-you","Classic Tracks: Never Gonna Give You Up","Sound On Sound",2009,"longform","","Track-by-track account of the Linn 9000 and DX7 assembly line behind the hit.","read"],
   ["https://www.classicpopmag.com/?p=17366","The Stock Aitken Waterman Story","Classic Pop",2021,"history","","Collaborators describe the division of labour inside the Hit Factory.","read"]
 ],
 "thrash": [
-  ["https://atomicbooks.com/products/33-1-3-slayers-reign-in-blood","Reign in Blood","D.X. Ferris",2008,"33 1/3","","A whole short book about this one record by Slayer.","book"],
-  ["https://shop.roughtrade.com/products/33-1-3-metallica","Metallica","David Masciotra",2015,"33 1/3","","A whole short book about this one record by Metallica.","book"],
+  ["https://atomicbooks.com/products/33-1-3-slayers-reign-in-blood","Reign in Blood","D.X. Ferris",2008,"33 1/3","","", "book", "Slayer"],
+  ["https://shop.roughtrade.com/products/33-1-3-metallica","Metallica","David Masciotra",2015,"33 1/3","","", "book", "Metallica"],
   ["https://www.udiscovermusic.com/uncategorized/an-oral-history-of-thrash-metal/","Spreading the Disease: An Oral History of Thrash","uDiscover",2026,"oral history","","Hetfield, Araya, King, Mustaine and Metal Blade's founder tell it in their words.","read"],
   ["https://blabbermouth.net/news/murder-in-the-front-row-photographer-talks-about-1980s-bay-area-metal-scene","Murder in the Front Row","Blabbermouth",2011,"scene report","","Names the actual rooms, Ruthie's Inn and The Stone, and the fanzine behind them.","read"]
 ],
 "newschool": [
-  ["https://bookloft.com/book/9780826417411","Paul's Boutique","Dan Le Roy",2006,"33 1/3","","A whole short book about this one record by Beastie Boys.","book"],
+  ["https://bookloft.com/book/9780826417411","Paul's Boutique","Dan Le Roy",2006,"33 1/3","","", "book", "Beastie Boys"],
   ["https://everythingisnoise.net/features/a-scene-in-retrospect-run-dmc-raising-hell","In Retrospect: Run-DMC, Raising Hell","Everything Is Noise",2021,"review","","Three writers argue over the record and say plainly which tracks fail.","read"],
   ["https://www.rollingstone.com/music/music-news/run-dmcs-road-to-the-rock-and-roll-hall-of-fame-249592","Run-DMC's Road to the Hall of Fame","Rolling Stone",2009,"history","","Carries quotes from the magazine's own 1986 cover reporting on the group.","read"]
 ],
@@ -1800,9 +1801,9 @@ const READ = {
   ["https://livesessions.npr.org/videos/iron-wine-world-cafe-full-performance-and-interview","Iron & Wine on World Cafe","NPR",2024,"audio","","Four live performances with Sam Beam explaining the songs in between.","listen"]
 ],
 "punk": [
-  ["https://gibsonsbookstore.com/book/9781501390364","Sandinista!","Micajah Henley",2024,"33 1/3","","A whole short book about this one record by The Clash.","book"],
-  ["https://atomicbooks.com/products/33-1-3-the-mc5s-kick-out-the-jams","Kick Out the Jams","Don McLeese",2005,"33 1/3","","A whole short book about this one record by MC5.","book"],
-  ["https://www.harvard.com/book/9780826427922","Horses","Philip Shaw",2008,"33 1/3","","A whole short book about this one record by Patti Smith.","book"],
+  ["https://gibsonsbookstore.com/book/9781501390364","Sandinista!","Micajah Henley",2024,"33 1/3","","", "book", "The Clash"],
+  ["https://atomicbooks.com/products/33-1-3-the-mc5s-kick-out-the-jams","Kick Out the Jams","Don McLeese",2005,"33 1/3","","", "book", "MC5"],
+  ["https://www.harvard.com/book/9780826427922","Horses","Philip Shaw",2008,"33 1/3","","", "book", "Patti Smith"],
   ["https://www.harvard.com/book/9780826416711","Ramones","Nicholas Rombes",2005,"33 1/3","","Takes the first album apart to find the formula the rest of punk copied.","book"],
   ["https://openlibrary.org/works/OL2147151W","England's Dreaming","Jon Savage",1991,"history","","Reconstructs British punk month by month, with the Pistols inside a wider social story.","book"],
   ["https://openlibrary.org/books/OL431657M","Please Kill Me","McNeil and McCain",1996,"oral history","","New York punk told by the people in it, in overlapping first-hand voices.","book"],
@@ -1818,7 +1819,7 @@ const READ = {
  ["https://www.rollingstone.com/music/music-features/kool-herc-hip-hop-50-august-11-1973-1234802035/","Kool Herc and the History (and Mystery) of Hip-Hop's First Day","Rolling Stone",2023,"longform","","Shows how shaky the founding date is, using Herc's and Cindy Campbell's conflicting memories.","read"]
 ],
 "house": [
-  ["https://rep.club/products/donna-summers-once-upon-a-time","Once Upon a Time","Alex Jeffery",2021,"33 1/3","","A whole short book about this one record by Donna Summer.","book"],
+  ["https://rep.club/products/donna-summers-once-upon-a-time","Once Upon a Time","Alex Jeffery",2021,"33 1/3","","", "book", "Donna Summer"],
   ["https://academic.oup.com/book/5894","Do You Remember House?","Micah Salkind",2019,"history","","Centres the Black and Latino queer dancers and DJs who actually made house.","book"],
  ["https://daily.redbullmusicacademy.com/2015/05/ron-hardy-at-the-music-box","Ron Hardy at the Music Box","Red Bull Music Academy",2015,"oral history","","Dancers and producers describe Hardy's sets, the heat in the room and the drugs in it.","read"],
  ["https://digitalcommons.colum.edu/house/45","Robert Williams, Chicago House Music Oral History Project","Columbia College",2014,"oral history","","The man who opened the Warehouse and the Music Box, in his own recorded voice.","listen"],
@@ -1826,9 +1827,9 @@ const READ = {
  ["https://www.gridface.com/memories-of-ron-hardy/","Memories of Ron Hardy","Gridface",2010,"oral history","","Hardy's nephew on the family, the record crates and the leaking Music Box roof.","read"]
 ],
 "disco": [
-  ["https://wordupbooks.com/book/9781441192806","Some Girls","Cyrus Patell",2011,"33 1/3","","A whole short book about this one record by The Rolling Stones.","book"],
-  ["https://booktavern.com/book/9781623566319","Dangerous","Susan Fast",2014,"33 1/3","","A whole short book about this one record by Michael Jackson.","book"],
-  ["https://rep.club/products/donna-summers-once-upon-a-time","Once Upon a Time","Alex Jeffery",2021,"33 1/3","","A whole short book about this one record by Donna Summer.","book"],
+  ["https://wordupbooks.com/book/9781441192806","Some Girls","Cyrus Patell",2011,"33 1/3","","", "book", "The Rolling Stones"],
+  ["https://booktavern.com/book/9781623566319","Dangerous","Susan Fast",2014,"33 1/3","","", "book", "Michael Jackson"],
+  ["https://rep.club/products/donna-summers-once-upon-a-time","Once Upon a Time","Alex Jeffery",2021,"33 1/3","","", "book", "Donna Summer"],
   ["https://abbeys.com.au/book/soundtrack-from-saturday-night-fever-9798765109687.do","Saturday Night Fever","Clinton Walker",2024,"33 1/3","","How one soundtrack carried disco out of the clubs and into everything.","book"],
   ["https://openlibrary.org/works/OL16659141W","Love Saves the Day","Tim Lawrence",2003,"history","","The DJs and dancefloors of 1970s New York that turned private parties into disco.","book"],
  ["https://daily.redbullmusicacademy.com/2016/11/david-mancuso-dj-history-interview","Interview: David Mancuso","Red Bull Music Academy",2016,"oral history","","Mancuso explains the rent-party economics, the balloons and the sound system he built.","read"],
@@ -1857,8 +1858,8 @@ const READ = {
  ["https://rocksbackpages.com/Library/Article/remembering-clifton-chenier-the-king-of-zydeco","Remembering Clifton Chenier, the King of Zydeco","Los Angeles Times",1987,"obituary","paywall","The critical obituary written the week he died, by someone who had seen the band.","read"]
 ],
 "shoegaze": [
-  ["https://avidreader.com.au/p/the-jesus-and-mary-chain-s-psychocandy-33-1-3","Psychocandy","Paula Mejia",2016,"33 1/3","","A whole short book about this one record by The Jesus and Mary Chain.","book"],
-  ["https://booksonbroad.com/book/9781501390449","Blue Bell Knoll","Chris Tapley",2025,"33 1/3","","A whole short book about this one record by Cocteau Twins.","book"],
+  ["https://avidreader.com.au/p/the-jesus-and-mary-chain-s-psychocandy-33-1-3","Psychocandy","Paula Mejia",2016,"33 1/3","","", "book", "The Jesus and Mary Chain"],
+  ["https://booksonbroad.com/book/9781501390449","Blue Bell Knoll","Chris Tapley",2025,"33 1/3","","", "book", "Cocteau Twins"],
   ["https://www.harvard.com/book/9798765103418","Shoegaze","Ryan Pinkard",2024,"33 1/3","","A whole-genre volume: the sound, the press that named it, Creation, 4AD, the revival.","book"],
   ["https://www.harvard.com/book/9780826415486","Loveless","Mike McGonigal",2006,"33 1/3","","The record that defined it, with detail on how that guitar sound was built.","book"],
  ["https://thequietus.com/?p=19489","Who Killed Shoegaze?","The Quietus",2016,"longform","","Quotes the hostile reviews in full, including Melody Maker calling Souvlaki a bath of porridge.","read"],
@@ -1867,7 +1868,7 @@ const READ = {
  ["https://www.3ammagazine.com/3am/leave-them-all-behind/","Leave Them All Behind: A Guide to Shoegazing","3:AM Magazine",2003,"longform","","Band by band, written close enough to the time to remember the gigs and the labels.","read"]
 ],
 "twotone": [
-  ["https://gibsonsbookstore.com/book/9781501390364","Sandinista!","Micajah Henley",2024,"33 1/3","","A whole short book about this one record by The Clash.","book"],
+  ["https://gibsonsbookstore.com/book/9781501390364","Sandinista!","Micajah Henley",2024,"33 1/3","","", "book", "The Clash"],
   ["https://timesbookshop.co.uk/madness-one-step-beyond-9780826429063","One Step Beyond...","Terry Edwards",2009,"33 1/3","","Madness at the centre of the 1979 revival, though this album left the label.","book"],
   ["https://www.hachette.co.uk/titles/daniel-rachel/too-much-too-young-the-2-tone-records-story/9781399607506/","Too Much Too Young","Daniel Rachel",2023,"history","","The label itself, from the Specials and the Selecter to Dammers and the collapse.","book"],
  ["https://www.spinmagazine.com/2009/09/oral-history-2-tone/","The Oral History of 2 Tone","SPIN",2009,"oral history","","Dammers, Pauline Black, Suggs and Rhoda Dakar narrate the label's rise themselves.","read"],
@@ -1875,7 +1876,7 @@ const READ = {
  ["https://britishculturearchive.co.uk/virginia-turbett-british-subculture-1970s/","Virginia Turbett: British Subculture 1979-1981","British Culture Archive",2020,"photo essay","","Dated, located shots, including Madness on the first 2 Tone tour in 1979.","look"]
 ],
 "riotgrrrl": [
-  ["https://www.harvard.com/book/9781501302404","The Raincoats","Jenn Pelly",2017,"33 1/3","","A whole short book about this one record by The Raincoats.","book"],
+  ["https://www.harvard.com/book/9781501302404","The Raincoats","Jenn Pelly",2017,"33 1/3","","", "book", "The Raincoats"],
   ["https://atomicbooks.com/products/33-1-3-volume-115-sleater-kinneys-dig-me-out","Dig Me Out","Jovana Babovic",2016,"33 1/3","","An Olympia band straight out of riot grrrl, with the scene's politics explained.","book"],
   ["https://openlibrary.org/works/OL15931605W","Girls to the Front","Sara Marcus",2010,"history","","Narrative history built from the zines, the interviews and the movement's own records.","book"],
   ["https://archive.org/details/girl-germs-4","Girl Germs #4","Girl Germs",1991,"longform","","Wolfe and Neuman's own pages, ads and rants, as readers of the scene saw them.","read"],

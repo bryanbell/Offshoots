@@ -612,6 +612,7 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
   box-shadow:inset 0 0 0 .5px color-mix(in srgb,var(--rdc) 38%,transparent)}
 .rd .rdi svg{width:19px;height:19px}
 /* the source's initials, set tight so three letters still fit the tile */
+.rdby{color:var(--fg);font-weight:600}
 .rdmo{font:700 14px/1 var(--f-body);letter-spacing:-.04em;font-style:normal}
 .rdmo:not(:empty){padding:0 1px}
 .rdmo.wide{font-size:13px;letter-spacing:-.055em}
@@ -648,6 +649,19 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 .moderow .lrico svg{width:18px;height:18px}
 /* twenty-five rows is a long column, so they run two abreast: the hairlines turn into a
    grid, and the chevron goes because the label needs every pixel at half width */
+/* a plain one-column group draws a hairline between its rows, inset past the icon so the
+   eye runs down the labels. Not on by default: .picks and the lineage columns draw their
+   own, and the mode grid needs a different pair of edges. */
+/* one of the three rows is wrapped in a .navwrap, so the hairline goes on the group's
+   own children rather than on .listrow, which is not always the direct sibling */
+.listgrp.sep > *{position:relative;--seplead:62px}
+.listgrp.sep > * + *::before{content:"";position:absolute;left:var(--seplead);
+  right:0;top:0;height:.5px;background:var(--sep);z-index:1}
+/* the aside is secondary and was set at the same size as the name, which let a long one
+   ("centuries old") cut a long name short. It drops a step and yields first. */
+.listrow .lrct{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;font-size:var(--t-sub)}
+.listrow .lrlbl{flex:1 1 auto;min-width:0}
 .modelist.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 .modelist.two .listrow{padding:0 12px;gap:10px;min-height:52px;position:relative}
 .modelist.two .listrow .lrcv{display:none}
