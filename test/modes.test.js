@@ -48,6 +48,33 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
                .map(x=>x.querySelector(".mclbl").textContent),
       tap:Math.min(...r.map(x=>Math.round(x.getBoundingClientRect().height)))};});
   say("the row scrolls sideways", lay.scrolls);
+  // on a filled circle an outline reads as a wire drawing, so every glyph is a solid
+  // shape: filled, no stroke, and big enough in the circle to carry at a glance
+  const gl=await p.evaluate(()=>{
+    const g=[...document.querySelectorAll(".mcirc .mco svg")];
+    return {n:g.length,
+      filled:g.every(x=>{const cs=getComputedStyle(x);
+        return cs.fill!=="none" && (cs.stroke==="none"||parseFloat(cs.strokeWidth||0)===0);}),
+      paths:g.every(x=>x.querySelectorAll("path,rect,circle").length>0),
+      share:Math.round(100*g[0].getBoundingClientRect().width
+        /g[0].closest(".mco").getBoundingClientRect().width)};});
+  say("  every glyph is solid, not stroked", gl.n>0 && gl.filled && gl.paths);
+  say("  filling "+gl.share+"% of its circle", gl.share>=45 && gl.share<=60);
+  // a mouse has no momentum of its own, so the row carries a flick after the button is up
+  const fling=await p.evaluate(async()=>{
+    const row=document.querySelector(".mrow"); row.scrollLeft=0;
+    const at=()=>Math.round(row.scrollLeft);
+    const ev=(t,x)=>row.dispatchEvent(new PointerEvent(t,{pointerId:7,pointerType:"mouse",
+      button:0,buttons:t==="pointerup"?0:1,clientX:x,clientY:
+      Math.round(row.getBoundingClientRect().top+20),bubbles:true,cancelable:true}));
+    ev("pointerdown",300);
+    for(let i=1;i<=8;i++){ ev("pointermove",300-i*22); await new Promise(r=>setTimeout(r,16)); }
+    const held=at(); ev("pointerup",300-8*22);
+    await new Promise(r=>setTimeout(r,900));
+    return {held, after:at()};});
+  say("  and carries "+(fling.after-fling.held)+"px past the release", fling.after-fling.held>=30);
+  await p.evaluate(()=>{document.querySelector(".mrow").scrollLeft=0;});
+  await p.waitForTimeout(250);
   say("  with "+lay.vis+" in reach before it does", lay.vis>=3);
   say("  each a circle of "+Math.round(lay.tap)+"px", lay.round && lay.tap>=44);
   say("  and no label cut off"+(lay.clipped.length?": "+lay.clipped.join(", "):""), lay.clipped.length===0);

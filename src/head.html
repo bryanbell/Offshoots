@@ -665,6 +665,7 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 /* the colophon is about the map rather than part of it, so its rows carry no card */
 /* the mode list: the energy colour that used to fill a chip now tints its icon tile */
 .modelist .listrow .lrico{background:color-mix(in srgb,var(--lvc) 24%,transparent);color:var(--lvc)}
+.modelist .listrow .lrico svg{width:17px;height:17px}
 .moderow{--lvc:#9aa0a6}
 .moderow.lv1{--lvc:#7aa2f7}
 .moderow.lv2{--lvc:#5bbda4}
@@ -731,18 +732,20 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
    Apple Maps opens on a row of filled circles you swipe sideways, each one a way in,
    with the whole set behind the heading. The circles carry the energy ramp the list
    carried, so the row reads loud to quiet from left to right. */
-.mrow{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;
-  -webkit-overflow-scrolling:touch;scrollbar-width:none;
-  margin-inline:calc(var(--ppad) * -1);padding:2px var(--ppad) 4px;scroll-padding-inline:var(--ppad)}
+.mrow{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior-x:contain;
+  margin-inline:calc(var(--ppad) * -1);padding:2px var(--ppad) 4px;touch-action:pan-x}
+.mrow.dragging{cursor:grabbing;scroll-behavior:auto}
+.mrow.dragging .mcirc{pointer-events:none}
 .mrow::-webkit-scrollbar{display:none}
 .mcirc{all:unset;box-sizing:border-box;cursor:pointer;flex:none;width:88px;
-  display:flex;flex-direction:column;align-items:center;gap:9px;scroll-snap-align:start;
+  display:flex;flex-direction:column;align-items:center;gap:9px;
   text-align:center;-webkit-tap-highlight-color:transparent}
 .mcirc .mco{display:grid;place-items:center;width:80px;height:80px;border-radius:50%;color:#fff;
   background:linear-gradient(160deg,color-mix(in srgb,var(--lvc) 80%,#fff) 0%,var(--lvc) 55%,
     color-mix(in srgb,var(--lvc) 74%,#000) 100%);
   box-shadow:0 1px 3px rgb(0 0 0 / .26);transition:transform .16s cubic-bezier(.32,.72,0,1)}
-.mcirc .mco svg{width:35px;height:35px;stroke-width:1.5}
+.mcirc .mco svg{width:41px;height:41px}
 .mcirc:hover .mco,.mcirc:focus-visible .mco{transform:scale(1.045)}
 .mcirc:active .mco{transform:scale(.95)}
 .mcirc:focus-visible .mco{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 55%,transparent)}
