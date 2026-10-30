@@ -328,7 +328,9 @@ body.open .more{display:block}
 #pclose{display:grid;position:absolute;top:10px;right:10px;z-index:3;width:var(--tap);height:var(--tap);border:0;border-radius:50%;background:var(--fill);color:var(--fg);cursor:pointer;place-items:center}
 body:not(.open) #pclose{transform:rotate(180deg)}
 #pclose:hover{background:color-mix(in srgb,var(--fill) 75%,var(--fg))}
-#pclose svg{width:17px;height:17px}
+/* 17px in a 44px circle is a dot in a field. The circle is the tap target and the glyph
+   should look like the control, not like a mark placed inside one. */
+#pclose svg{width:21px;height:21px}
 .pcard .mn{padding-right:0}
 body:not(.open) aside{cursor:pointer;width:min(215px,23vw)}
 body:not(.open) .pcard .my{display:block;white-space:normal;overflow:visible}
@@ -360,7 +362,7 @@ body.open .pcnt{display:none}
   color:var(--muted);background:var(--fill2);transition:background .15s,color .15s}
 .pmin:hover{background:color-mix(in srgb,var(--fg) 14%,transparent);color:var(--fg)}
 .pmin:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
-.pmin svg{width:17px;height:17px}
+.pmin svg{width:21px;height:21px}
 /* a sidebar has no smaller state to go to, so the control is not offered there */
 @media (min-width:900px){ .pmin{display:none} }
 /* both controls are pinned to the card's corners on every panel, so moving between the
@@ -412,9 +414,17 @@ body.open .pcnt{display:none}
   width:100%;min-height:58px;padding:0 14px;color:var(--fg);transition:background .15s}
 .listrow:hover{background:color-mix(in srgb,var(--fg) 7%,transparent)}
 .listrow:focus-visible{outline:0;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent) 55%,transparent)}
-.listrow .lrico{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:8px;
-  background:color-mix(in srgb,var(--acc,var(--fg)) 30%,transparent);color:var(--fg)}
-.listrow .lrico svg{width:18px;height:18px}
+/* Circles, like the browse circles under them, and a little taller than the squares were:
+   a round tile beside a round tile is one panel, a rounded square beside a circle is two
+   halves of a design. Each row keeps its own colour, because a column of identical grey
+   tiles is a column you read by text alone, which is what the icon was there to save. */
+.listrow .lrico{flex:none;display:grid;place-items:center;width:34px;height:34px;
+  border-radius:50%;background:color-mix(in srgb,var(--lrc,var(--acc,var(--fg))) 26%,transparent);
+  color:var(--lrc,var(--fg))}
+.listrow .lrico svg{width:20px;height:20px}
+.lr-roots{--lrc:#4fa86e} .lr-fams{--lrc:#7a86d6} .lr-pl{--lrc:#d1699a}
+.lr-top{--lrc:#d99a3c} .lr-random{--lrc:#52a8bd} .lr-about{--lrc:#9b8ad6}
+.lr-install{--lrc:#5f9fd4}
 .listrow .lrlbl{flex:1;min-width:0;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   font:400 var(--t-body)/1.2 var(--f-body)}
 .listrow .lrct{flex:none;font:400 var(--t-body)/1 var(--f-mono);color:var(--muted);font-style:normal;
@@ -432,7 +442,7 @@ body.open .pcnt{display:none}
 @media (min-width:900px) and (hover:hover) and (pointer:fine){
   .listgrp{--lrlead:51px}
   .listrow{min-height:46px;padding:0 12px;gap:11px}
-  .listrow .lrico{width:28px;height:28px;border-radius:7px}
+  .listrow .lrico{width:32px;height:32px}
   .listrow .lrico svg{width:16px;height:16px}
 }
 }
@@ -473,7 +483,9 @@ body.pscrolled .pcard .navrow{border-radius:0}
    so the span has to be told as well as the heading */
 .ovcard .bigttl,.ovcard .bigttl .mn{margin:0;padding:0;text-align:left;display:block;
   font:700 34px/1.1 var(--f-body);letter-spacing:-.03em;color:var(--fg)}
-.ovcard .bigttl{margin:4px 0 10px;padding:0}   /* flush with the section headings below */
+/* the title clears the close button rather than ending level with it: two different
+   shapes sharing a baseline read as a collision, not as alignment */
+.ovcard .bigttl{margin:14px 0 10px;padding:0}
 @media (min-width:900px) and (hover:hover) and (pointer:fine){ .ovcard .bigttl,.ovcard .bigttl .mn{font-size:28px} }
 /* ---------- the header bar carries the screen's name once the title has gone ----------
    The panel had a bar with nothing in it on Explore, and a page you had scrolled into
@@ -506,7 +518,7 @@ body.pttl .pcard .navrow .navttl.ovttl{opacity:1;transform:none}
 /* the back button names where it goes; once the bar carries a title too, the pair would
    crowd a phone, so the label gives way and the arrow speaks for itself */
 @media (max-width:420px){ body.pttl .ovcard .navleft .navback.topage .bklbl{display:none} }
-@media (max-width:899px){ .ovcard .bigttl{margin:4px 0 8px} }
+@media (max-width:899px){ .ovcard .bigttl{margin:14px 0 8px} }
 /* beside the share button there is no room for the destination's name, and the two
    glyphs already say map and back */
 .ovcard .navleft .navback{padding:0 12px;max-width:none}
@@ -662,7 +674,7 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 /* the colophon is about the map rather than part of it, so its rows carry no card */
 /* the mode list: the energy colour that used to fill a chip now tints its icon tile */
 .modelist .listrow .lrico{background:color-mix(in srgb,var(--lvc) 24%,transparent);color:var(--lvc)}
-.modelist .listrow .lrico svg{width:17px;height:17px}
+.modelist .listrow .lrico svg{width:18px;height:18px}
 .moderow{--lvc:#9aa0a6}
 .moderow.lv1{--lvc:#7aa2f7}
 .moderow.lv2{--lvc:#5bbda4}
@@ -821,7 +833,7 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 .modelist.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 .modelist.two .listrow{padding:0 14px;gap:10px;min-height:52px;position:relative}
 .modelist.two .listrow .lrcv{display:none}
-.modelist.two .listrow .lrico{width:26px;height:26px;border-radius:7px}
+.modelist.two .listrow .lrico{width:28px;height:28px}
 .modelist.two .listrow .lrico svg{width:16px;height:16px}
 .modelist.two .listrow .lrlbl{font-size:var(--t-sub)}
 /* A hairline above every row but the first two. The gutter rule used to be drawn by each
@@ -1398,7 +1410,7 @@ button.navttl[aria-expanded="true"] .lrcv{transform:rotate(180deg);opacity:1}
   transition:background .15s,color .15s}
 .shbtn:hover{background:color-mix(in srgb,var(--acc,var(--fg)) 24%,transparent)}
 .shbtn:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
-.shbtn .shg{width:17px;height:17px;opacity:.75;vertical-align:0}
+.shbtn .shg{width:20px;height:20px;opacity:.75;vertical-align:0}
 .shbtn:hover .shg{opacity:1}
 .shbtn.round{width:var(--tap);height:var(--tap);border-radius:50%;flex:none}
 .shbtn.wide{display:flex;width:100%;margin:18px 0 0;min-height:52px;
@@ -5018,10 +5030,28 @@ const LRCHEV="<svg class=\"lrcv\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"c
 // every way of browsing the map is a collection you open, so they are one grouped list:
 // icon, name, how many, chevron, hairlines starting at the name. They used to be three
 // chips in a row, and the roots were a pill up in the header.
+// The list rows wear solid glyphs at the weight the browse circles use, so the panel
+// reads as one thing rather than as outline icons above filled ones. These are drawn for
+// this map: nothing in this session can reach remixicon.com to pull the real set, and a
+// path invented and then labelled Remix would be a worse answer than one drawn honestly.
+// The About page credits Remix for the circles, which is still exactly what it says.
+const ROWICON={
+  roots:"<path d=\"M12 2a3 3 0 0 1 1 5.83V10h1.5A4.5 4.5 0 0 1 19 14.5v.5h-2v-.5a2.5 2.5 0 0 0-2.5-2.5H13v10h-2V12H9.5A2.5 2.5 0 0 0 7 14.5v.5H5v-.5A4.5 4.5 0 0 1 9.5 10H11V7.83A3 3 0 0 1 12 2z\"/>",
+  fams:"<path d=\"M12 2l9 4.5-9 4.5-9-4.5L12 2zm6.8 7.4L21 10.5 12 15l-9-4.5 2.2-1.1L12 12.8l6.8-3.4zm0 4.5L21 15l-9 4.5L3 15l2.2-1.1L12 17.3l6.8-3.4z\"/>",
+  pl:"<path d=\"M3 5h11v2H3V5zm0 5h11v2H3v-2zm0 5h7v2H3v-2zm18-11v10.5a2.5 2.5 0 1 1-2-2.45V7.3l-3 .78V6l5-1.3z\"/>",
+  top:"<path d=\"M2.8 16.3l1.7 1.7 5.5-5.5 3.5 3.5 7.2-7.2V12h2.4V4.6h-7.4V7h3.3l-5.5 5.5-3.5-3.5-7.2 7.3z\"/>",
+  random:"<path d=\"M18 4l4 4-4 4V9h-1.8c-1 0-1.6.4-2.3 1.4l-.6.9-1.2-1.8.5-.7C13.6 7.3 14.8 7 16.2 7H18V4zM2 7h3.5c1.9 0 3.3.9 4.5 2.6l3 4.4c.8 1.1 1.5 1.4 2.4 1.4H18v-3l4 4-4 4v-3h-2.6c-1.9 0-3.3-.9-4.5-2.6l-3-4.4C7.1 9.3 6.4 9 5.5 9H2V7zm0 8h1.6c.9 0 1.6-.3 2.3-1.3l.6-.9 1.2 1.8-.5.7C6 17.7 4.8 18 3.4 18H2v-3z\"/>",
+  about:"<path d=\"M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm1 9h-2v6h2v-6zm0-4h-2v2h2V7z\"/>",
+  install:"<path d=\"M12 3a1 1 0 0 1 1 1v8.59l2.3-2.3 1.4 1.42L12 16.4l-4.7-4.7 1.4-1.4 2.3 2.29V4a1 1 0 0 1 1-1zM5 18h14v2H5z\"/>"
+};
+// ROWICON holds paths, not whole elements, so the wrapper lives here. MODEICON keeps
+// whole <svg> elements because it was pasted from a set that ships them that way.
+const rowIcon = k => `<i class="lrico mi lr-${k}">`
+  + `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${ROWICON[k]||""}</svg></i>`;
 function browseBtn(key,label,count,title,inner){
   return `<div class="navwrap nav-br">`
     + `<button type="button" class="listrow" data-menu="${key}" aria-haspopup="menu" aria-expanded="false" title="${esc(title)}" aria-label="${esc(title)}">`
-    + `<i class="lrico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${LRICON[key]||""}</svg></i>`
+    + rowIcon(key)
     + `<span class="lrlbl">${esc(label)}</span><em class="lrct">${count}</em>${LRCHEV}</button>`
     + `<div class="navmenu brmenu" role="menu" data-br="${key}" hidden>${inner}</div></div>`;
 }
@@ -5037,7 +5067,7 @@ const RANDICON="<path d=\"M3 5.6h2.8L13 14.4h4\"/><path d=\"M3 14.4h2.8l2.6-3.2\
 function randomRow(){
   return `<div class="navwrap nav-br">`
     + `<button type="button" class="listrow lrgo" data-random title="Open any style, chosen at random" aria-label="Open any style, chosen at random">`
-    + `<i class="lrico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${RANDICON}</svg></i>`
+    + rowIcon("random")
     + `<span class="lrlbl">Surprise me</span><em class="lrct">any of ${nodes.length}</em></button></div>`;
 }
 // Share is the one thing on either panel that acts rather than opens, so it is the one
@@ -5288,7 +5318,7 @@ function copyRow(hash){
 }
 function pageRow(key,label,count,title){
   return `<button type="button" class="listrow" data-page="${key}"${title?` title="${esc(title)}" aria-label="${esc(title)}"`:""}>`
-    + `<i class="lrico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${PAGEICON[key]||""}</svg></i>`
+    + rowIcon(key)
     + `<span class="lrlbl">${esc(label)}</span>${count!=null?`<em class="lrct">${count}</em>`:""}${GOCHEV}</button>`;
 }
 function emptyPanel(){

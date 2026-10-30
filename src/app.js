@@ -1320,10 +1320,28 @@ const LRCHEV="<svg class=\"lrcv\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"c
 // every way of browsing the map is a collection you open, so they are one grouped list:
 // icon, name, how many, chevron, hairlines starting at the name. They used to be three
 // chips in a row, and the roots were a pill up in the header.
+// The list rows wear solid glyphs at the weight the browse circles use, so the panel
+// reads as one thing rather than as outline icons above filled ones. These are drawn for
+// this map: nothing in this session can reach remixicon.com to pull the real set, and a
+// path invented and then labelled Remix would be a worse answer than one drawn honestly.
+// The About page credits Remix for the circles, which is still exactly what it says.
+const ROWICON={
+  roots:"<path d=\"M12 2a3 3 0 0 1 1 5.83V10h1.5A4.5 4.5 0 0 1 19 14.5v.5h-2v-.5a2.5 2.5 0 0 0-2.5-2.5H13v10h-2V12H9.5A2.5 2.5 0 0 0 7 14.5v.5H5v-.5A4.5 4.5 0 0 1 9.5 10H11V7.83A3 3 0 0 1 12 2z\"/>",
+  fams:"<path d=\"M12 2l9 4.5-9 4.5-9-4.5L12 2zm6.8 7.4L21 10.5 12 15l-9-4.5 2.2-1.1L12 12.8l6.8-3.4zm0 4.5L21 15l-9 4.5L3 15l2.2-1.1L12 17.3l6.8-3.4z\"/>",
+  pl:"<path d=\"M3 5h11v2H3V5zm0 5h11v2H3v-2zm0 5h7v2H3v-2zm18-11v10.5a2.5 2.5 0 1 1-2-2.45V7.3l-3 .78V6l5-1.3z\"/>",
+  top:"<path d=\"M2.8 16.3l1.7 1.7 5.5-5.5 3.5 3.5 7.2-7.2V12h2.4V4.6h-7.4V7h3.3l-5.5 5.5-3.5-3.5-7.2 7.3z\"/>",
+  random:"<path d=\"M18 4l4 4-4 4V9h-1.8c-1 0-1.6.4-2.3 1.4l-.6.9-1.2-1.8.5-.7C13.6 7.3 14.8 7 16.2 7H18V4zM2 7h3.5c1.9 0 3.3.9 4.5 2.6l3 4.4c.8 1.1 1.5 1.4 2.4 1.4H18v-3l4 4-4 4v-3h-2.6c-1.9 0-3.3-.9-4.5-2.6l-3-4.4C7.1 9.3 6.4 9 5.5 9H2V7zm0 8h1.6c.9 0 1.6-.3 2.3-1.3l.6-.9 1.2 1.8-.5.7C6 17.7 4.8 18 3.4 18H2v-3z\"/>",
+  about:"<path d=\"M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm1 9h-2v6h2v-6zm0-4h-2v2h2V7z\"/>",
+  install:"<path d=\"M12 3a1 1 0 0 1 1 1v8.59l2.3-2.3 1.4 1.42L12 16.4l-4.7-4.7 1.4-1.4 2.3 2.29V4a1 1 0 0 1 1-1zM5 18h14v2H5z\"/>"
+};
+// ROWICON holds paths, not whole elements, so the wrapper lives here. MODEICON keeps
+// whole <svg> elements because it was pasted from a set that ships them that way.
+const rowIcon = k => `<i class="lrico mi lr-${k}">`
+  + `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${ROWICON[k]||""}</svg></i>`;
 function browseBtn(key,label,count,title,inner){
   return `<div class="navwrap nav-br">`
     + `<button type="button" class="listrow" data-menu="${key}" aria-haspopup="menu" aria-expanded="false" title="${esc(title)}" aria-label="${esc(title)}">`
-    + `<i class="lrico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${LRICON[key]||""}</svg></i>`
+    + rowIcon(key)
     + `<span class="lrlbl">${esc(label)}</span><em class="lrct">${count}</em>${LRCHEV}</button>`
     + `<div class="navmenu brmenu" role="menu" data-br="${key}" hidden>${inner}</div></div>`;
 }
@@ -1339,7 +1357,7 @@ const RANDICON="<path d=\"M3 5.6h2.8L13 14.4h4\"/><path d=\"M3 14.4h2.8l2.6-3.2\
 function randomRow(){
   return `<div class="navwrap nav-br">`
     + `<button type="button" class="listrow lrgo" data-random title="Open any style, chosen at random" aria-label="Open any style, chosen at random">`
-    + `<i class="lrico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${RANDICON}</svg></i>`
+    + rowIcon("random")
     + `<span class="lrlbl">Surprise me</span><em class="lrct">any of ${nodes.length}</em></button></div>`;
 }
 // Share is the one thing on either panel that acts rather than opens, so it is the one
@@ -1590,7 +1608,7 @@ function copyRow(hash){
 }
 function pageRow(key,label,count,title){
   return `<button type="button" class="listrow" data-page="${key}"${title?` title="${esc(title)}" aria-label="${esc(title)}"`:""}>`
-    + `<i class="lrico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${PAGEICON[key]||""}</svg></i>`
+    + rowIcon(key)
     + `<span class="lrlbl">${esc(label)}</span>${count!=null?`<em class="lrct">${count}</em>`:""}${GOCHEV}</button>`;
 }
 function emptyPanel(){

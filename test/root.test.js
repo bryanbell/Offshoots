@@ -212,7 +212,9 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
         rg.selectNodeContents(t.querySelector(".mn")||t);
         return Math.round(x.getBoundingClientRect().left - rg.getBoundingClientRect().right); })()}; });
   say("  floating, so the row stays "+xo.rowH+"px", xo.pos==="absolute" && xo.rowH<=24);
-  say("  and the title starts "+xo.titleTop+"px into the card", xo.titleTop<=24);
+  // it sits lower than it did: level with the close button, the two read as a collision
+  // rather than as alignment. Still bounded, so it cannot drift down the card.
+  say("  and the title starts "+xo.titleTop+"px into the card", xo.titleTop<=40);
   say("  with the title clear of it by "+xo.clearsTitle+"px", xo.clearsTitle>0);
 
   // the rows go somewhere now rather than unfolding, so the chevron points that way

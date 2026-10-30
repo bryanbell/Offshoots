@@ -203,6 +203,9 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   say("  because the card wraps the content it sticks within", stuck.inCard);
   // and it is opaque while stuck: the panel is already translucent over the map, so a
   // translucent header on top of it let the card's own content read through the title
+  // pscrolled is set by a scroll handler, not by the assignment that caused it. Reading
+  // it straight after the scroll is a race the suite loses about one run in ten.
+  await until(p,()=>document.body.classList.contains("pscrolled"));
   const band=await p.evaluate(()=>{ const r=document.querySelector(".navrow");
     const cs=getComputedStyle(r);
     const n=(cs.backgroundColor.match(/[\d.]+/g)||[]);
