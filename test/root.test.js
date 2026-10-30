@@ -222,7 +222,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
     const r=document.querySelector('[data-page="roots"]');
     return {points:r.querySelector(".lrcv").innerHTML,
       forward:r.querySelector(".lrcv").classList.contains("lrgov")}; });
-  say("  the chevron points the way the row goes", /M6 3l5 5-5 5/.test(cv.points) && cv.forward);
+  say("  the chevron points the way the row goes", /M181\.66,122\.34/.test(cv.points) && cv.forward);
 
   // the ways in are one grouped list, the way a phone app lists collections
   const grp=await p.evaluate(()=>{ const g=document.querySelector(".sect-browse .listgrp");

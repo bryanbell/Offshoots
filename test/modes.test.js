@@ -79,12 +79,12 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
       share:Math.round(100*g[0].getBoundingClientRect().width
         /g[0].closest(".mco").getBoundingClientRect().width)};});
   say("  every glyph is solid, not stroked", gl.n>0 && gl.filled && gl.paths);
-  // Remix Icon is Apache 2.0, which wants its notice carried with the work. The map is
-  // one file that anyone can save, so the notice lives on the About page inside it.
+  // Phosphor is MIT, which wants its notice carried with the work. The map is one file
+  // that anyone can save, so the notice lives on the About page inside it.
   say("  and the set it came from is credited", await (async()=>{
     await p.click('[data-page="about"]'); await onPage(p,"about");
     const t=await p.evaluate(()=>(document.querySelector(".ppage:not([hidden])")||{}).textContent||"");
-    const ok=/Remix Icon/.test(t) && /Apache License 2\.0/.test(t);
+    const ok=/Phosphor/.test(t) && /MIT/.test(t);
     await p.click("#panelBack"); await onPage(p,"root");
     return ok;})());
   // no glyph may be worn by two modes: a shared icon makes two rows look like one
