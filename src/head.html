@@ -757,7 +757,12 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 .mrow,.whorow.acrow{display:flex;flex-wrap:nowrap;gap:var(--cgap);align-items:flex-start;
   overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;
   overscroll-behavior-x:contain;margin-inline:calc(var(--ppad) * -1);
-  padding:2px var(--ppad) 4px;touch-action:pan-x;
+  /* pan-x alone does not mean "this row pans sideways", it means "nothing else may pan
+     from here". A thumb that lands on a circle, and these are deliberately big, then
+     cannot scroll the panel at all: the gesture is claimed and spent on an axis the row
+     may not even be able to move on. Both axes named, and the browser picks by direction,
+     which is what it does well. */
+  padding:2px var(--ppad) 4px;touch-action:pan-x pan-y;
   /* 3.5 across whatever width there is, so one is always half cut off at the right edge
      and the row says swipe me without a hint. A percentage in a custom property resolves
      where it is USED, so this reads against the tile's containing block — the row — and
@@ -903,7 +908,7 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
    Wrapped across three rows the chips gave the longest name the widest row and left a
    hole beside the shortest. One line that scrolls, the rest behind the heading. */
 .whorow{display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;
-  -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;touch-action:pan-x;
+  -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;touch-action:pan-x pan-y;
   margin-inline:calc(var(--ppad) * -1);padding:2px var(--ppad) 4px;gap:8px}
 .whorow::-webkit-scrollbar{display:none}
 .whorow a.am{flex:none;white-space:nowrap}

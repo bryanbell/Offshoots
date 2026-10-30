@@ -436,6 +436,63 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     await q.close(); }
 
   say("no page errors", errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
+  // ---------- a finger may start anywhere ----------
+  // touch-action:pan-x on the circle rows did not mean "this row pans sideways". It means
+  // "nothing else may pan from here", so a thumb landing on a circle could not scroll the
+  // panel at all, and the circles are deliberately the biggest targets on the card. It was
+  // reported as the panel being extremely hard to scroll, worst over a tap target.
+  //
+  // Nothing in the suite could see it: every other check drives the scroller directly or
+  // uses synthetic touch events, and neither goes near the compositor, which is where this
+  // is decided. This one goes through CDP, which is the real input path.
+  { const tc=await b.newContext({viewport:{width:393,height:852},isMobile:true,hasTouch:true});
+    const q=await tc.newPage();
+    await q.addInitScript(()=>{ try{ localStorage.setItem("offshoots.seen","1");
+      localStorage.setItem("offshoots.tip","1"); }catch(e){} });
+    const cdp=await tc.newCDPSession(q);
+    const dragUp=async(x,y)=>{
+      await cdp.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x,y}]});
+      for(let i=1;i<=14;i++){
+        await cdp.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x,y:y-170*i/14}]});
+        await new Promise(r=>setTimeout(r,10)); }
+      await cdp.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
+      await new Promise(r=>setTimeout(r,600)); };
+
+    for(const [sel,what] of [[".mcirc","a mood circle"],[".listrow","a list row"]]){
+      await q.goto(URL); await shown(q,"#chart .n");
+      await q.click("#grab").catch(()=>{});
+      await q.waitForSelector(sel,{state:"attached",timeout:8000}).catch(()=>{});
+      await settle(q);
+      const at=await q.evaluate(s=>{ const e=document.querySelector(s); if(!e) return null;
+        const r=e.getBoundingClientRect();
+        return {x:Math.round(r.left+r.width/2), y:Math.round(r.top+r.height/2)};},sel);
+      const room=await q.evaluate(()=>{ const pb=document.getElementById("panelBody");
+        return pb.scrollHeight-pb.clientHeight;});
+      if(!at || room<40){ say("a drag up from "+what+" scrolls the panel", "no room to test"); continue; }
+      const was=await q.evaluate(()=>document.getElementById("panelBody").scrollTop);
+      await dragUp(at.x,at.y);
+      const now=await q.evaluate(()=>document.getElementById("panelBody").scrollTop);
+      say("a drag up from "+what+" scrolls the panel ("+(now-was)+" of "+room+"px)", now-was>20);
+    }
+
+    // and sideways from the same circle still moves the row, which is what pan-x was for
+    await q.goto(URL); await shown(q,"#chart .n");
+    await q.click("#grab").catch(()=>{});
+    await q.waitForSelector(".mcirc",{state:"attached",timeout:8000}).catch(()=>{});
+    await settle(q);
+    const cb=await q.evaluate(()=>{ const r=document.querySelector(".mcirc").getBoundingClientRect();
+      return {x:Math.round(r.left+r.width/2), y:Math.round(r.top+r.height/2)};});
+    const l0=await q.evaluate(()=>document.querySelector(".mrow").scrollLeft);
+    await cdp.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x:cb.x,y:cb.y}]});
+    for(let i=1;i<=14;i++){
+      await cdp.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x:cb.x-180*i/14,y:cb.y}]});
+      await new Promise(r=>setTimeout(r,10)); }
+    await cdp.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
+    await new Promise(r=>setTimeout(r,600));
+    const l1=await q.evaluate(()=>document.querySelector(".mrow").scrollLeft);
+    say("  and a drag sideways still moves the row ("+(l1-l0)+"px)", l1-l0>60);
+    await tc.close(); }
+
   // ---------- the panel scrolls one way ----------
   // A few pixels of horizontal overflow turns the panel into a scroller on both axes. On
   // a phone that means a visible scrollbar and a vertical drag that keeps getting claimed
