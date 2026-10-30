@@ -10,11 +10,30 @@
 // twelve picks you can select from.
 const {chromium}=require("playwright");
 const skipWelcome=require("./_hello");
+const {settle,until,shown,arm}=require("./_wait");
 const URL="file://"+__dirname+"/../index.html";
+// one name for "the page is loaded, the map is drawn and nothing is moving". The circles
+// are laid out against the map, so a loaded document is not enough.
+const ready=async q=>{ await arm(q); await shown(q,"#chart .n"); await settle(q); };
+// The glide drives #panel with an inline height and clears it on transitionend, so an
+// inline height still on the panel means the sheet is still moving even though nothing
+// is mutating. Open means the class is on, the glide has cleaned up, and the page is quiet.
+const opened=async q=>{ await until(q,()=>document.body.classList.contains("open"));
+  await until(q,()=>!document.getElementById("panel").style.height); await settle(q); };
+// A push leaves the page it came from visible until it is hidden 240ms later, so the
+// arrival is "the first page still showing is this one" rather than "this one exists".
+const onPage=async(q,k)=>{ await until(q,k=>{
+    const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
+    return !!u && u.dataset.p===k;},k); await settle(q); };
+// a deep link opens the sheet and pushes its page 420ms into boot, so the page being
+// there is not enough: the sheet has to be up under it
+const landed=async(q,k)=>{ await until(q,k=>{
+    const d=document.querySelector('.ppage[data-p="'+k+'"]');
+    return !!d && !d.hidden && document.body.classList.contains("open");},k); await settle(q); };
 const fresh=async(b,vp)=>{ const p=await b.newPage({viewport:vp}); const errs=[];
   p.on("pageerror",e=>errs.push(String(e))); p.on("console",m=>{if(m.type()==="error")errs.push(m.text());});
-  await p.goto(URL); await p.waitForTimeout(800);
-  if(vp===M){ await p.click("#grab").catch(()=>{}); await p.waitForTimeout(500); }
+  await p.goto(URL); await ready(p);
+  if(vp===M){ await p.click("#grab").catch(()=>{}); await opened(p); }
   p._errs=errs; return p; };
 const M={width:390,height:844,isMobile:true,hasTouch:true,deviceScaleFactor:2};
 const Dk={width:1280,height:900};
@@ -62,14 +81,12 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   say("  every glyph is solid, not stroked", gl.n>0 && gl.filled && gl.paths);
   // Remix Icon is Apache 2.0, which wants its notice carried with the work. The map is
   // one file that anyone can save, so the notice lives on the About page inside it.
-  say("  and the set it came from is credited", await p.evaluate(async()=>{
-    document.querySelector('[data-page="about"]').click();
-    await new Promise(r=>setTimeout(r,700));
-    const t=(document.querySelector(".ppage:not([hidden])")||{}).textContent||"";
+  say("  and the set it came from is credited", await (async()=>{
+    await p.click('[data-page="about"]'); await onPage(p,"about");
+    const t=await p.evaluate(()=>(document.querySelector(".ppage:not([hidden])")||{}).textContent||"");
     const ok=/Remix Icon/.test(t) && /Apache License 2\.0/.test(t);
-    document.getElementById("panelBack").click();
-    await new Promise(r=>setTimeout(r,700));
-    return ok;}));
+    await p.click("#panelBack"); await onPage(p,"root");
+    return ok;})());
   // no glyph may be worn by two modes: a shared icon makes two rows look like one
   say("  no two modes wear the same glyph", await p.evaluate(()=>{
     const seen=new Set();
@@ -86,13 +103,18 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
       button:0,buttons:t==="pointerup"?0:1,clientX:x,clientY:
       Math.round(row.getBoundingClientRect().top+20),bubbles:true,cancelable:true}));
     ev("pointerdown",300);
+    // the 16ms between moves is the gesture, not a wait on the page: the velocity the row
+    // carries past the release is read off how fast the pointer was travelling
     for(let i=1;i<=8;i++){ ev("pointermove",300-i*22); await new Promise(r=>setTimeout(r,16)); }
     const held=at(); ev("pointerup",300-8*22);
-    await new Promise(r=>setTimeout(r,900));
+    // the coast is over when the row stops moving, which is what the check measures
+    let last=at(), still=0;
+    while(still<120){ await new Promise(r=>requestAnimationFrame(r));
+      const now=at(); if(now===last) still+=16; else { still=0; last=now; } }
     return {held, after:at()};});
   say("  and carries "+(fling.after-fling.held)+"px past the release", fling.after-fling.held>=30);
   await p.evaluate(()=>{document.querySelector(".mrow").scrollLeft=0;});
-  await p.waitForTimeout(250);
+  await settle(p);
   say("  with "+lay.vis+" in reach before it does", lay.vis>=3);
   say("  each a circle of "+Math.round(lay.tap)+"px", lay.round && lay.tap>=44);
   say("  and no label cut off"+(lay.clipped.length?": "+lay.clipped.join(", "):""), lay.clipped.length===0);
@@ -104,7 +126,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
       cv:!!h.querySelector(".sectcv svg"), h:Math.round(h.getBoundingClientRect().height)};});
   say("the heading opens the full set", sh.go && sh.cv);
   say("  and is "+sh.h+"px tall", sh.h>=44);
-  await p.click(".sect-modes .secthead"); await p.waitForTimeout(700);
+  await p.click(".sect-modes .secthead"); await onPage(p,"modes");
   const all=await p.evaluate(()=>{
     const r=[...document.querySelectorAll(".ppage:not([hidden]) .modelist .listrow")];
     const grp=document.querySelector(".ppage:not([hidden]) .modelist");
@@ -148,7 +170,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     return c?{hash:c.dataset.aboutcopy, lbl:(c.querySelector(".lbl")||{}).textContent}:null;});
   say("  with a link to copy ("+(share&&share.lbl)+")",
     !!share && share.hash==="modes" && /copy a link/i.test(share.lbl));
-  await p.click("#panelBack"); await p.waitForTimeout(700);
+  await p.click("#panelBack"); await onPage(p,"root");
 
   // ---------- how loud it is ----------
   // every mode carries a level, and the circle is filled with it. The ramp has to read
@@ -180,10 +202,10 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     const q=await b.newPage({viewport:M});
     await q.addInitScript(u=>{ try{ u ? localStorage.setItem("offshoots.modeuse",JSON.stringify(u))
       : localStorage.removeItem("offshoots.modeuse"); }catch(e){} }, use);
-    await q.goto(URL); await q.waitForTimeout(800);
+    await q.goto(URL); await ready(q);
     await q.click("#grab").catch(()=>{});
     await q.waitForSelector(".mcirc",{state:"attached",timeout:8000}).catch(()=>{});
-    await q.waitForTimeout(250);
+    await opened(q);
     return q; };
 
   { const q=await seeded({driving:5,party:2});
@@ -195,7 +217,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     say("  and the rest keep their order",
       after.slice(2).join("/")===before.filter(x=>x!=="Driving"&&x!=="Party").join("/"));
     // the list behind the heading is the stable reference, so it must not reorder
-    await q.click(".sect-modes .secthead"); await q.waitForTimeout(700);
+    await q.click(".sect-modes .secthead"); await onPage(q,"modes");
     const page=await q.$$eval(".ppage:not([hidden]) .modelist .lrlbl",e=>e.map(x=>x.textContent));
     say("  while the full list stays put ("+page.slice(0,2).join(", ")+")",
       page.join("/")===before.join("/"));
@@ -207,7 +229,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     await q.close(); }
 
   // ---------- a tap pushes a page ----------
-  await p.click('[data-mode="focus"]'); await p.waitForTimeout(700);
+  await p.click('[data-mode="focus"]'); await onPage(p,"mode:focus");
   const pg=await p.evaluate(()=>{
     const up=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden);
     const bk=document.getElementById("panelBack");
@@ -244,7 +266,12 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   // every pick carries its playlist's cover, or, where there is no file, the same square
   // filled with the family colour and the style's initials. Never a gap: the three lines
   // of text are laid out against that column.
-  await p.waitForTimeout(900);
+  // the covers are files, and the squares they go in are measured, so wait for every pick
+  // to have either a loaded cover or the tile that stands in for one
+  await until(p,()=>{const r=[...document.querySelectorAll(".ppage:not([hidden]) .pick")];
+    return r.length>0 && r.every(x=>{const c=x.querySelector("img.pcov,.pcovph");
+      return !!c && (c.tagName!=="IMG" || c.complete);});});
+  await settle(p);
   const art=await p.evaluate(()=>{const r=[...document.querySelectorAll(".ppage:not([hidden]) .pick")];
     return {n:r.length, img:r.filter(x=>x.querySelector("img.pcov")).length,
       ph:r.filter(x=>x.querySelector(".pcovph")).length,
@@ -270,22 +297,26 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   say("no row overflows itself", await p.$$eval(".ppage:not([hidden]) .picks [data-go]",
     e=>e.every(x=>x.scrollWidth<=x.clientWidth+1)));
 
-  await p.click("#panelBack"); await p.waitForTimeout(700);
+  await p.click("#panelBack"); await onPage(p,"root");
   say("back returns to the overview",
     (await p.$$(".mcirc")).length===nModes
     && (await p.evaluate(()=>document.getElementById("panelBack").hidden))===true);
 
   // switching modes replaces rather than stacks
-  await p.click('[data-mode="workout"]'); await p.waitForTimeout(700);
+  await p.click('[data-mode="workout"]'); await onPage(p,"mode:workout");
   await p.evaluate(()=>{const r=document.querySelector('[data-mode="workout"]'); if(r) r.click();});
-  await p.waitForTimeout(400);
+  // a push animates, so settling covers the one this click must not make
+  await settle(p);
   say("a mode cannot be pushed onto itself",
     (await p.evaluate(()=>[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden).length))===1
     && (await p.$$(".ppage")).length===2);
 
   // picking a style leaves the stack behind
   const target=await p.$eval(".ppage:not([hidden]) .picks [data-go]:nth-child(2)",e=>e.dataset.go);
-  await p.click(".ppage:not([hidden]) .picks [data-go]:nth-child(2)"); await p.waitForTimeout(800);
+  await p.click(".ppage:not([hidden]) .picks [data-go]:nth-child(2)");
+  // the pick is through when the hash names it and the map has lit the node
+  await until(p,t=>location.hash==="#"+t && !!document.querySelector("#chart .n.cur"),target);
+  await settle(p);
   say("a pick selects "+target, (await p.evaluate(()=>location.hash))==="#"+target);
   say("  and the panel shows it", (await p.$eval(".pcard .mn",e=>e.textContent)).length>0);
   say("  with the map node lit", (await p.$$eval("#chart .n.cur",e=>e.length))===1);
@@ -293,10 +324,12 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
 
   // Escape unwinds a mode page rather than closing the panel
   await p.evaluate(()=>{history.replaceState(null,"","#"); location.hash="";});
-  await p.waitForTimeout(400);
+  await settle(p);
   p=await fresh(b,M);
-  await p.click('[data-mode="party"]'); await p.waitForTimeout(700);
-  await p.keyboard.press("Escape"); await p.waitForTimeout(600);
+  await p.click('[data-mode="party"]'); await onPage(p,"mode:party");
+  await p.keyboard.press("Escape");
+  await until(p,()=>!document.querySelector('.ppage[data-p^="mode:"]:not([hidden])'));
+  await settle(p);
   say("Escape pops the page, leaving the panel open",
     (await p.$$('.ppage[data-p^="mode:"]:not([hidden])')).length===0
     && (await p.$eval("body",e=>e.classList.contains("open")))===true);
@@ -307,16 +340,16 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   // ---------- desktop ----------
   const d=await fresh(b,Dk);
   say("the sidebar opens on circles too", (await d.$$(".mcirc")).length===nModes);
-  await d.click(".sect-modes .secthead"); await d.waitForTimeout(700);
+  await d.click(".sect-modes .secthead"); await onPage(d,"modes");
   const dl=await d.evaluate(()=>{
     const r=[...document.querySelectorAll(".ppage:not([hidden]) .modelist .listrow")];
     return {cols:new Set(r.map(x=>Math.round(x.getBoundingClientRect().left))).size,
       clipped:r.filter(x=>{const l=x.querySelector(".lrlbl"); return l.scrollWidth>l.clientWidth+1;})
                .map(x=>x.querySelector(".lrlbl").textContent)};});
   say("and its full set runs two abreast", dl.cols===2);
-  await d.click("#panelBack"); await d.waitForTimeout(600);
+  await d.click("#panelBack"); await onPage(d,"root");
   say("and clips nothing"+(dl.clipped.length?": "+dl.clipped.join(", "):""), dl.clipped.length===0);
-  await d.click('[data-mode="sit"]'); await d.waitForTimeout(600);
+  await d.click('[data-mode="sit"]'); await onPage(d,"mode:sit");
   say("tapping one pushes a page of picks",
     (await d.$$eval(".ppage:not([hidden]) .picks [data-go]",e=>e.length))===12);
   say("  which stays inside the panel", await d.evaluate(()=>{
@@ -337,7 +370,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   // harness, not the page. The click path and the load path are both covered either way.
   { const s=await b.newPage({viewport:M}); const serrs=[];
     s.on("pageerror",e=>serrs.push(String(e)));
-    await s.goto(URL+"#modes"); await s.waitForTimeout(1200);
+    await s.goto(URL+"#modes"); await ready(s); await landed(s,"modes");
 
     const read=()=>s.evaluate(()=>{
       const ps=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden), u=ps[ps.length-1];
@@ -382,7 +415,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   // the stored choice is honoured when the page is built, not just when it is clicked
   { const s2=await b.newPage({viewport:M});
     await s2.addInitScript(()=>{ try{ localStorage.setItem("offshoots.modesort","az"); }catch(e){} });
-    await s2.goto(URL+"#modes"); await s2.waitForTimeout(1200);
+    await s2.goto(URL+"#modes"); await ready(s2); await landed(s2,"modes");
     const r=await s2.evaluate(()=>{
       const ps=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden), u=ps[ps.length-1];
       return {on:[...u.querySelectorAll(".msortbtn")].filter(x=>x.classList.contains("on")).map(x=>x.textContent)[0],
@@ -394,7 +427,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   // a stored value that is not one of the four must not strand the page on an empty list
   { const s3=await b.newPage({viewport:M});
     await s3.addInitScript(()=>{ try{ localStorage.setItem("offshoots.modesort","nonsense"); }catch(e){} });
-    await s3.goto(URL+"#modes"); await s3.waitForTimeout(1200);
+    await s3.goto(URL+"#modes"); await ready(s3); await landed(s3,"modes");
     const r=await s3.evaluate(()=>{
       const ps=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden), u=ps[ps.length-1];
       return {on:[...u.querySelectorAll(".msortbtn")].filter(x=>x.classList.contains("on")).map(x=>x.textContent)[0],
@@ -405,7 +438,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
 
   // the control has to survive the narrowest phone without clipping a label
   { const s4=await b.newPage({viewport:{width:320,height:700,isMobile:true,hasTouch:true}});
-    await s4.goto(URL+"#modes"); await s4.waitForTimeout(1200);
+    await s4.goto(URL+"#modes"); await ready(s4); await landed(s4,"modes");
     const fit=await s4.evaluate(()=>{
       const seg=document.querySelector(".msort"), w=document.querySelector(".msortwrap");
       const btns=[...seg.querySelectorAll(".msortbtn")];

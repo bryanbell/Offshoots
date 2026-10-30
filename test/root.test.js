@@ -1,17 +1,31 @@
 const {chromium}=require("playwright");
 const skipWelcome=require("./_hello");
+const {settle,until,shown,arm}=require("./_wait");
 const URL="file://"+__dirname+"/../index.html";
 const M={width:390,height:844,isMobile:true,hasTouch:true,deviceScaleFactor:2};
 const Dk={width:1280,height:900};
 const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typeof v!=="boolean"?": "+v:""));
+// one name for "the page is loaded, the map is drawn and nothing is moving". Every
+// measurement here is taken against the map, so a loaded document is not enough.
+const ready=async q=>{ await arm(q); await shown(q,"#chart .n"); await settle(q); };
+// The glide drives #panel with an inline height and clears it on transitionend, so an
+// inline height still on the panel means the sheet is still moving even though nothing
+// is mutating. Open means the class is on, the glide has cleaned up, and the page is quiet.
+const opened=async q=>{ await until(q,()=>document.body.classList.contains("open"));
+  await until(q,()=>!document.getElementById("panel").style.height); await settle(q); };
+// A push leaves the page it came from visible until it is hidden 240ms later, so the
+// arrival is "the first page still showing is this one" rather than "this one exists".
+const onPage=async(q,k)=>{ await until(q,k=>{
+    const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
+    return !!u && u.dataset.p===k;},k); await settle(q); };
 async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const errs=[];
   p.on("pageerror",e=>errs.push(String(e)));
-  await p.goto(URL+(hash||"")); await p.waitForTimeout(850); p._errs=errs; return p; }
+  await p.goto(URL+(hash||"")); await ready(p); p._errs=errs; return p; }
 
 (async()=>{
   const b=await chromium.launch(); skipWelcome(b);
   let p=await fresh(b,M);
-  await p.click("#grab").catch(()=>{}); await p.waitForTimeout(450);
+  await p.click("#grab").catch(()=>{}); await opened(p);
 
   // ---- order on the page ----
   const order=await p.$eval("#panelBody",e=>[...e.querySelectorAll(".ovcard,.sect-feat,.sect-modes,.browse,.ovhint,.aboutwrap")]
@@ -109,7 +123,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("the band is "+band.h+"px and the first lane starts "+band.gap+"px below it", band.h>40 && band.gap>=0);
   // the blurb and the counts sit beside the name, not under it, wherever there is room
   { const q=await b.newPage({viewport:{width:1440,height:900}});
-    await q.goto(URL); await q.waitForTimeout(1000);
+    await q.goto(URL); await ready(q);
     const lay=await q.evaluate(()=>{ const t=document.querySelector("#maphead .mh").getBoundingClientRect(),
       g=document.querySelector("#maphead .mmeta").getBoundingClientRect(),
       f=document.querySelector(".lane.fill"), h=document.getElementById("maphead").getBoundingClientRect();
@@ -123,7 +137,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
       lay.fillH!==null && Math.abs(lay.fillH-lay.band)<=2 && Math.abs(lay.fillTop-lay.bandTop)<=2);
     // it belongs to the map, so panning the timeline carries it along
     const before=await q.evaluate(()=>Math.round(document.querySelector("#maphead .mh").getBoundingClientRect().left));
-    await q.evaluate(()=>{ document.getElementById("scroller").scrollLeft=200; }); await q.waitForTimeout(300);
+    await q.evaluate(()=>{ document.getElementById("scroller").scrollLeft=200; }); await settle(q);
     const after=await q.evaluate(()=>({ttl:Math.round(document.querySelector("#maphead .mh").getBoundingClientRect().left),
       strip:Math.round(document.querySelector(".lane.fill").getBoundingClientRect().left)}));
     say("  panning 200px moves the title with the map ("+before+" to "+after.ttl+")", before-after.ttl>=190);
@@ -131,8 +145,12 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
     await q.close(); }
   // the back and map pills float over the top left of the map, where the title now is
   { const q=await b.newPage({viewport:{width:1440,height:900}});
-    await q.goto(URL+"#delta"); await q.waitForTimeout(1100);
-    await q.evaluate(()=>{ document.getElementById("scroller").scrollTop=0; }); await q.waitForTimeout(350);
+    await q.goto(URL+"#delta"); await ready(q);
+    // the pills are what this block measures, and they only appear once boot has chosen
+    // the deep-linked style
+    await until(q,()=>{const e=document.getElementById("navpills");
+      return !!e && e.getBoundingClientRect().width>0;});
+    await q.evaluate(()=>{ document.getElementById("scroller").scrollTop=0; }); await settle(q);
     const hit=await q.evaluate(()=>{ const a=document.getElementById("navpills").getBoundingClientRect();
       const over=s=>{ const e=document.querySelector(s); if(!e) return false;
         const r=e.getBoundingClientRect();
@@ -144,10 +162,10 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   // the app icon left the header and moved into About, so check both ends of that:
   // a bare .appicon count would now find the one inside the collapsed details
   say("no app icon in the header", (await p.$$(".ovcard .navrow .appicon")).length===0);
-  { await p.click('[data-page="about"]'); await p.waitForTimeout(600);
+  { await p.click('[data-page="about"]'); await onPage(p,"about");
     say("it moved onto the About page", (await p.$$('.ppage[data-p="about"] .abouthd .appicon')).length===1);
-    await p.click("#panelBack"); await p.waitForTimeout(500);
-    await p.evaluate(()=>{document.getElementById("panelBody").scrollTop=0;}); await p.waitForTimeout(200); }
+    await p.click("#panelBack"); await onPage(p,"root");
+    await p.evaluate(()=>{document.getElementById("panelBody").scrollTop=0;}); await settle(p); }
 
   // ---- the root panel's header and its list of ways in ----
   // the header carries nothing now: the title is a large one under it, the roots moved
@@ -235,7 +253,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
     grp.chevrons[0]===true && grp.chevrons[1]===true && grp.chevrons[2]===false);
 
   // Roots pushes a page rather than dropping a menu, so the test follows it in and back
-  await p.click('[data-page="roots"]'); await p.waitForTimeout(600);
+  await p.click('[data-page="roots"]'); await onPage(p,"roots");
   const pg=await p.evaluate(()=>{ const page=document.querySelector('.ppage[data-p="roots"]');
     if(!page || page.hidden) return null;
     const items=[...page.querySelectorAll("[data-go]")].map(x=>x.dataset.go);
@@ -250,15 +268,20 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("  with a line saying what they are", !!pg && pg.lede);
   say("  the page it came from is put away", !!pg && pg.rootHidden===true);
   say("  and back says where it goes ("+(pg&&pg.backLbl)+")", !!pg && pg.back && pg.backLbl==="Explore");
-  await p.click('.ppage[data-p="roots"] [data-go]'); await p.waitForTimeout(700);
+  await p.click('.ppage[data-p="roots"] [data-go]');
+  // a pick is through when the hash names it and the map has lit the node
+  await until(p,()=>location.hash.length>1 && !!document.querySelector("#chart .n.cur"));
+  await settle(p);
   say("  and picking one selects it ("+(await p.evaluate(()=>location.hash))+")",
     await p.evaluate(()=>location.hash.length>1));
-  await p.goto(URL); await p.waitForTimeout(900);
+  await p.goto(URL); await ready(p);
   // the last row goes somewhere rather than opening anything
-  await p.click("[data-random]"); await p.waitForTimeout(700);
+  await p.click("[data-random]");
+  await until(p,()=>location.hash.length>1 && !!document.querySelector("#chart .n.cur"));
+  await settle(p);
   const r1=await p.evaluate(()=>location.hash);
   say("  the last row lands on a style ("+r1+")", r1.length>1);
-  await p.goto(URL); await p.waitForTimeout(900);
+  await p.goto(URL); await ready(p);
 
   // Start here was a second random pick beside Surprise me, so it went. What it proved
   // still matters for the rows that replaced it: a named row on a minimised sheet has to
@@ -280,7 +303,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("About is a row, not a fold", abRow.exists && abRow.label==="About this map");
   say("  tap target "+abRow.tap+"px", abRow.tap>=44);
   say("  and its text is not in the panel until you ask", abRow.anyOpenText===false);
-  await p.click('[data-page="about"]'); await p.waitForTimeout(700);
+  await p.click('[data-page="about"]'); await onPage(p,"about");
   const ab=await p.evaluate(()=>{
     const pg=document.querySelector('.ppage[data-p="about"]'), b=document.getElementById("panelBody");
     return {up:!!pg&&!pg.hidden, title:(pg.querySelector(".bigttl .mn")||{}).textContent,
@@ -299,7 +322,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
     return Math.round(b.getBoundingClientRect().bottom-last.getBoundingClientRect().bottom);
   });
   say("air below the last block ("+tail+"px)", tail>=12);
-  await p.click("#panelBack"); await p.waitForTimeout(600);
+  await p.click("#panelBack"); await onPage(p,"root");
   await p.evaluate(()=>{document.getElementById("panelBody").scrollTop=0;});
   say("back returns to Explore",
     (await p.$eval('.ppage[data-p="root"] .bigttl .mn',e=>e.textContent))==="Explore");

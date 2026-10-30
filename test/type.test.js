@@ -17,8 +17,26 @@
 // all-caps label lived in the style panel and the menus.
 const {chromium}=require("playwright");
 const skipWelcome=require("./_hello");
+const {settle,until,shown,arm}=require("./_wait");
 const URL="file://"+__dirname+"/../index.html";
 const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typeof v!=="boolean"?": "+v:""));
+// Every size here is read off what is painted, so nothing may be measured mid-transition.
+// boot runs on document.fonts.ready and draws the map, so the first node is what says boot
+// has chosen what to show; the lane dim transitions that follow are what settle waits out.
+const ready=async q=>{ await arm(q); await shown(q,"#chart .n"); await settle(q); };
+// a deep link selects on boot, and the style panel measured below is built by the selection
+const selected=async q=>{ await ready(q);
+  await until(q,()=>!!document.querySelector("#chart .n.cur")); await settle(q); };
+// The glide drives #panel with an inline height and clears it on transitionend, so an
+// inline height still on the panel means the sheet is still moving even though nothing is
+// mutating: type measured then would be type measured in flight.
+const opened=async q=>{ await until(q,()=>document.body.classList.contains("open"));
+  await until(q,()=>!document.getElementById("panel").style.height); await settle(q); };
+// A push leaves the page it came from visible until it is hidden 240ms later, so the
+// arrival is "the first page still showing is this one" rather than "this one exists".
+const onPage=async(q,k)=>{ await until(q,k=>{
+    const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
+    return !!u && u.dataset.p===k;},k); await settle(q); };
 
 // Touch and pointer are different tiers, so the floors differ. A phone and an iPad
 // hold iOS's 17pt Body and 44pt targets; a desktop sidebar steps down one notch the
@@ -126,8 +144,8 @@ const readRules=(p)=>p.evaluate(()=>{
 
     // 1. the overview
     let p=await ctx.newPage();
-    await p.goto(URL); await p.waitForTimeout(900);
-    if(open){ await p.click("#grab").catch(()=>{}); await p.waitForTimeout(700); }
+    await p.goto(URL); await ready(p);
+    if(open){ await p.click("#grab").catch(()=>{}); await opened(p); }
     check(name+" overview", await readType(p,"#panelBody"), await readTaps(p,"#panelBody",TIER.tap));
 
     const rules=await readRules(p);
@@ -137,7 +155,7 @@ const readRules=(p)=>p.evaluate(()=>{
 
     // open a list and confirm it is one grouped block with inset separators
     await p.click('[data-mode="coffee"]').catch(()=>{});
-    await p.waitForTimeout(700);
+    await onPage(p,"mode:coffee");
     const grp=await p.evaluate(()=>{
       const ps=document.querySelector(".picks"); if(!ps) return null;
       const rows=[...ps.children];
@@ -175,9 +193,9 @@ const readRules=(p)=>p.evaluate(()=>{
     // 2. a pushed page, which is where the long lists live. The pick list above is a
     // pushed page too, so it has to be popped before the row under it can be reached.
     await p.click("#panelBack").catch(()=>{});
-    await p.waitForTimeout(450);
+    await onPage(p,"root");
     await p.click('[data-page="roots"]').catch(()=>{});
-    await p.waitForTimeout(500);
+    await onPage(p,"roots");
     const pg=await p.$('.ppage[data-p="roots"]');
     if(pg){
       check(name+" roots page", await readType(p,'.ppage[data-p="roots"]'),
@@ -186,8 +204,8 @@ const readRules=(p)=>p.evaluate(()=>{
     await p.close();
     // 3. a style panel, on a fresh page: hash navigation on a loaded page does not select
     p=await ctx.newPage();
-    await p.goto(URL+"#shoegaze"); await p.waitForTimeout(1100);
-    if(open){ await p.click("#grab").catch(()=>{}); await p.waitForTimeout(700); }
+    await p.goto(URL+"#shoegaze"); await selected(p);
+    if(open){ await p.click("#grab").catch(()=>{}); await opened(p); }
     const got=await p.$eval(".pcard .mn",e=>e.textContent).catch(()=>null);
     say(name+" style panel opened on Shoegaze", got==="Shoegaze");
     if(got!=="Shoegaze") bad++;
@@ -200,7 +218,7 @@ const readRules=(p)=>p.evaluate(()=>{
         ["tablet",{width:834,height:1112,isMobile:true,hasTouch:true}],
         ["desktop",{width:1440,height:900}]]){
       const p=await b.newPage({viewport:vp});
-      await p.goto(URL+"#jamband"); await p.waitForTimeout(900);
+      await p.goto(URL+"#jamband"); await selected(p);
       sizes[name]=await p.evaluate(()=>{ const e=document.querySelector(".plrow img.pcov, .plrow .pcovph");
         return e?Math.round(e.getBoundingClientRect().width):0; });
       await p.close();
@@ -211,7 +229,7 @@ const readRules=(p)=>p.evaluate(()=>{
       sizes.phone>=76 && sizes.tablet>=76 && sizes.desktop>=110
       && sizes.desktop>sizes.tablet && sizes.desktop>sizes.phone);
     const dp=await b.newPage({viewport:{width:1440,height:900}});
-    await dp.goto(URL+"#jamband"); await dp.waitForTimeout(900);
+    await dp.goto(URL+"#jamband"); await selected(dp);
     const box=await dp.evaluate(()=>{ const b=document.querySelector(".plrow img.pcov, .plrow .pcovph").getBoundingClientRect();
       return [Math.round(b.width),Math.round(b.height)]; });
     await dp.close();

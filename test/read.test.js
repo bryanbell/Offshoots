@@ -7,15 +7,27 @@
 // a note on every one, since the note is what makes it worth a tap.
 const {chromium}=require("playwright");
 const skipWelcome=require("./_hello");
+const {settle,until,shown,arm}=require("./_wait");
 const URL="file://"+__dirname+"/../index.html";
 const M={width:390,height:844,isMobile:true,hasTouch:true,deviceScaleFactor:2};
 const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typeof v!=="boolean"?": "+v:""));
+// boot runs on document.fonts.ready, so a loaded document is not a booted one. The first
+// drawn node is what says boot got as far as choosing what to show.
+const ready=async q=>{ await arm(q); await shown(q,"#chart .n"); await settle(q); };
+// a deep link selects on boot, and the panel this suite reads is built by that selection
+const selected=async q=>{ await ready(q);
+  await until(q,()=>!!document.querySelector("#chart .n.cur")); await settle(q); };
+// The glide drives #panel with an inline height and clears it on transitionend, so an
+// inline height still on the panel means the sheet is still moving even though nothing is
+// mutating. Row heights are measured here, so the sheet has to have come to rest.
+const opened=async q=>{ await until(q,()=>document.body.classList.contains("open"));
+  await until(q,()=>!document.getElementById("panel").style.height); await settle(q); };
 
 (async()=>{
   const b=await chromium.launch(); skipWelcome(b);
   let p=await b.newPage({viewport:M}); const errs=[];
   p.on("pageerror",e=>errs.push(String(e)));
-  await p.goto(URL); await p.waitForTimeout(900);
+  await p.goto(URL); await ready(p);
 
   const t=await p.evaluate(()=>{
     const ids=new Set(DATA.map(r=>r[0]));
@@ -65,10 +77,10 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
 
   // a style with reads shows them, under a heading, above the share button
   p=await b.newPage({viewport:M}); p.on("pageerror",e=>errs.push(String(e)));
-  await p.goto(URL+"#shoegaze"); await p.waitForTimeout(1200);
+  await p.goto(URL+"#shoegaze"); await selected(p);
   say("hidden in the peek",
     await p.$eval(".sect-read",e=>getComputedStyle(e).display==="none"));
-  await p.click("#grab").catch(()=>{}); await p.waitForTimeout(700);
+  await p.click("#grab").catch(()=>{}); await opened(p);
   const r=await p.evaluate(()=>{
     const s=document.querySelector(".sect-read"), a=[...s.querySelectorAll("a.rd")];
     return {shown:getComputedStyle(s).display!=="none",
@@ -143,8 +155,8 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
 
   // and a style with nothing says nothing, rather than showing an empty heading
   p=await b.newPage({viewport:M}); p.on("pageerror",e=>errs.push(String(e)));
-  await p.goto(URL+"#spirituals"); await p.waitForTimeout(1200);
-  await p.click("#grab").catch(()=>{}); await p.waitForTimeout(700);
+  await p.goto(URL+"#spirituals"); await selected(p);
+  await p.click("#grab").catch(()=>{}); await opened(p);
   say("a style with no reads shows no section", (await p.$$(".sect-read")).length===0);
   say("but still shows What it is", (await p.$$(".sect-about")).length===1);
   await p.close();

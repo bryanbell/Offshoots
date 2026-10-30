@@ -1,9 +1,28 @@
 const {chromium}=require("playwright");
 const skipWelcome=require("./_hello");
+const {settle,until,gone,shown,arm}=require("./_wait");
 const URL="file://"+__dirname+"/../index.html";
 const M={width:390,height:844,isMobile:true,hasTouch:true,deviceScaleFactor:2};
 const Dk={width:1280,height:900};
 const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typeof v!=="boolean"?": "+v:""));
+// The glide drives #panel with an inline height and clears it on transitionend, so an
+// inline height still on the panel means the sheet is still moving even though nothing
+// is mutating. Everything that measures a resting sheet waits for it to be gone.
+const glided=q=>until(q,()=>!document.getElementById("panel").style.height);
+// open means the body says so, the glide has cleaned up after itself, and the page has
+// gone quiet. Waiting for the class alone would measure the sheet mid-flight.
+const opened=async q=>{ await until(q,()=>document.body.classList.contains("open"));
+  await glided(q); await settle(q); };
+// the copy is a promise, and the button only says "Link copied" once the write has
+// landed, so one condition covers both the clipboard and the label.
+const wrote=(q,n)=>until(q,n=>window.__copied.length>n
+  && !!document.querySelector("#panel [data-share].done, #panel [data-aboutcopy].done"),n);
+// the share button says "Link copied" for 1600ms and then puts its own label back
+const relabelled=q=>until(q,()=>{const b=document.querySelector("#panel [data-share]");
+  return !b || !b.classList.contains("done");});
+// a page that lands on a fold opens the sheet and pushes the page 420ms after boot
+const landed=(q,p)=>until(q,p=>{const d=document.querySelector('.ppage[data-p="'+p+'"]');
+  return !!d && !d.hidden && document.body.classList.contains("open");},p);
 async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   const errs=[]; p.on("pageerror",e=>errs.push(String(e)));
   // no real share sheet in headless, and clipboard needs a stub to resolve
@@ -12,7 +31,10 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
     Object.defineProperty(navigator,"clipboard",{configurable:true,
       value:{writeText:t=>{window.__copied.push(t);return Promise.resolve();}}});
   });
-  await p.goto(URL+(hash||"")); await p.waitForTimeout(800); p._errs=errs; return p; }
+  await p.goto(URL+(hash||"")); await arm(p);
+  // the panel is measured against the map, so the map has to be drawn, not merely loaded
+  await shown(p,"#chart .n"); await settle(p);
+  p._errs=errs; return p; }
 
 (async()=>{
   const b=await chromium.launch(); skipWelcome(b);
@@ -48,11 +70,11 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   say("painted name off centre in the row by "+c+"px", Math.abs(c)<=1);
 
   // ---------- sharing ----------
-  await d.click(".shbtn.wide"); await d.waitForTimeout(250);
+  await d.click(".shbtn.wide"); await wrote(d,0); await settle(d);
   say("copied the style link", await d.evaluate(()=>window.__copied[0]||""));
   say("the button confirms", await d.$eval(".shbtn .shlbl",e=>e.textContent));
   say("  and the title is left alone", await d.$eval(".navttl .mn",e=>e.textContent)==="Disco");
-  await d.waitForTimeout(1700);
+  await relabelled(d); await settle(d);
   say("label comes back", await d.$eval(".shbtn .shlbl",e=>e.textContent));
 
   // overview shares the map
@@ -76,13 +98,13 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   say("  the last row of the colophon list", rb.last && rb.pos!=="absolute" && rb.pos!=="fixed");
   say("  nothing round left in the header", rb.round===0 && rb.inHeader===0);
   say("  and it is the only share control here", rb.only===1);
-  await d.$eval("#panelBody .shbtn",e=>e.scrollIntoView({block:"center"})); await d.waitForTimeout(250);
-  await d.click("#panelBody .shbtn"); await d.waitForTimeout(250);
+  await d.$eval("#panelBody .shbtn",e=>e.scrollIntoView({block:"center"})); await settle(d);
+  await d.click("#panelBody .shbtn"); await wrote(d,0); await settle(d);
   const u=await d.evaluate(()=>window.__copied[0]||"");
   say("copied the map link (no #)", !u.includes("#") ? true : u);
   say("  and says so in its label",
     await d.$eval("#panelBody .shbtn .shlbl",e=>e.textContent)==="Link copied");
-  await d.waitForTimeout(1700);
+  await relabelled(d); await settle(d);
   say("  then goes back to the label",
     await d.$eval("#panelBody .shbtn .shlbl",e=>e.textContent)==="Share this app");
   // the title on the map is a heading, not a second way to do the same thing
@@ -102,7 +124,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   // in it, under the cover art and behind the expand chevron.
   say("  and the share button is not in the peek",
     (await p.$eval(".shbtn.wide",e=>getComputedStyle(e).display))==="none");
-  await p.click(".navttl"); await p.waitForTimeout(500);
+  await p.click(".navttl"); await shown(p,".navmenu:not([hidden])"); await settle(p);
   // the title is the lineage control now, so it opens its menu rather than the sheet.
   // That is the point: the lineage is reachable from the peek, where it used to be when
   // it was a pill in the header, and is not once it is a section in the card.
@@ -110,17 +132,19 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
     (await p.$$(".navmenu:not([hidden]) .lcol")).length===2);
   say("  without opening the sheet", (await p.$eval("body",e=>e.classList.contains("open")))===false);
   say("and shares nothing by itself", (await p.evaluate(()=>window.__copied.length))===0);
-  await p.keyboard.press("Escape"); await p.waitForTimeout(250);
-  await p.click("#grab").catch(()=>{}); await p.waitForTimeout(600);
-  await p.$eval("#panelBody .shbtn",e=>e.scrollIntoView({block:"center"})); await p.waitForTimeout(300);
-  await p.click("#panelBody .shbtn"); await p.waitForTimeout(300);
+  await p.keyboard.press("Escape"); await gone(p,".navmenu:not([hidden])"); await settle(p);
+  await p.click("#grab").catch(()=>{}); await opened(p);
+  await p.$eval("#panelBody .shbtn",e=>e.scrollIntoView({block:"center"})); await settle(p);
+  await p.click("#panelBody .shbtn"); await wrote(p,0); await settle(p);
   say("the control at the foot does the sharing", (await p.evaluate(()=>window.__copied.length))===1);
   const tb=await p.$eval("#panelBody .shbtn",e=>[Math.round(e.getBoundingClientRect().height)]);
   say("tap target "+tb[0]+"px tall", tb[0]>=44);
   // a long name must not let the tap area reach back on one side or the pair on the other
-  await p.goto(URL+"#skapunk"); await p.waitForTimeout(100);
-  await p.reload(); await p.waitForTimeout(900);
-  await p.click("#grab").catch(()=>{}); await p.waitForTimeout(400);
+  await p.goto(URL+"#skapunk"); await arm(p); await shown(p,"#chart .n");
+  await p.reload(); await arm(p); await shown(p,"#chart .n");
+  // the header is measured against the selection, so the style has to be current
+  await until(p,()=>!!document.querySelector("#chart .n.cur")); await settle(p);
+  await p.click("#grab").catch(()=>{}); await opened(p);
   // the title button spans the row now, under two controls pinned to its corners, so what
   // has to clear them is the painted name rather than the button's box
   const gap=await p.$eval(".navrow",r=>{ const mn=r.querySelector(".navttl .mn");
@@ -133,7 +157,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   // one menu, two columns. It was a segmented pill, then a pair of rows in the card; both
   // spent a line of the panel on something the name can carry.
   say("no lineage section is left in the card", (await p.$$(".sect-lineage")).length===0);
-  await p.click(".navttl"); await p.waitForTimeout(400);
+  await p.click(".navttl"); await shown(p,".navmenu:not([hidden])"); await settle(p);
   const seg=await p.evaluate(()=>{
     const m=[...document.querySelectorAll(".navmenu")].find(x=>!x.hidden);
     if(!m) return null;
@@ -185,7 +209,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
     return {bg:cs.backgroundColor, alpha:n.length>3?+n[3]:1,
       scrolled:document.body.classList.contains("pscrolled")}; });
   say("  and opaque under the title while it is ("+band.bg+")", band.scrolled && band.alpha===1);
-  await p.click(".navttl"); await p.waitForTimeout(400);
+  await p.click(".navttl"); await gone(p,".navmenu:not([hidden])"); await settle(p);
   const back2=await p.evaluate(()=>{ const t=document.querySelector(".navttl");
     return {exp:t.getAttribute("aria-expanded"), turned:getComputedStyle(t.querySelector(".lrcv")).transform,
       shut:!document.querySelector(".navmenu:not([hidden])")}; });
@@ -218,30 +242,31 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   // on the open section rather than on an empty overview.
   const ab=await fresh(b,M);
   await ab.click("#grab").catch(()=>{});
-  await ab.waitForTimeout(600);
-  await ab.click('[data-page="about"]'); await ab.waitForTimeout(700);
+  await opened(ab);
+  await ab.click('[data-page="about"]'); await shown(ab,'.ppage[data-p="about"]'); await settle(ab);
   say("About carries a copy control", (await ab.$$('.ppage[data-p="about"] [data-aboutcopy]')).length===1);
-  await ab.click('.ppage[data-p="about"] [data-aboutcopy]'); await ab.waitForTimeout(400);
+  await ab.click('.ppage[data-p="about"] [data-aboutcopy]'); await wrote(ab,0); await settle(ab);
   const copied=await ab.evaluate(()=>window.__copied.slice(-1)[0]||"");
   say("it copies a #about link ("+copied.split("/").pop()+")", /#about$/.test(copied));
   say("and says so", (await ab.$eval('.ppage[data-p="about"] .aboutcopy .lbl',e=>e.textContent))==="Link copied");
   // the install fold sits below it and carries a link of its own, not About's
   // back out of About and into install, which is the row under it
-  await ab.click("#panelBack"); await ab.waitForTimeout(500);
+  // back leaves About, so the row under it is reachable again
+  await ab.click("#panelBack"); await gone(ab,'.ppage[data-p="about"]'); await settle(ab);
   say("install sits below About", await ab.$eval('[data-page="about"]',e=>
     e.compareDocumentPosition(document.querySelector('[data-page="install"]'))===Node.DOCUMENT_POSITION_FOLLOWING));
-  await ab.click('[data-page="install"]'); await ab.waitForTimeout(700);
+  await ab.click('[data-page="install"]'); await shown(ab,'.ppage[data-p="install"]'); await settle(ab);
   say("its heading", await ab.$eval('.ppage[data-p="install"] .bigttl .mn',e=>e.textContent));
   say("a section per platform", (await ab.$$eval('.ppage[data-p="install"] .subh',e=>e.map(x=>x.textContent))).join(" / "));
   say("each one with numbered steps", (await ab.$$('.ppage[data-p="install"] .steps')).length>=4);
-  await ab.click('.ppage[data-p="install"] [data-aboutcopy]'); await ab.waitForTimeout(400);
+  await ab.click('.ppage[data-p="install"] [data-aboutcopy]'); await wrote(ab,1); await settle(ab);
   const icop=await ab.evaluate(()=>window.__copied.slice(-1)[0]||"");
   say("it copies a #install link ("+icop.split("/").pop()+")", /#install$/.test(icop));
   await ab.close();
 
   // follow that link cold, the way someone receiving it would
   const al=await fresh(b,M,"#about");
-  await al.waitForTimeout(1500);
+  await landed(al,"about"); await settle(al);
   const land=await al.evaluate(()=>{
     const d=document.querySelector('.ppage[data-p="about"]'), body=document.getElementById("panelBody");
     return {page:!!d&&!d.hidden, sheet:document.body.classList.contains("open"),
@@ -257,7 +282,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
 
   // and that link lands the same way About's does
   const il=await fresh(b,M,"#install");
-  await il.waitForTimeout(1500);
+  await landed(il,"install"); await settle(il);
   const iland=await il.evaluate(()=>{
     const d=document.querySelector('.ppage[data-p="install"]'), body=document.getElementById("panelBody");
     return {page:!!d&&!d.hidden, about:!!document.querySelector('.ppage[data-p="about"]'),
@@ -275,10 +300,12 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   // the opaque band has to reach the card's edges: inset, it left a channel down each
   // side that the content scrolling underneath showed through
   { const w=await b.newPage({viewport:M});
-    await w.goto(URL+"#neoswing"); await w.waitForTimeout(1200);
-    await w.click("#grab").catch(()=>{}); await w.waitForTimeout(700);
+    await w.goto(URL+"#neoswing"); await arm(w); await shown(w,"#chart .n");
+    await until(w,()=>!!document.querySelector("#chart .n.cur")); await settle(w);
+    await w.click("#grab").catch(()=>{}); await opened(w);
     await w.evaluate(()=>{document.getElementById("panelBody").scrollTop=260;});
-    await w.waitForTimeout(400);
+    // the band is the one the scrolled state draws, so wait for the state
+    await until(w,()=>document.body.classList.contains("pscrolled")); await settle(w);
     const r=await w.evaluate(()=>{
       const row=document.querySelector(".pcard .navrow"), body=document.getElementById("panelBody");
       const rb=row.getBoundingClientRect(), bb=body.getBoundingClientRect();
@@ -298,10 +325,11 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   // the prose and the tally read as a named section like Listen on above them,
   // and like the rest of the body they stay out of the peek
   { const w=await b.newPage({viewport:M});
-    await w.goto(URL+"#blackmetal"); await w.waitForTimeout(1200);
+    await w.goto(URL+"#blackmetal"); await arm(w); await shown(w,"#chart .n");
+    await until(w,()=>!!document.querySelector("#chart .n.cur")); await settle(w);
     say("the prose is hidden in the peek",
       await w.$eval(".sect-about",e=>getComputedStyle(e).display==="none"));
-    await w.click("#grab").catch(()=>{}); await w.waitForTimeout(700);
+    await w.click("#grab").catch(()=>{}); await opened(w);
     const r=await w.evaluate(()=>{ const s=document.querySelector(".sect-about");
       return {shown:getComputedStyle(s).display!=="none",
         head:(s.querySelector(".secttl")||{}).textContent||"",

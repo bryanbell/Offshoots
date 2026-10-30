@@ -7,13 +7,17 @@
 // to stay out of the way of everything that already answers a click.
 const {chromium}=require("playwright");
 const skipWelcome=require("./_hello");
+const {settle,until,shown,arm}=require("./_wait");
 const URL="file://"+__dirname+"/../index.html";
 const Dk={width:1280,height:900};
 const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typeof v!=="boolean"?": "+v:""));
 
 async function fresh(b,hash){ const p=await b.newPage({viewport:Dk}); const errs=[];
   p.on("pageerror",e=>errs.push(String(e)));
-  await p.goto(URL+(hash||"")); await p.waitForTimeout(1100); p._errs=errs; return p; }
+  await p.goto(URL+(hash||"")); await arm(p);
+  // the map is drawn, not merely loaded: every check here measures against node positions
+  await shown(p,"#chart .n"); await settle(p);
+  p._errs=errs; return p; }
 const at=async p=>p.evaluate(()=>[scroller.scrollLeft,scroller.scrollTop]);
 // An empty patch to grab the map by. This used to be a fixed fraction of the viewport,
 // which is a guess about where the labels are not: it held until a browser with different
@@ -41,7 +45,12 @@ async function drag(p,x,y,dx,dy,steps){ steps=steps||8;
   for(let i=1;i<=steps;i++) await p.mouse.move(x+dx*i/steps, y+dy*i/steps);
   const mid=await p.evaluate(()=>[scroller.scrollLeft,scroller.scrollTop,
     document.body.classList.contains("panning")]);
-  await p.mouse.up(); await p.waitForTimeout(250); return mid; }
+  await p.mouse.up();
+  // the pan is over when the body stops saying it is panning, and the scroller has come
+  // to rest: momentum keeps moving it after the button is up
+  await until(p,()=>!document.body.classList.contains("panning"));
+  await settle(p);
+  return mid; }
 
 (async()=>{
   const b=await chromium.launch(); skipWelcome(b);
@@ -61,7 +70,7 @@ async function drag(p,x,y,dx,dy,steps){ steps=steps||8;
   // under the slop a drag is a click, so the background still answers one
   const was=await at(p);
   await p.mouse.move(ex,ey); await p.mouse.down();
-  await p.mouse.move(ex-2,ey-1); await p.mouse.up(); await p.waitForTimeout(200);
+  await p.mouse.move(ex-2,ey-1); await p.mouse.up(); await settle(p);
   const now=await at(p);
   say("two pixels is a click, not a pan", now[0]===was[0] && now[1]===was[1]);
   say("no page errors", p._errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
@@ -70,14 +79,14 @@ async function drag(p,x,y,dx,dy,steps){ steps=steps||8;
   // the click a drag ends on must not reach the map
   p=await fresh(b,"#bebop");
   const [bx,by]=await empty(p);
-  await drag(p,bx,by,-150,0);
+  await drag(p,bx,by,-150,0); await settle(p);
   say("a drag leaves the selection alone ("+(await p.evaluate(()=>location.hash))+")",
     (await p.evaluate(()=>location.hash))==="#bebop");
   // and one that ends over a style must not select it: the grab has to start on free
   // ground, so look for a pair of points where the far one is a style and the near one
   // is not, rather than assuming a fixed offset lands clear of the labels
   await p.evaluate(()=>{scroller.scrollLeft=0;scroller.scrollTop=0;});
-  await p.waitForTimeout(250);
+  await settle(p);
   const pair=await p.evaluate(()=>{
     const free=(x,y)=>{const t=document.elementFromPoint(x,y); return t && !t.closest(".n");};
     for(const n of document.querySelectorAll("#chart .n")){
@@ -101,10 +110,10 @@ async function drag(p,x,y,dx,dy,steps){ steps=steps||8;
   const at0=await at(p);
   await p.mouse.move(box.x+box.width/2, box.y+box.height/2); await p.mouse.down();
   await p.mouse.move(box.x+box.width/2-120, box.y+box.height/2); await p.mouse.up();
-  await p.waitForTimeout(200);
+  await settle(p);
   const at1=await at(p);
   say("dragging from a style does not pan", at1[0]===at0[0] && at1[1]===at0[1]);
-  await p.mouse.click(box.x+box.width/2, box.y+box.height/2); await p.waitForTimeout(700);
+  await p.mouse.click(box.x+box.width/2, box.y+box.height/2); await settle(p);
   const hash=await p.evaluate(()=>location.hash);
   say("and clicking one still selects it ("+hash+")", hash.length>1);
   say("no page errors", p._errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);

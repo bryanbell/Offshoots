@@ -3,10 +3,20 @@
 // built page rather than reading it off disk like the others.
 const {chromium}=require("playwright");
 const skipWelcome=require("./_hello");
+const {settle,until,shown,arm}=require("./_wait");
 const http=require("http"), fs=require("fs"), path=require("path");
 const FILE=path.join(__dirname,"..","index.html");
 const PORT=8741, URL="http://127.0.0.1:"+PORT+"/";
 const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typeof v!=="boolean"?": "+v:""));
+// boot runs on document.fonts.ready and draws the map before it reads the hash, so the
+// first drawn node is what says boot has started choosing what to show.
+const ready=async q=>{ await arm(q); await shown(q,"#chart .n"); await settle(q); };
+// A fold hash pushes its page about 420ms into boot, and the page it came from stays
+// visible for another 240ms, so the arrival is "the first page still showing is this one".
+// The row under test is built by that page, which is why every load here waits for it.
+const onPage=async(q,k)=>{ await until(q,k=>{
+    const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
+    return !!u && u.dataset.p===k;},k); await settle(q); };
 
 const UA={
   safari:   "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1",
@@ -30,7 +40,8 @@ const UA={
   const row=async(ua,hash)=>{
     const ctx=await b.newContext({userAgent:UA[ua],viewport:{width:390,height:844}});
     const p=await ctx.newPage(); const errs=[]; p.on("pageerror",e=>errs.push(String(e)));
-    await p.goto(URL+(hash||"#install")); await p.waitForTimeout(1500);
+    await p.goto(URL+(hash||"#install")); await ready(p);
+    await onPage(p,((hash||"#install")).slice(1));
     const r=await p.evaluate(()=>{ const a=document.querySelector(".openin a");
       return a?{href:a.getAttribute("href"),label:a.textContent.trim(),
                 note:(document.querySelector(".opennote")||{}).textContent||"",
@@ -66,12 +77,12 @@ const UA={
   { const ctx=await b.newContext({userAgent:UA.ioschrome,viewport:{width:390,height:844}});
     const p=await ctx.newPage();
     await p.addInitScript(()=>{ Object.defineProperty(navigator,"standalone",{get:()=>true}); });
-    await p.goto(URL+"#install"); await p.waitForTimeout(1500);
+    await p.goto(URL+"#install"); await ready(p); await onPage(p,"install");
     say("an already installed copy is offered nothing", (await p.$$(".openin a")).length===0);
     await ctx.close(); }
   // the row only exists inside the install fold
   { const ctx=await b.newContext({userAgent:UA.ioschrome,viewport:{width:390,height:844}});
-    const p=await ctx.newPage(); await p.goto(URL+"#about"); await p.waitForTimeout(1500);
+    const p=await ctx.newPage(); await p.goto(URL+"#about"); await ready(p); await onPage(p,"about");
     const inside=await p.evaluate(()=>{ const a=document.querySelector(".openin");
       return a?(a.closest('.ppage[data-p="install"]')?"on install":"loose"):"absent"; });
     // the row is built by the install page, so on any other page it does not exist at all
@@ -85,13 +96,14 @@ const UA={
     const p=await ctx.newPage();
     await p.addInitScript(on=>{ if(on) navigator.share=()=>{ window.__shared=true; return Promise.resolve(); };
       else { try{ delete Navigator.prototype.share; }catch(e){} } }, share);
-    await p.goto(URL+"#install"); await p.waitForTimeout(1500);
+    await p.goto(URL+"#install"); await ready(p); await onPage(p,"install");
     const r=await p.evaluate(()=>{ const btn=document.querySelector("[data-sharesheet]");
       return {btn:!!btn, tap:btn?Math.round(btn.getBoundingClientRect().height):0,
         glyphs:document.querySelectorAll('.ppage[data-p="install"] .steps svg.shg').length,
         inStep:btn?/Share/.test(btn.closest("li").textContent):false}; });
     let fired=false;
-    if(r.btn){ await p.$eval("[data-sharesheet]",e=>e.click()); await p.waitForTimeout(250);
+    // the stub resolves on the spot, so there is nothing to wait out but the page itself
+    if(r.btn){ await p.$eval("[data-sharesheet]",e=>e.click()); await settle(p);
       fired=await p.evaluate(()=>!!window.__shared); }
     await ctx.close(); return Object.assign(r,{fired});
   };

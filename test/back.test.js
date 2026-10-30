@@ -1,11 +1,36 @@
 const {chromium}=require("playwright");
 const skipWelcome=require("./_hello");
+const {settle,until,arm}=require("./_wait");
 const URL="file://"+__dirname+"/../index.html";
 const M={width:390,height:844,isMobile:true,hasTouch:true,deviceScaleFactor:2};
 const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typeof v!=="boolean"?": "+v:""));
+// the map is drawn, not merely loaded: a deep link's selection lands on a node, and the
+// trail this file follows starts from whatever the map chose
+const drawn=q=>until(q,()=>!!document.querySelector("#chart .n"));
+const ready=async q=>{ await arm(q); await drawn(q); await settle(q); };
+// The glide drives #panel with an inline height and clears it on transitionend, so an
+// inline height still on the panel means the sheet is still moving even though nothing
+// is mutating. Open means the class is on, the glide has cleaned up, and the page is quiet.
+const opened=async q=>{ await until(q,()=>document.body.classList.contains("open"));
+  await until(q,()=>!document.getElementById("panel").style.height); await settle(q); };
+// A push leaves the page it came from visible until it is hidden 240ms later, so the
+// arrival is "the first page still showing is this one" rather than "this one exists".
+const onPage=async(q,k)=>{ await until(q,k=>{
+    const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
+    return !!u && u.dataset.p===k;},k); await settle(q); };
+// a move along the trail is over when the hash says where it landed and the map has lit
+// the node to match: the hash changes first and the selection follows
+const at=async(q,h)=>{ await until(q,h=>location.hash===h
+    && (h==="" || !!document.querySelector("#chart .n.cur")),h); await settle(q); };
+// where the destination is not known in advance, the move is over when the hash is no
+// longer the one it started from
+const moved=async(q,from)=>{ await until(q,f=>location.hash!==f,from); await settle(q); };
+// the lineage menu is a dropdown over the card, so it is open when it is on screen
+const menu=async q=>{ await until(q,()=>{const m=document.querySelector(".navmenu");
+    return !!m && !m.hidden && !!m.getClientRects().length;}); await settle(q); };
 async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const errs=[];
   p.on("pageerror",e=>errs.push(String(e)));
-  await p.goto(URL+(hash||"")); await p.waitForTimeout(800); p._errs=errs; return p; }
+  await p.goto(URL+(hash||"")); await ready(p); p._errs=errs; return p; }
 const shown=p=>p.evaluate(()=>{const e=document.getElementById("panelBack");
   return !!e && !e.hidden && getComputedStyle(e).visibility!=="hidden";});
 const label=p=>p.evaluate(()=>{const e=document.getElementById("panelBack"); return e?e.getAttribute("title"):"";});
@@ -13,7 +38,7 @@ const hash=p=>p.evaluate(()=>location.hash);
 // From and Led to moved out of the header and into the card, so reaching them on a phone
 // means opening the sheet first. The peek is the playlist; the lineage is below it.
 const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains("open")))
-  { await p.click("#grab").catch(()=>{}); await p.waitForTimeout(450); } };
+  { await p.click("#grab").catch(()=>{}); await opened(p); } };
 
 (async()=>{
   const b=await chromium.launch(); skipWelcome(b);
@@ -22,17 +47,17 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
   say("hidden with nothing behind you", (await shown(p))===false);
 
   // overview with a mode open -> a style -> back
-  await p.click("#grab").catch(()=>{}); await p.waitForTimeout(400);
-  await p.click('[data-mode="winddown"]'); await p.waitForTimeout(500);
+  await p.click("#grab").catch(()=>{}); await opened(p);
+  await p.click('[data-mode="winddown"]'); await onPage(p,"mode:winddown");
   // a mode is a pushed page now, and a pushed page owns the back button: it points at
   // the list you came from rather than at a style you visited
   say("a mode page takes the button over", await shown(p));
   say("naming the list under it", (await label(p))==="Back to Explore");
   const first=await p.$eval(".picks .pick",e=>e.dataset.go);
-  await p.click(".picks .pick"); await p.waitForTimeout(600);
+  await p.click(".picks .pick"); await at(p,"#"+first);
   say("appears after picking "+first, await shown(p));
   say("label", await label(p));
-  await p.click("#panelBack"); await p.waitForTimeout(600);
+  await p.click("#panelBack"); await at(p,"");
   say("back lands on the overview", (await hash(p))==="");
   // the stack does not survive a style: back from one lands on a clean overview, with
   // the ways in listed again rather than the page you came through
@@ -46,13 +71,16 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
   // a chain where every stop still leads somewhere, so the Led to button is never disabled
   const walk=["hardcore","thrash","deathmetal","blackmetal"];
   for(const id of walk){
-    await p.click('.navttl'); await p.waitForTimeout(350);
-    await p.click(`.navmenu:not([hidden]) .lcol-led [data-go="${id}"]`); await p.waitForTimeout(550);
+    await p.click('.navttl'); await menu(p);
+    await p.click(`.navmenu:not([hidden]) .lcol-led [data-go="${id}"]`); await at(p,"#"+id);
   }
   say("walked", "punk -> "+walk.join(" -> "));
   say("button shows the previous stop", await label(p));
   const seen=[];
-  for(let i=0;i<4;i++){ await p.click("#panelBack"); await p.waitForTimeout(550); seen.push(await hash(p)); }
+  // each step back is read off the hash, so wait for the hash to leave the stop it was on
+  // rather than for a named destination: naming it here would be asserting the answer
+  for(let i=0;i<4;i++){ const was=await hash(p);
+    await p.click("#panelBack"); await moved(p,was); seen.push(await hash(p)); }
   say("retraced", seen.join(" "));
   const want=["#"+walk[2],"#"+walk[1],"#"+walk[0],"#punk"];
   say("retraced in reverse order", seen.join()===want.join() ? true : "wanted "+want.join(" "));
@@ -62,7 +90,7 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
   say("it still says where it goes", (await label(p))==="Back to the map");
   // the map pill now shows wherever a style is selected, so a deep link offers both
   say("home is offered here too, beside the step back", (await p.$eval("#mapHome",e=>!e.hidden))===true);
-  await p.click("#panelBack"); await p.waitForTimeout(550);
+  await p.click("#panelBack"); await at(p,"");
   say("and lands on the unselected map", (await hash(p))==="" && (await p.$eval(".ovcard .mn",e=>e.textContent))==="Explore");
   say("hidden once the trail runs out", (await shown(p))===false);
   say("no stale highlight left on the map", (await p.$$eval("#chart .n.cur",e=>e.length))===0);
@@ -70,8 +98,8 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
 
   // the trail survives a browse-menu jump too, and empty-space taps
   p=await fresh(b,M,"#disco");
-  await p.click('.navttl'); await p.waitForTimeout(350);
-  await p.click(".navmenu:not([hidden]) .lcol-from [data-go]"); await p.waitForTimeout(550);
+  await p.click('.navttl'); await menu(p);
+  await p.click(".navmenu:not([hidden]) .lcol-from [data-go]"); await moved(p,"#disco");
   const mid=await hash(p);
   // an empty-map tap. Not an offset inside #chart: that element is 3000px wide and
   // scrolled, so an offset into it lands off-screen and Playwright scrolls the map to
@@ -84,7 +112,7 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
       if(e && e.tagName==="rect" && /band/.test(e.getAttribute("class")||"")) return [x,y];
     } return null; });
   const tapBare=async()=>{ const pt=await bare(); if(!pt) return false;
-    await p.mouse.click(pt[0],pt[1]); await p.waitForTimeout(500); return true; };
+    await p.mouse.click(pt[0],pt[1]); await at(p,""); return true; };
   // the lineage menu opens from the peek, so the sheet was never opened here and a tap on
   // bare map clears straight away. With the sheet open it would close that first.
   say("the sheet is still at its peek", (await p.evaluate(()=>document.body.classList.contains("open")))===false);
@@ -92,7 +120,7 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
   say("which clears to the map", (await hash(p))==="");
   say("clearing to the map is a step too", await shown(p));
   say("its label", await label(p));
-  await p.click("#panelBack"); await p.waitForTimeout(550);
+  await p.click("#panelBack"); await at(p,mid);
   say("back returns to "+mid, (await hash(p))===mid);
 
   // the row reads back | title | minimise. The lineage pair left it for the card below.
@@ -140,14 +168,15 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
   { const k=await parked(p);
     say("  and not there at all", k.shown===false);
     say("  so nothing covers the strip when there is nowhere to go", k.shown===false); }
-  await p.click("#grab").catch(()=>{}); await p.waitForTimeout(400);
-  await p.click('[data-mode="winddown"]'); await p.waitForTimeout(500);
-  await p.click(".picks .pick"); await p.waitForTimeout(600);
+  await p.click("#grab").catch(()=>{}); await opened(p);
+  await p.click('[data-mode="winddown"]'); await onPage(p,"mode:winddown");
+  const pick1=await p.$eval(".picks .pick",e=>e.dataset.go);
+  await p.click(".picks .pick"); await at(p,"#"+pick1);
   say("home shown one step out", await home(p));
   const hwalk=["hardcore","thrash"];
   p=await fresh(b,M,"#punk");
-  await p.click('.navttl'); await p.waitForTimeout(350);
-  await p.click(`.navmenu:not([hidden]) [data-go="${hwalk[0]}"]`); await p.waitForTimeout(550);
+  await p.click('.navttl'); await menu(p);
+  await p.click(`.navmenu:not([hidden]) [data-go="${hwalk[0]}"]`); await at(p,"#"+hwalk[0]);
   say("home still there two styles deep", await home(p));
   say("and back names the style it returns to", /^Back to /.test(await label(p)));
   say("it says", await p.$eval("#mapHome",e=>e.getAttribute("title")));
@@ -171,16 +200,17 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
       stripw:Math.round(r.width)};});
   say("it overlaps the "+strip.stripw+"px lane strip by "+strip.over+"px, which mirroring cost",
     strip.over>0 && strip.over<=strip.stripw);
-  await p.click("#mapHome"); await p.waitForTimeout(600);
+  await p.click("#mapHome"); await at(p,"");
   say("one tap lands on the map", (await hash(p))==="" && (await p.$eval(".ovcard .mn",e=>e.textContent))==="Explore");
   say("and goes again rather than sitting there dead", (await home(p))===false);
   { const k=await parked(p); say("  gone from the corner", k.shown===false); }
   // home is a reset: the walk that led here is gone, so back goes too
   say("back is cleared away with it", (await shown(p))===false);
   // and the trail really is empty, not merely hidden: the next move starts from the map
-  await p.click("#grab").catch(()=>{}); await p.waitForTimeout(400);
-  await p.click('[data-mode="winddown"]'); await p.waitForTimeout(500);
-  await p.click(".picks .pick"); await p.waitForTimeout(600);
+  await p.click("#grab").catch(()=>{}); await opened(p);
+  await p.click('[data-mode="winddown"]'); await onPage(p,"mode:winddown");
+  const pick2=await p.$eval(".picks .pick",e=>e.dataset.go);
+  await p.click(".picks .pick"); await at(p,"#"+pick2);
   say("the next step starts a fresh trail", await label(p));
   say("not the walk from before", (await label(p))==="Back to the map");
   say("no page errors", p._errs.length===0 ? true : p._errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
@@ -190,10 +220,17 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
   for(const [name,vp] of [["phone",M],["desktop",D]]){
     p=await fresh(b,vp);
     // the sheet covers the zoom control on a phone, so press it directly
-    await p.$eval("#zin",e=>e.click()); await p.waitForTimeout(500);
+    await p.$eval("#zin",e=>e.click()); await settle(p);
     const btnTop=await p.$eval("#mapSearch",e=>Math.round(e.getBoundingClientRect().top));
-    await p.$eval("#mapSearch",e=>e.click()); await p.waitForTimeout(400);
-    await p.fill("#bottomSearch input","blues"); await p.waitForTimeout(400);
+    // the field is measured, so wait for it to be on screen rather than merely in the DOM
+    await p.$eval("#mapSearch",e=>e.click());
+    await until(p,()=>{const e=document.querySelector("#bottomSearch input");
+      return !!e && !!e.getClientRects().length;});
+    await settle(p);
+    await p.fill("#bottomSearch input","blues");
+    // the results are what the contrast is read off, so wait for one to arrive
+    await until(p,()=>document.querySelectorAll("#bottomSearch .results li").length>0);
+    await settle(p);
     const m=await p.evaluate(()=>{
       const box=s=>{const e=document.querySelector(s); if(!e) return null;
         const r=e.getBoundingClientRect(); return {t:Math.round(r.top),h:Math.round(r.height),cx:Math.round(r.left+r.width/2)};};

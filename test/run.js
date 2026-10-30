@@ -28,10 +28,12 @@ const all=fs.readdirSync(__dirname).filter(f=>f.endsWith(".test.js")).sort();
 const files=only.length ? all.filter(f=>only.some(o=>f===o||f===o+".test.js")) : all;
 if(!files.length){ console.error("no suites matched "+only.join(" ")); process.exit(2); }
 
-// sheet.test.js samples a CSS transition frame by frame to prove the sheet animates
-// rather than jumping. Four Chromiums on two cores starve those frames and it reports
-// failures that are the machine, not the code. It runs on its own, after the rest.
-const SOLO=["sheet.test.js"];
+// Nothing needs to run on its own any more. sheet.test.js used to, because it proved the
+// sheet animates by counting frames, and four Chromiums on two cores starve frames: it
+// reported the machine rather than the code. It now pauses the transition and seeks it,
+// which reads the same whatever else is running, so it goes back in the pool with the
+// rest and the suite stops paying for a serial tail.
+const SOLO=[];
 
 const run=f=>new Promise(res=>{
   const t0=Date.now();

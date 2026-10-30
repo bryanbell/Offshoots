@@ -11,11 +11,26 @@
 //
 // This suite is the one that does NOT mark it seen first.
 const {chromium}=require("playwright");
+const {settle,until,gone,shown,arm}=require("./_wait");
 const URL="file://"+__dirname+"/../index.html";
 const M={viewport:{width:393,height:852,isMobile:true,hasTouch:true},deviceScaleFactor:2};
 const D={viewport:{width:1280,height:900}};
 const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typeof v!=="boolean"?": "+v:""));
 const up=p=>p.evaluate(()=>!document.getElementById("hello").hidden);
+// boot runs once the fonts are ready and opens the card 260ms after that, so the card is
+// either up by the time this returns or it was never coming. The checks here are as often
+// about the card NOT appearing as about it appearing, and both need the same window to
+// have passed.
+const booted=q=>until(q,()=>{
+  if(document.fonts.status!=="loaded") return false;
+  if(!window.__fontsAt) window.__fontsAt=performance.now();
+  const w=document.getElementById("hello");
+  return !!w && (!w.hidden || performance.now()-window.__fontsAt>400);});
+// one name for "the page has loaded, boot has had its say, and nothing is moving"
+const ready=async q=>{ await arm(q); await shown(q,"#chart .n"); await booted(q); await settle(q); };
+// the picker writes the app's own setting, and marks the button it wrote
+const picked=(q,svc)=>until(q,s=>{const b=document.querySelector('#hello [data-svc="'+s+'"]');
+  return !!b && b.getAttribute("aria-pressed")==="true";},svc);
 
 (async()=>{
   const b=await chromium.launch();
@@ -23,7 +38,7 @@ const up=p=>p.evaluate(()=>!document.getElementById("hello").hidden);
   // ---------- a new visitor ----------
   let ctx=await b.newContext(M); let p=await ctx.newPage();
   const errs=[]; p.on("pageerror",e=>errs.push(String(e)));
-  await p.goto(URL); await p.waitForTimeout(1800);
+  await p.goto(URL); await ready(p);
   say("a new visitor gets the card", await up(p));
 
   const card=await p.evaluate(()=>{
@@ -69,7 +84,7 @@ const up=p=>p.evaluate(()=>!document.getElementById("hello").hidden);
     svc.on.length===1 && svc.on[0]==="apple");
   say("  as a labelled group of real tap targets", svc.group && svc.tall);
 
-  await p.click('#hello [data-svc="spotify"]'); await p.waitForTimeout(300);
+  await p.click('#hello [data-svc="spotify"]'); await picked(p,"spotify"); await settle(p);
   const after=await p.evaluate(()=>({
     on:[...document.querySelectorAll("#hello [data-svc]")]
         .filter(b=>b.getAttribute("aria-pressed")==="true").map(b=>b.dataset.svc),
@@ -79,14 +94,14 @@ const up=p=>p.evaluate(()=>!document.getElementById("hello").hidden);
     after.on.join()==="spotify" && after.stored==="spotify");
   say("  and leaves the card open", after.up);
   // put it back, so the rest of this suite sees the state it was written against
-  await p.click('#hello [data-svc="apple"]'); await p.waitForTimeout(250);
+  await p.click('#hello [data-svc="apple"]'); await picked(p,"apple"); await settle(p);
 
   // ---------- it goes away, and stays away ----------
-  await p.click("#hellook"); await p.waitForTimeout(400);
+  await p.click("#hellook"); await gone(p,"#hello"); await settle(p);
   say("Look around dismisses it", (await up(p))===false);
   say("  and the map is usable underneath",
     (await p.$$eval("#chart .n",e=>e.length))>400);
-  await p.reload(); await p.waitForTimeout(1800);
+  await p.reload(); await ready(p);
   say("  and it does not come back", (await up(p))===false);
   say("no page errors", errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
   await ctx.close();
@@ -96,8 +111,8 @@ const up=p=>p.evaluate(()=>!document.getElementById("hello").hidden);
       ["Escape", async q=>q.keyboard.press("Escape")],
       ["a tap outside", async q=>q.click("#hellobd",{position:{x:10,y:10}})]]){
     const c2=await b.newContext(M); const q=await c2.newPage();
-    await q.goto(URL); await q.waitForTimeout(1700);
-    await act(q); await q.waitForTimeout(400);
+    await q.goto(URL); await ready(q);
+    await act(q); await gone(q,"#hello"); await settle(q);
     say(name+" dismisses it too", (await up(q))===false);
     say("  and that counts as seen", await q.evaluate(()=>{
       try{ return localStorage.getItem("offshoots.seen")==="1"; }catch(e){ return true; }}));
@@ -106,8 +121,12 @@ const up=p=>p.evaluate(()=>!document.getElementById("hello").hidden);
 
   // ---------- the way in it offers ----------
   { const c3=await b.newContext(M); const q=await c3.newPage();
-    await q.goto(URL); await q.waitForTimeout(1700);
-    await q.click("#hellomood"); await q.waitForTimeout(1500);
+    await q.goto(URL); await ready(q);
+    // the card closes, the sheet opens, and the modes page is pushed 120ms later
+    await q.click("#hellomood");
+    await until(q,()=>{const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
+      return !!u && u.dataset.p==="modes" && document.body.classList.contains("open");});
+    await settle(q);
     const where=await q.evaluate(()=>{
       const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
       return {page:u?u.dataset.p:null, rows:u?u.querySelectorAll(".listrow").length:0,
@@ -119,29 +138,32 @@ const up=p=>p.evaluate(()=>!document.getElementById("hello").hidden);
 
   // ---------- somebody arriving on a shared link ----------
   { const c4=await b.newContext(M); const q=await c4.newPage();
-    await q.goto(URL+"#dub"); await q.waitForTimeout(1800);
+    await q.goto(URL+"#dub"); await ready(q);
     say("a shared style link skips it", (await up(q))===false);
     say("  and lands on the style", (await q.evaluate(()=>location.hash))==="#dub");
     // skipping is not the same as seeing: the explanation is still owed
-    await q.goto(URL); await q.waitForTimeout(1800);
+    await q.goto(URL); await ready(q);
     say("  so the map itself still explains itself later", await up(q));
     await c4.close(); }
 
   // the point of asking is that every link in the app changes, so check one that is two
   // taps away rather than only the button that was pressed
   { const c6=await b.newContext(M); const q=await c6.newPage();
-    await q.goto(URL); await q.waitForTimeout(1700);
-    await q.click('#hello [data-svc="spotify"]'); await q.waitForTimeout(250);
-    await q.click("#hellook"); await q.waitForTimeout(400);
+    await q.goto(URL); await ready(q);
+    await q.click('#hello [data-svc="spotify"]'); await picked(q,"spotify");
+    await q.click("#hellook"); await gone(q,"#hello"); await settle(q);
     // tap a style on the map rather than reloading on a hash: it keeps the check on the
     // running page, where the choice was just made, instead of on whether file:// held
     // onto localStorage across a navigation — which it does not reliably do
     await q.evaluate(()=>{ const n=[...document.querySelectorAll("#chart .n")]
       .find(x=>x.dataset.id==="dub") || document.querySelector("#chart .n");
       n.dispatchEvent(new MouseEvent("click",{bubbles:true})); });
-    await q.waitForTimeout(1200);
+    // the panel is built from the selection, so the style has to be current
+    await until(q,()=>!!document.querySelector("#chart .n.cur")); await settle(q);
     await q.click("#grab").catch(()=>{});
-    await q.waitForTimeout(600);
+    await until(q,()=>document.body.classList.contains("open"));
+    // the glide leaves an inline height on the panel while the sheet is still moving
+    await until(q,()=>!document.getElementById("panel").style.height); await settle(q);
     const reach=await q.evaluate(()=>{
       const sv=document.querySelector(".svctx");
       const links=[...document.querySelectorAll("#panel a[href]")].map(a=>a.href)
@@ -155,7 +177,7 @@ const up=p=>p.evaluate(()=>!document.getElementById("hello").hidden);
 
   // ---------- desktop ----------
   { const c5=await b.newContext(D); const q=await c5.newPage();
-    await q.goto(URL); await q.waitForTimeout(1700);
+    await q.goto(URL); await ready(q);
     say("the card is there on a desktop too", await up(q));
     const fit=await q.evaluate(()=>{const r=document.getElementById("hellocard").getBoundingClientRect();
       return {w:Math.round(r.width), centred:Math.abs((r.left+r.right)/2-innerWidth/2)<=2,

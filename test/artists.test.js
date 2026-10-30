@@ -7,13 +7,31 @@
 // same-document navigation and does not re-select.
 const {chromium}=require("playwright");
 const skipWelcome=require("./_hello");
+const {settle,until,shown,arm}=require("./_wait");
 const URL="file://"+__dirname+"/../index.html";
 const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typeof v!=="boolean"?": "+v:""));
+// boot runs on document.fonts.ready and draws the map before it reads the hash, so the
+// first drawn node is what says boot has got as far as choosing what to show.
+const ready=async q=>{ await arm(q); await shown(q,"#chart .n"); await settle(q); };
+// the chips this suite reads are built by the selection, so a deep link has arrived when
+// the map has lit the node it chose
+const cur=q=>until(q,()=>!!document.querySelector("#chart .n.cur"));
+const selected=async q=>{ await ready(q); await cur(q); await settle(q); };
+// The glide drives #panel with an inline height and clears it on transitionend, so an
+// inline height still on the panel means the sheet is still moving even though nothing is
+// mutating. The two rows are compared by geometry, so both have to be at rest.
+const opened=async q=>{ await until(q,()=>document.body.classList.contains("open"));
+  await until(q,()=>!document.getElementById("panel").style.height); await settle(q); };
+// A push leaves the page it came from visible until it is hidden 240ms later, so the
+// arrival is "the first page still showing is this one" rather than "this one exists".
+const onPage=async(q,k)=>{ await until(q,k=>{
+    const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
+    return !!u && u.dataset.p===k;},k); await settle(q); };
 
 (async()=>{
   const b=await chromium.launch(); skipWelcome(b);
   const ctx=await b.newContext({viewport:{width:1440,height:900}});
-  const who=async id=>{ const p=await ctx.newPage(); await p.goto(URL+"#"+id); await p.waitForTimeout(700);
+  const who=async id=>{ const p=await ctx.newPage(); await p.goto(URL+"#"+id); await selected(p);
     const w=await p.$$eval(".acrow .acirc .aclbl", e=>e.map(x=>x.textContent.trim()).filter(Boolean));
     await p.close(); return w; };
 
@@ -37,9 +55,15 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   // the playlist roster: search reaches every artist on a style's playlist, while the
   // panel still shows only the handful ART names
   { const p=await ctx.newPage();
-    await p.goto(URL); await p.waitForTimeout(900);
-    await p.$eval("#mapSearch",e=>e.click()); await p.waitForTimeout(300);
-    const find=async t=>{ await p.fill("#bottomSearch input",t); await p.waitForTimeout(350);
+    await p.goto(URL); await ready(p);
+    // the field is typed into, so wait for it to be on screen rather than merely in the DOM
+    await p.$eval("#mapSearch",e=>e.click());
+    await until(p,()=>{const e=document.querySelector("#bottomSearch input");
+      return !!e && !!e.getClientRects().length;});
+    await settle(p);
+    // the input handler ranks and redraws the hits on the spot, so there is nothing to wait
+    // out but the list redrawing itself
+    const find=async t=>{ await p.fill("#bottomSearch input",t); await settle(p);
       return p.$$eval("#bottomSearch .results li",e=>e.map(x=>x.innerText.split("\n")[0])); };
     // none of these four is in ART, so each one fails before the roster exists
     for(const [name,style] of [["Marshall Jefferson","Chicago House"],["Patti Page","Traditional Pop"],
@@ -62,7 +86,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     say("and the panel still lists at most "+sizes.panel+" per style", sizes.panel<=5);
 
     // track titles, ranked below everything else
-    const quiet=async t=>{ await p.fill("#bottomSearch input",t); await p.waitForTimeout(350);
+    const quiet=async t=>{ await p.fill("#bottomSearch input",t); await settle(p);
       return p.evaluate(()=>{ const r=document.querySelector("#bottomSearch .results");
         return r.hidden?[]:[...r.querySelectorAll("li")].map(x=>x.querySelector("span").textContent); }); };
     for(const [song,style] of [["Blue Monday","Synth-Pop"],["Good Vibrations","California Sound"],
@@ -96,10 +120,14 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   // map knows behind the heading: 135 styles carry a roster that nothing had ever shown.
   { const p=await ctx.newPage(); const errs=[];
     p.on("pageerror",e=>errs.push(String(e)));
-    await p.goto(URL); await p.waitForTimeout(1200);
+    await p.goto(URL); await ready(p);
     await p.evaluate(()=>{const n=document.querySelector("#chart .n[data-id=dub]");
       n.dispatchEvent(new MouseEvent("click",{bubbles:true}));});
-    await p.waitForTimeout(1100);
+    // the click selects, which rebuilds the panel the row is measured off: the map lighting
+    // the node is what says the selection landed
+    await until(p,()=>{const n=document.querySelector("#chart .n.cur");
+      return !!n && n.dataset.id==="dub";});
+    await settle(p);
     const chipNames=await p.$$eval(".acrow .aclbl",e=>e.map(x=>x.textContent));
     const row=await p.evaluate(()=>{
       const r=document.querySelector(".acrow"), h=document.querySelector(".subh.subgo");
@@ -137,7 +165,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     say("  with a heading that opens the rest ("+(row&&row.count)+")",
       !!row && row.isBtn && row.count>row.chips);
     say("  and that heading is "+(row&&row.tap)+"px to tap", !!row && row.tap>=row.floor);
-    await p.click(".subh.subgo"); await p.waitForTimeout(800);
+    await p.click(".subh.subgo"); await onPage(p,"artists");
     const pg=await p.evaluate(()=>{
       const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
       const rows=[...u.querySelectorAll(".amrow")];
@@ -182,7 +210,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
 
   // the roles themselves: what the map claims about each act, checked for shape
   { const p=await ctx.newPage();
-    await p.goto(URL); await p.waitForTimeout(1200);
+    await p.goto(URL); await ready(p);
     const t=await p.evaluate(()=>{
       const OK=["band","voice","mc","guitar","keys","player","dj","studio"];
       const vals=Object.values(ROLE);
@@ -204,8 +232,8 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   // a style with no roster opens a page too: the row scrolls, so the page is the only
   // place the whole set sits still, however short it is
   { const p=await ctx.newPage();
-    await p.goto(URL); await p.waitForTimeout(1200);
-    const plain=await p.evaluate(async()=>{
+    await p.goto(URL); await ready(p);
+    const plain=await p.evaluate(()=>{
       // no ROSTER entry at all means there is nothing behind the chips to open
       const bare=DATA.map(r=>r[0]).find(id=>
         (ART[id]||[]).length && !(typeof ROSTER!=="undefined" && ROSTER[id]));
@@ -213,9 +241,16 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
       const node=document.querySelector(`#chart .n[data-id="${bare}"]`);
       if(!node) return {skip:true};
       node.dispatchEvent(new MouseEvent("click",{bubbles:true}));
-      await new Promise(r=>setTimeout(r,1000));
-      const h=document.querySelector(".subh");
-      return {id:bare, tag:h?h.tagName:"", go:!!document.querySelector(".subh.subgo")};});
+      return {id:bare};});
+    // the heading is drawn by the panel the click rebuilds, so the wait belongs outside the
+    // page: the map lighting the chosen node is what says that rebuild has happened
+    if(plain && plain.id){
+      await until(p,id=>{const n=document.querySelector("#chart .n.cur");
+        return !!n && n.dataset.id===id && !!document.querySelector(".subh");},plain.id);
+      await settle(p);
+      Object.assign(plain, await p.evaluate(()=>{ const h=document.querySelector(".subh");
+        return {tag:h?h.tagName:"", go:!!document.querySelector(".subh.subgo")};}));
+    }
     if(!plain) say("every style with artists has a roster behind it", true);
     else if(plain.skip) say("the no-roster style is off the rendered map", true);
     else say("a style with no roster still opens a page ("+plain.id+")",
@@ -229,16 +264,25 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   // sizes, two heading weights — which reads as a near-miss rather than a hierarchy.
   // This measures them against each other instead of against numbers typed here, so the
   // next change to one has to be made to both.
-  { const M={width:393,height:852,isMobile:true,hasTouch:true,deviceScaleFactor:2};
+  // newContext wants the viewport nested; passed flat, Playwright ignores the unknown keys
+  // and quietly hands back a 1280x720 desktop. This block spent two months of its short life
+  // comparing the two rows at desktop width while saying phone, and waiting out two 30s
+  // action timeouts for a #grab that is not on a desktop at all.
+  { const M={viewport:{width:393,height:852},isMobile:true,hasTouch:true,deviceScaleFactor:2};
     const c2=await b.newContext(M);
     const geom=async (hash,tile,circ,lbl,row,head)=>{
       const q=await c2.newPage();
-      await q.goto(URL+hash); await q.waitForTimeout(900);
-      await q.click("#grab").catch(()=>{});
+      await q.goto(URL+hash); await ready(q);
+      if(hash) await cur(q);
+      // #grab is the phone sheet's handle. Ask whether it is on screen before clicking it:
+      // where the layout has no peek there is nothing to expand, and a click on a control
+      // that will never appear is a thirty-second sleep wearing a click's clothes.
+      const handle=await q.$eval("#grab",e=>!!e.getClientRects().length).catch(()=>false);
+      if(handle){ await q.click("#grab"); await opened(q); }
       // wait for the row itself rather than a stopwatch: under a loaded machine the sheet
       // can still be opening, and a missing row would read as the two rows disagreeing
       await q.waitForSelector(tile,{state:"attached",timeout:8000}).catch(()=>{});
-      await q.waitForTimeout(250);
+      await settle(q);
       const g=await q.evaluate(([tile,circ,lbl,row,head])=>{
         const t=document.querySelector(tile); if(!t) return null;
         const co=t.querySelector(circ), l=t.querySelector(lbl),
