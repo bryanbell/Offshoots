@@ -147,6 +147,26 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
     boxes.backPos==="absolute" && boxes.xPos==="absolute" && boxes.back[2]===0 && boxes.x[2]===0);
   say("back tap target "+(await p.$eval("#panelBack",e=>Math.round(e.getBoundingClientRect().height)))+"px",
     (await p.$eval("#panelBack",e=>e.getBoundingClientRect().height))>=34);
+  // Back should hand the panel back the way the user left it, not at the top. The hard
+  // case is a style reached THROUGH a pushed page: at the moment the style is chosen the
+  // body is scrolled to the top of Ways in, and the offset worth keeping is the root's,
+  // recorded on the way in. Explore is short, so scroll it as far as it will go.
+  const q=await fresh(b,M);
+  await q.click("#grab").catch(()=>{}); await opened(q);
+  const deep=await q.evaluate(()=>{const b=document.getElementById("panelBody");
+    b.scrollTop=b.scrollHeight; return b.scrollTop;});
+  await settle(q);
+  say("  Explore has somewhere to scroll to ("+deep+"px)", deep>40);
+  await q.click('[data-page="modes"]'); await onPage(q,"modes");
+  say("  the pushed page starts at the top",
+    (await q.evaluate(()=>document.getElementById("panelBody").scrollTop))===0);
+  const mk=await q.$eval(".ppage:not([hidden]) [data-mode]",e=>e.dataset.mode);
+  await q.click(".ppage:not([hidden]) [data-mode]"); await onPage(q,"mode:"+mk);
+  const pick3=await q.$eval(".picks .pick",e=>e.dataset.go);
+  await q.click(".picks .pick"); await at(q,"#"+pick3);
+  await q.click("#panelBack"); await settle(q);
+  const land=await q.evaluate(()=>document.getElementById("panelBody").scrollTop);
+  say("  and back lands where Explore was left ("+land+" of "+deep+")", Math.abs(land-deep)<=2);
   say("no page errors", p._errs.length===0 ? true : p._errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
 
   // the home pill: shown whenever you are not on the unselected root

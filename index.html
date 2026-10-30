@@ -4202,7 +4202,19 @@ function centerOn(n,smooth,onlyIfNeeded){
 // they had open. Four taps into a lineage it is easy to lose the way out, so every real
 // change of view drops a crumb and the floating button walks back down the trail.
 const TRAIL=[], TRAILMAX=30;
-function hereNow(){ return {sel:state.sel||null, mode:(typeof MODE!=="undefined"&&MODE)||null}; }
+// The crumb carries where you were reading, not only what you were reading. Back used to
+// rebuild Explore and drop you at the top of it, so a style opened from halfway down a
+// list cost you your place in that list on the way out. pushTrail() runs before the view
+// changes, so the panel is still showing the outgoing page when this measures it.
+function hereNow(){
+  const b=$("panelBody");
+  // Not simply where the body is scrolled to. If a page is pushed, the body is showing
+  // that page and sits near its top, while the place the user will come back to is the
+  // root underneath it. PSTACK's first entry recorded exactly that offset on the way in,
+  // which is why Explore scrolled halfway down, then Ways in, then a style, then back
+  // used to land at the top of a list the user had already walked.
+  const root = PSTACK.length ? (PSTACK[0].scroll||0) : (b?b.scrollTop:0);
+  return {sel:state.sel||null, mode:(typeof MODE!=="undefined"&&MODE)||null, scroll:root}; }
 function pushTrail(){
   const v=hereNow(), last=TRAIL[TRAIL.length-1];
   if(last && last.sel===v.sel && last.mode===v.mode) return;   // nothing actually changed
@@ -4219,6 +4231,15 @@ function goBack(){
     if(v.sel && byId[v.sel]) select(v.sel,{scroll:true,smooth:!reduce});
     else clearSel();
   } finally { GOINGBACK=false; }
+  // after the rebuild, not before: both branches replace the panel's contents, and a
+  // scrollTop set on the old DOM is thrown away with it. The height has to exist before
+  // the browser will accept the offset, so clamp rather than trust it.
+  const b=$("panelBody");
+  if(b && v.scroll){
+    const put=()=>{ b.scrollTop=Math.min(v.scroll, Math.max(0,b.scrollHeight-b.clientHeight));
+      b.dispatchEvent(new Event("scroll")); };
+    put(); requestAnimationFrame(put);
+  }
   syncBack();
 }
 function backLabel(){
