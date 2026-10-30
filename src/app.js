@@ -1862,11 +1862,16 @@ addEventListener("resize",()=>{ clearTimeout(rt); rt=setTimeout(()=>{
 
 },150); });
 // ---------- the welcome ----------
+// Three steps, because they are three different questions and stacking them on one card
+// made the card a form. First what the thing is and where you listen. Then where to
+// start, which is the question a map of 461 dots actually leaves you with. Then, once
+// you are looking at something you chose, the offer to keep it.
+//
 // Shown once per browser, and never to somebody arriving on a shared link: they came for
 // a particular style, not for an explanation of the map. A browser that refuses storage
 // gets it once this session rather than on every reload.
-const HELLO_KEY="offshoots.seen";
-let helloShown=false;
+const HELLO_KEY="offshoots.seen", TIP_KEY="offshoots.tip";
+let helloShown=false, tipShown=false;
 function helloSeen(){
   if(helloShown) return true;
   try{ return localStorage.getItem(HELLO_KEY)==="1"; }catch(e){ return false; }
@@ -1874,6 +1879,13 @@ function helloSeen(){
 function markHello(){
   helloShown=true;
   try{ localStorage.setItem(HELLO_KEY,"1"); }catch(e){}
+}
+function helloStep(n){
+  const w=$("hello"); if(!w) return;
+  w.querySelectorAll(".hstep").forEach(sec=>{ sec.hidden = +sec.dataset.step !== n; });
+  w.querySelectorAll(".hdots i").forEach((d,i)=>d.classList.toggle("on", i === n-1));
+  const c=$("hellocard");
+  if(c){ c.scrollTop=0; setTimeout(()=>c.focus({preventScroll:true}),40); }
 }
 function closeHello(then){
   const w=$("hello"); if(!w||w.hidden) return;
@@ -1891,11 +1903,49 @@ function openHello(){
   // is honest about what will happen if they just carry on
   w.querySelectorAll("[data-svc]").forEach(bt=>
     bt.setAttribute("aria-pressed",String(bt.dataset.svc===SVC)));
+  helloStep(1);
   w.hidden=false; document.body.classList.add("hello-open");
   // the card takes focus, not the button: a ring on a primary button reads as pressed,
   // and the dialog still announces itself and still hands Tab to the button
   const c=$("hellocard"); if(c) setTimeout(()=>c.focus({preventScroll:true}),60);
 }
+
+// ---------- step two: the four ways to start ----------
+// Each one opens a real view rather than setting a preference, so the card is the last
+// thing you see rather than the first of several.
+const STARTS={
+  modes: ()=>{ setOpen(true); setTimeout(()=>pushPage("modes"),120); },
+  roots: ()=>{ setOpen(true); setTimeout(()=>pushPage("roots"),120); },
+  top:   ()=>{ setOpen(true); setTimeout(()=>pushPage("top"),120); },
+  random:()=>{ const pick=nodes[Math.floor(Math.random()*nodes.length)];
+               if(pick){ select(pick.id); panelTop(); } }
+};
+
+// ---------- step three: keeping it ----------
+// Offered after the view you asked for is on screen, not before: an install prompt makes
+// no sense until there is something worth installing, and one that interrupts the first
+// thing you chose to look at is an advert. Never to a browser that already has it, and
+// never twice.
+function tipSeen(){
+  if(tipShown) return true;
+  try{ return localStorage.getItem(TIP_KEY)==="1"; }catch(e){ return false; }
+}
+function markTip(){
+  tipShown=true;
+  try{ localStorage.setItem(TIP_KEY,"1"); }catch(e){}
+}
+function closeTip(then){
+  const t=$("tip"); if(!t||t.hidden) return;
+  t.hidden=true; markTip();
+  if(typeof then==="function") then();
+}
+function openTip(){
+  if(installed() || tipSeen()) return;
+  const t=$("tip"); if(!t) return;
+  const ic=$("tipicon"); if(ic) ic.src=ICONSRC();
+  t.hidden=false;
+}
+
 { const w=$("hello");
   if(w){
     w.addEventListener("click",e=>{
@@ -1907,13 +1957,37 @@ function openHello(){
           w.querySelectorAll("[data-svc]").forEach(bt=>
             bt.setAttribute("aria-pressed",String(bt.dataset.svc===sv.dataset.svc)));
           return; } }
-      if(e.target.closest("#hellook")) { closeHello(); return; }
-      if(e.target.closest("#hellomood")){
-        closeHello(()=>{ setOpen(true); setTimeout(()=>pushPage("modes"),120); });
-      }
+      if(e.target.closest("#hellonext")) { helloStep(2); return; }
+      if(e.target.closest("#helloback")) { helloStep(1); return; }
+      if(e.target.closest("#hellook"))   { closeHello(); return; }
+      { const st=e.target.closest("[data-start]");
+        if(st){ const go=STARTS[st.dataset.start];
+          closeHello(()=>{ if(go) go();
+            // once what you asked for is actually on screen, and not a moment before
+            setTimeout(openTip,1500); });
+          return; } }
     });
     document.addEventListener("keydown",e=>{
-      if(e.key==="Escape" && !w.hidden){ e.stopPropagation(); closeHello(); }
+      if(e.key!=="Escape" || w.hidden) return;
+      e.stopPropagation();
+      // Escape on step two goes back a step rather than out: the card is two questions
+      // deep and leaving from the second one would throw away the first answer
+      const two=w.querySelector('.hstep[data-step="2"]');
+      if(two && !two.hidden) helloStep(1); else closeHello();
+    },true);
+  } }
+
+{ const t=$("tip");
+  if(t){
+    t.addEventListener("click",e=>{
+      if(e.target.closest("#tiphow")){
+        closeTip(()=>{ setOpen(true); setTimeout(()=>pushPage("install"),120); });
+        return; }
+      if(e.target.closest("#tipno")) { closeTip(); return; }
+    });
+    // it takes no backdrop, so Escape is the keyboard way out and the only one needed
+    document.addEventListener("keydown",e=>{
+      if(e.key==="Escape" && !t.hidden){ e.stopPropagation(); closeTip(); }
     },true);
   } }
 

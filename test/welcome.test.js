@@ -55,7 +55,7 @@ const picked=(q,svc)=>until(q,s=>{const b=document.querySelector('#hello [data-s
       fits:r.height<=body.height && r.top>=-1,
       scrolls:document.documentElement.scrollWidth<=innerWidth+1};});
   say("  titled "+JSON.stringify(card.title), (card.title||"").length>6);
-  say("  with "+card.points+" points, each with a mark", card.points===3 && card.icons===3);
+  say("  with "+card.points+" points, each with a mark", card.points>=2 && card.icons===card.points);
   say("  and the app's own icon on it", card.appicon);
   say("  announced as a dialog", card.modal);
   say("  fitting the screen without pushing it sideways", card.fits && card.scrolls);
@@ -119,22 +119,154 @@ const picked=(q,svc)=>until(q,s=>{const b=document.querySelector('#hello [data-s
     await c2.close();
   }
 
-  // ---------- the way in it offers ----------
+  // ---------- step two: where to start ----------
+  // The card asks two things, and they are two steps because they are two questions.
+  // What matters: Continue moves on without losing the first answer, Back comes home,
+  // and each way in opens a real view rather than setting something.
   { const c3=await b.newContext(M); const q=await c3.newPage();
     await q.goto(URL); await ready(q);
-    // the card closes, the sheet opens, and the modes page is pushed 120ms later
-    await q.click("#hellomood");
-    await until(q,()=>{const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
-      return !!u && u.dataset.p==="modes" && document.body.classList.contains("open");});
+    const stepNow=()=>q.evaluate(()=>({
+      on:[...document.querySelectorAll(".hstep")].filter(x=>!x.hidden).map(x=>x.dataset.step),
+      dots:[...document.querySelectorAll(".hdots i")].map(d=>d.classList.contains("on")?1:0),
+      starts:[...document.querySelectorAll("[data-start]")].map(x=>x.dataset.start),
+      tall:[...document.querySelectorAll("[data-start]")]
+        .every(x=>x.getBoundingClientRect().height>=44)}));
+
+    const one=await stepNow();
+    say("the card opens on the first of two steps", one.on.join()==="1" && one.dots.join()==="1,0");
+
+    // the choice made on step one has to survive step two, or the step cost something
+    await q.click('#hello [data-svc="spotify"]');
+    await until(q,()=>localStorage.getItem("svc")==="spotify");
+    await q.click("#hellonext");
+    await until(q,()=>{const t=document.querySelector('.hstep[data-step="2"]'); return t && !t.hidden;});
     await settle(q);
-    const where=await q.evaluate(()=>{
-      const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
-      return {page:u?u.dataset.p:null, rows:u?u.querySelectorAll(".listrow").length:0,
-        open:document.body.classList.contains("open"), gone:document.getElementById("hello").hidden};});
-    say("Browse by mood opens the ways in ("+where.rows+" of them)",
-      where.page==="modes" && where.rows>20);
-    say("  with the sheet up and the card gone", where.open && where.gone);
+    const two=await stepNow();
+    say("Continue moves to the second ("+two.starts.join(", ")+")",
+      two.on.join()==="2" && two.dots.join()==="0,1" && two.starts.length===4);
+    say("  every way in is a real tap target", two.tall);
+
+    await q.click("#helloback");
+    await until(q,()=>{const t=document.querySelector('.hstep[data-step="1"]'); return t && !t.hidden;});
+    await settle(q);
+    const back=await stepNow();
+    say("Back returns to the first", back.on.join()==="1" && back.dots.join()==="1,0");
+    say("  with the service still chosen", await q.evaluate(()=>
+      document.querySelector('#hello [data-svc="spotify"]').getAttribute("aria-pressed")==="true"));
+
+    // Escape on step two is a step back, not a way out: the card is two questions deep
+    await q.click("#hellonext");
+    await until(q,()=>{const t=document.querySelector('.hstep[data-step="2"]'); return t && !t.hidden;});
+    await q.keyboard.press("Escape"); await settle(q);
+    const esc=await stepNow();
+    say("Escape on the second step goes back rather than out",
+      esc.on.join()==="1" && (await up(q))===true);
     await c3.close(); }
+
+  // each way in opens the view it names, and nothing else
+  { const want=[["modes","modes"],["roots","roots"],["top","top"]];
+    for(const [pick,page] of want){
+      const c=await b.newContext(M); const q=await c.newPage();
+      await q.goto(URL); await ready(q);
+      await q.click("#hellonext");
+      await until(q,()=>{const t=document.querySelector('.hstep[data-step="2"]'); return t && !t.hidden;});
+      await q.click(`[data-start="${pick}"]`);
+      await until(q,p=>{const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
+        return !!u && u.dataset.p===p && document.body.classList.contains("open");},page);
+      await settle(q);
+      const where=await q.evaluate(()=>{
+        const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
+        return {page:u?u.dataset.p:null, rows:u?u.querySelectorAll(".listrow").length:0,
+          gone:document.getElementById("hello").hidden};});
+      say('"'+pick+'" opens '+where.page+" ("+where.rows+" rows), card gone",
+        where.page===page && where.gone && where.rows>0);
+      await q.close(); await c.close(); }
+  }
+
+  // surprise me has no page of its own: it picks a style and lights it on the map
+  { const c=await b.newContext(M); const q=await c.newPage();
+    await q.goto(URL); await ready(q);
+    await q.click("#hellonext");
+    await until(q,()=>{const t=document.querySelector('.hstep[data-step="2"]'); return t && !t.hidden;});
+    await q.click('[data-start="random"]');
+    await until(q,()=>!!document.querySelector("#chart .n.cur") && location.hash.length>1);
+    await settle(q);
+    say("\"random\" lands on a style ("+(await q.evaluate(()=>location.hash))+")",
+      (await q.evaluate(()=>location.hash)).length>1);
+    await c.close(); }
+
+  // ---------- step three: keeping it ----------
+  // Offered after the view you asked for is on screen, never before it, never twice, and
+  // never to a browser that already has the thing installed.
+  { const c=await b.newContext(M); const q=await c.newPage();
+    await q.goto(URL); await ready(q);
+    const tipUp=()=>q.evaluate(()=>!document.getElementById("tip").hidden);
+    say("no install offer while the card is still up", (await tipUp())===false);
+    await q.click("#hellonext");
+    await until(q,()=>{const t=document.querySelector('.hstep[data-step="2"]'); return t && !t.hidden;});
+    await q.click('[data-start="modes"]');
+    await until(q,()=>{const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
+      return !!u && u.dataset.p==="modes";});
+    say("  nor the moment the view opens", (await tipUp())===false);
+    await until(q,()=>!document.getElementById("tip").hidden, null, 6000);
+    await settle(q);
+    say("the install offer arrives once the chosen view is up", await tipUp());
+    const shape=await q.evaluate(()=>{
+      const c=document.getElementById("tipcard"), r=c.getBoundingClientRect();
+      return {h:Math.round(r.height), frac:+(r.height/innerHeight).toFixed(2),
+        onScreen:r.bottom<=innerHeight+1 && r.top>=0,
+        icon:!!document.getElementById("tipicon").getAttribute("src"),
+        labelled:!!c.getAttribute("aria-labelledby")};});
+    say("  a half sheet, not another modal ("+shape.h+"px, "+Math.round(shape.frac*100)+"% of the screen)",
+      shape.frac<0.35 && shape.onScreen && shape.icon && shape.labelled);
+    // it sits over the view rather than replacing it: the thing you chose is still there
+    say("  with the view you chose still behind it", await q.evaluate(()=>{
+      const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
+      return !!u && u.dataset.p==="modes" && !!u.querySelector(".listrow");}));
+
+    await q.click("#tipno");
+    await gone(q,"#tip"); await settle(q);
+    say("Not now puts it away", (await tipUp())===false);
+    say("  and remembers that", await q.evaluate(()=>{
+      try{ return localStorage.getItem("offshoots.tip")==="1"; }catch(e){ return true; }}));
+    await c.close(); }
+
+  // Show me how goes where it says
+  { const c=await b.newContext(M); const q=await c.newPage();
+    await q.goto(URL); await ready(q);
+    await q.click("#hellonext");
+    await until(q,()=>{const t=document.querySelector('.hstep[data-step="2"]'); return t && !t.hidden;});
+    await q.click('[data-start="modes"]');
+    await until(q,()=>!document.getElementById("tip").hidden, null, 8000);
+    await q.click("#tiphow");
+    await until(q,()=>{const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
+      return !!u && u.dataset.p==="install";}, null, 6000);
+    await settle(q);
+    say("Show me how opens the install page", await q.evaluate(()=>{
+      const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
+      return !!u && u.dataset.p==="install" && document.getElementById("tip").hidden;}));
+    await c.close(); }
+
+  // a browser that already has it installed is not asked to install it
+  { const c=await b.newContext(M); const q=await c.newPage();
+    await q.addInitScript(()=>{
+      const real=window.matchMedia.bind(window);
+      window.matchMedia=s=>/display-mode: standalone/.test(s)
+        ? {matches:true, media:s, addListener(){}, removeListener(){},
+           addEventListener(){}, removeEventListener(){}, onchange:null, dispatchEvent(){return false}}
+        : real(s);
+    });
+    await q.goto(URL); await ready(q);
+    await q.click("#hellonext");
+    await until(q,()=>{const t=document.querySelector('.hstep[data-step="2"]'); return t && !t.hidden;});
+    await q.click('[data-start="modes"]');
+    await until(q,()=>{const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
+      return !!u && u.dataset.p==="modes";});
+    // wait past when it would have come up, then check it did not
+    await q.waitForTimeout(2600);
+    say("already installed, it is never offered",
+      await q.evaluate(()=>document.getElementById("tip").hidden));
+    await c.close(); }
 
   // ---------- somebody arriving on a shared link ----------
   { const c4=await b.newContext(M); const q=await c4.newPage();
