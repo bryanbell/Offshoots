@@ -293,6 +293,19 @@ const onPage=async(q,k)=>{ await until(q,k=>{
         return {w:parseFloat(cs.borderTopWidth), style:cs.borderTopStyle,
           colour:cs.borderTopColor, h:Math.round(r.height),
           round:parseFloat(cs.borderTopLeftRadius)>8};});
+      // it says what it is and that it sticks, in both the hover tooltip and the label a
+      // screen reader reads, and the label names the one that is on so it cannot go stale
+      const told=await q.evaluate(()=>{
+        const up=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden).pop();
+        const e=(up||document).querySelector(".svcinline");
+        return {tip:e.getAttribute("title")||"",
+          label:e.querySelector("select").getAttribute("aria-label")||""};});
+      say("  saying what it does and that the choice is kept",
+        /playlists and artists open/i.test(told.tip) && /kept on this device/i.test(told.tip)
+        && /kept on this device/i.test(told.label));
+      say("  and naming the one that is on ("+(told.label.match(/Currently [^.]+/)||[""])[0]+")",
+        /Currently (Apple Music|Spotify|Qobuz)\./.test(told.label));
+
       const onPage=await edge();
       say("  with a hairline round it ("+onPage.w+"px, "+onPage.h+"px tall)",
         onPage.w>0 && onPage.w<=1 && onPage.style==="solid" && onPage.round
@@ -308,6 +321,10 @@ const onPage=async(q,k)=>{ await until(q,k=>{
       say("changing it on the page moves every row with it",
         after.picker==="Spotify" && after.hrefs.length===before.n
         && after.hrefs.every(h=>/open\.spotify\.com/.test(h)));
+      say("  and the label it reads out with them", await q.evaluate(()=>{
+        const up=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden).pop();
+        const l=(up||document).querySelector("select.svcsel").getAttribute("aria-label")||"";
+        return /Currently Spotify\./.test(l);}));
 
       // the same switch has to reach the circles in the row behind this page, which is
       // what the old a.am selector missed: it matched the chips and neither of these

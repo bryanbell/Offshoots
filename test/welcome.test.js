@@ -102,6 +102,10 @@ const toStep=async(q,n)=>{
   say("  with the one already stored marked, not a blank set of three",
     svc.on.length===1 && svc.on[0]==="apple");
   say("  as a labelled group of real tap targets", svc.group && svc.tall);
+  // a title tooltip does nothing on a phone, so the one place a touch visitor is told the
+  // choice sticks is here, in the step that asks for it
+  say("  and saying plainly that the choice is kept", await p.evaluate(()=>
+    /kept on this device/i.test((document.querySelector(".hnote")||{}).textContent||"")));
 
   await p.click('#hello [data-svc="spotify"]'); await picked(p,"spotify"); await settle(p);
   const after=await p.evaluate(()=>({

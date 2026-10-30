@@ -127,6 +127,9 @@ function setSvc(s){
   paintPlay();
   if(s==="apple") amUpgrade();
   document.querySelectorAll(".svc .svctx").forEach(x=>{ x.textContent=svcName(); });
+  // the label says which one is on, so it goes stale unless it is rewritten with the rest
+  document.querySelectorAll("select.svcsel").forEach(x=>x.setAttribute("aria-label",
+    SVCTIP+" Currently "+svcName()+"."));
 }
 const amPending=new Map();
 function amResolve(name){
@@ -837,9 +840,15 @@ function noteHtml(n){
 // playlist and key artists are two subdivisions of one Listen section, with the
 // service switch in its header governing both
 const SVCCHEV='<svg class="svcchev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6.5L8 10.5l4-4"/></svg>';
-function svcPicker(kind){ return `<span class="svc${kind==="inline"?" svcinline":""}">`
+// Both the tooltip and the label say the choice sticks. A setting that looks like a
+// filter is one people re-set on every panel, and this one is neither per style nor per
+// visit: it is the whole app's, kept on this device until it is changed again.
+const SVCTIP="Where playlists and artists open. Kept on this device until you change it.";
+function svcPicker(kind){ return `<span class="svc${kind==="inline"?" svcinline":""}"`
+  + ` title="${esc(SVCTIP)}">`
   + `<span class="svctx">${esc(svcName())}</span>${SVCCHEV}`
-  + `<select class="svcsel" aria-label="Streaming service">`
+  + `<select class="svcsel" aria-label="Where playlists and artists open. `
+  + `Kept on this device until you change it. Currently ${esc(svcName())}.">`
   + `<option value="apple"${SVC==="apple"?" selected":""}>Apple Music</option>`
   + `<option value="spotify"${SVC==="spotify"?" selected":""}>Spotify</option>`
   + `<option value="qobuz"${SVC==="qobuz"?" selected":""}>Qobuz</option>`
