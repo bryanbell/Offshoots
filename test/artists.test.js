@@ -257,6 +257,61 @@ const onPage=async(q,k)=>{ await until(q,k=>{
       plain.tag==="BUTTON" && plain.go===true);
     await p.close(); }
 
+  // ---------- the page agrees with the row ----------
+  // A name you saw as a circle upstairs is the same act on the page behind the heading, so
+  // it wears the same symbol and the same colour there. Checked by name rather than by
+  // position: the page holds everyone and the row holds the first few, so the orders do
+  // not match and a positional check would pass on a coincidence.
+  { const q=await ctx.newPage();
+    await q.goto(URL+"#british_blues"); await q.waitForTimeout(700);
+    const head=await q.$(".subh.subgo");
+    if(!head) say("the key artists page carries the role circles", "no sub-page to open");
+    else {
+      await head.click(); await q.waitForTimeout(900);
+      const pair=await q.evaluate(()=>{
+        const role=e=>((e.className||"")+"").match(/r-[a-z]+/);
+        const rows=[...document.querySelectorAll(".amrow")].map(a=>({
+          name:a.querySelector(".lrlbl").textContent,
+          role:(role(a)||[""])[0],
+          glyph:!!a.querySelector(".lrico svg"),
+          tinted:getComputedStyle(a.querySelector(".lrico")).backgroundColor,
+          ink:getComputedStyle(a.querySelector(".lrico")).color}));
+        return {rows, roles:[...new Set(rows.map(r=>r.role))]};});
+      say("every artist on the page has a role circle with a symbol in it ("
+        +pair.rows.length+" of them)",
+        pair.rows.length>3 && pair.rows.every(r=>r.glyph && /^r-[a-z]+$/.test(r.role)));
+      say("  coloured by what the act is, not all alike ("+pair.roles.length+" kinds here)",
+        pair.roles.length>1 && new Set(pair.rows.map(r=>r.ink)).size>1);
+      // tinted, not filled: the circle upstairs is a saturated disc with a white glyph,
+      // this one is the same hue behind a glyph of that hue, the way the ways in do it
+      // a partly transparent background, however the browser spells it: color-mix comes
+      // back as color(srgb r g b / a) here and as rgba() elsewhere, so look for the alpha
+      const seeThrough=v=>/\/\s*0?\.\d/.test(v) || /rgba\([^)]*,\s*0?\.\d+\s*\)/.test(v);
+      say("  tinted behind the glyph rather than filled",
+        pair.rows.every(r=>r.ink!=="rgb(255, 255, 255)" && seeThrough(r.tinted)));
+
+      // and the role the page gives an act is the role the row gave it
+      await q.click("#panelBack"); await q.waitForTimeout(800);
+      const same=await q.evaluate(()=>{
+        const role=e=>(((e.className||"")+"").match(/r-[a-z]+/)||[""])[0];
+        const circles={};
+        document.querySelectorAll(".acirc").forEach(a=>{
+          const n=a.querySelector(".aclbl"); if(n) circles[n.textContent.trim()]=role(a);});
+        return circles;});
+      await (await q.$(".subh.subgo")).click(); await q.waitForTimeout(900);
+      const page=await q.evaluate(()=>{
+        const role=e=>(((e.className||"")+"").match(/r-[a-z]+/)||[""])[0];
+        const out={};
+        document.querySelectorAll(".amrow").forEach(a=>{
+          out[a.querySelector(".lrlbl").textContent.trim()]=role(a);});
+        return out;});
+      const shared=Object.keys(same).filter(n=>page[n]);
+      const agree=shared.filter(n=>same[n]===page[n]);
+      say("  and the ones on both agree on what they are ("+agree.length+" of "+shared.length+")",
+        shared.length>0 && agree.length===shared.length);
+    }
+    await q.close(); }
+
   // ---------- the two circle rows are one component ----------
   // Key artists on a style panel and the ways in on the overview are the same shape: a
   // heading that opens the full set, then filled circles you swipe. They were written

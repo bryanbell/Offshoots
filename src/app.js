@@ -1562,11 +1562,17 @@ const PAGES_DEF={
   artists:()=>{
     const n=state.sel?byId[state.sel]:null; if(!n) return null;
     const all=artistAll(n), key=n.whoList||[];
-    const row=(x,i)=>`<a class="listrow amrow" href="${svcHref(x)}" data-name="${esc(x)}"`
+    // the same symbol and the same colour the circle upstairs wears, so a name you saw in
+    // the row is the same thing here. Tinted rather than filled, which is what the ways in
+    // do between their circles and their list: a column of saturated discs is a lot of
+    // paint for a list you are reading down, and the hue carries the identity on its own.
+    const row=(x,i)=>{ const r=artRole(x);
+      return `<a class="listrow amrow r-${r}" href="${svcHref(x)}" data-name="${esc(x)}"`
       + ` target="_blank" rel="noopener" title="Open ${esc(x)} in ${svcName()}">`
+      + `<i class="lrico mi">${ROLEICON[r]||ROLEICON.none}</i>`
       + `<span class="lrlbl">${esc(x)}</span>`
       + (activeYears(x)?`<em class="lrct amyr">${esc(activeYears(x))}</em>`:"")
-      + `<i class="lrcv lrgov">${OPENGO}</i></a>`;
+      + `<i class="lrcv lrgov">${OPENGO}</i></a>`; };
     return {title:"Key artists",
       lede:`Everyone the map names for ${n.name}, the three or four on the panel first. Each one opens in ${svcName()}.`,
       html:`<div class="listgrp sep amlist">${all.map(row).join("")}</div>`};

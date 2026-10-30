@@ -1081,6 +1081,9 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 /* no icon tile on these rows, so the hairline starts where the name does */
 .amlist > *{--seplead:var(--ppad)}
 .amlist .listrow{text-decoration:none}
+/* the row borrows the role colour the circles are filled with, through the same custom
+   property the browse rows use for theirs, so there is one way a list row gets a colour */
+.amrow{--lrc:var(--rc)}
 .amlist .lrct.amyr{font:400 var(--t-sub)/1 var(--f-mono);color:var(--muted);
   font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 .amlist .lrcv svg{width:15px;height:15px}
