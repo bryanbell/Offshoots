@@ -942,8 +942,8 @@ const MODES = [
     ["jerseyclubrap","Bed squeak, kick run, no let-up"],
     ["newjerk","Dances first, song second"]],5],
 
-  ["driving","Driving","On the road",
-   "Road music keeps a mid-tempo groove going without needing you to follow it, and it has to scale — a chorus competes with a windshield.",
+  ["road","Road trip","Hours of open highway",
+   "The long drive, not the daily one: nothing here has to survive stopping. A mid-tempo groove that keeps going without needing you to follow it, and a chorus big enough to beat a windshield at seventy.",
    [["krautrock","Motorik: a beat built out of the highway itself"],
     ["heartland","Written about the road it gets played on"],
     ["southern_rock","Two guitars and a long horizon"],
@@ -957,8 +957,8 @@ const MODES = [
     ["roots_rock","Unfussy and built to last four hours"],
     ["hardrock","Loud enough to beat the road noise"]],3],
 
-  ["commute","Commute","Traffic and commuting",
-   "Traffic is a different problem from the open road: the car keeps stopping, so nothing here depends on momentum. Even tempo, warm tone and grooves that never build toward a release you can't have, plus a few long or familiar enough to fill a backup without asking much of you.",
+  ["commute","Commuting","The same drive, twice a day",
+   "Traffic is the opposite problem to a road trip: the car keeps stopping, so nothing here can depend on momentum. Even tempo, warm tone and grooves that never build toward a release you are not going to get, plus a few long or familiar enough to fill a backup without asking much of you.",
    [["softrock","Drive-time radio, made for the trip home"],
     ["yacht","Smooth enough to make brake lights look like a sunset"],
     ["citypop","Made for car stereos and a skyline at walking pace"],

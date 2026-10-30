@@ -208,14 +208,14 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     await opened(q);
     return q; };
 
-  { const q=await seeded({driving:5,party:2});
+  { const q=await seeded({road:5,party:2});
     const after=await q.$$eval(".mcirc .mclbl",e=>e.map(x=>x.textContent));
     say("a tally puts the most-opened first ("+after.slice(0,2).join(", ")+")",
-      after[0]==="Driving" && after[1]==="Party");
+      after[0]==="Road trip" && after[1]==="Party");
     say("  without losing any of the "+after.length,
       after.length===nModes && new Set(after).size===nModes);
     say("  and the rest keep their order",
-      after.slice(2).join("/")===before.filter(x=>x!=="Driving"&&x!=="Party").join("/"));
+      after.slice(2).join("/")===before.filter(x=>x!=="Road trip"&&x!=="Party").join("/"));
     // the list behind the heading is the stable reference, so it must not reorder
     await q.click(".sect-modes .secthead"); await onPage(q,"modes");
     const page=await q.$$eval(".ppage:not([hidden]) .modelist .lrlbl",e=>e.map(x=>x.textContent));
