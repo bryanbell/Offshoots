@@ -60,6 +60,21 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   say("  in the flow, not pinned over the text ("+sb.pos+")", sb.pos==="static");
   say("  below the tally by "+(-sb.beforeTally)+"px", sb.beforeTally<=0);
   say("  tap target "+sb.tall+"px", sb.tall>=34);
+  // the button used to be the one blue thing on a panel painted the family's own
+  // colours, which read as app chrome dropped into the style. It now borrows --acc from
+  // the family skin, and still has to out-weigh the playlist card beside it or the two
+  // read as the same kind of block.
+  const sc=await d.evaluate(()=>{
+    const w=document.querySelector(".shbtn.wide"), p=document.getElementById("panel");
+    const card=document.querySelector(".sect-play .listrow,.plrow,.pl");
+    const alpha=c=>{const m=c.match(/[\d.]+\s*\)\s*$/); return m?parseFloat(m[0]):1;};
+    return {acc:getComputedStyle(p).getPropertyValue("--acc").trim(),
+      col:getComputedStyle(w).color,
+      btnA:alpha(getComputedStyle(w).backgroundColor),
+      cardA:card?alpha(getComputedStyle(card).backgroundColor):0};});
+  say("  wearing the family accent, not the system blue",
+    !!sc.acc && !/10,\s*132,\s*255/.test(sc.col));
+  say("  and sitting above the cards ("+sc.btnA+" vs "+sc.cardA+")", sc.btnA>sc.cardA+0.05);
   say("  and it is the only share control on the panel", sb.only===1);
 
   const c=await d.$eval(".navrow",r=>{ const row=r.getBoundingClientRect();

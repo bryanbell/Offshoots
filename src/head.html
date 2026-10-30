@@ -1433,12 +1433,16 @@ button.navttl[aria-expanded="true"] .lrcv{transform:rotate(180deg);opacity:1}
   border-radius:14px;font:600 var(--t-body)/1 var(--f-body)}
 /* ---------- the one button on the page ----------
    Everything else in a panel opens something; Share acts. So it is the only thing shaped
-   like a button and the only thing in blue, and it keeps that blue on a style panel too,
-   where a family skin repaints --accent but not --blue. */
+   like a button. It used to be the only thing in blue as well, which read as a piece of
+   system chrome dropped into a panel painted the family's own colours. It now takes
+   --acc, the accent a family skin sets, and falls back to blue on the unskinned panels
+   where there is no family to borrow from. The shape still says button; the colour now
+   says it belongs to this style rather than to the app. */
 .sect-learn .listgrp{margin-top:2px}
-.shbtn.wide{color:var(--blue);background:color-mix(in srgb,var(--blue) 15%,transparent)}
-.shbtn.wide:hover{background:color-mix(in srgb,var(--blue) 25%,transparent)}
-.shbtn.wide:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 40%,transparent)}
+.shbtn.wide{--shc:var(--acc,var(--blue));
+  color:var(--shc);background:color-mix(in srgb,var(--shc) 26%,transparent)}
+.shbtn.wide:hover{background:color-mix(in srgb,var(--shc) 34%,transparent)}
+.shbtn.wide:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb,var(--shc) 40%,transparent)}
 .shbtn.wide .shg{opacity:1}
 .shbtn.wide.done{color:var(--ok);background:color-mix(in srgb,var(--ok) 20%,transparent)}
 .sect-learn .shbtn.wide{margin-top:18px}
