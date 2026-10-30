@@ -4234,9 +4234,15 @@ function goBack(){
   // after the rebuild, not before: both branches replace the panel's contents, and a
   // scrollTop set on the old DOM is thrown away with it. The height has to exist before
   // the browser will accept the offset, so clamp rather than trust it.
-  const b=$("panelBody");
-  if(b && v.scroll){
-    const put=()=>{ b.scrollTop=Math.min(v.scroll, Math.max(0,b.scrollHeight-b.clientHeight));
+  //
+  // Explore is the exception, and always opens at the top. Coming back to a style you
+  // were reading, mid-page is where you were and landing there is the point. Coming back
+  // to Explore you are arriving at the front of the app, and a front page that starts
+  // halfway down looks broken rather than considerate: the heading is gone, the list
+  // begins mid-sentence, and there is nothing above to explain it.
+  const b=$("panelBody"), keep=v.sel && byId[v.sel] ? (v.scroll||0) : 0;
+  if(b){
+    const put=()=>{ b.scrollTop=keep?Math.min(keep,Math.max(0,b.scrollHeight-b.clientHeight)):0;
       b.dispatchEvent(new Event("scroll")); };
     put(); requestAnimationFrame(put);
   }

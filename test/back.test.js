@@ -147,10 +147,11 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
     boxes.backPos==="absolute" && boxes.xPos==="absolute" && boxes.back[2]===0 && boxes.x[2]===0);
   say("back tap target "+(await p.$eval("#panelBack",e=>Math.round(e.getBoundingClientRect().height)))+"px",
     (await p.$eval("#panelBack",e=>e.getBoundingClientRect().height))>=34);
-  // Back should hand the panel back the way the user left it, not at the top. The hard
-  // case is a style reached THROUGH a pushed page: at the moment the style is chosen the
-  // body is scrolled to the top of Ways in, and the offset worth keeping is the root's,
-  // recorded on the way in. Explore is short, so scroll it as far as it will go.
+  // Two different rules, and the difference is the point. Back to a STYLE restores where
+  // you were reading it. Back to EXPLORE always lands at the top: it is the front of the
+  // app, and a front page that opens halfway down, heading gone and the list starting
+  // mid-sentence, reads as broken rather than as considerate. The style half is covered
+  // by the sub-page pops above; this checks the exception.
   const q=await fresh(b,M);
   await q.click("#grab").catch(()=>{}); await opened(q);
   const deep=await q.evaluate(()=>{const b=document.getElementById("panelBody");
@@ -166,7 +167,7 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
   await q.click(".picks .pick"); await at(q,"#"+pick3);
   await q.click("#panelBack"); await settle(q);
   const land=await q.evaluate(()=>document.getElementById("panelBody").scrollTop);
-  say("  and back lands where Explore was left ("+land+" of "+deep+")", Math.abs(land-deep)<=2);
+  say("  and back opens Explore at the top ("+land+", left at "+deep+")", land===0);
   say("no page errors", p._errs.length===0 ? true : p._errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
 
   // the home pill: shown whenever you are not on the unselected root
