@@ -42,7 +42,6 @@ function playLabel(n){
   return t ? "Start by listening to" : "Start with this playlist";
 }
 const OPENGO=`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.9 10.1 10.2 5.8"/><path d="M6.4 5.6h4.2v4.2"/></svg>`;
-const PLAYGO=`<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M5.6 3.4l6.2 4.1a.6.6 0 0 1 0 1l-6.2 4.1a.6.6 0 0 1-.9-.5V3.9a.6.6 0 0 1 .9-.5z"/></svg>`;
 // one row: art left, labels middle, play button right. paintPlay() repoints it at the
 // selected service, or marks it unavailable while keeping the row in place.
 function plist(n){
@@ -1244,13 +1243,12 @@ let MODE=null;
 function modePicks(m){
   return m[4].map(([id,why])=>{
     const n=byId[id]; if(!n) return "";
-    const play=(typeof PLAY!=="undefined"&&PLAY[id])||(typeof SPLAY!=="undefined"&&SPLAY[id]);
     // the playlist's own cover, which is the thing you would recognise before you
     // recognised the name. Where there is no file the shared handler swaps in the tile
     // it uses on the playlist row: family colour, initials, same square.
     return `<button type="button" class="pick c withart" style="--c:${FAM[n.fam].c}" data-go="${esc(id)}" title="Show ${esc(n.name)} on the map">`
       + cover(id,n)
-      + `<span class="pknm">${esc(n.name)}${play?`<i class="pkgo" aria-label="has a playlist">${PLAYGO}</i>`:""}</span>`
+      + `<span class="pknm">${esc(n.name)}</span>`
       + `<span class="pkwhy">${esc(why)}</span>`
       + `<span class="pkfam">${esc(FAM[n.fam].short)} · ${n.year}</span></button>`;
   }).join("");

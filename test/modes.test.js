@@ -283,6 +283,16 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
         return t && /^[A-Z0-9]{1,2}$/.test(t.textContent.trim());})};});
   say("  all "+art.n+" carry a square ("+art.img+" covers, "+art.ph+" tiles)", art.n>0 && art.sq);
   say("  and a tile says which style it stands for", art.inked);
+  // no play mark on these. The rows go to a style on the map, not to a playlist, and a
+  // triangle on a row that does not play anything is a promise the row cannot keep.
+  const marks=await p.evaluate(()=>{
+    const r=[...document.querySelectorAll(".ppage:not([hidden]) .pick")];
+    return {rows:r.length,
+      glyphs:r.reduce((n,x)=>n+x.querySelectorAll(".pknm svg, .pkgo").length,0),
+      labels:r.filter(x=>/playlist/i.test(x.getAttribute("aria-label")||"")
+        || !!x.querySelector('[aria-label*="playlist" i]')).length};});
+  say("  and no play triangle on any of the "+marks.rows,
+    marks.rows>0 && marks.glyphs===0 && marks.labels===0);
   // the rows came out of their card: each one now spans the panel, and what lines up is
   // the art, with the heading above it, rather than the row's own edges
   const box=await p.evaluate(()=>{

@@ -68,6 +68,17 @@ const run=f=>new Promise(res=>{
   for(const [f,n,bad,crash,secs] of rows)
     process.stdout.write(f.replace(".test.js","").padEnd(10)+String(n).padStart(4)+" checks"
       + (crash?"  CRASHED":bad?"  "+bad+" FAILED":"         ")+secs.padStart(7)+"s\n");
+  // A flake you cannot name is a flake you cannot fix, and twice now one has gone past
+  // between two clean runs with nothing kept. Every failing run writes itself down.
+  if(failed||crashed){
+    const stamp=new Date().toISOString().replace(/[:.]/g,"-");
+    const file=path.join(__dirname,"failures",stamp+".txt");
+    try{
+      fs.mkdirSync(path.join(__dirname,"failures"),{recursive:true});
+      fs.writeFileSync(file, done.map(r=>"=== "+r.f+(r.crashed?" (CRASHED)":"")+"\n"+r.out).join("\n"));
+      process.stdout.write("\nwrote "+path.relative(process.cwd(),file)+"\n");
+    }catch(e){ process.stdout.write("\ncould not write the failure log: "+e.message+"\n"); }
+  }
   process.stdout.write("\n"+checks+" checks, "+failed+" failed"
     +(crashed?", "+crashed+" crashed":"")+"\n");
   process.exit(failed||crashed?1:0);
