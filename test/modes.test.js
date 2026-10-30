@@ -374,7 +374,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
 
     const read=()=>s.evaluate(()=>{
       const ps=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden), u=ps[ps.length-1];
-      return {on:[...u.querySelectorAll(".msortbtn")].filter(x=>x.classList.contains("on")).map(x=>x.textContent),
+      return {on:[...u.querySelectorAll("[data-msort]")].filter(x=>x.getAttribute("aria-selected")==="true").map(x=>x.textContent),
         labels:[...u.querySelectorAll(".moderow .lrlbl")].map(x=>x.textContent),
         stored:(()=>{try{return localStorage.getItem("offshoots.modesort")}catch(e){return null}})()};});
 
@@ -393,7 +393,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
       await s.click(`[data-msort="${k}"]`);
       await s.waitForFunction(key=>{
         const b=document.querySelector(`[data-msort="${key}"]`);
-        return b && b.classList.contains("on");
+        return b && b.getAttribute("aria-selected")==="true";
       },k,{timeout:5000});
       const r=await read();
       seen[k]=r.labels.join("|");
@@ -418,7 +418,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     await s2.goto(URL+"#modes"); await ready(s2); await landed(s2,"modes");
     const r=await s2.evaluate(()=>{
       const ps=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden), u=ps[ps.length-1];
-      return {on:[...u.querySelectorAll(".msortbtn")].filter(x=>x.classList.contains("on")).map(x=>x.textContent)[0],
+      return {on:[...u.querySelectorAll("[data-msort]")].filter(x=>x.getAttribute("aria-selected")==="true").map(x=>x.textContent)[0],
         first:(u.querySelector(".moderow .lrlbl")||{}).textContent};});
     say("a remembered sort is honoured next time the page opens",
       r.on==="A–Z" && r.first==="Burn it off");
@@ -430,7 +430,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     await s3.goto(URL+"#modes"); await ready(s3); await landed(s3,"modes");
     const r=await s3.evaluate(()=>{
       const ps=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden), u=ps[ps.length-1];
-      return {on:[...u.querySelectorAll(".msortbtn")].filter(x=>x.classList.contains("on")).map(x=>x.textContent)[0],
+      return {on:[...u.querySelectorAll("[data-msort]")].filter(x=>x.getAttribute("aria-selected")==="true").map(x=>x.textContent)[0],
         rows:u.querySelectorAll(".moderow").length};});
     say("a nonsense stored sort falls back to quietest, with every mode still there",
       r.on==="Quietest" && r.rows===(await s3.evaluate(()=>MODES.length)));
@@ -440,8 +440,8 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   { const s4=await b.newPage({viewport:{width:320,height:700,isMobile:true,hasTouch:true}});
     await s4.goto(URL+"#modes"); await ready(s4); await landed(s4,"modes");
     const fit=await s4.evaluate(()=>{
-      const seg=document.querySelector(".msort"), w=document.querySelector(".msortwrap");
-      const btns=[...seg.querySelectorAll(".msortbtn")];
+      const seg=document.querySelector(".segctl"), w=document.querySelector(".segwrap");
+      const btns=[...seg.querySelectorAll("[data-msort]")];
       return {tall:btns.every(b=>b.getBoundingClientRect().height>=28),
         unclipped:btns.every(b=>b.scrollWidth<=b.clientWidth+1),
         reachable:seg.scrollWidth<=w.scrollWidth+1,

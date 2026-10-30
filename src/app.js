@@ -1040,9 +1040,9 @@ $("panel").addEventListener("click",e=>{
   { const sb=e.target.closest("[data-msort]");
     if(sb){ e.preventDefault();
       setModeSort(sb.dataset.msort);
-      const seg=sb.closest(".msort");
-      if(seg) seg.querySelectorAll(".msortbtn").forEach(b=>{
-        const on=b===sb; b.classList.toggle("on",on); b.setAttribute("aria-selected",on); });
+      const seg=sb.closest(".segctl");
+      if(seg) seg.querySelectorAll("[data-msort]").forEach(b=>
+        b.setAttribute("aria-selected", String(b===sb)));
       const page=sb.closest(".ppage"), list=page&&page.querySelector(".modelist");
       if(list) list.outerHTML=modeListHtml();
       return; } }
@@ -1421,9 +1421,9 @@ function modeOrderBy(how){
 }
 function modeSortHtml(){
   const now=modeSort();
-  return `<div class="msortwrap"><div class="msort" role="tablist" aria-label="Sort the ways in">`
+  return `<div class="segwrap msortwrap"><div class="segctl" role="tablist" aria-label="Sort the ways in">`
     + MODESORTS.map(([k,lbl])=>
-        `<button type="button" role="tab" class="msortbtn${k===now?" on":""}"`
+        `<button type="button" role="tab" class="segopt"`
         + ` data-msort="${k}" aria-selected="${k===now}">${esc(lbl)}</button>`).join("")
     + `</div></div>`;
 }
