@@ -188,6 +188,55 @@ const open=async p=>{ if(await p.evaluate(()=>!document.body.classList.contains(
     say("  the same size as the search button, on the same line", k.size && k.top);
     say("  and inset from its edge by the same amount", k.mirrored); }
   say("clear of the search button ("+hb[2]+" vs "+hb[3]+")", hb[2]<hb[3]);
+
+  // ---------- what it does, not only where it sits ----------
+  // It clears the selection and brings the panel up with it. Clearing alone rebuilt the
+  // card as Explore and then left it behind a handle, so the button read as though it had
+  // only emptied the map. Checked from a pushed page too, since that is the deepest place
+  // the button is offered from and the one with the most to unwind.
+  // fresh() takes the viewport flat and nests it itself, which is the spelling this file
+  // uses; newContext wants it nested and silently hands back a desktop if it is not
+  { const q=await fresh(b,M,"#dub"); await settle(q);
+    say("on a style the sheet is down and home is offered",
+      (await q.evaluate(()=>document.body.classList.contains("open")))===false && await home(q));
+    await q.click("#mapHome");
+    await until(q,()=>document.body.classList.contains("open") && location.hash==="");
+    await settle(q);
+    const back=await q.evaluate(()=>({
+      open:document.body.classList.contains("open"), hash:location.hash,
+      title:(document.querySelector(".ovcard .bigttl .mn")||{}).textContent,
+      pages:[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden).map(x=>x.dataset.p),
+      cur:!!document.querySelector("#chart .n.cur"), home:!document.getElementById("mapHome").hidden}));
+    say("the map button opens Explore and clears the style",
+      back.open && back.hash==="" && back.title==="Explore"
+      && back.pages.join()==="root" && back.cur===false);
+    say("  and takes its own button away, there being nowhere left to go", back.home===false);
+
+    await q.close(); }
+
+  // again from two levels in: a style with a page pushed on top of it, which is the
+  // deepest the button is offered from and the most there is to unwind
+  { const q=await fresh(b,M,"#gospel"); await settle(q);
+    await q.click("#grab").catch(()=>{});
+    await until(q,()=>document.body.classList.contains("open"));
+    await settle(q);
+    const pushed=await q.$(".subh.subgo");
+    if(pushed){ await pushed.click();
+      await until(q,()=>[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)
+        .some(x=>x.dataset.p!=="root"));
+      await settle(q); }
+    const deep=await q.evaluate(()=>[...document.querySelectorAll(".ppage")]
+      .filter(x=>!x.hidden).map(x=>x.dataset.p).join(","));
+    await q.click("#mapHome");
+    await until(q,()=>location.hash==="");
+    await settle(q);
+    say("  and unwinds a pushed page on the way (was "+deep+")",
+      await q.evaluate(()=>{
+        const up=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden);
+        return up.length===1 && up[0].dataset.p==="root"
+          && document.body.classList.contains("open")
+          && !document.querySelector("#chart .n.cur");}));
+    await q.close(); }
   // it used to sit right of the lane strip to keep off the family labels. Mirroring the
   // search button put it back over the strip, which is the price of that symmetry: at the
   // top of the map it covers only the blank filler, but scrolled down it crosses whichever
