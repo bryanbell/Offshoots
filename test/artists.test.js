@@ -278,6 +278,25 @@ const onPage=async(q,k)=>{ await until(q,k=>{
       const before=await now();
       say("the key artists page carries the service control ("+before.picker+")",
         !!before.picker && before.select);
+
+      // a word and a chevron with nothing round them read as part of the heading. The
+      // outline is what says it is a control, so it is checked on both surfaces it
+      // appears on, and checked as drawn rather than as written: a .5px border on a
+      // 2x screen is reported as 1px used, and 0 would mean no edge at all.
+      // scoped to whatever is actually showing: while a page is pushed, the card beneath
+      // still holds its own copy of this control at zero height, and querySelector finds
+      // that one first
+      const edge=async()=>q.evaluate(()=>{
+        const up=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden).pop();
+        const e=(up||document).querySelector(".svcinline"); if(!e) return null;
+        const cs=getComputedStyle(e), r=e.getBoundingClientRect();
+        return {w:parseFloat(cs.borderTopWidth), style:cs.borderTopStyle,
+          colour:cs.borderTopColor, h:Math.round(r.height),
+          round:parseFloat(cs.borderTopLeftRadius)>8};});
+      const onPage=await edge();
+      say("  with a hairline round it ("+onPage.w+"px, "+onPage.h+"px tall)",
+        onPage.w>0 && onPage.w<=1 && onPage.style==="solid" && onPage.round
+        && !/rgba\(0, 0, 0, 0\)|transparent/.test(onPage.colour) && onPage.h>=28);
       say("  and no longer names the service in prose instead",
         !/Apple Music|Spotify|Qobuz/.test(before.lede));
       say("  with every row pointing at it ("+before.n+" rows)",
@@ -297,6 +316,11 @@ const onPage=async(q,k)=>{ await until(q,k=>{
       say("  and the circles behind it too ("+circles.length+")",
         circles.length>0 && circles.every(h=>/open\.spotify\.com/.test(h)));
       await q.selectOption("select.svcsel","apple"); await q.waitForTimeout(400);
+      // the circles check above already came back, so this is the style panel
+      const onPanel=await edge();
+      say("  and the same outline on the style panel behind it ("+onPanel.w+"px)",
+        onPanel.w>0 && onPanel.w<=1 && onPanel.style==="solid"
+        && !/rgba\(0, 0, 0, 0\)|transparent/.test(onPanel.colour));
     }
     await q.close(); }
 

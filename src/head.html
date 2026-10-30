@@ -1595,10 +1595,17 @@ a.wk.pl:hover,a.wk.sp:hover{background:color-mix(in srgb,var(--ink,var(--fg)) 84
 /* the service switch fills the row beside "Listen on", three equal thirds */
 .sect-listen .secthead{gap:14px}
 .sect-listen .secttl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:var(--tap)}
-.svcinline{padding:0;gap:5px;background-color:transparent;
+/* A hairline around it, because a word and a chevron with nothing holding them read as
+   part of the heading rather than as the control they are. The pill shape comes from .svc;
+   this gives it an edge and the room to sit inside one. */
+.svcinline{gap:5px;background-color:transparent;padding:0 10px;min-height:30px;
+  border:.5px solid var(--line);
   font:400 var(--t-body)/var(--t-body-lh) var(--f-body);letter-spacing:-.01em;
-  color:var(--ink,var(--link));text-decoration:none}
-.svcinline:hover{color:color-mix(in srgb,var(--ink,var(--link)) 80%,var(--fg))}
+  color:var(--ink,var(--link));text-decoration:none;
+  transition:border-color .15s,background-color .15s}
+.svcinline:hover{border-color:color-mix(in srgb,var(--ink,var(--fg)) 38%,transparent);
+  background-color:color-mix(in srgb,var(--ink,var(--fg)) 7%,transparent)}
+.svcinline:hover .svctx{color:color-mix(in srgb,var(--ink,var(--link)) 80%,var(--fg))}
 .svcinline .svcchev{width:14px;height:14px;opacity:.8}
 /* the section is framed: a rule above the heading, another below the options */
 .sect-listen{margin-top:20px;padding:0}
