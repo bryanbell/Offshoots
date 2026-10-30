@@ -257,6 +257,49 @@ const onPage=async(q,k)=>{ await until(q,k=>{
       plain.tag==="BUTTON" && plain.go===true);
     await p.close(); }
 
+  // ---------- the service control travels with the links ----------
+  // The page used to state the service in its lede, which is a fact with no handle on it
+  // and goes stale the moment you change it elsewhere. The control itself is on the page
+  // now, where the links it governs are.
+  { const q=await ctx.newPage();
+    await q.goto(URL+"#darkwave"); await q.waitForTimeout(700);
+    const head=await q.$(".subh.subgo");
+    if(!head) say("the key artists page carries the service control", "no sub-page here");
+    else {
+      await head.click(); await q.waitForTimeout(900);
+      const now=()=>q.evaluate(()=>{
+        const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden).pop();
+        const rows=[...u.querySelectorAll(".amrow")];
+        return {picker:(u.querySelector(".svctx")||{}).textContent,
+          select:!!u.querySelector("select.svcsel"),
+          hrefs:rows.map(a=>a.href), n:rows.length,
+          lede:(u.querySelector(".pglede")||{}).textContent||""};});
+
+      const before=await now();
+      say("the key artists page carries the service control ("+before.picker+")",
+        !!before.picker && before.select);
+      say("  and no longer names the service in prose instead",
+        !/Apple Music|Spotify|Qobuz/.test(before.lede));
+      say("  with every row pointing at it ("+before.n+" rows)",
+        before.n>2 && before.hrefs.every(h=>/music\.apple\.com/.test(h)));
+
+      await q.selectOption(".ppage:not([hidden]) select.svcsel","spotify");
+      await q.waitForTimeout(500);
+      const after=await now();
+      say("changing it on the page moves every row with it",
+        after.picker==="Spotify" && after.hrefs.length===before.n
+        && after.hrefs.every(h=>/open\.spotify\.com/.test(h)));
+
+      // the same switch has to reach the circles in the row behind this page, which is
+      // what the old a.am selector missed: it matched the chips and neither of these
+      await q.click("#panelBack"); await q.waitForTimeout(800);
+      const circles=await q.evaluate(()=>[...document.querySelectorAll(".acirc")].map(a=>a.href));
+      say("  and the circles behind it too ("+circles.length+")",
+        circles.length>0 && circles.every(h=>/open\.spotify\.com/.test(h)));
+      await q.selectOption("select.svcsel","apple"); await q.waitForTimeout(400);
+    }
+    await q.close(); }
+
   // ---------- the page agrees with the row ----------
   // A name you saw as a circle upstairs is the same act on the page behind the heading, so
   // it wears the same symbol and the same colour there. Checked by name rather than by

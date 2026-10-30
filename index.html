@@ -3840,7 +3840,14 @@ const amCirc = name=>{
 const am = name=>`<a class="am" href="${svcHref(name)}" data-name="${esc(name)}" target="_blank" rel="noopener" title="Open ${esc(name)} in ${svcName()}" aria-label="${esc(name)}, open in ${svcName()}"><span>${esc(name)}</span><i class="amgo" aria-hidden="true">${OPENGO}</i></a>`;
 function setSvc(s){
   SVC=s; try{ localStorage.setItem("svc",s) }catch(e){}
-  document.querySelectorAll("a.am[data-name]").forEach(x=>{ x.href=svcHref(x.dataset.name); x.title="Open in "+svcName(); });
+  // every link that names an artist, not only the chip-shaped ones: the circles in the
+  // row and the rows on the Key artists page carry data-name too, and a.am missed both,
+  // so switching service left them pointing at the service you had just left
+  document.querySelectorAll("a[data-name]").forEach(x=>{
+    x.href=svcHref(x.dataset.name);
+    x.title="Open "+x.dataset.name+" in "+svcName();
+    if(x.hasAttribute("aria-label")) x.setAttribute("aria-label",x.dataset.name+", open in "+svcName());
+  });
   document.querySelectorAll("[data-svc]").forEach(bt=>bt.setAttribute("aria-pressed",String(bt.dataset.svc===s)));
   document.querySelectorAll(".svc").forEach(el=>el.style.setProperty("--brand", BRAND[s]||"#0071e3"));
   paintPlay();
@@ -5299,7 +5306,12 @@ const PAGES_DEF={
       + (activeYears(x)?`<em class="lrct amyr">${esc(activeYears(x))}</em>`:"")
       + `<i class="lrcv lrgov">${OPENGO}</i></a>`; };
     return {title:"Key artists",
-      lede:`Everyone the map names for ${n.name}, the three or four on the panel first. Each one opens in ${svcName()}.`,
+      lede:`Everyone the map names for ${n.name}, the three or four on the panel first.`,
+      // the same control the style panel carries, because this is where the links it
+      // governs actually are. Saying "each one opens in Apple Music" in the lede was a
+      // fact with no handle on it, and it went stale the moment you changed the service
+      top:`<div class="sect sect-listen pagelisten"><div class="secthead">`
+        + `<h3 class="secttl">Listen on ${svcPicker("inline")}</h3></div></div>`,
       html:`<div class="listgrp sep amlist">${all.map(row).join("")}</div>`};
   },
   modes:()=>({title:"Ways in",
