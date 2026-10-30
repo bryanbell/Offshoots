@@ -4075,7 +4075,6 @@ function measureHead(){
 function walk(id,key){ const m=new Map(), q=[[id,0]]; while(q.length){ const [c,d]=q.shift(); for(const x of byId[c][key]){ if(!m.has(x)){ m.set(x,d+1); q.push([x,d+1]); } } } return m; }
 let state={sel:null,mode:"both"};
 let PHEAD="";
-const CHEVSVG='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg>';
 // what kind of thing it is, as a shape: the word is there too, but the icon is what
 // carries down a scrolled list
 // What you will be doing with it, drawn as a shape. This is the medium, not the kind:
@@ -5060,7 +5059,6 @@ function plStylesHtml(k){
   return `<button type="button" class="brback" data-plback="${k}"><i class="bk">${CHEV.from}</i><span class="nm">${esc(FAM[k].name)}</span><small>${plCount(k)}</small></button>${rows}`;
 }
 
-const LRICON={"roots": "<path d=\"M10 17V7\"/><path d=\"M10 11C10 8.5 8 6.5 5.5 6.5\"/><path d=\"M10 13.5c0-2 1.7-3.6 3.7-3.6\"/><path d=\"M10 7a2.6 2.6 0 1 0 0-5.2A2.6 2.6 0 0 0 10 7z\"/>", "fams": "<path d=\"M3.2 6.6L10 3.2l6.8 3.4L10 10z\"/><path d=\"M3.2 10L10 13.4 16.8 10\"/><path d=\"M3.2 13.4L10 16.8l6.8-3.4\"/>", "pl": "<path d=\"M4 5.5h8\"/><path d=\"M4 10h8\"/><path d=\"M4 14.5h5\"/><path d=\"M15.2 13.6V6.2l2.3-.7\"/><circle cx=\"13.8\" cy=\"14\" r=\"1.6\"/>", "top": "<path d=\"M3 13.5l4-4.2 3.1 2.8L17 5.5\"/><path d=\"M13.2 5.5H17V9\"/>"};
 // a row that takes you somewhere points that way; the down chevron means unfold
 const GOCHEV="<svg class=\"lrcv lrgov\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 3l5 5-5 5\"/></svg>";
 const LRCHEV="<svg class=\"lrcv\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 6l5 5 5-5\"/></svg>";
@@ -5099,7 +5097,6 @@ function rootsRow(){
   // no heading on the menu: the row it opens from is directly above it and says Roots
   return browseBtn("roots","Roots",n,`Roots: ${n} styles with nothing before them here`,items);
 }
-const RANDICON="<path d=\"M3 5.6h2.8L13 14.4h4\"/><path d=\"M3 14.4h2.8l2.6-3.2\"/><path d=\"M11.2 8.1l1.8-2.5H17\"/><path d=\"M15.2 3.6L17 5.6l-1.8 2\"/><path d=\"M15.2 12.4L17 14.4l-1.8 2\"/>";
 // not a collection to open but a place to go, so it carries no count and no chevron
 function randomRow(){
   return `<div class="navwrap nav-br">`
@@ -5356,7 +5353,6 @@ const PAGES_DEF={
     <button type="button" class="aboutcopy" data-aboutcopy="about"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 11.6a3.2 3.2 0 0 0 4.6 0l2.6-2.6a3.2 3.2 0 0 0-4.6-4.6l-1 1"/><path d="M11.6 8.4a3.2 3.2 0 0 0-4.6 0L4.4 11a3.2 3.2 0 0 0 4.6 4.6l1-1"/></svg><span class="lbl">Copy a link to this</span></button></div>`}; },
   install:()=>({title:"How to install it", html:`<div class="about">${openInRow()}<p>Offshoots is a web page, so there is nothing to download and no app store. Every platform below can pin it to a home screen or dock, where it opens full screen with no browser chrome around it.</p><h4 class="subh">iPhone and iPad</h4><ol class="steps"><li>Open this page in <b>Safari</b>. Chrome and Firefox on iOS cannot do this.</li><li>Tap the <b>Share</b> button, the square with an arrow coming out of it: ${SHAREGLYPH}${shareStep()}</li><li>Scroll down the list and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li></ol><h4 class="subh">Android</h4><ol class="steps"><li>Open this page in <b>Chrome</b>.</li><li>Tap the <b>three dots</b> at the top right.</li><li>Tap <b>Add to Home screen</b>, then <b>Install</b> or <b>Add</b>. Samsung Internet and Firefox have the same item in their own menus.</li></ol><h4 class="subh">Mac</h4><ol class="steps"><li>In <b>Safari</b>, choose <b>File &rsaquo; Add to Dock</b>, then <b>Add</b>. It lands in the Dock and opens in its own window.</li><li>In <b>Chrome</b>, the same thing is under the three dots at <b>Cast, Save and Share &rsaquo; Install page as app</b>.</li></ol><h4 class="subh">Windows</h4><ol class="steps"><li>In <b>Edge</b> or <b>Chrome</b>, look for the <b>install icon</b> at the right-hand end of the address bar, a monitor with an arrow in it, and click it.</li><li>No icon there? Open the <b>three dots</b> menu and choose <b>Apps &rsaquo; Install this site as an app</b> in Edge, or <b>Cast, Save and Share &rsaquo; Install page as app</b> in Chrome.</li><li>Tick <b>Pin to taskbar</b> when it offers, and it behaves like any other app.</li></ol><h4 class="subh">What you get</h4><p>The whole map is a single file, so once it has loaded it keeps working without a connection. The playlist links still need one, since those open Apple Music or Spotify.</p><button type="button" class="aboutcopy" data-aboutcopy="install"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 11.6a3.2 3.2 0 0 0 4.6 0l2.6-2.6a3.2 3.2 0 0 0-4.6-4.6l-1 1"/><path d="M11.6 8.4a3.2 3.2 0 0 0-4.6 0L4.4 11a3.2 3.2 0 0 0 4.6 4.6l1-1"/></svg><span class="lbl">Copy a link to this</span></button></div>`})
 };
-const PAGEICON={roots:LRICON.roots,top:LRICON.top,about:"<circle cx=\"10\" cy=\"10\" r=\"7.4\"/><path d=\"M10 9.2v4.4\"/><path d=\"M10 6.5h.01\"/>",install:"<path d=\"M10 3v8.6\"/><path d=\"M6.4 8.4L10 12l3.6-3.6\"/><path d=\"M4.2 14.2v1.4a1.4 1.4 0 0 0 1.4 1.4h8.8a1.4 1.4 0 0 0 1.4-1.4v-1.4\"/>"};
 // the link that puts a page's own URL on the clipboard, which About and How to install
 // already ended with. Any page in FOLDS can be opened straight from that link.
 function copyRow(hash){
