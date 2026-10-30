@@ -1880,8 +1880,10 @@ function markHello(){
   helloShown=true;
   try{ localStorage.setItem(HELLO_KEY,"1"); }catch(e){}
 }
+let helloAt=1;
 function helloStep(n){
   const w=$("hello"); if(!w) return;
+  helloAt=n;
   w.querySelectorAll(".hstep").forEach(sec=>{ sec.hidden = +sec.dataset.step !== n; });
   w.querySelectorAll(".hdots i").forEach((d,i)=>d.classList.toggle("on", i === n-1));
   const c=$("hellocard");
@@ -1902,7 +1904,7 @@ function openHello(){
   // a default nobody chose is still the answer until somebody changes it, and saying so
   // is honest about what will happen if they just carry on
   w.querySelectorAll("[data-svc]").forEach(bt=>
-    bt.setAttribute("aria-pressed",String(bt.dataset.svc===SVC)));
+    bt.setAttribute("aria-checked",String(bt.dataset.svc===SVC)));
   helloStep(1);
   w.hidden=false; document.body.classList.add("hello-open");
   // the card takes focus, not the button: a ring on a primary button reads as pressed,
@@ -1913,12 +1915,13 @@ function openHello(){
 // ---------- step two: the four ways to start ----------
 // Each one opens a real view rather than setting a preference, so the card is the last
 // thing you see rather than the first of several.
+// Two, not four. Four destinations made the question harder than the map: Roots and Most
+// influential are both things to read, and somebody on their first minute cannot tell
+// which they want. The real fork is whether you want to be handed something to play or
+// left alone with the map, and everything else is reachable from either.
 const STARTS={
   modes: ()=>{ setOpen(true); setTimeout(()=>pushPage("modes"),120); },
-  roots: ()=>{ setOpen(true); setTimeout(()=>pushPage("roots"),120); },
-  top:   ()=>{ setOpen(true); setTimeout(()=>pushPage("top"),120); },
-  random:()=>{ const pick=nodes[Math.floor(Math.random()*nodes.length)];
-               if(pick){ select(pick.id); panelTop(); } }
+  map:   ()=>{}
 };
 
 // ---------- step three: keeping it ----------
@@ -1955,16 +1958,18 @@ function openTip(){
       { const sv=e.target.closest("[data-svc]");
         if(sv){ setSvc(sv.dataset.svc);
           w.querySelectorAll("[data-svc]").forEach(bt=>
-            bt.setAttribute("aria-pressed",String(bt.dataset.svc===sv.dataset.svc)));
+            bt.setAttribute("aria-checked",String(bt.dataset.svc===sv.dataset.svc)));
           return; } }
-      if(e.target.closest("#hellonext")) { helloStep(2); return; }
-      if(e.target.closest("#helloback")) { helloStep(1); return; }
-      if(e.target.closest("#hellook"))   { closeHello(); return; }
+      // every Continue and every Back says which step it goes to, so the order lives in
+      // the markup rather than in a chain of handlers that have to agree with it
+      { const to=e.target.closest("[data-to]");
+        if(to){ helloStep(+to.dataset.to); return; } }
       { const st=e.target.closest("[data-start]");
         if(st){ const go=STARTS[st.dataset.start];
           closeHello(()=>{ if(go) go();
-            // once what you asked for is actually on screen, and not a moment before
-            setTimeout(openTip,1500); });
+            // once what you asked for is actually on screen, and not a moment before.
+            // "Look around the map" opens nothing, so there is nothing to wait for.
+            setTimeout(openTip, st.dataset.start==="map" ? 700 : 1500); });
           return; } }
     });
     document.addEventListener("keydown",e=>{
@@ -1972,8 +1977,7 @@ function openTip(){
       e.stopPropagation();
       // Escape on step two goes back a step rather than out: the card is two questions
       // deep and leaving from the second one would throw away the first answer
-      const two=w.querySelector('.hstep[data-step="2"]');
-      if(two && !two.hidden) helloStep(1); else closeHello();
+      if(helloAt>1) helloStep(helloAt-1); else closeHello();
     },true);
   } }
 

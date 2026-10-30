@@ -904,85 +904,116 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
    ever read on .acirc, whose containing block is the row. */
 /* ---------- the first thing a new visitor sees ----------
    A map of 461 dots with lines between them does not explain itself, and the playlists,
-   which are the reason to stay, are two taps down. So: what it is, that you can hear it,
-   and one way in. Shown once per browser, skipped entirely on a shared link, since
-   somebody following one came for a particular style and not for an explanation. */
+   which are the reason to stay, are two taps down. Three steps, because they are three
+   questions: what this is, where you listen, and where to start. Shown once per browser,
+   skipped entirely on a shared link, since somebody following one came for a particular
+   style and not for an explanation. */
 /* display:grid beats the hidden attribute's own display:none, and a full-screen layer that
    is invisible but still laid out swallows every tap on the map. So say it explicitly. */
 #hello[hidden]{display:none}
 #hello{position:fixed;inset:0;z-index:120;display:grid;place-items:center;
-  padding:max(18px,env(safe-area-inset-left,0px)) 18px max(18px,env(safe-area-inset-bottom,0px))}
+  padding:max(18px,env(safe-area-inset-top,0px)) 18px max(18px,env(safe-area-inset-bottom,0px))}
 #hellobd{position:absolute;inset:0;background:rgb(0 0 0 / .62);
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 #hellocard:focus{outline:0}
 #hellocard{position:relative;width:min(400px,100%);max-height:calc(100% - 8px);overflow:auto;
-  background:var(--panel);border-radius:22px;padding:26px 22px 20px;
-  box-shadow:0 20px 60px rgb(0 0 0 / .5),0 0 0 .5px var(--line);
-  animation:helloin .32s cubic-bezier(.32,.72,0,1) both}
-@keyframes helloin{from{opacity:0;transform:translateY(14px) scale(.97)}}
+  box-sizing:border-box;background:var(--panel);border:.5px solid var(--line);
+  border-radius:22px;padding:24px 20px 18px;box-shadow:0 18px 60px rgb(0 0 0 / .5);
+  animation:helloin .34s cubic-bezier(.32,.72,0,1)}
+@keyframes helloin{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){ #hellocard{animation:none} }
-#hellocard .appicon{display:block;width:62px;height:62px;border-radius:14px;margin:0 0 16px;
-  box-shadow:0 1px 3px rgb(0 0 0 / .3)}
-#hellottl{font:700 var(--t-title2)/1.1 var(--f-body);letter-spacing:-.025em;margin:0 0 8px;
-  text-wrap:balance}
-.hellolede{font-size:var(--t-body);line-height:var(--t-body-lh);color:var(--muted);margin:0 0 20px}
-.hellolede b{color:var(--fg);font-weight:600;font-variant-numeric:tabular-nums}
-.hellolist{list-style:none;margin:0 0 22px;padding:0;display:flex;flex-direction:column;gap:15px}
-.hellolist li{display:flex;gap:13px;align-items:flex-start;
-  font-size:var(--t-sub);line-height:var(--t-sub-lh);color:var(--muted)}
+
+/* The head of every step is centred: the icon, the title, one line under it. Centring is
+   what makes the card read as a greeting rather than as a form with a legend. */
+.hhead{text-align:center;margin:0 0 18px}
+.hhead .appicon{display:block;width:66px;height:66px;border-radius:15px;margin:2px auto 16px;
+  box-shadow:0 0 0 .5px var(--line),0 4px 14px rgb(0 0 0 / .3)}
+.hhead h2{font:700 var(--t-title2)/1.12 var(--f-body);letter-spacing:-.025em;color:var(--fg);
+  margin:0 0 7px;text-wrap:balance}
+.hsub{font:400 var(--t-sub)/1.4 var(--f-body);color:var(--muted);margin:0;text-wrap:pretty}
+.hsub b{color:var(--fg);font-weight:600;font-variant-numeric:tabular-nums}
+
+/* What it does, in a box of its own. Loose on the card the three points read as body copy
+   you are expected to finish; boxed, they read as a panel of facts you can skim. */
+.hellolist{list-style:none;margin:0;padding:14px 15px;display:flex;flex-direction:column;
+  gap:14px;background:var(--fill2);border:.5px solid var(--line);border-radius:15px}
+.hellolist li{display:flex;gap:12px;align-items:flex-start;
+  font:400 var(--t-foot)/1.4 var(--f-body);color:var(--muted)}
 .hellolist b{color:var(--fg);font-weight:600;font-variant-numeric:tabular-nums}
-.helloi{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:9px;
-  background:color-mix(in srgb,var(--blue) 16%,transparent);color:var(--blue);margin-top:1px}
-.helloi svg{width:18px;height:18px}
-/* Which service to open playlists in, asked once, here, where it costs one tap and
-   nothing to undo. The app already stores this under `svc`; the welcome just sets the
-   same thing, so a person who picks Spotify here never sees an Apple Music link. It
-   wears the segmented control above, because it is one choice and not three buttons. */
-.hellosvc{margin:18px 0 0}
-.hellosvc h3{font:600 var(--t-sub)/1.2 var(--f-body);color:var(--fg);margin:0 0 8px}
-.hellosvcn{font:400 var(--t-cap)/1.35 var(--f-body);color:var(--muted);margin:8px 0 0}
-/* Step two: where to start. Four ways in, each one a real destination rather than a
-   setting, so they are shaped like the rows on the Explore panel and not like options.
-   The sub-line says what you get, because "Roots" means nothing on your first minute. */
-.startpick{display:flex;flex-direction:column;gap:8px}
-.startrow{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:13px;width:100%;
-  cursor:pointer;padding:12px 14px;min-height:var(--tap);border-radius:13px;
-  background:var(--fill2);border:.5px solid var(--line);
-  transition:background .16s,border-color .16s}
-.startrow:hover{background:var(--fill)}
-.startrow:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
-.startrow .sri{flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:10px;
+.helloi{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:9px;
+  background:color-mix(in srgb,var(--blue) 16%,transparent);color:var(--blue);margin-top:-1px}
+.helloi svg{width:17px;height:17px}
+
+/* A list you pick from, boxed and divided, so it reads as one set of options rather than
+   as a stack of buttons. Used for the service on step two and the two ways in on three. */
+.pickbox{background:var(--fill2);border:.5px solid var(--line);border-radius:15px;
+  overflow:hidden}
+.pickrow{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:12px;width:100%;
+  cursor:pointer;padding:0 14px;min-height:54px;transition:background .16s}
+.pickrow + .pickrow{box-shadow:inset 0 .5px 0 var(--line)}
+.pickrow:hover{background:color-mix(in srgb,var(--fg) 5%,transparent)}
+.pickrow:focus-visible{outline:0;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent) 60%,transparent)}
+.pklbl{flex:1;font:500 var(--t-sub)/1.25 var(--f-body);color:var(--fg)}
+/* the service's own colour, as a dot: enough to recognise, not a filled block */
+.pkdot{flex:none;width:11px;height:11px;border-radius:50%;background:var(--sv)}
+.s-apple{--sv:#fa233b} .s-spotify{--sv:#1db954} .s-qobuz{--sv:#0070ef}
+/* the tick is the whole answer to "can I pick one of these", so it keeps a reserved slot
+   whether or not it is showing — otherwise the labels shuffle sideways as you choose */
+.pkmark{flex:none;display:grid;place-items:center;width:20px;height:20px;color:var(--blue);
+  opacity:0;transform:scale(.8);transition:opacity .16s,transform .16s}
+.pkmark svg{width:18px;height:18px}
+.pickrow[aria-checked="true"] .pkmark{opacity:1;transform:none}
+.pickrow[aria-checked="true"] .pklbl{font-weight:600}
+/* step three's rows go somewhere rather than setting something, so they carry a chevron
+   and a line of explanation instead of a tick */
+.pickrow.go{padding:13px 14px;align-items:flex-start}
+.pki{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:10px;
   background:color-mix(in srgb,var(--blue) 16%,transparent);color:var(--blue)}
-.startrow .sri svg{width:20px;height:20px}
-.srtx{display:flex;flex-direction:column;gap:2px;min-width:0}
-.srtx b{font:600 var(--t-sub)/1.25 var(--f-body);color:var(--fg)}
-.srtx small{font:400 var(--t-cap)/1.3 var(--f-body);color:var(--muted)}
-/* which of the two steps you are on, stated quietly. Two dots is the whole story. */
+.pki svg{width:19px;height:19px}
+.pktx{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0;padding-top:1px}
+.pktx b{font:600 var(--t-sub)/1.25 var(--f-body);color:var(--fg)}
+.pktx small{font:400 var(--t-cap)/1.3 var(--f-body);color:var(--muted)}
+.pkgo{flex:none;display:grid;place-items:center;width:18px;height:18px;color:var(--muted);
+  opacity:.7;margin-top:8px}
+.pkgo svg{width:16px;height:16px}
+.hnote{font:400 var(--t-cap)/1.35 var(--f-body);color:var(--muted);margin:9px 2px 0;
+  text-align:center}
+/* which of the three steps you are on, stated quietly */
 .hdots{display:flex;gap:6px;justify-content:center;margin:16px 0 0}
 .hdots i{width:6px;height:6px;border-radius:50%;background:var(--line);transition:background .2s}
 .hdots i.on{background:var(--muted)}
 
-/* Step three, after the chosen view has loaded: a half sheet rather than another modal.
-   The map is behind it and worth seeing — this is an offer, not a gate, so it rises from
-   the bottom, takes no backdrop and dismisses by tapping anything else. */
+/* ---------- the install offer ----------
+   It comes up over the map at the top, not over the panel at the bottom: the panel is
+   where the thing you just chose is, and covering that to sell an install is the oldest
+   bad manners on the web. It is a different surface from everything under it — lighter
+   ground, a real border, its own shadow — because it is not part of the page's content
+   and should not be mistaken for it. */
 #tip[hidden]{display:none}
-#tip{position:fixed;left:0;right:0;bottom:0;z-index:118;display:grid;justify-items:center;
-  padding:0 10px max(10px,env(safe-area-inset-bottom,0px));pointer-events:none}
+#tip{position:fixed;left:0;right:0;top:0;z-index:118;display:grid;justify-items:center;
+  padding:max(10px,env(safe-area-inset-top,0px)) 10px 0;pointer-events:none}
 #tipcard{pointer-events:auto;width:min(420px,100%);box-sizing:border-box;
-  background:var(--panel);border:.5px solid var(--line);border-radius:20px;
-  padding:16px 16px 14px;box-shadow:0 -2px 28px rgb(0 0 0 / .4);
+  background:color-mix(in srgb,var(--panel) 82%, #fff 18%);
+  border:1px solid color-mix(in srgb,var(--fg) 22%,transparent);border-radius:18px;
+  padding:14px 14px 12px;
+  box-shadow:0 10px 34px rgb(0 0 0 / .5), 0 0 0 1px rgb(0 0 0 / .25);
   animation:tipin .42s cubic-bezier(.32,.72,0,1)}
-@keyframes tipin{from{transform:translateY(110%)}to{transform:translateY(0)}}
+@keyframes tipin{from{transform:translateY(-120%)}to{transform:translateY(0)}}
 @media (prefers-reduced-motion:reduce){ #tipcard{animation:none} }
 .tiphead{display:flex;align-items:flex-start;gap:13px}
-#tipcard .appicon{flex:none;display:block;width:42px;height:42px;border-radius:11px;
+/* the icon wears the install mark, bottom right, half off its own corner, which is where
+   every platform puts a badge and so the one place it reads as a badge and not a button */
+.tipmark{position:relative;flex:none;display:block;width:44px;height:44px}
+.tipmark .appicon{display:block;width:44px;height:44px;border-radius:11px;
   box-shadow:0 0 0 .5px var(--line)}
+.tipbadge{position:absolute;right:-6px;bottom:-6px;display:grid;place-items:center;
+  width:21px;height:21px;border-radius:50%;background:var(--blue);color:#fff;
+  box-shadow:0 0 0 2.5px color-mix(in srgb,var(--panel) 82%, #fff 18%)}
+.tipbadge svg{width:13px;height:13px}
 .tiptx{min-width:0}
 #tipttl{font:600 var(--t-sub)/1.25 var(--f-body);letter-spacing:-.01em;color:var(--fg);margin:0 0 3px}
 #tipcard p{font:400 var(--t-cap)/1.35 var(--f-body);color:var(--muted);margin:0}
-/* side by side, because the sheet is wide and stacking them made it tall enough to bury
-   the thing it is offered on top of */
-.tipgo{display:flex;gap:8px;margin-top:14px}
+.tipgo{display:flex;gap:8px;margin-top:12px}
 /* all:unset first: it resets everything after it too, so a flex declared above it is
    thrown away and the two buttons collapse into a line of plain text */
 .tipgo button{all:unset;box-sizing:border-box;flex:1 1 0;cursor:pointer;text-align:center;
@@ -990,9 +1021,9 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
   font:600 var(--t-sub)/1 var(--f-body);display:grid;place-items:center}
 /* scoped past .tipgo button, which is one tag more specific than a bare class and would
    otherwise keep winning the transparent background back out of all:unset */
-.tipgo .tipsec{color:var(--muted);background:var(--fill2)}
+.tipgo .tipsec{color:var(--muted);background:color-mix(in srgb,var(--fg) 10%,transparent)}
 .tipgo .tipsec:hover{color:var(--fg)}
-.tipgo .tipmain{color:var(--blue);background:color-mix(in srgb,var(--blue) 15%,transparent)}
+.tipgo .tipmain{color:#fff;background:var(--blue)}
 .tipgo button:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
 .hellogo{display:flex;flex-direction:column;gap:4px;margin-top:16px}
 .hellogo .shbtn.wide{margin:0}
@@ -1638,62 +1669,80 @@ a.am .amgo{display:none}
   <div id="hellocard" role="dialog" aria-modal="true" aria-labelledby="hellottl" tabindex="-1">
 
     <section class="hstep" data-step="1">
-      <img class="appicon" alt="" id="helloicon">
-      <h2 id="hellottl">What grew out of what</h2>
-      <p class="hellolede">A map of <b id="hellon">461</b> music styles, each one joined to the styles it came out of.</p>
+      <div class="hhead">
+        <img class="appicon" alt="" id="helloicon">
+        <h2 id="hellottl">What grew out of what</h2>
+        <p class="hsub">A map of <b id="hellon">461</b> music styles, each one joined to the styles it came out of.</p>
+      </div>
       <ul class="hellolist">
         <li><i class="helloi" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 16.8V9.2h2v7.6zM2 20h20v2H2zM4.5 3h2v10h-2zM11 2h2v8h-2zM17.5 6h2v7h-2z"/></svg></i>
           <span><b>Time runs left to right.</b> Follow a line backwards and you find what a sound is made of.</span></li>
         <li><i class="helloi" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 13.535V3h7v2h-5v10a4 4 0 1 1-2-3.465z"/></svg></i>
           <span><b id="hellop">304</b><b> playlists</b>, so you can hear a style rather than read about it.</span></li>
+        <li><i class="helloi" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 3v2H5v14h14v-4h2v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm10.59 1L13 10.59 14.41 12 21 5.41V9h2V3h-6v1z"/></svg></i>
+          <span><b>Tap any style</b> for where it came from, who made it, and what it turned into.</span></li>
       </ul>
-      <div class="hellosvc">
-        <h3 id="hellosvcl">Where do you listen?</h3>
-        <div class="segwrap"><div class="segctl" role="radiogroup" aria-labelledby="hellosvcl">
-          <button type="button" data-svc="apple" class="segopt s-apple">Apple Music</button>
-          <button type="button" data-svc="spotify" class="segopt s-spotify">Spotify</button>
-          <button type="button" data-svc="qobuz" class="segopt s-qobuz">Qobuz</button>
-        </div></div>
-        <p class="hellosvcn">You can change this any time, on any style.</p>
-      </div>
       <div class="hellogo">
-        <button type="button" id="hellonext" class="shbtn wide">Continue</button>
-        <button type="button" id="hellook" class="hellolink">Skip, I will look around</button>
+        <button type="button" id="hellonext" class="shbtn wide" data-to="2">Continue</button>
       </div>
     </section>
 
     <section class="hstep" data-step="2" hidden>
-      <h2 id="hellottl2">Where would you like to start?</h2>
-      <p class="hellolede">Any of these opens straight away. The rest of the map is always a tap behind it.</p>
-      <div class="startpick" role="list">
-        <button type="button" class="startrow" data-start="modes" role="listitem">
-          <i class="sri" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26A6.99 6.99 0 0 1 12 2zM9 19h6v1a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z"/></svg></i>
-          <span class="srtx"><b>Browse by mood</b><small>Twenty-seven moods, places and tasks</small></span></button>
-        <button type="button" class="startrow" data-start="roots" role="listitem">
-          <i class="sri" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 21.95V18a3 3 0 0 0-3-3H5a3 3 0 0 1-3-3V9h2v3a1 1 0 0 0 1 1h3a5 5 0 0 1 3 1.02V9.95A4 4 0 0 1 8 6V2h2.5A3.5 3.5 0 0 1 14 5.5V8a4 4 0 0 1-1 2.67V13a5 5 0 0 1 4-2h3V9h2v4h-5a3 3 0 0 0-3 3v5.95z"/></svg></i>
-          <span class="srtx"><b>Start at the roots</b><small>The styles with nothing before them</small></span></button>
-        <button type="button" class="startrow" data-start="top" role="listitem">
-          <i class="sri" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.5 18.5l6-6 4 4L22 6.92 20.59 5.5l-7.09 8L9.5 9.5l-7 7z"/></svg></i>
-          <span class="srtx"><b>The most influential</b><small>What led to the most of everything else</small></span></button>
-        <button type="button" class="startrow" data-start="random" role="listitem">
-          <i class="sri" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 4l4 4-4 4V9h-2.5c-1.1 0-1.8.5-2.6 1.6l-.6.9-1.2-1.8.5-.7C12.7 7.3 13.9 7 15.5 7H18V4zM4 7h3.5c1.9 0 3.3.9 4.5 2.6l3 4.4c.8 1.1 1.5 1.6 2.5 1.6H18v-3l4 4-4 4v-3h-2.5c-1.9 0-3.3-.9-4.5-2.6l-3-4.4C7.2 9.5 6.5 9 5.5 9H4V7zm0 8h1.5c1 0 1.7-.4 2.4-1.4l.6-.9 1.2 1.8-.5.7C8.2 16.7 7 17 5.5 17H4v-2z"/></svg></i>
-          <span class="srtx"><b>Surprise me</b><small>Any one of the 461, at random</small></span></button>
+      <div class="hhead">
+        <h2 id="hellosvcl">Where do you listen?</h2>
+        <p class="hsub">Playlists and artists open straight into it.</p>
       </div>
+      <div class="pickbox" role="radiogroup" aria-labelledby="hellosvcl">
+        <button type="button" class="pickrow" data-svc="apple" role="radio" aria-checked="true">
+          <i class="pkdot s-apple" aria-hidden="true"></i><span class="pklbl">Apple Music</span>
+          <i class="pkmark" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5l4 4 8-9"/></svg></i></button>
+        <button type="button" class="pickrow" data-svc="spotify" role="radio" aria-checked="false">
+          <i class="pkdot s-spotify" aria-hidden="true"></i><span class="pklbl">Spotify</span>
+          <i class="pkmark" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5l4 4 8-9"/></svg></i></button>
+        <button type="button" class="pickrow" data-svc="qobuz" role="radio" aria-checked="false">
+          <i class="pkdot s-qobuz" aria-hidden="true"></i><span class="pklbl">Qobuz</span>
+          <i class="pkmark" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5l4 4 8-9"/></svg></i></button>
+      </div>
+      <p class="hnote">You can change this any time, on any style.</p>
       <div class="hellogo">
-        <button type="button" id="helloback" class="hellolink">Back</button>
+        <button type="button" class="shbtn wide" data-to="3">Continue</button>
+        <button type="button" class="hellolink" data-to="1">Back</button>
       </div>
     </section>
 
-    <div class="hdots" aria-hidden="true"><i class="on"></i><i></i></div>
+    <section class="hstep" data-step="3" hidden>
+      <div class="hhead">
+        <h2>Where would you like to start?</h2>
+        <p class="hsub">Either way, the whole map is one tap behind it.</p>
+      </div>
+      <div class="pickbox" role="list">
+        <button type="button" class="pickrow go" data-start="modes" role="listitem">
+          <i class="pki" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26A6.99 6.99 0 0 1 12 2zM9 19h6v1a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z"/></svg></i>
+          <span class="pktx"><b>Find something to play</b><small>Pick a mood, a place or a task</small></span>
+          <i class="pkgo" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 4.5l5.5 5.5-5.5 5.5"/></svg></i></button>
+        <button type="button" class="pickrow go" data-start="map" role="listitem">
+          <i class="pki" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 3l6 2.1 5.3-1.8a.75.75 0 0 1 1 .7V18a1 1 0 0 1-.68.95L15 20.9 9 18.8l-5.3 1.8a.75.75 0 0 1-1-.7V6a1 1 0 0 1 .68-.95zm1 2.37v11.3l4 1.4V6.76z"/></svg></i>
+          <span class="pktx"><b>Look around the map</b><small>All 461, laid out by when they began</small></span>
+          <i class="pkgo" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 4.5l5.5 5.5-5.5 5.5"/></svg></i></button>
+      </div>
+      <div class="hellogo">
+        <button type="button" class="hellolink" data-to="2">Back</button>
+      </div>
+    </section>
+
+    <div class="hdots" aria-hidden="true"><i class="on"></i><i></i><i></i></div>
   </div>
 </div>
 <div id="tip" hidden>
   <div id="tipcard" role="dialog" aria-modal="false" aria-labelledby="tipttl">
     <div class="tiphead">
-      <img class="appicon" alt="" id="tipicon">
+      <span class="tipmark">
+        <img class="appicon" alt="" id="tipicon">
+        <i class="tipbadge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a1 1 0 0 1 1 1v8.59l2.3-2.3 1.4 1.42L12 16.4l-4.7-4.7 1.4-1.4 2.3 2.29V4a1 1 0 0 1 1-1zM5 18h14v2H5z"/></svg></i>
+      </span>
       <div class="tiptx">
-        <h2 id="tipttl">Keep it on your home screen</h2>
-        <p>It opens full screen, and the map works with no connection.</p>
+        <h2 id="tipttl">For a more app-like Offshoots</h2>
+        <p>Add it to your home screen: it opens full screen, with no browser around it, and the map works with no connection.</p>
       </div>
     </div>
     <div class="tipgo">
@@ -5527,8 +5576,10 @@ function markHello(){
   helloShown=true;
   try{ localStorage.setItem(HELLO_KEY,"1"); }catch(e){}
 }
+let helloAt=1;
 function helloStep(n){
   const w=$("hello"); if(!w) return;
+  helloAt=n;
   w.querySelectorAll(".hstep").forEach(sec=>{ sec.hidden = +sec.dataset.step !== n; });
   w.querySelectorAll(".hdots i").forEach((d,i)=>d.classList.toggle("on", i === n-1));
   const c=$("hellocard");
@@ -5549,7 +5600,7 @@ function openHello(){
   // a default nobody chose is still the answer until somebody changes it, and saying so
   // is honest about what will happen if they just carry on
   w.querySelectorAll("[data-svc]").forEach(bt=>
-    bt.setAttribute("aria-pressed",String(bt.dataset.svc===SVC)));
+    bt.setAttribute("aria-checked",String(bt.dataset.svc===SVC)));
   helloStep(1);
   w.hidden=false; document.body.classList.add("hello-open");
   // the card takes focus, not the button: a ring on a primary button reads as pressed,
@@ -5560,12 +5611,13 @@ function openHello(){
 // ---------- step two: the four ways to start ----------
 // Each one opens a real view rather than setting a preference, so the card is the last
 // thing you see rather than the first of several.
+// Two, not four. Four destinations made the question harder than the map: Roots and Most
+// influential are both things to read, and somebody on their first minute cannot tell
+// which they want. The real fork is whether you want to be handed something to play or
+// left alone with the map, and everything else is reachable from either.
 const STARTS={
   modes: ()=>{ setOpen(true); setTimeout(()=>pushPage("modes"),120); },
-  roots: ()=>{ setOpen(true); setTimeout(()=>pushPage("roots"),120); },
-  top:   ()=>{ setOpen(true); setTimeout(()=>pushPage("top"),120); },
-  random:()=>{ const pick=nodes[Math.floor(Math.random()*nodes.length)];
-               if(pick){ select(pick.id); panelTop(); } }
+  map:   ()=>{}
 };
 
 // ---------- step three: keeping it ----------
@@ -5602,16 +5654,18 @@ function openTip(){
       { const sv=e.target.closest("[data-svc]");
         if(sv){ setSvc(sv.dataset.svc);
           w.querySelectorAll("[data-svc]").forEach(bt=>
-            bt.setAttribute("aria-pressed",String(bt.dataset.svc===sv.dataset.svc)));
+            bt.setAttribute("aria-checked",String(bt.dataset.svc===sv.dataset.svc)));
           return; } }
-      if(e.target.closest("#hellonext")) { helloStep(2); return; }
-      if(e.target.closest("#helloback")) { helloStep(1); return; }
-      if(e.target.closest("#hellook"))   { closeHello(); return; }
+      // every Continue and every Back says which step it goes to, so the order lives in
+      // the markup rather than in a chain of handlers that have to agree with it
+      { const to=e.target.closest("[data-to]");
+        if(to){ helloStep(+to.dataset.to); return; } }
       { const st=e.target.closest("[data-start]");
         if(st){ const go=STARTS[st.dataset.start];
           closeHello(()=>{ if(go) go();
-            // once what you asked for is actually on screen, and not a moment before
-            setTimeout(openTip,1500); });
+            // once what you asked for is actually on screen, and not a moment before.
+            // "Look around the map" opens nothing, so there is nothing to wait for.
+            setTimeout(openTip, st.dataset.start==="map" ? 700 : 1500); });
           return; } }
     });
     document.addEventListener("keydown",e=>{
@@ -5619,8 +5673,7 @@ function openTip(){
       e.stopPropagation();
       // Escape on step two goes back a step rather than out: the card is two questions
       // deep and leaving from the second one would throw away the first answer
-      const two=w.querySelector('.hstep[data-step="2"]');
-      if(two && !two.hidden) helloStep(1); else closeHello();
+      if(helloAt>1) helloStep(helloAt-1); else closeHello();
     },true);
   } }
 
