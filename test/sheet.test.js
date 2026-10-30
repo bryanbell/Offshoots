@@ -436,5 +436,30 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     await q.close(); }
 
   say("no page errors", errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
+  // ---------- the panel scrolls one way ----------
+  // A few pixels of horizontal overflow turns the panel into a scroller on both axes. On
+  // a phone that means a visible scrollbar and a vertical drag that keeps getting claimed
+  // sideways, which is how it was reported: "extremely hard to scroll". It was seven
+  // pixels of chevron at 320px. Checked at every width the map is likely to meet, since
+  // the one that broke was the narrowest and nothing else was looking there.
+  for(const w of [320,360,375,390,414,430]){
+    const nc=await b.newContext({viewport:{width:w,height:844},isMobile:true,hasTouch:true});
+    const q=await nc.newPage();
+    await q.addInitScript(()=>{ try{ localStorage.setItem("offshoots.seen","1");
+      localStorage.setItem("offshoots.tip","1"); }catch(e){} });
+    await q.goto(URL); await shown(q,"#chart .n");
+    await q.click("#grab").catch(()=>{});
+    await q.waitForSelector(".sect-modes",{state:"attached",timeout:8000}).catch(()=>{});
+    await settle(q);
+    const r=await q.evaluate(()=>{
+      const pb=document.getElementById("panelBody"), mrow=document.querySelector(".mrow");
+      return {over:pb.scrollWidth-pb.clientWidth, canY:pb.scrollHeight>pb.clientHeight,
+        row:mrow ? mrow.scrollWidth>mrow.clientWidth : false};});
+    say("at "+w+"px the panel scrolls down and not sideways ("+r.over+"px over)",
+      r.over===0 && r.canY);
+    say("  while the ways in still swipe", r.row);
+    await nc.close();
+  }
+
   await b.close();
 })();

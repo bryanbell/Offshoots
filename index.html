@@ -319,7 +319,12 @@ a.am:hover{color:var(--accent)}
 body.open #bar{position:absolute;z-index:41;top:calc(env(safe-area-inset-top,0px) + 30px + 10px);left:calc(var(--stripw,28px) + 14px);display:flex;flex-direction:column;align-items:flex-end}
 #barRow{display:flex;align-items:center;gap:8px}
 /* the style's identity now lives in the overlay card */
-#panelBody{min-height:0;overflow:auto;overscroll-behavior:contain}
+/* The panel scrolls one way. Anything a few pixels too wide used to turn this into a
+   horizontal scroller as well, which on a phone means a visible scrollbar and a vertical
+   drag that keeps getting claimed sideways. clip, not hidden: hidden would make it a
+   scroll container on both axes, clip refuses the axis outright. The rows that bleed to
+   the full width bleed to this element's width, so nothing of theirs is lost. */
+#panelBody{min-height:0;overflow-y:auto;overflow-x:clip;overscroll-behavior:contain}
 body:not(.open) #panelBody{overflow:visible}
 .more{display:none}
 .more .note{margin-top:16px}
@@ -792,7 +797,9 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 .secthead.sectgo{all:unset;box-sizing:border-box;display:flex;align-items:center;
   justify-content:space-between;gap:8px;width:100%;min-height:var(--tap);cursor:pointer;
   margin:-7px 0 7px}
-.secthead.sectgo .secttl{flex:none}
+/* the title gives way before the chevron does: flex:none on a long heading pushed the
+   chevron off the card at 320px, which was the 7px that made the panel scroll sideways */
+.secthead.sectgo .secttl{flex:1 1 auto;min-width:0}
 .secthead.sectgo .sectaside{margin-left:auto}
 .secthead.sectgo .sectcv{flex:none;display:grid;place-items:center;color:var(--muted);opacity:.75;
   transition:transform .16s,opacity .16s}
