@@ -51,7 +51,10 @@ const opened=async q=>{ await until(q,()=>document.body.classList.contains("open
         const note = typeof r[6]==="string" && r[6].length>20;
         return r[4]==="33 1/3" ? (note || (r[8]||"").length>0) : note;}),
       dashes:rows.filter(([,r])=>/—/.test(r[6])).length,
-      years:rows.every(([,r])=>r[3]>=1900 && r[3]<=2026),
+      // 0 means undated on purpose: plenty of what is worth watching carries no date
+      // anywhere on it, and the row drops the year rather than inventing one. Everything
+      // else still has to be a real year, so a typo stays a failure.
+      years:rows.every(([,r])=>r[3]===0 || (r[3]>=1900 && r[3]<=2026)),
       access:[...new Set(rows.map(([,r])=>r[5]))].sort().join("|"),
       kinds:[...new Set(rows.map(([,r])=>r[4]))].length,
       media:[...new Set(rows.map(([,r])=>r[7]))].sort().join("|")};});

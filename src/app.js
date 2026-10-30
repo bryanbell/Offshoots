@@ -387,10 +387,12 @@ function readSect(n){
     // and three facts ran the line onto a second one.
     const kicker = (ser
         ? (r[8] ? `<i class="rdk rdby">${esc(r[8])}</i> \u00b7 ${esc(r[2])}`
-                : `${esc(r[2])} \u00b7 ${r[3]}`)
+                : `${esc(r[2])}` + (r[3] ? ` \u00b7 ${r[3]}` : ""))
         : `<i class="rdk">${esc(cap(r[4]))}</i>`
           + (say ? ` <i class="rdv">${say}</i>` : "")
-          + ` \u00b7 ${esc(r[2])} \u00b7 ${r[3]}`)
+          // a year only when there is one: plenty of what is worth reading or watching
+          // carries no date, and a dangling separator is worse than a missing fact
+          + ` \u00b7 ${esc(r[2])}` + (r[3] ? ` \u00b7 ${r[3]}` : ""))
       + (r[5] ? ` <i class="rdw">${esc(cap(r[5]))}</i>` : "");
     return `<a class="rd rd-${ser?"series":esc(r[7])}" href="${esc(r[0])}" target="_blank" rel="noopener noreferrer" title="${kind}, ${esc(r[7])}">`
       + `<i class="rdi">${ser ? `<b class="rdser">33\u2153</b>`

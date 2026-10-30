@@ -1241,7 +1241,8 @@ const READ = {
   ["https://atomicbooks.com/products/33-1-3-volume-144-dangelos-voodoo","Voodoo","Faith A. Pennick",2020,"33 1/3","","", "book", "D'Angelo"]
 ],
 "midwestemo": [
-  ["https://atomicbooks.com/products/33-1-3-jawbreakers-24-hour-revenge-therapy","24 Hour Revenge Therapy","Ronen Givony",2018,"33 1/3","","", "book", "Jawbreaker"]
+  ["https://atomicbooks.com/products/33-1-3-jawbreakers-24-hour-revenge-therapy","24 Hour Revenge Therapy","Ronen Givony",2018,"33 1/3","","", "book", "Jawbreaker"],
+  ["https://www.youtube.com/shorts/qcxNYhxr5lI","Math rock is called that because it's hard to play?","Guitar Moves",0,"demonstration","","Emma Harner spends a month on math rock and plays through the tunings and tapping behind it.","watch"]
 ],
 "poppunk": [
   ["https://atomicbooks.com/products/33-1-3-jawbreakers-24-hour-revenge-therapy","24 Hour Revenge Therapy","Ronen Givony",2018,"33 1/3","","", "book", "Jawbreaker"]

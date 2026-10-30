@@ -3002,7 +3002,8 @@ const READ = {
   ["https://atomicbooks.com/products/33-1-3-volume-144-dangelos-voodoo","Voodoo","Faith A. Pennick",2020,"33 1/3","","", "book", "D'Angelo"]
 ],
 "midwestemo": [
-  ["https://atomicbooks.com/products/33-1-3-jawbreakers-24-hour-revenge-therapy","24 Hour Revenge Therapy","Ronen Givony",2018,"33 1/3","","", "book", "Jawbreaker"]
+  ["https://atomicbooks.com/products/33-1-3-jawbreakers-24-hour-revenge-therapy","24 Hour Revenge Therapy","Ronen Givony",2018,"33 1/3","","", "book", "Jawbreaker"],
+  ["https://www.youtube.com/shorts/qcxNYhxr5lI","Math rock is called that because it's hard to play?","Guitar Moves",0,"demonstration","","Emma Harner spends a month on math rock and plays through the tunings and tapping behind it.","watch"]
 ],
 "poppunk": [
   ["https://atomicbooks.com/products/33-1-3-jawbreakers-24-hour-revenge-therapy","24 Hour Revenge Therapy","Ronen Givony",2018,"33 1/3","","", "book", "Jawbreaker"]
@@ -4083,10 +4084,12 @@ function readSect(n){
     // and three facts ran the line onto a second one.
     const kicker = (ser
         ? (r[8] ? `<i class="rdk rdby">${esc(r[8])}</i> \u00b7 ${esc(r[2])}`
-                : `${esc(r[2])} \u00b7 ${r[3]}`)
+                : `${esc(r[2])}` + (r[3] ? ` \u00b7 ${r[3]}` : ""))
         : `<i class="rdk">${esc(cap(r[4]))}</i>`
           + (say ? ` <i class="rdv">${say}</i>` : "")
-          + ` \u00b7 ${esc(r[2])} \u00b7 ${r[3]}`)
+          // a year only when there is one: plenty of what is worth reading or watching
+          // carries no date, and a dangling separator is worse than a missing fact
+          + ` \u00b7 ${esc(r[2])}` + (r[3] ? ` \u00b7 ${r[3]}` : ""))
       + (r[5] ? ` <i class="rdw">${esc(cap(r[5]))}</i>` : "");
     return `<a class="rd rd-${ser?"series":esc(r[7])}" href="${esc(r[0])}" target="_blank" rel="noopener noreferrer" title="${kind}, ${esc(r[7])}">`
       + `<i class="rdi">${ser ? `<b class="rdser">33\u2153</b>`
