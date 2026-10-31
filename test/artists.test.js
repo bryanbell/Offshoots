@@ -459,7 +459,11 @@ const onPage=async(q,k)=>{ await until(q,k=>{
         // element carries the words, and the chevron off the heading as a whole
         const ht=(h&&h.querySelector(".secttl"))||h;
         const cs=getComputedStyle, px=e=>+e.getBoundingClientRect().width.toFixed(1);
-        return {tile:px(t), circle:px(co), glyph:px(sv), gap:cs(r).gap,
+        // A bounding rect is the PAINTED box, so anything inside a rotated parent
+        // measures bigger than it is: the ways in lean now, and their 41px glyph came
+        // back as 43.4. The laid-out width is what the two rows have to agree on.
+        const lay=e=>+parseFloat(cs(e).width).toFixed(1);
+        return {tile:px(t), circle:px(co), glyph:lay(sv), gap:cs(r).gap,
           label:cs(l).fontSize+"/"+cs(l).fontWeight,
           stack:cs(t).gap, radius:cs(co).borderRadius,
           head:ht?cs(ht).fontSize+"/"+cs(ht).fontWeight:"none",

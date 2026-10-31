@@ -1511,6 +1511,25 @@ function modeSortHtml(){
         + ` data-msort="${k}" aria-selected="${k===now}">${esc(lbl)}</button>`).join("")
     + `</div></div>`;
 }
+// How far a case leans, derived from its own name rather than drawn fresh.
+//
+// Math.random() would be wrong twice over. The row rebuilds on a resize, on a back, on
+// every return to Explore, so a fresh roll each time means the whole shelf twitches
+// while you are looking at it. And the row REORDERS as you use it, most-opened first, so
+// anything keyed to position would re-lean a case that had not moved. Keyed to the mode
+// id, Wind down leans the same way for as long as it is called Wind down.
+//
+// A plain character sum clusters: ids of similar length and spelling land on neighbouring
+// angles and the row reads as a slope rather than a shelf. Multiplying by 31 per
+// character is the usual cheap way to spread them.
+function tiltOf(id){
+  let h=0;
+  for(let i=0;i<id.length;i++) h=(h*31 + id.charCodeAt(i)) >>> 0;
+  // 17 steps across the range, so there is a true upright among them and the rest are
+  // spread at a quarter of a degree, which is finer than the eye reads as a pattern
+  return (((h % 17) - 8) / 2).toFixed(2);
+}
+
 function modeSect(){
   if(typeof MODES==="undefined") return "";
   // Apple Maps puts its Places on a row of filled circles you swipe through, with the
@@ -1519,7 +1538,8 @@ function modeSect(){
   // of its own.
   const circles=modeOrder(true).map(m=>
     `<button type="button" class="mcirc lv${m[5]||3}" data-mode="${esc(m[0])}"`
-    + ` title="${esc(m[2])}" aria-label="${esc(m[1])}. ${esc(m[2])}">`
+    + ` title="${esc(m[2])}" aria-label="${esc(m[1])}. ${esc(m[2])}"`
+    + ` style="--tilt:${tiltOf(m[0])}deg">`
     + `<i class="mco mi">${MODEICON[m[0]]||""}</i>`
     + `<span class="mclbl">${esc(m[1])}</span></button>`).join("");
   return sect("modes","Browse by mood, place or task",

@@ -803,7 +803,7 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
      cannot scroll the panel at all: the gesture is claimed and spent on an axis the row
      may not even be able to move on. Both axes named, and the browser picks by direction,
      which is what it does well. */
-  padding:2px var(--ppad) 4px;touch-action:pan-x pan-y;
+  padding:7px var(--ppad) 8px;touch-action:pan-x pan-y;
   /* 3.5 across whatever width there is, so one is always half cut off at the right edge
      and the row says swipe me without a hint. A percentage in a custom property resolves
      where it is USED, so this reads against the tile's containing block — the row — and
@@ -832,10 +832,12 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
    front, kept to a few percent of white, because the thing that makes fake plastic look
    fake is a highlight you can see on purpose. */
 .mcirc .mco{position:relative;width:84px;height:80px;border-radius:3px;overflow:hidden;
+  transform:rotate(var(--tilt,0deg));
   padding-left:7px;                       /* the art sits right of the hinge */
   background:linear-gradient(160deg,color-mix(in srgb,var(--lvc) 80%,#fff) 0%,
     var(--lvc) 55%,color-mix(in srgb,var(--lvc) 74%,#000) 100%);
-  box-shadow:0 1px 1px rgb(0 0 0 / .32), 0 4px 10px rgb(0 0 0 / .28),
+  box-shadow:0 1px 1px rgb(0 0 0 / .34), 0 3px 5px rgb(0 0 0 / .26),
+    0 8px 18px rgb(0 0 0 / .30),
     inset 0 .5px 0 rgb(255 255 255 / .38),
     inset 0 -.5px 0 rgb(0 0 0 / .22),
     inset 0 0 0 .5px rgb(255 255 255 / .14)}
@@ -863,9 +865,12 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
     linear-gradient(0deg,
       rgb(0 0 0 / .13) 0%, rgb(0 0 0 / 0) 22%)}
 .mcirc .mco svg,.acirc .aco svg{width:41px;height:41px;display:block}
-.mcirc:hover .mco,.mcirc:focus-visible .mco,
 .acirc:hover .aco,.acirc:focus-visible .aco{transform:scale(1.045)}
-.mcirc:active .mco,.acirc:active .aco{transform:scale(.95)}
+.acirc:active .aco{transform:scale(.95)}
+/* the lean is part of the case, so every other transform has to carry it: a bare
+   scale() here would stand the case up for the length of the press and sit it back down */
+.mcirc:hover .mco,.mcirc:focus-visible .mco{transform:rotate(var(--tilt,0deg)) scale(1.045)}
+.mcirc:active .mco{transform:rotate(var(--tilt,0deg)) scale(.95)}
 .mcirc:focus-visible .mco,.acirc:focus-visible .aco{
   box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 55%,transparent)}
 .mclbl,.aclbl{font:500 var(--t-sub)/var(--t-sub-lh) var(--f-body);color:var(--fg);
@@ -5409,6 +5414,25 @@ function modeSortHtml(){
         + ` data-msort="${k}" aria-selected="${k===now}">${esc(lbl)}</button>`).join("")
     + `</div></div>`;
 }
+// How far a case leans, derived from its own name rather than drawn fresh.
+//
+// Math.random() would be wrong twice over. The row rebuilds on a resize, on a back, on
+// every return to Explore, so a fresh roll each time means the whole shelf twitches
+// while you are looking at it. And the row REORDERS as you use it, most-opened first, so
+// anything keyed to position would re-lean a case that had not moved. Keyed to the mode
+// id, Wind down leans the same way for as long as it is called Wind down.
+//
+// A plain character sum clusters: ids of similar length and spelling land on neighbouring
+// angles and the row reads as a slope rather than a shelf. Multiplying by 31 per
+// character is the usual cheap way to spread them.
+function tiltOf(id){
+  let h=0;
+  for(let i=0;i<id.length;i++) h=(h*31 + id.charCodeAt(i)) >>> 0;
+  // 17 steps across the range, so there is a true upright among them and the rest are
+  // spread at a quarter of a degree, which is finer than the eye reads as a pattern
+  return (((h % 17) - 8) / 2).toFixed(2);
+}
+
 function modeSect(){
   if(typeof MODES==="undefined") return "";
   // Apple Maps puts its Places on a row of filled circles you swipe through, with the
@@ -5417,7 +5441,8 @@ function modeSect(){
   // of its own.
   const circles=modeOrder(true).map(m=>
     `<button type="button" class="mcirc lv${m[5]||3}" data-mode="${esc(m[0])}"`
-    + ` title="${esc(m[2])}" aria-label="${esc(m[1])}. ${esc(m[2])}">`
+    + ` title="${esc(m[2])}" aria-label="${esc(m[1])}. ${esc(m[2])}"`
+    + ` style="--tilt:${tiltOf(m[0])}deg">`
     + `<i class="mco mi">${MODEICON[m[0]]||""}</i>`
     + `<span class="mclbl">${esc(m[1])}</span></button>`).join("");
   return sect("modes","Browse by mood, place or task",

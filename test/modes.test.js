@@ -119,6 +119,32 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   say("  with "+lay.vis+" in reach before it does", lay.vis>=3);
   // a jewel case now, so square-ish rather than round, and still big enough to hit
   say("  each a case of "+Math.round(lay.tap)+"px", lay.caseish && lay.tap>=44);
+  // Each case leans a little, and the lean is derived from the mode's own id rather than
+  // rolled. Two things would break if it were Math.random() or keyed to position: the
+  // row rebuilds on a resize and on every return to Explore, so the shelf would twitch
+  // while you watched it, and the row REORDERS by use, so a case would re-lean without
+  // having moved. The check is that a reorder leaves every lean where it was.
+  const tilts=await p.evaluate(()=>Object.fromEntries([...document.querySelectorAll(".mcirc")]
+    .map(x=>[x.dataset.mode, x.style.getPropertyValue("--tilt")])));
+  const vals=Object.values(tilts).map(parseFloat);
+  say("  every case leaning, none past 4 degrees ("+Math.min(...vals)+" to "+Math.max(...vals)+")",
+    vals.length>0 && vals.every(v=>!isNaN(v) && v>=-4 && v<=4));
+  // all one angle is not a lean, it is a slope
+  say("  at "+new Set(vals).size+" different angles", new Set(vals).size>=6);
+  {
+    const q=await fresh(b,M);
+    await q.evaluate(()=>{try{localStorage.setItem("offshoots.modeuse",
+      JSON.stringify({workout:9,party:5}));}catch(e){}});
+    await q.reload(); await ready(q);
+    await q.click("#grab").catch(()=>{}); await opened(q);
+    const after=await q.evaluate(()=>Object.fromEntries([...document.querySelectorAll(".mcirc")]
+      .map(x=>[x.dataset.mode, x.style.getPropertyValue("--tilt")])));
+    const first=await q.evaluate(()=>[...document.querySelectorAll(".mcirc")][0].dataset.mode);
+    const moved=Object.keys(tilts).filter(k=>after[k]!==undefined && after[k]!==tilts[k]);
+    say("  and a reorder re-leans nothing (now led by "+first+")",
+      first!=="winddown" && moved.length===0 ? true : "moved: "+moved.slice(0,4).join(","));
+    await q.close();
+  }
   say("  and no label cut off"+(lay.clipped.length?": "+lay.clipped.join(", "):""), lay.clipped.length===0);
 
   // the heading is the control that opens the rest, chevron and all, and it has to be
