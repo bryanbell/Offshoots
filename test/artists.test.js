@@ -88,7 +88,7 @@ const onPage=async(q,k)=>{ await until(q,k=>{
     // track titles, ranked below everything else
     const quiet=async t=>{ await p.fill("#bottomSearch input",t); await settle(p);
       return p.evaluate(()=>{ const r=document.querySelector("#bottomSearch .results");
-        return r.hidden?[]:[...r.querySelectorAll("li")].map(x=>x.querySelector("span").textContent); }); };
+        return r.hidden?[]:[...r.querySelectorAll("li")].map(x=>x.querySelector(".rnm").textContent); }); };
     for(const [song,style] of [["Blue Monday","Synth-Pop"],["Good Vibrations","California Sound"],
         ["Planet Rock","Detroit Techno"]]){
       const r=await quiet(song);
@@ -97,7 +97,7 @@ const onPage=async(q,k)=>{ await until(q,k=>{
     // Electro's note already names 'Planet Rock', so that row reads as a note; the rows
     // that matched only on a title are the ones that quote it
     const sline=await p.evaluate(()=>{ const li=[...document.querySelectorAll("#bottomSearch .results li")]
-      .find(x=>x.querySelector("span").textContent==="Detroit Techno");
+      .find(x=>x.querySelector(".rnm").textContent==="Detroit Techno");
       return li?li.querySelector("small").textContent:""; });
     say("and quotes the title that matched ("+sline+")", /\u201c.*\u201d/.test(sline));
     // a word in a title on most playlists must not outrank a name or a note

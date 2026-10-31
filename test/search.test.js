@@ -24,11 +24,16 @@ async function ask(p,t){
   await until(p,()=>{const r=document.getElementById("res");
     return !!r && (r.hidden || r.querySelectorAll("button").length>0);});
   await settle(p);
-  return p.evaluate(()=>[...document.querySelectorAll("#res button")].map(x=>({
-    kind:x.className.split(" ").find(c=>/^res-/.test(c)),
-    name:(x.querySelector("span")||{}).textContent||"",
-    line:(x.querySelector("small")||{}).textContent||"",
-    go:x.dataset.go||x.dataset.pageGo||x.dataset.src||""})));
+  return p.evaluate(()=>[...document.querySelectorAll("#res button")].map(x=>{
+    const ico=x.querySelector(".rico");
+    return {kind:x.className.split(" ").find(c=>/^res-/.test(c)),
+      name:(x.querySelector(".rnm")||{}).textContent||"",
+      line:(x.querySelector("small")||{}).textContent||"",
+      mark:!!ico, dot:!!(ico&&ico.classList.contains("rdot")),
+      glyph:!!(ico&&ico.querySelector("svg")),
+      ext:!!x.querySelector(".rext svg"),
+      lbl:x.getAttribute("aria-label")||"",
+      go:x.dataset.go||x.dataset.pageGo||x.dataset.src||""};}));
 }
 
 (async()=>{
@@ -117,6 +122,33 @@ async function ask(p,t){
   // --- nothing matches, nothing shows
   await ask(p,"zzzzqqqq");
   say("no match, no list", await p.$eval("#res",e=>e.hidden));
+
+  // --- the marks. Every result carries one, and which one says what kind it is without
+  // a word: a style wears its family colour, a page and a source wear the glyph they
+  // already wear where they live.
+  const mix=await ask(p,"bebop");
+  say("every result carries a mark", mix.every(h=>h.mark));
+  say("  a style's is its family colour, not a glyph",
+    mix.filter(h=>h.kind==="res-style").every(h=>h.dot && !h.glyph));
+  say("  a source's is its medium's glyph",
+    mix.filter(h=>h.kind==="res-src").every(h=>h.glyph && !h.dot));
+  const pp=await ask(p,"videos");
+  say("  a page's too", pp[0].kind==="res-page" && pp[0].glyph && !pp[0].dot);
+
+  // --- leaving the app is said twice: an arrow, and a label naming the host, because an
+  // arrow on its own does not say where it is about to send you
+  const ex=await ask(p,"blue highways");
+  say("a source is marked as leaving the app", ex[0].ext===true);
+  say("  and says where to ("+ex[0].lbl+")", /harvard\.com/.test(ex[0].lbl) && /new tab/.test(ex[0].lbl));
+  say("  while what stays in the app is not",
+    mix.filter(h=>h.kind!=="res-src").every(h=>h.ext===false) &&
+    pp.filter(h=>h.kind==="res-page").every(h=>h.ext===false));
+
+  // --- the name is what you typed, so it must not be the thing that gets cut
+  const wide=await ask(p,"pete");
+  say("the name is never truncated before the line",
+    await p.evaluate(()=>[...document.querySelectorAll("#res .rnm")]
+      .every(x=>x.scrollWidth<=x.clientWidth+1)));
 
   say("no page errors", errs.length===0 ? true : errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
   await b.close();

@@ -1908,17 +1908,39 @@ function srcLine(x){
   if(on.length) bits.push(on.length>2 ? on[0]+" and "+(on.length-1)+" more" : on.join(" and "));
   return bits.join(" \u00b7 ");
 }
+// what a result is, said in a mark rather than in a word. A style wears its family's
+// colour, which is the map's own language for "this is a style". A page and a source
+// wear the glyph their own rows already wear elsewhere, so a thing found by search looks
+// like the same thing when you get there.
+function hitMark(h){
+  if(h.k==="style") return `<i class="rico rdot" style="background:${FAM[h.n.fam].c}"></i>`;
+  if(h.k==="page"){ const med=h.p.key.indexOf("med:")===0 ? h.p.key.slice(4) : "";
+    return `<i class="rico ${med?"rm-"+med:"rm-picks"}">`
+      + (med ? (MEDPAGEICON[med]||"") : (ROWICON.picks||"")) + `</i>`; }
+  const t=h.x.row[7];
+  return `<i class="rico rm-${esc(t)}">${MEDICON[t]||MEDICON.read}</i>`;
+}
+const hostOf = u => { try{ return new URL(u).hostname.replace(/^www\./,""); }catch(e){ return ""; } };
 function renderHits(){
   if(!hits.length){ res.hidden=true; return; }
   res.innerHTML = hits.map((h,i)=>{
     const on=i===act?" act":"";
-    if(h.k==="style") return `<li><button class="res-style${on}" data-go="${esc(h.n.id)}" role="option">`
-      + `<span>${esc(h.n.name)}</span><small>${h.n.year<1950?esc(h.n.disp):h.n.year} \u00b7 ${esc(hitLine(h.n))}</small></button></li>`;
-    if(h.k==="page") return `<li><button class="res-page${on}" data-page-go="${esc(h.p.key)}" role="option">`
-      + `<span>${esc(h.p.label)}</span><small>${esc(h.p.sub)}</small></button></li>`;
-    // a source leaves the app, so it says so rather than looking like one more style
-    return `<li><button class="res-src rs-${esc(h.x.row[7])}${on}" data-src="${esc(h.x.url)}" role="option">`
-      + `<span>${esc(h.x.row[1])}</span><small>${esc(srcLine(h.x))}</small></button></li>`;
+    const wrap=(cls,attr,name,line,tail,lbl)=>`<li><button class="${cls}${on}" ${attr} role="option"`
+      + (lbl?` title="${esc(lbl)}" aria-label="${esc(lbl)}"`:"") + `>`
+      + hitMark(h)
+      + `<span class="rtx"><span class="rnm">${esc(name)}</span><small>${esc(line)}</small></span>`
+      + (tail||"") + `</button></li>`;
+    if(h.k==="style") return wrap("res-style",`data-go="${esc(h.n.id)}"`,
+      h.n.name, (h.n.year<1950?h.n.disp:String(h.n.year))+" \u00b7 "+hitLine(h.n), "", "");
+    if(h.k==="page") return wrap("res-page",`data-page-go="${esc(h.p.key)}"`,
+      h.p.label, h.p.sub, "", "");
+    // a source is somebody else's page and opens in a new tab. An arrow is the one mark
+    // people already read as "this leaves", and the label names the host, because an
+    // arrow alone does not say where it is about to send you.
+    const host=hostOf(h.x.url);
+    return wrap("res-src rs-"+esc(h.x.row[7]),`data-src="${esc(h.x.url)}"`,
+      h.x.row[1], srcLine(h.x), `<i class="rext">${OPENGO}</i>`,
+      h.x.row[1]+(host?", opens "+host:"")+" in a new tab");
   }).join("");
   res.hidden=false;
 }
