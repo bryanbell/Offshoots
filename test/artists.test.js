@@ -473,11 +473,19 @@ const onPage=async(q,k)=>{ await until(q,k=>{
     else {
       const same=k=>String(ways[k])===String(arts[k]);
       const show=k=>k+" "+ways[k]+" vs "+arts[k];
-      const off=["tile","circle","glyph","gap","label","stack","radius"].filter(k=>!same(k));
-      say("the ways in and key artists circles are the same component"
-        +(off.length?" — "+off.map(show).join(", "):" ("+ways.circle+"px circle, "
-          +ways.glyph+"px glyph, "+ways.gap+" apart, "+ways.label.split("/")[0]+" label)"),
+      // They were one component until the ways in became jewel cases. What still has to
+      // match is everything that makes two rows read as a pair: the tile they sit in,
+      // the glyph, the gaps and the label. What is now deliberately different is the
+      // sleeve itself, and that difference is the point, so it gets its own check rather
+      // than being quietly dropped from the list.
+      const off=["tile","glyph","gap","label","stack"].filter(k=>!same(k));
+      say("the ways in and key artists rows are laid out the same"
+        +(off.length?" — "+off.map(show).join(", "):" ("+ways.glyph+"px glyph, "
+          +ways.gap+" apart, "+ways.label.split("/")[0]+" label)"),
         off.length===0);
+      // a case and a portrait: one is square with a hinge, the other is round
+      say("  and only the sleeve differs ("+ways.radius+" vs "+arts.radius+")",
+        ways.radius!=="50%" && arts.radius==="50%");
       // the heading above each row carries the same weight: a lighter one on either side
       // would say the rows rank differently when they do not
       say("  and their headings match"+(ways.head===arts.head?" ("+ways.head+")":": "

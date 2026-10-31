@@ -64,6 +64,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
     const c=r[0].querySelector(".mco").getBoundingClientRect();
     return {scrolls:row.scrollWidth>row.clientWidth+1, vis:vis.length,
       round:Math.abs(c.width-c.height)<=1 && c.width>=52,
+      caseish:c.width>=c.height && c.width-c.height<=10 && c.height>=52,
       clipped:r.filter(x=>{const l=x.querySelector(".mclbl"); return l.scrollHeight>l.clientHeight+1;})
                .map(x=>x.querySelector(".mclbl").textContent),
       tap:Math.min(...r.map(x=>Math.round(x.getBoundingClientRect().height)))};});
@@ -116,7 +117,8 @@ const say=(k,v)=>console.log((v===true?"PASS ":v===false?"FAIL ":"     ")+k+(typ
   await p.evaluate(()=>{document.querySelector(".mrow").scrollLeft=0;});
   await settle(p);
   say("  with "+lay.vis+" in reach before it does", lay.vis>=3);
-  say("  each a circle of "+Math.round(lay.tap)+"px", lay.round && lay.tap>=44);
+  // a jewel case now, so square-ish rather than round, and still big enough to hit
+  say("  each a case of "+Math.round(lay.tap)+"px", lay.caseish && lay.tap>=44);
   say("  and no label cut off"+(lay.clipped.length?": "+lay.clipped.join(", "):""), lay.clipped.length===0);
 
   // the heading is the control that opens the rest, chevron and all, and it has to be
