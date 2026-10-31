@@ -236,6 +236,39 @@ const readRules=(p)=>p.evaluate(()=>{
     say("  and still square at "+box.join("x"), box[0]===box[1]);
   }
 
+  // ---- a control is something you press, not something you read ----
+  // A browser's own stylesheet sets user-select:none on a button. all:unset throws that
+  // away with the padding it was reaching for, and every control in this app is built on
+  // all:unset, so all 97 of them had selectable type. On iOS a tap held a fraction too
+  // long then put selection handles around the words instead of pressing: the back
+  // button stopped answering until the selection was dismissed.
+  // Headless Chromium has no touch-selection UI, so the symptom cannot be reproduced
+  // here. The computed style is the defect, and that is what this measures.
+  {
+    const q=await b.newPage({viewport:{width:430,height:900}});
+    await q.goto(URL); await ready(q);
+    await q.click("#grab").catch(()=>{}); await settle(q);
+    await q.click('[data-page="modes"]').catch(()=>{}); await settle(q);
+    const r=await q.evaluate(()=>{
+      const loose=[], press=[...document.querySelectorAll("button,[role='button']")];
+      for(const e of press){
+        if(!e.getClientRects().length) continue;
+        if(getComputedStyle(e).userSelect!=="none")
+          loose.push((e.id||e.className||e.tagName).toString().split(" ")[0]);
+      }
+      // prose is the other half of the claim: a blurb you cannot copy is its own bug
+      const prose=document.querySelector(".pglede,.note,.rdn");
+      return {n:press.length, loose:[...new Set(loose)],
+        prose:prose?getComputedStyle(prose).userSelect:"(none found)"};
+    });
+    say("none of the "+r.n+" controls carry selectable type"
+      +(r.loose.length?" — "+r.loose.join(", "):""), r.loose.length===0);
+    if(r.loose.length) bad++;
+    say("  while the prose stays selectable ("+r.prose+")", r.prose!=="none");
+    if(r.prose==="none") bad++;
+    await q.close();
+  }
+
   await b.close();
   process.exit(bad?1:0);
 })();

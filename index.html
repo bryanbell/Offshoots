@@ -64,6 +64,7 @@
   --link:#5aa9ff; --lite:#f5f5f7; --lite-fg:#1a1a1c; --lite-mut:#6a6a70;
   --cdot:var(--c); color-scheme:dark}
 *{box-sizing:border-box}
+
 html,body{height:100%}
 body{margin:0;padding:0;background:var(--mapbg);color:var(--fg);font-family:var(--f-body);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;letter-spacing:-.005em;overflow:hidden}
 .c{--c:#9aa0a6}
@@ -1797,6 +1798,41 @@ a.am .amgo{display:none}
   .plrow{padding:12px 22px 12px 12px;gap:16px}
   .who a.am .amgo{width:13px;height:13px}
 }
+
+/* ---------- what all:unset throws away ----------
+   A browser's own stylesheet sets user-select:none on a button, because a control is
+   something you press, not something you read. all:unset discards that along with the
+   borders and padding it was reaching for, so every control in this app had selectable
+   type on it: a tap held a fraction too long put iOS selection handles around "Ways in"
+   and the button stopped answering until the selection was dismissed.
+   Listed rather than inferred, because all:unset sits at class specificity and a bare
+   `button` rule loses to it. It also has to come AFTER every one of them: same selectors,
+   same weight, so the later rule is the one that wins. Any new control built on
+   all:unset belongs in this list. */
+.results li button,
+.modeup,
+.pick,
+.pmin,
+.listrow,
+.navback,
+.shuf,
+.navmenu button,
+.mcirc,
+.acirc,
+.secthead.sectgo,
+.segopt,
+.pickwho,
+.pickrow,
+.tipgo button,
+.hellolink,
+.subh.subgo,
+.aboutcopy,
+.about .steps .sheetbtn,
+button.navttl,
+.shbtn{
+  -webkit-user-select:none; user-select:none; -webkit-touch-callout:none}
+/* and a baseline for the controls that never reset themselves */
+button,[role="button"]{-webkit-user-select:none; user-select:none}
 
 </style>
 <div id="app">
