@@ -68,6 +68,15 @@ button{font-family:inherit}
 .results{position:absolute;z-index:30;left:0;right:0;top:calc(100% + 6px);background:var(--lite);color:var(--lite-fg);border-radius:12px;margin:0;padding:5px;list-style:none;box-shadow:0 0 0 .5px rgb(0 0 0 / .18),0 12px 32px rgb(0 0 0 / .45)}
 .results li button{all:unset;display:flex;gap:8px;align-items:baseline;width:100%;box-sizing:border-box;padding:8px 10px;border-radius:8px;cursor:pointer}
 .results li button:hover,.results li button.act{background:rgb(0 0 0 / .07)}
+/* three kinds of result in one list, so each says which it is without a word for it: a
+   style is plain, a page and a source carry a colour down their leading edge. */
+.results li button{position:relative}
+.results li button.res-page::before,.results li button.res-src::before{content:"";
+  position:absolute;left:2px;top:9px;bottom:9px;width:2.5px;border-radius:2px;
+  background:var(--resc,var(--lite-mut))}
+.res-page{--resc:#d9a441}
+.rs-read{--resc:#7aa2f7} .rs-book{--resc:#c9a227} .rs-listen{--resc:#5bbda4}
+.rs-watch{--resc:#e2604a} .rs-look{--resc:#b07ad6}
 .results small{color:var(--lite-mut);font-size:var(--t-foot);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 button:focus-visible,.chip:focus-visible,.link:focus-visible{outline:0;box-shadow:0 0 0 3.5px color-mix(in srgb,var(--accent) 35%,transparent)}
 /* map */
@@ -1728,7 +1737,7 @@ a.am .amgo{display:none}
       <button id="mapSearch" class="glass" type="button" aria-label="Search styles and artists" title="Search styles and artists"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4 4"/></svg></button>
       <div id="bottomSearch">
           <div class="search" id="searchBox">
-            <form role="search" autocomplete="off" onsubmit="return false"><input id="q" name="site-search" type="search" placeholder="Search styles and artists" role="combobox" aria-expanded="false" aria-autocomplete="list" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="search" enterkeyhint="search" data-1p-ignore data-lpignore="true" data-form-type="other" data-bwignore aria-label="Search styles and artists" aria-controls="res"></form>
+            <form role="search" autocomplete="off" onsubmit="return false"><input id="q" name="site-search" type="search" placeholder="Search styles, artists and sources" role="combobox" aria-expanded="false" aria-autocomplete="list" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="search" enterkeyhint="search" data-1p-ignore data-lpignore="true" data-form-type="other" data-bwignore aria-label="Search styles, artists and sources" aria-controls="res"></form>
             <button id="qclear" type="button" aria-label="Clear search" hidden><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></button><ul class="results" id="res" role="listbox" hidden></ul>
           </div>
         </div>
@@ -5642,26 +5651,98 @@ wrap.addEventListener("click",e=>{ if(e.target.closest("[data-wclose]")) closeWi
 document.addEventListener("click",e=>{ const a=e.target.closest("a.wk:not(.pl):not(.sp)"); if(!a) return; e.preventDefault(); openWiki(a.href, a.dataset.name||"Wikipedia"); });
 
 // ---------- search ----------
+// Three kinds of thing can come back, because three kinds of thing are worth finding.
+// A STYLE is the map's own content and wins on any decent match. A SOURCE is one of the
+// Go deeper rows: the map holds several hundred books, articles and films, and until now
+// the only way to a named one was to already know which style it sat on. A PAGE is a
+// place rather than a thing, so that typing "Pete" or "podcasts" goes where you meant.
+//
+// Scores are a single ladder rather than a bucket per kind, so a precise title can beat
+// a loose style match while a style name still beats everything.
 const q=$("q"), res=$("res"); let hits=[], act=0;
+// built once: a flat list of every source with the styles it sits on, and one blob of
+// lowercase text to match against, so typing is a scan over an array rather than a walk
+// of READ on every keystroke.
+let SRC=null;
+function srcIndex(){
+  if(SRC) return SRC;
+  SRC=sourceList(()=>true).map(x=>{
+    const r=x.row;
+    return {row:r, styles:x.styles, url:r[0],
+      title:(r[1]||"").toLowerCase(), by:(r[2]||"").toLowerCase(),
+      kind:(r[4]||"").toLowerCase(), note:(r[6]||"").toLowerCase(),
+      subj:(r[8]||"").toLowerCase(), who:pickerOf(r[0])};
+  });
+  return SRC;
+}
+// the pages this search can land on, with the words someone would actually type for them
+function pageIndex(){
+  const out=MEDIA.filter(([t])=>medCount(t)).map(([t,label,blurb])=>({
+    key:"med:"+t, label, sub:medCount(t)+" across the map",
+    terms:(label+" "+blurb).toLowerCase()}));
+  for(const [who,p] of Object.entries(pickers())){
+    if(!pickCount(who)) continue;
+    out.unshift({key:"picks", label:p.name+"\u2019s Picks",
+      sub:pickCount(who)+" chosen by a guest",
+      terms:(p.name+" picks "+p.role+" "+p.blurb).toLowerCase()});
+  }
+  return out;
+}
 function find(t){
   t=t.trim().toLowerCase(); if(!t) return [];
+  const out=[];
   // a title match is worth less than a name, a note or an artist, and is not tried at all
   // on a short query, where a word like "you" would match most of the playlists at once
   const score=n=>{ const nm=n.name.toLowerCase(); if(nm.startsWith(t)) return 0; if(nm.includes(t)) return 1;
     if(n.search.includes(t)) return 2; if(t.length>=4 && n.songsearch.includes(t)) return 3; return 9; };
-  return nodes.map(n=>[score(n),n]).filter(a=>a[0]<9).sort((a,b)=>a[0]-b[0]||a[1].year-b[1].year).slice(0,8).map(a=>a[1]);
+  for(const n of nodes){ const sc=score(n); if(sc<9) out.push({k:"style",sc,n,ord:n.year}); }
+  for(const p of pageIndex()){
+    const lb=p.label.toLowerCase();
+    const sc = lb.startsWith(t) ? 1.2 : lb.includes(t) ? 2.5
+      : (t.length>=3 && p.terms.includes(t)) ? 4.5 : 9;
+    if(sc<9) out.push({k:"page",sc,p,ord:0});
+  }
+  for(const x of srcIndex()){
+    const sc = x.title.startsWith(t) ? 1.5 : x.title.includes(t) ? 4
+      : x.by.includes(t) ? 5
+      : (t.length>=3 && x.subj.includes(t)) ? 5.5
+      : (t.length>=4 && (x.note.includes(t)||x.kind.includes(t))) ? 6 : 9;
+    if(sc<9) out.push({k:"src",sc,x,ord:x.row[3]||9999});
+  }
+  return out.sort((a,b)=>a.sc-b.sc||a.ord-b.ord).slice(0,8);
 }
 function hitLine(n){ const t=q.value.trim().toLowerCase(), has=x=>x.toLowerCase().includes(t);
   // name the artist that matched, whether it is one of the three on the panel or
   // one of the deeper playlist names, so the row says why it is in the list
   const m=n.artists.find(has)||n.roster.find(has);
-  if(m && !n.note.toLowerCase().includes(t)) return m+" · "+n.note;
+  if(m && !n.note.toLowerCase().includes(t)) return m+" \u00b7 "+n.note;
   // nothing else matched, so it was a track title: quote it, since a bare title reads as a note
   const sg = t.length>=4 && !n.note.toLowerCase().includes(t) && n.songs.find(has);
-  return sg ? "\u201c"+sg+"\u201d · "+n.note : n.note; }
+  return sg ? "\u201c"+sg+"\u201d \u00b7 "+n.note : n.note; }
+// a source's second line says what it is, who made it, and where on the map it lives, in
+// that order: the first two tell you whether you want it and the third tells you where
+// tapping it would otherwise have taken you.
+function srcLine(x){
+  const r=x.row, bits=[];
+  bits.push(r[4] ? r[4].charAt(0).toUpperCase()+r[4].slice(1) : r[7]);
+  if(r[2]) bits.push(r[2]);
+  if(r[3]) bits.push(String(r[3]));
+  const on=x.styles.map(id=>byId[id] && byId[id].name).filter(Boolean);
+  if(on.length) bits.push(on.length>2 ? on[0]+" and "+(on.length-1)+" more" : on.join(" and "));
+  return bits.join(" \u00b7 ");
+}
 function renderHits(){
   if(!hits.length){ res.hidden=true; return; }
-  res.innerHTML = hits.map((n,i)=>`<li><button class="${i===act?"act":""}" data-go="${n.id}" role="option"><span>${esc(n.name)}</span><small>${n.year<1950?esc(n.disp):n.year} · ${esc(hitLine(n))}</small></button></li>`).join("");
+  res.innerHTML = hits.map((h,i)=>{
+    const on=i===act?" act":"";
+    if(h.k==="style") return `<li><button class="res-style${on}" data-go="${esc(h.n.id)}" role="option">`
+      + `<span>${esc(h.n.name)}</span><small>${h.n.year<1950?esc(h.n.disp):h.n.year} \u00b7 ${esc(hitLine(h.n))}</small></button></li>`;
+    if(h.k==="page") return `<li><button class="res-page${on}" data-page-go="${esc(h.p.key)}" role="option">`
+      + `<span>${esc(h.p.label)}</span><small>${esc(h.p.sub)}</small></button></li>`;
+    // a source leaves the app, so it says so rather than looking like one more style
+    return `<li><button class="res-src rs-${esc(h.x.row[7])}${on}" data-src="${esc(h.x.url)}" role="option">`
+      + `<span>${esc(h.x.row[1])}</span><small>${esc(srcLine(h.x))}</small></button></li>`;
+  }).join("");
   res.hidden=false;
 }
 (function(){ const f=q.closest("form"); if(f) f.addEventListener("submit",e=>e.preventDefault()); })();
@@ -5669,12 +5750,25 @@ q.addEventListener("input",()=>{ hits=find(q.value); act=0; renderHits(); qsync(
 q.addEventListener("keydown",e=>{
   if(e.key==="ArrowDown"){ act=Math.min(act+1,hits.length-1); renderHits(); e.preventDefault(); }
   else if(e.key==="ArrowUp"){ act=Math.max(act-1,0); renderHits(); e.preventDefault(); }
-  else if(e.key==="Enter"&&hits[act]){ go(hits[act].id); q.blur(); }
+  else if(e.key==="Enter"&&hits[act]){ open_(hits[act]); q.blur(); }
   else if(e.key==="Escape"){ res.hidden=true; }
 });
-res.addEventListener("click",e=>{ const b=e.target.closest("[data-go]"); if(b){ go(b.dataset.go); q.blur(); } });
+res.addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  const h=hits[[...res.querySelectorAll("button")].indexOf(b)];
+  if(h){ open_(h); q.blur(); }
+});
 document.addEventListener("click",e=>{ if(!e.target.closest(".search")) res.hidden=true; });
-function go(id){ res.hidden=true; q.value=""; qsync(); document.body.classList.remove("searching"); select(id);
+// one exit for all three kinds, so the keyboard and the mouse cannot drift apart
+function open_(h){
+  if(h.k==="style") return go(h.n.id);
+  clearQ();
+  if(h.k==="page"){ setOpen(true); setTimeout(()=>pushPage(h.p.key),120); return; }
+  // a source is somebody else's page: new tab, and the map stays where it was
+  window.open(h.x.url,"_blank","noopener,noreferrer");
+}
+function clearQ(){ res.hidden=true; q.value=""; qsync(); document.body.classList.remove("searching"); }
+function go(id){ clearQ(); select(id);
   panelTop(); }
 // a cover that isn't there just disappears; error doesn't bubble, so listen on the capture phase
 // a cover that fails once is usually a hiccup; only a second failure means there is no file,

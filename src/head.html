@@ -68,6 +68,15 @@ button{font-family:inherit}
 .results{position:absolute;z-index:30;left:0;right:0;top:calc(100% + 6px);background:var(--lite);color:var(--lite-fg);border-radius:12px;margin:0;padding:5px;list-style:none;box-shadow:0 0 0 .5px rgb(0 0 0 / .18),0 12px 32px rgb(0 0 0 / .45)}
 .results li button{all:unset;display:flex;gap:8px;align-items:baseline;width:100%;box-sizing:border-box;padding:8px 10px;border-radius:8px;cursor:pointer}
 .results li button:hover,.results li button.act{background:rgb(0 0 0 / .07)}
+/* three kinds of result in one list, so each says which it is without a word for it: a
+   style is plain, a page and a source carry a colour down their leading edge. */
+.results li button{position:relative}
+.results li button.res-page::before,.results li button.res-src::before{content:"";
+  position:absolute;left:2px;top:9px;bottom:9px;width:2.5px;border-radius:2px;
+  background:var(--resc,var(--lite-mut))}
+.res-page{--resc:#d9a441}
+.rs-read{--resc:#7aa2f7} .rs-book{--resc:#c9a227} .rs-listen{--resc:#5bbda4}
+.rs-watch{--resc:#e2604a} .rs-look{--resc:#b07ad6}
 .results small{color:var(--lite-mut);font-size:var(--t-foot);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 button:focus-visible,.chip:focus-visible,.link:focus-visible{outline:0;box-shadow:0 0 0 3.5px color-mix(in srgb,var(--accent) 35%,transparent)}
 /* map */
@@ -1728,7 +1737,7 @@ a.am .amgo{display:none}
       <button id="mapSearch" class="glass" type="button" aria-label="Search styles and artists" title="Search styles and artists"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4 4"/></svg></button>
       <div id="bottomSearch">
           <div class="search" id="searchBox">
-            <form role="search" autocomplete="off" onsubmit="return false"><input id="q" name="site-search" type="search" placeholder="Search styles and artists" role="combobox" aria-expanded="false" aria-autocomplete="list" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="search" enterkeyhint="search" data-1p-ignore data-lpignore="true" data-form-type="other" data-bwignore aria-label="Search styles and artists" aria-controls="res"></form>
+            <form role="search" autocomplete="off" onsubmit="return false"><input id="q" name="site-search" type="search" placeholder="Search styles, artists and sources" role="combobox" aria-expanded="false" aria-autocomplete="list" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="search" enterkeyhint="search" data-1p-ignore data-lpignore="true" data-form-type="other" data-bwignore aria-label="Search styles, artists and sources" aria-controls="res"></form>
             <button id="qclear" type="button" aria-label="Clear search" hidden><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></button><ul class="results" id="res" role="listbox" hidden></ul>
           </div>
         </div>
