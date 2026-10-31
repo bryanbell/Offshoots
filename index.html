@@ -73,13 +73,12 @@ button{font-family:inherit}
    a medium's glyph. A coloured edge did this job first and could not say WHICH medium,
    only that there was one. */
 .results li button{align-items:center}
-.rico{flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;
-  color:#fff;
-  background:linear-gradient(160deg,color-mix(in srgb,var(--resc,var(--lite-mut)) 80%,#fff) 0%,
-    var(--resc,var(--lite-mut)) 55%,color-mix(in srgb,var(--resc,var(--lite-mut)) 74%,#000) 100%)}
-.rico svg{width:16px;height:16px;display:block}
-/* a style's mark is the family colour itself, so it needs no disc around it */
-.rico.rdot{width:11px;height:11px;margin:0 7px;background-image:none}
+.rico{flex:none;display:grid;place-items:center;width:26px;height:26px;
+  color:var(--resc,var(--lite-mut))}
+.rico svg{width:23px;height:23px;display:block}
+/* a style's mark is the family colour as a dot, which is the one case that IS a disc:
+   there is no glyph to carry the colour, so the shape has to */
+.rico.rdot{width:11px;height:11px;margin:0 7px;border-radius:50%}
 .rtx{display:flex;gap:8px;align-items:baseline;min-width:0;flex:1 1 auto}
 /* the name does not give way; the line beside it does. Both shrinking meant a result
    could truncate the one word you typed while keeping the year beside it. The cap is
@@ -447,26 +446,16 @@ body.open .pcnt{display:none}
    a round tile beside a round tile is one panel, a rounded square beside a circle is two
    halves of a design. Each row keeps its own colour, because a column of identical grey
    tiles is a column you read by text alone, which is what the icon was there to save. */
-/* The same object as the big mode circle, at list size: the colour fills the disc and
-   the glyph is white on top of it. Duotone still earns its keep here, because the ghost
-   layer is white at 20% over the colour rather than over grey, so the icon reads as one
-   shape with its own shading instead of two colours sharing a circle.
-   It was the other way round for a while, a coloured glyph on a neutral grey ground,
-   which kept the rows quiet but made them a different species from the circles directly
-   below them on the same panel. One treatment, two sizes. */
+/* No disc: the glyph itself, in its own colour, grown into the space a disc would have
+   taken. This went round twice. A coloured glyph on neutral grey kept the rows quiet but
+   left the ghost layer doing nothing; a filled circle matched the big mode circles but
+   made every list a row of badges, and at 34px the disc was mostly disc. Without one,
+   duotone draws its 20% layer in the hue straight onto the panel, which is the weight
+   working as intended, and the glyph gets the whole box.
+   The 34px box stays whatever is in it, so the rows and the separator inset hold still. */
 .listrow .lrico{flex:none;display:grid;place-items:center;width:34px;height:34px;
-  border-radius:50%;color:#fff;
-  background:linear-gradient(160deg,color-mix(in srgb,var(--lrc,var(--fg)) 80%,#fff) 0%,
-    var(--lrc,var(--fg)) 55%,color-mix(in srgb,var(--lrc,var(--fg)) 74%,#000) 100%);
-  box-shadow:0 1px 2px rgb(0 0 0 / .22)}
-.listrow .lrico svg{width:20px;height:20px}
-/* ---- a trial, on the three Explore rows only ----
-   No disc, and the glyph grown into the space the disc was holding. The colour moves
-   back into the icon because there is no longer anything behind it to sit on, so duotone
-   goes back to drawing its ghost layer in the hue at 20% over the panel. Everything else
-   on the map keeps the filled circle; this is here to be compared against it. */
-.sect-browse .listrow .lrico{background:none;box-shadow:none;color:var(--lrc,var(--fg))}
-.sect-browse .listrow .lrico svg{width:30px;height:30px}
+  color:var(--lrc,var(--fg))}
+.listrow .lrico svg{width:30px;height:30px}
 .lr-roots{--lrc:#4fa86e} .lr-fams{--lrc:#7a86d6} .lr-pl{--lrc:#d1699a}
 .lr-top{--lrc:#d99a3c} .lr-random{--lrc:#52a8bd} .lr-about{--lrc:#9b8ad6}
 .lr-install{--lrc:#5f9fd4}
@@ -488,7 +477,7 @@ body.open .pcnt{display:none}
   .listgrp{--lrlead:51px}
   .listrow{min-height:46px;padding:0 12px;gap:11px}
   .listrow .lrico{width:32px;height:32px}
-  .listrow .lrico svg{width:16px;height:16px}
+  .listrow .lrico svg{width:28px;height:28px}
 }
 }
 .navpair .navbtn:hover:not(:disabled){background:color-mix(in srgb,var(--acc,var(--fg)) 16%,transparent)}
@@ -718,10 +707,8 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 .plist .listrow{min-height:50px}
 /* the colophon is about the map rather than part of it, so its rows carry no card */
 /* the mode list: the energy colour that used to fill a chip now tints its icon tile */
-.modelist .listrow .lrico{color:#fff;
-  background:linear-gradient(160deg,color-mix(in srgb,var(--lvc) 80%,#fff) 0%,
-    var(--lvc) 55%,color-mix(in srgb,var(--lvc) 74%,#000) 100%)}
-.modelist .listrow .lrico svg{width:18px;height:18px}
+.modelist .listrow .lrico{color:var(--lvc)}
+.modelist .listrow .lrico svg{width:28px;height:28px}
 .moderow{--lvc:#9aa0a6}
 .moderow.lv1{--lvc:#7aa2f7}
 .moderow.lv2{--lvc:#5bbda4}
@@ -888,7 +875,7 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 .modelist.two .listrow{padding:0 14px;gap:10px;min-height:52px;position:relative}
 .modelist.two .listrow .lrcv{display:none}
 .modelist.two .listrow .lrico{width:28px;height:28px}
-.modelist.two .listrow .lrico svg{width:16px;height:16px}
+.modelist.two .listrow .lrico svg{width:24px;height:24px}
 .modelist.two .listrow .lrlbl{font-size:var(--t-sub)}
 /* A hairline above every row but the first two. The gutter rule used to be drawn by each
    odd row, inset top and bottom, which left a gap at every row boundary and read as a

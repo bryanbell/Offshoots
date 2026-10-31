@@ -389,19 +389,18 @@ const onPage=async(q,k)=>{ await until(q,k=>{
       say("every artist on the page has a role circle with a symbol in it ("
         +pair.rows.length+" of them)",
         pair.rows.length>3 && pair.rows.every(r=>r.glyph && /^r-[a-z]+$/.test(r.role)));
-      // the colour is in the disc now, not in the glyph, and the disc is painted with a
-      // gradient, so it is backgroundImage that carries it and backgroundColor is bare
+      // the colour is in the glyph, so that is where to look for it
       say("  coloured by what the act is, not all alike ("+pair.roles.length+" kinds here)",
-        pair.roles.length>1 && new Set(pair.rows.map(r=>r.fill)).size>1);
-      // Filled, not tinted. These were a coloured glyph on a neutral ground for a while,
-      // which read quietly but made them a different species from the circles upstairs
-      // on the same panel. One treatment at two sizes: the colour fills the disc and the
-      // glyph is white, and duotone's ghost layer becomes white at 20% over the colour.
-      say("  a filled disc with a white glyph, like the circles upstairs",
-        pair.rows.every(r=>r.ink==="rgb(255, 255, 255)"));
-      // and the disc paints a colour of its own rather than letting the row show through
-      say("  the disc painting its own colour, not showing the row through",
-        pair.rows.every(r=>/gradient/.test(r.fill) && !/\/\s*0?\.\d+\s*\)/.test(r.fill)));
+        pair.roles.length>1 && new Set(pair.rows.map(r=>r.ink)).size>1);
+      // No disc behind it. This went round twice: a coloured glyph on neutral grey, then
+      // a filled circle with a white glyph to match the big mode circles, and now the
+      // glyph alone. At 34px a disc is mostly disc, and without one duotone draws its
+      // 20% layer in the hue straight onto the panel, which is the weight working.
+      say("  the glyph alone, with nothing behind it",
+        pair.rows.every(r=>!/gradient/.test(r.fill) && !/rgb/.test(r.tinted.replace(/rgba\(0, 0, 0, 0\)/,""))));
+      // and it is not white, which would be invisible without a disc under it
+      say("  and not white, which needs a disc to sit on",
+        pair.rows.every(r=>r.ink!=="rgb(255, 255, 255)"));
 
       // and the role the page gives an act is the role the row gave it
       await q.click("#panelBack"); await q.waitForTimeout(800);
