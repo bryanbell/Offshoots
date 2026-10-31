@@ -23,18 +23,56 @@ const opened=async q=>{ await until(q,()=>document.body.classList.contains("open
 const lum=c=>{const [r,g,b]=c.map(v=>{v/=255; return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4);});
   return .2126*r+.7152*g+.0722*b;};
 const ratio=(a,b)=>+(((Math.max(lum(a),lum(b))+.05)/(Math.min(lum(a),lum(b))+.05))).toFixed(2);
-const parse=s=>s.match(/[\d.]+/g).slice(0,3).map(Number);
+// Two spellings come back from getComputedStyle and they are not on the same scale.
+// rgb()/rgba() give 0-255; a color-mix resolves to color(srgb r g b / a) with 0-1
+// floats. Reading the second as the first makes white look black, which is how a panel
+// at 16:1 was reported as 1.2:1 the first time this suite ran in light mode.
+const parse=s=>{
+  const n=(s.match(/[\d.]+/g)||[]).slice(0,3).map(Number);
+  return /color\(/.test(s) ? n.map(v=>v*255) : n;
+};
 
 (async()=>{
   const b=await chromium.launch(); skipWelcome(b);
-  for(const [name,vp,mob] of [["mobile",{width:390,height:844},true],["desktop",{width:1440,height:900},false]]){
-    const ctx=await b.newContext({viewport:vp,isMobile:mob,hasTouch:mob,deviceScaleFactor:2});
+  // Both palettes, because only one of them used to exist. While the app forced dark,
+  // this file ran in Playwright's default light and measured dark values, so the day
+  // light came back every string on the panel read as 1.2:1 at once.
+  for(const [name,vp,mob,scheme] of [
+      ["light mobile",{width:390,height:844},true,"light"],
+      ["light desktop",{width:1440,height:900},false,"light"],
+      ["dark mobile",{width:390,height:844},true,"dark"],
+      ["dark desktop",{width:1440,height:900},false,"dark"]]){
+    const ctx=await b.newContext({viewport:vp,isMobile:mob,hasTouch:mob,deviceScaleFactor:2,
+      colorScheme:scheme});
     const p=await ctx.newPage();
     await p.goto(URL); await ready(p);
     if(mob){ await p.click("#grab"); await opened(p); }
     const rows=await p.evaluate(()=>{
-      const bgOf=e=>{ let n=e; while(n){ const c=getComputedStyle(n).backgroundColor;
-        if(c && !/rgba\(0, 0, 0, 0\)|transparent/.test(c)) return c; n=n.parentElement; } return "rgb(0, 0, 0)"; };
+      // The ground a string actually sits on, not the first painted ancestor. A
+      // translucent background has to be composited over what is under it or the reading
+      // is of a colour nobody can see: Share this app is #007aff text on 26% #007aff,
+      // which read as blue on blue, 1:1, when the alpha was dropped.
+      const num=c=>{ const n=(c.match(/[\d.]+/g)||[]).map(Number);
+        const rgb=/color\(/.test(c) ? n.slice(0,3).map(v=>v*255) : n.slice(0,3);
+        const a=/color\(/.test(c) ? (n.length>3?n[3]:1) : (n.length>3?n[3]:1);
+        return {rgb, a:isNaN(a)?1:a}; };
+      const bgOf=e=>{
+        const stack=[];
+        for(let n=e; n; n=n.parentElement){
+          const c=getComputedStyle(n).backgroundColor;
+          if(!c || /transparent/.test(c)) continue;
+          const {rgb,a}=num(c);
+          if(a<=0) continue;
+          stack.push({rgb,a});
+          if(a>=1) break;                       // opaque: nothing below it shows through
+        }
+        if(!stack.length) return "rgb(255, 255, 255)";
+        // bottom upward, each layer painted over the one below
+        let out=stack[stack.length-1].rgb;
+        for(let i=stack.length-2;i>=0;i--){ const L=stack[i];
+          out=out.map((v,k)=>L.rgb[k]*L.a + v*(1-L.a)); }
+        return "rgb("+out.map(v=>Math.round(v)).join(", ")+")";
+      };
       const out=[];
       // every leaf string in the root panel, rather than a list that can fall out of date
       document.querySelectorAll("#panelBody *").forEach(e=>{

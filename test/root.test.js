@@ -55,7 +55,10 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   const col=await p.evaluate(()=>{ const sec=document.querySelector(".sect-learn");
     const grp=sec.querySelector(".listgrp"), rows=[...sec.querySelectorAll(".listrow")];
     const sh=sec.querySelector(".shbtn"), body=document.getElementById("panelBody").getBoundingClientRect();
-    const blue=getComputedStyle(document.documentElement).getPropertyValue("--blue").trim();
+    // --blue fills, --bluetx reads: a tint of the fill behind type of the fill colour
+    // chases its own contrast, so the label takes the text blue and the ground keeps the
+    // fill blue. The claim here is still that Share is the one thing on the panel in it.
+    const blue=getComputedStyle(document.documentElement).getPropertyValue("--bluetx").trim();
     const hex=h=>{h=h.replace("#","");return [0,2,4].map(i=>parseInt(h.substr(i,2),16)).join(", ");};
     return {n:rows.length,
       labels:rows.map(f=>(f.querySelector(".lrlbl")||{}).textContent||""),
