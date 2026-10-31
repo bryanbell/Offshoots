@@ -112,17 +112,51 @@ const onPage=async(q,k)=>{ await until(q,k=>{
       .every(x=>getComputedStyle(x).display==="none")));
   await r.close();
 
-  // --- the way in from Explore
+  // --- the way in: its own section under the browse lists, not among them. Explore is
+  // about styles; this section is about sources, and the two were reading as one list.
   await p.goto(URL); await ready(p);
   await p.click("#grab").catch(()=>{}); await settle(p);
-  const row=await p.evaluate(()=>{const e=document.querySelector('[data-page="picks"]');
-    return e ? {lbl:(e.querySelector(".lrlbl")||{}).textContent,
-      ct:(e.querySelector(".lrct")||{}).textContent, ico:!!e.querySelector(".lrico svg")} : null;});
-  say("Explore has a way in", !!row && /Pete/.test(row.lbl));
-  say("  counting the picks ("+(row&&row.ct)+")", !!row && row.ct===String(mine.length));
-  say("  with an icon like its neighbours", !!row && row.ico);
+  const sect=await p.evaluate(()=>{
+    const d=document.querySelector(".sect-deeper"), br=document.querySelector(".sect-browse");
+    if(!d||!br) return null;
+    return {head:(d.querySelector(".secttl")||{}).textContent||"",
+      below:d.getBoundingClientRect().top > br.getBoundingClientRect().bottom,
+      rows:[...d.querySelectorAll(".listrow")].map(x=>({
+        key:x.dataset.page, lbl:(x.querySelector(".lrlbl")||{}).textContent,
+        ct:(x.querySelector(".lrct")||{}).textContent, ico:!!x.querySelector(".lrico svg")})),
+      inBrowse:!!br.querySelector('[data-page="picks"]')};});
+  say("its own section, headed "+JSON.stringify(sect&&sect.head), !!sect && sect.head==="Go deeper");
+  say("  below the browse lists rather than inside them",
+    !!sect && sect.below && sect.inBrowse===false);
+  say("  the guest first, then the whole library by medium ("
+    + sect.rows.map(r=>r.lbl).join(" / ") + ")",
+    sect.rows[0].key==="picks" &&
+    sect.rows.slice(1).map(r=>r.key).join("/")==="med:read/med:book/med:listen/med:watch/med:look");
+  say("  every row counted and iconed",
+    sect.rows.every(r=>r.ico && /^\d+$/.test(r.ct)));
+  say("  the guest row counting his picks ("+sect.rows[0].ct+")",
+    sect.rows[0].ct===String(mine.length));
+  // the counts are works, not rows: a book on seven styles is one book here
+  const uniq=t=>new Set(Object.values(D.READ).flat().filter(r=>r[7]===t).map(r=>r[0])).size;
+  say("  counting works and not rows",
+    sect.rows.slice(1).every(r=>r.ct===String(uniq(r.key.slice(4)))));
   await p.click('[data-page="picks"]'); await onPage(p,"picks");
-  say("  that opens the page", true);
+  say("  and the guest row opens his page", true);
+
+  // --- a medium page gathers everything of that medium, once each
+  await p.click("#panelBack"); await settle(p);
+  await p.click('[data-page="med:watch"]'); await onPage(p,"med:watch");
+  const med=await p.evaluate(()=>{
+    const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
+    return {t:(u.querySelector(".bigttl")||{}).textContent||"",
+      n:u.querySelectorAll(".pickit").length,
+      hrefs:[...u.querySelectorAll(".pickit .rd")].map(x=>x.href),
+      sorted:[...u.querySelectorAll(".pickit .rdt")].map(x=>x.textContent)};});
+  say("a medium page gathers that medium ("+med.t+", "+med.n+")", med.n===uniq("watch"));
+  say("  each source once", new Set(med.hrefs).size===med.hrefs.length);
+  const key=t=>t.replace(/^(the|a|an)\s+/i,"").toLowerCase();
+  say("  in title order, so a long one can be scanned",
+    med.sorted.map(key).join("|")===med.sorted.map(key).sort().join("|"));
 
   say("no page errors", errs.length===0 ? true : errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
   await b.close();

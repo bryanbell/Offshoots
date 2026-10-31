@@ -944,6 +944,13 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 .pickwho:hover{background:color-mix(in srgb,var(--fg) 14%,transparent)}
 .pickwho:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
 .lr-picks{--lrc:var(--pickc)}
+/* the medium rows wear the medium's own colour, the same one its Go deeper rows use on
+   every style, so the two read as one thing seen from two directions */
+.lr-med-read{--lrc:#7aa2f7}
+.lr-med-book{--lrc:#c9a227}
+.lr-med-listen{--lrc:#5bbda4}
+.lr-med-watch{--lrc:#e2604a}
+.lr-med-look{--lrc:#b07ad6}
 .who{display:flex;flex-wrap:wrap;gap:7px}
 /* ---------- the artists on one line ----------
    Wrapped across three rows the chips gave the longest name the widest row and left a
@@ -5185,7 +5192,13 @@ const LRCHEV="<svg class=\"lrcv\" viewBox=\"0 0 256 256\" fill=\"currentColor\" 
 const ROWICON={"roots":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M232,127.82c.09,33.94-28.41,63.3-62.34,64.16a63.72,63.72,0,0,1-41.66-14,63.71,63.71,0,0,1-41.65,14c-33.93-.86-62.44-30.22-62.35-64.16a64,64,0,0,1,40.13-59.2,68,68,0,0,1,127.74,0A64,64,0,0,1,232,127.82Z\" opacity=\"0.2\"/><path d=\"M198.1,62.59a76,76,0,0,0-140.2,0A71.71,71.71,0,0,0,16,127.8C15.9,166,48,199,86.14,200A72.22,72.22,0,0,0,120,192.47V232a8,8,0,0,0,16,0V192.47A72.17,72.17,0,0,0,168,200l1.82,0C208,199,240.11,166,240,127.8A71.71,71.71,0,0,0,198.1,62.59ZM169.45,184a56.08,56.08,0,0,1-33.45-10v-41l43.58-21.78a8,8,0,1,0-7.16-14.32L136,115.06V88a8,8,0,0,0-16,0v51.06L83.58,120.84a8,8,0,1,0-7.16,14.32L120,156.94v17a56,56,0,0,1-33.45,10C56.9,183.23,31.92,157.52,32,127.84A55.79,55.79,0,0,1,67.11,76a8,8,0,0,0,4.53-4.67,60,60,0,0,1,112.72,0A8,8,0,0,0,188.89,76,55.79,55.79,0,0,1,224,127.84C224.08,157.52,199.1,183.23,169.45,184Z\"/></svg>","fams":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M224,80l-96,56L32,80l96-56Z\" opacity=\"0.2\"/><path d=\"M230.91,172A8,8,0,0,1,228,182.91l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,36,169.09l92,53.65,92-53.65A8,8,0,0,1,230.91,172ZM220,121.09l-92,53.65L36,121.09A8,8,0,0,0,28,134.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,121.09ZM24,80a8,8,0,0,1,4-6.91l96-56a8,8,0,0,1,8.06,0l96,56a8,8,0,0,1,0,13.82l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,24,80Zm23.88,0L128,126.74,208.12,80,128,33.26Z\"/></svg>","pl":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M200,192a24,24,0,1,1-24-24A24,24,0,0,1,200,192Z\" opacity=\"0.2\"/><path d=\"M32,64a8,8,0,0,1,8-8H216a8,8,0,0,1,0,16H40A8,8,0,0,1,32,64Zm8,72H160a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16Zm72,48H40a8,8,0,0,0,0,16h72a8,8,0,0,0,0-16Zm135.66-57.7a8,8,0,0,1-10,5.36L208,122.75V192a32.05,32.05,0,1,1-16-27.69V112a8,8,0,0,1,10.3-7.66l40,12A8,8,0,0,1,247.66,126.3ZM192,192a16,16,0,1,0-16,16A16,16,0,0,0,192,192Z\"/></svg>","top":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M232,56v64L168,56Z\" opacity=\"0.2\"/><path d=\"M232,48H168a8,8,0,0,0-5.66,13.66L188.69,88,136,140.69l-34.34-34.35a8,8,0,0,0-11.32,0l-72,72a8,8,0,0,0,11.32,11.32L96,123.31l34.34,34.35a8,8,0,0,0,11.32,0L200,99.31l26.34,26.35A8,8,0,0,0,240,120V56A8,8,0,0,0,232,48Zm-8,52.69L187.31,64H224Z\"/></svg>","random":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M107.14,98.8,128,128l-20.86,29.2A64,64,0,0,1,55.06,184H32V72H55.06A64,64,0,0,1,107.14,98.8ZM200.94,72a64,64,0,0,0-52.08,26.8L128,128l20.86,29.2A64,64,0,0,0,200.94,184H232V72Z\" opacity=\"0.2\"/><path d=\"M237.66,178.34a8,8,0,0,1,0,11.32l-24,24a8,8,0,0,1-11.32-11.32L212.69,192H200.94a72.12,72.12,0,0,1-58.59-30.15l-41.72-58.4A56.1,56.1,0,0,0,55.06,80H32a8,8,0,0,1,0-16H55.06a72.12,72.12,0,0,1,58.59,30.15l41.72,58.4A56.1,56.1,0,0,0,200.94,176h11.75l-10.35-10.34a8,8,0,0,1,11.32-11.32ZM143,107a8,8,0,0,0,11.16-1.86l1.2-1.67A56.1,56.1,0,0,1,200.94,80h11.75L202.34,90.34a8,8,0,0,0,11.32,11.32l24-24a8,8,0,0,0,0-11.32l-24-24a8,8,0,0,0-11.32,11.32L212.69,64H200.94a72.12,72.12,0,0,0-58.59,30.15l-1.2,1.67A8,8,0,0,0,143,107Zm-30,42a8,8,0,0,0-11.16,1.86l-1.2,1.67A56.1,56.1,0,0,1,55.06,176H32a8,8,0,0,0,0,16H55.06a72.12,72.12,0,0,0,58.59-30.15l1.2-1.67A8,8,0,0,0,113,149Z\"/></svg>","about":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M224,128a96,96,0,1,1-96-96A96,96,0,0,1,224,128Z\" opacity=\"0.2\"/><path d=\"M144,176a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176Zm88-48A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128ZM124,96a12,12,0,1,0-12-12A12,12,0,0,0,124,96Z\"/></svg>","install":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M216,48V208H40V48A16,16,0,0,1,56,32H200A16,16,0,0,1,216,48Z\" opacity=\"0.2\"/><path d=\"M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,124.69V32a8,8,0,0,0-16,0v92.69L93.66,98.34a8,8,0,0,0-11.32,11.32Z\"/></svg>"};
 const ROWICON_PICKS="<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M224,128a95.76,95.76,0,0,1-31.8,71.37A72,72,0,0,0,128,160a40,40,0,1,0-40-40,40,40,0,0,0,40,40,72,72,0,0,0-64.2,39.37h0A96,96,0,1,1,224,128Z\" opacity=\"0.2\"/><path d=\"M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24ZM74.08,197.5a64,64,0,0,1,107.84,0,87.83,87.83,0,0,1-107.84,0ZM96,120a32,32,0,1,1,32,32A32,32,0,0,1,96,120Zm97.76,66.41a79.66,79.66,0,0,0-36.06-28.75,48,48,0,1,0-59.4,0,79.66,79.66,0,0,0-36.06,28.75,88,88,0,1,1,131.52,0Z\"/></svg>";
 ROWICON.picks=ROWICON_PICKS;
-const rowIcon = k => `<i class="lrico mi lr-${k}">${ROWICON[k]||""}</i>`;
+const rowIcon = k => {
+  // the medium rows carry the medium's own glyph and colour, which the Go deeper rows on
+  // every style already use, so the two read as the same thing seen from two directions
+  const med = k.indexOf("med:")===0 ? k.slice(4) : "";
+  return `<i class="lrico mi lr-${esc(med?"med-"+med:k)}">`
+    + (med ? (MEDPAGEICON[med]||"") : (ROWICON[k]||"")) + `</i>`;
+};
 function browseBtn(key,label,count,title,inner){
   return `<div class="navwrap nav-br">`
     + `<button type="button" class="listrow" data-menu="${key}" aria-haspopup="menu" aria-expanded="false" title="${esc(title)}" aria-label="${esc(title)}">`
@@ -5220,10 +5233,7 @@ function browseRow(){
   return sect("browse","",`<div class="listgrp sep">`
     + pageRow("roots","Roots",nr,`Roots: ${nr} styles with nothing before them here`)
     + pageRow("top","Most influential",TOPN,`The ${TOPN} styles that led to the most`)
-    + (pickCount("pete")
-        ? pageRow("picks","Pete\u2019s Picks",pickCount("pete"),
-            "Pete\u2019s Picks: books and records chosen by a guest")
-        : "")
+
     + randomRow()+`</div>`);
 }
 // Phosphor Icons, the Duotone weight, MIT. Inlined as paths so the map stays one
@@ -5347,7 +5357,9 @@ function modePage(k){
 }
 function pushPage(key){
   if(key.indexOf("mode:")===0) bumpMode(key.slice(5));
-  const def = key.indexOf("mode:")===0 ? (()=>modePage(key.slice(5))) : PAGES_DEF[key];
+  const def = key.indexOf("mode:")===0 ? (()=>modePage(key.slice(5)))
+    : key.indexOf("med:")===0 ? (()=>mediaPage(key.slice(4)))
+    : PAGES_DEF[key];
   if(!def) return false;
   const card=panelCard(); if(!card) return false;
   const stack=card.querySelector(":scope > .pstack") || wrapStack(card);
@@ -5505,24 +5517,81 @@ function picksPage(who){
   const p=pickers()[who]; if(!p) return null;
   const items=pickList(who);
   if(!items.length) return null;
-  const html=items.map(({row,styles})=>{
-    const where=styles.map(id=>`<button type="button" class="pickwho" data-go="${esc(id)}">`
-      + `<i class="dot" style="background:${FAM[byId[id].fam].c}"></i>`
-      + `<span>${esc(byId[id].name)}</span></button>`).join("");
-    // the pick's own note where it has one, so the book is described as a book here and
-    // as a chapter of itself over on the style
-    const note=pickNote(row[0]);
-    const r=note ? row.slice(0,6).concat([note],row.slice(7)) : row;
-    return `<div class="pickit">`
-      + readRow(r)
-      + (where?`<div class="pickon"><span class="pickonl">On</span>${where}</div>`:"")
-      + `</div>`;
-  }).join("");
+  // the pick's own note where it has one, so the book is described as a book here and as
+  // a chapter of itself over on the style
+  const html=items.map(x=>sourceItem(x,pickNote(x.row[0]))).join("");
   return {title:p.name+"\u2019s Picks",
     lede:p.blurb,
     top:`<div class="pickhead">${pickerAvatar(p,"big")}`
       + `<div class="pickwho2"><b>${esc(p.name)}</b><em>${esc(p.role)}</em></div></div>`,
     html:`<div class="picklist">${html}</div>`+copyRow(PICKS_HASH)};
+}
+
+// ---------- everything to read, watch and hear, by medium ----------
+// The same view trick as the picks page: these pages hold no sources of their own, they
+// only gather the Go deeper rows that already live on the styles. A source on four
+// styles is one entry here that names four places.
+//
+// Podcasts and audio are one row and not two. The data knows a source is something you
+// listen to; it does not know whether that is a podcast episode or an archive recording,
+// and splitting them on a guess would put things in the wrong half.
+const MEDIA=[
+  ["read","Articles","Reporting, reviews, obituaries and longform"],
+  ["book","Books","Histories, memoirs, oral histories and 33 1/3s"],
+  ["listen","Audio","Podcasts, interviews and recordings"],
+  ["watch","Videos","Documentaries, explainers and demonstrations"],
+  ["look","Pictures","Photo essays and scene reports"]
+];
+const MEDPAGEICON={
+  read:"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M224,64V184a16,16,0,0,1-16,16H32a16,16,0,0,0,16-16V64a8,8,0,0,1,8-8H216A8,8,0,0,1,224,64Z\" opacity=\"0.2\"/><path d=\"M88,112a8,8,0,0,1,8-8h80a8,8,0,0,1,0,16H96A8,8,0,0,1,88,112Zm8,40h80a8,8,0,0,0,0-16H96a8,8,0,0,0,0,16ZM232,64V184a24,24,0,0,1-24,24H32A24,24,0,0,1,8,184.11V88a8,8,0,0,1,16,0v96a8,8,0,0,0,16,0V64A16,16,0,0,1,56,48H216A16,16,0,0,1,232,64Zm-16,0H56V184a23.84,23.84,0,0,1-1.37,8H208a8,8,0,0,0,8-8Z\"/></svg>",
+  book:"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M48,72h64V184H48ZM190.64,38.39a8,8,0,0,0-9.5-6.21l-46.81,10a8.07,8.07,0,0,0-6.15,9.57L139.79,107l62.46-13.42Z\" opacity=\"0.2\"/><path d=\"M231.65,194.55,198.46,36.75a16,16,0,0,0-19-12.39L132.65,34.42a16.08,16.08,0,0,0-12.3,19l33.19,157.8A16,16,0,0,0,169.16,224a16.25,16.25,0,0,0,3.38-.36l46.81-10.06A16.09,16.09,0,0,0,231.65,194.55ZM136,50.15c0-.06,0-.09,0-.09l46.8-10,3.33,15.87L139.33,66Zm6.62,31.47,46.82-10.05,3.34,15.9L146,97.53Zm6.64,31.57,46.82-10.06,13.3,63.24-46.82,10.06ZM216,197.94l-46.8,10-3.33-15.87L212.67,182,216,197.85C216,197.91,216,197.94,216,197.94ZM104,32H56A16,16,0,0,0,40,48V208a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V48A16,16,0,0,0,104,32ZM56,48h48V64H56Zm0,32h48v96H56Zm48,128H56V192h48v16Z\"/></svg>",
+  listen:"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M156.5,151,59,222.45a8,8,0,0,1-10.38-.79l-14.3-14.3A8,8,0,0,1,33.55,197L105,99.5l0,0A64,64,0,0,0,156.48,151Z\" opacity=\"0.2\"/><path d=\"M168,16A72.07,72.07,0,0,0,96,88a73.29,73.29,0,0,0,.63,9.42L27.12,192.22A15.93,15.93,0,0,0,28.71,213L43,227.29a15.93,15.93,0,0,0,20.78,1.59l94.81-69.53A73.29,73.29,0,0,0,168,160a72,72,0,1,0,0-144Zm56,72a55.72,55.72,0,0,1-11.16,33.52L134.49,43.16A56,56,0,0,1,224,88ZM54.32,216,40,201.68,102.14,117A72.37,72.37,0,0,0,139,153.86ZM112,88a55.67,55.67,0,0,1,11.16-33.51l78.34,78.34A56,56,0,0,1,112,88Zm-2.35,58.34a8,8,0,0,1,0,11.31l-8,8a8,8,0,1,1-11.31-11.31l8-8A8,8,0,0,1,109.67,146.33Z\"/></svg>",
+  watch:"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M67.71,64.59l47.79,27.6L40.43,112,32.27,82a7.76,7.76,0,0,1,5.58-9.52ZM199.84,37.76a7.9,7.9,0,0,0-9.66-5.49L126.61,49.05,174.4,76.64,208,67.77Z\" opacity=\"0.2\"/><path d=\"M216,104H102.09L210,75.51a8,8,0,0,0,5.68-9.84l-8.16-30a15.93,15.93,0,0,0-19.42-11.13L35.81,64.74a15.75,15.75,0,0,0-9.7,7.4,15.51,15.51,0,0,0-1.55,12L32,111.56c0,.14,0,.29,0,.44v88a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V112A8,8,0,0,0,216,104ZM192.16,40l6,22.07-22.62,6L147.42,51.83Zm-66.69,17.6,28.12,16.24-36.94,9.75L88.53,67.37Zm-79.4,44.62-6-22.08,26.5-7L94.69,89.4ZM208,200H48V120H208v80Z\"/></svg>",
+  look:"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M208,40H80a8,8,0,0,0-8,8V176a8,8,0,0,0,8,8H96.69l77.65-77.66a8,8,0,0,1,11.32,0L216,136.69V48A8,8,0,0,0,208,40Zm-88,64a16,16,0,1,1,16-16A16,16,0,0,1,120,104Z\" opacity=\"0.2\"/><path d=\"M208,32H80A16,16,0,0,0,64,48V64H48A16,16,0,0,0,32,80V208a16,16,0,0,0,16,16H176a16,16,0,0,0,16-16V192h16a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM80,48H208v69.38l-16.7-16.7a16,16,0,0,0-22.62,0L93.37,176H80Zm96,160H48V80H64v96a16,16,0,0,0,16,16h96Zm32-32H116l64-64,28,28v36Zm-88-64A24,24,0,1,0,96,88,24,24,0,0,0,120,112Zm0-32a8,8,0,1,1-8,8A8,8,0,0,1,120,80Z\"/></svg>"
+};
+// unique by URL, with the styles each one sits on, sorted by title so a long list can be
+// scanned. The same shape pickList returns, so one renderer draws both.
+function sourceList(pred){
+  const seen=new Map();
+  for(const [sid,rows] of Object.entries((typeof READ!=="undefined"&&READ)||{})){
+    for(const r of rows){
+      if(!pred(r)) continue;
+      if(!seen.has(r[0])) seen.set(r[0],{row:r,styles:[]});
+      if(byId[sid]) seen.get(r[0]).styles.push(sid);
+    }
+  }
+  const key=x=>x.row[1].replace(/^(the|a|an)\s+/i,"").toLowerCase();
+  return [...seen.values()].sort((a,b)=>key(a)<key(b)?-1:key(a)>key(b)?1:0);
+}
+function medCount(t){ return sourceList(r=>r[7]===t).length; }
+// one entry: the row as it appears on a style, and where it appears
+function sourceItem({row,styles},note){
+  const r = note ? row.slice(0,6).concat([note],row.slice(7)) : row;
+  const where=styles.map(id=>`<button type="button" class="pickwho" data-go="${esc(id)}">`
+    + `<i class="dot" style="background:${FAM[byId[id].fam].c}"></i>`
+    + `<span>${esc(byId[id].name)}</span></button>`).join("");
+  return `<div class="pickit">${readRow(r)}`
+    + (where?`<div class="pickon"><span class="pickonl">On</span>${where}</div>`:"")
+    + `</div>`;
+}
+function mediaPage(t){
+  const m=MEDIA.find(x=>x[0]===t); if(!m) return null;
+  const items=sourceList(r=>r[7]===t);
+  if(!items.length) return null;
+  return {title:m[1], lede:m[2]+". "+items.length+" of them, across the whole map.",
+    html:`<div class="picklist">${items.map(x=>sourceItem(x)).join("")}</div>`};
+}
+// the section under the browse list: a person's shelf first, then the whole library by
+// medium. Separate from Explore above it, which is about styles rather than sources.
+function deeperSect(){
+  const rows=(pickCount("pete")
+      ? pageRow("picks","Pete\u2019s Picks",pickCount("pete"),
+          "Pete\u2019s Picks: sources chosen by a guest")
+      : "")
+    + MEDIA.map(([t,label,blurb])=>medCount(t)
+        ? pageRow("med:"+t,label,medCount(t),label+": "+blurb)
+        : "").join("");
+  return sect("deeper","Go deeper",`<div class="listgrp sep">${rows}</div>`);
 }
 function pageRow(key,label,count,title){
   return `<button type="button" class="listrow" data-page="${key}"${title?` title="${esc(title)}" aria-label="${esc(title)}"`:""}>`
@@ -5542,6 +5611,7 @@ function emptyPanel(){
   $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="navrow"><div class="navleft"><button id="panelBack" class="navback" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg><span class="bklbl"></span><svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.4L7.4 3.4v11.2L2.8 16.6z"/><path d="M7.4 3.4l5.2 2v11.2l-5.2-2z"/><path d="M12.6 5.4l4.6-2v11.2l-4.6 2z"/></svg></button></div><div class="navttl navgap ovttl"><span class="mn">Explore</span></div>${CLOSEBTN}</div><h1 class="bigttl"><span class="mn">Explore</span></h1><div class="more">
     ${browseRow()}
     ${modeSect()}
+    ${deeperSect()}
     <div class="sect sect-learn nohead"><div class="secbody"><div class="listgrp sep">
     ${pageRow("about","About this map")}
     ${pageRow("install","How to install it")}
