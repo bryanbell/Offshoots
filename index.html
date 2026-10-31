@@ -74,8 +74,9 @@ button{font-family:inherit}
    only that there was one. */
 .results li button{align-items:center}
 .rico{flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;
-  color:var(--resc,var(--lite-mut));
-  background:color-mix(in srgb,var(--resc,var(--lite-mut)) 22%,transparent)}
+  color:#fff;
+  background:linear-gradient(160deg,color-mix(in srgb,var(--resc,var(--lite-mut)) 80%,#fff) 0%,
+    var(--resc,var(--lite-mut)) 55%,color-mix(in srgb,var(--resc,var(--lite-mut)) 74%,#000) 100%)}
 .rico svg{width:16px;height:16px;display:block}
 /* a style's mark is the family colour itself, so it needs no disc around it */
 .rico.rdot{width:11px;height:11px;margin:0 7px;background-image:none}
@@ -446,14 +447,18 @@ body.open .pcnt{display:none}
    a round tile beside a round tile is one panel, a rounded square beside a circle is two
    halves of a design. Each row keeps its own colour, because a column of identical grey
    tiles is a column you read by text alone, which is what the icon was there to save. */
-/* A neutral ground, not a tint of the glyph's own colour. Duotone draws the same colour
-   twice, once at 20%, and that ghost layer is the whole point of the weight: over a 26%
-   tint of the same hue it vanishes and you are left with a solid icon in a coloured
-   circle, which is the fill weight with extra steps. Grey behind it and the two layers
-   separate, with the colour still carried by the glyph. */
+/* The same object as the big mode circle, at list size: the colour fills the disc and
+   the glyph is white on top of it. Duotone still earns its keep here, because the ghost
+   layer is white at 20% over the colour rather than over grey, so the icon reads as one
+   shape with its own shading instead of two colours sharing a circle.
+   It was the other way round for a while, a coloured glyph on a neutral grey ground,
+   which kept the rows quiet but made them a different species from the circles directly
+   below them on the same panel. One treatment, two sizes. */
 .listrow .lrico{flex:none;display:grid;place-items:center;width:34px;height:34px;
-  border-radius:50%;background:color-mix(in srgb,var(--fg) 9%,transparent);
-  color:var(--lrc,var(--fg))}
+  border-radius:50%;color:#fff;
+  background:linear-gradient(160deg,color-mix(in srgb,var(--lrc,var(--fg)) 80%,#fff) 0%,
+    var(--lrc,var(--fg)) 55%,color-mix(in srgb,var(--lrc,var(--fg)) 74%,#000) 100%);
+  box-shadow:0 1px 2px rgb(0 0 0 / .22)}
 .listrow .lrico svg{width:20px;height:20px}
 .lr-roots{--lrc:#4fa86e} .lr-fams{--lrc:#7a86d6} .lr-pl{--lrc:#d1699a}
 .lr-top{--lrc:#d99a3c} .lr-random{--lrc:#52a8bd} .lr-about{--lrc:#9b8ad6}
@@ -706,7 +711,9 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 .plist .listrow{min-height:50px}
 /* the colophon is about the map rather than part of it, so its rows carry no card */
 /* the mode list: the energy colour that used to fill a chip now tints its icon tile */
-.modelist .listrow .lrico{background:color-mix(in srgb,var(--fg) 9%,transparent);color:var(--lvc)}
+.modelist .listrow .lrico{color:#fff;
+  background:linear-gradient(160deg,color-mix(in srgb,var(--lvc) 80%,#fff) 0%,
+    var(--lvc) 55%,color-mix(in srgb,var(--lvc) 74%,#000) 100%)}
 .modelist .listrow .lrico svg{width:18px;height:18px}
 .moderow{--lvc:#9aa0a6}
 .moderow.lv1{--lvc:#7aa2f7}

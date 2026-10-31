@@ -383,20 +383,25 @@ const onPage=async(q,k)=>{ await until(q,k=>{
           role:(role(a)||[""])[0],
           glyph:!!a.querySelector(".lrico svg"),
           tinted:getComputedStyle(a.querySelector(".lrico")).backgroundColor,
+          fill:getComputedStyle(a.querySelector(".lrico")).backgroundImage,
           ink:getComputedStyle(a.querySelector(".lrico")).color}));
         return {rows, roles:[...new Set(rows.map(r=>r.role))]};});
       say("every artist on the page has a role circle with a symbol in it ("
         +pair.rows.length+" of them)",
         pair.rows.length>3 && pair.rows.every(r=>r.glyph && /^r-[a-z]+$/.test(r.role)));
+      // the colour is in the disc now, not in the glyph, and the disc is painted with a
+      // gradient, so it is backgroundImage that carries it and backgroundColor is bare
       say("  coloured by what the act is, not all alike ("+pair.roles.length+" kinds here)",
-        pair.roles.length>1 && new Set(pair.rows.map(r=>r.ink)).size>1);
-      // tinted, not filled: the circle upstairs is a saturated disc with a white glyph,
-      // this one is the same hue behind a glyph of that hue, the way the ways in do it
-      // a partly transparent background, however the browser spells it: color-mix comes
-      // back as color(srgb r g b / a) here and as rgba() elsewhere, so look for the alpha
-      const seeThrough=v=>/\/\s*0?\.\d/.test(v) || /rgba\([^)]*,\s*0?\.\d+\s*\)/.test(v);
-      say("  tinted behind the glyph rather than filled",
-        pair.rows.every(r=>r.ink!=="rgb(255, 255, 255)" && seeThrough(r.tinted)));
+        pair.roles.length>1 && new Set(pair.rows.map(r=>r.fill)).size>1);
+      // Filled, not tinted. These were a coloured glyph on a neutral ground for a while,
+      // which read quietly but made them a different species from the circles upstairs
+      // on the same panel. One treatment at two sizes: the colour fills the disc and the
+      // glyph is white, and duotone's ghost layer becomes white at 20% over the colour.
+      say("  a filled disc with a white glyph, like the circles upstairs",
+        pair.rows.every(r=>r.ink==="rgb(255, 255, 255)"));
+      // and the disc paints a colour of its own rather than letting the row show through
+      say("  the disc painting its own colour, not showing the row through",
+        pair.rows.every(r=>/gradient/.test(r.fill) && !/\/\s*0?\.\d+\s*\)/.test(r.fill)));
 
       // and the role the page gives an act is the role the row gave it
       await q.click("#panelBack"); await q.waitForTimeout(800);
