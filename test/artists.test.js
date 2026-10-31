@@ -83,6 +83,30 @@ const onPage=async(q,k)=>{ await until(q,k=>{
       return {styles:keys.length, names:keys.reduce((n,k)=>n+A[k].length,0),
         panel:Math.max(...keys.map(k=>(ART[k]||[]).length))};});
     say("roster covers "+sizes.styles+" styles and "+sizes.names+" artists", sizes.names>1500);
+    // The same act, spelled two ways, is two rows a few apart on a page that claims to
+    // list everyone once. The roster is lifted from playlist credits and the key artists
+    // are written by hand, so they disagree on "The", on "&", on commas in "Jr.", and on
+    // which accent. 41 styles had at least one such pair; these are four of them.
+    {
+      const pairs=[["oldtime","The Carter Family"],["motown","The Temptations"],
+        ["blueeyed","The Righteous Brothers"],["swing_revival","The Brian Setzer Orchestra"]];
+      const same=s=>String(s).toLowerCase().replace(/[\u2018\u2019\u02bc]/g,"'")
+        .replace(/\s*&\s*/g," and ").replace(/^the\s+/,"").replace(/[^a-z0-9]+/g," ").trim();
+      let dupe="";
+      for(const [id] of pairs){
+        const q=await ctx.newPage();
+        await q.goto(URL+"#"+id); await selected(q);
+        await q.click('[data-page="artists"]').catch(()=>{});
+        await q.waitForSelector(".amrow",{timeout:8000}).catch(()=>{});
+        const names=await q.$$eval(".amrow .lrlbl",e=>e.map(x=>x.textContent.trim()));
+        const seen=new Set();
+        for(const n of names){ const k=same(n);
+          if(seen.has(k)){ dupe=id+": "+n; break; } seen.add(k); }
+        await q.close();
+        if(dupe) break;
+      }
+      say("  nobody listed twice under two spellings", dupe || true);
+    }
     say("and the panel still lists at most "+sizes.panel+" per style", sizes.panel<=5);
 
     // track titles, ranked below everything else

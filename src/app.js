@@ -956,9 +956,26 @@ function activeYears(name){
   const short = Math.floor(a[0]/100)===Math.floor(a[1]/100);
   return a[0]+"\u2013"+(short?String(a[1]).slice(-2):a[1]);
 }
+// An act spelled two ways is two rows on this page. The roster is lifted from playlist
+// credits and the key artists are written by hand, so they disagree constantly: "The
+// Kingston Trio" against "Kingston Trio", "Peter, Paul & Mary" against "Peter, Paul and
+// Mary". Matching on the exact string let both through and the page listed the same
+// group twice, a few rows apart. So sameness ignores a leading "The", the ampersand and
+// all punctuation, and the spelling that survives is the one already on the panel.
+const sameAct = s => String(s).toLowerCase()
+  .replace(/[\u2018\u2019\u02bc]/g,"'")
+  .replace(/\s*&\s*/g," and ")
+  .replace(/^the\s+/,"")
+  .replace(/[^a-z0-9]+/g," ")
+  .trim();
 function artistAll(n){
   const key=n.whoList||[];
-  const more=(n.roster||[]).filter(x=>key.indexOf(x)<0);
+  const seen=new Set(key.map(sameAct));
+  const more=[];
+  for(const x of (n.roster||[])){
+    const k=sameAct(x); if(!k || seen.has(k)) continue;
+    seen.add(k); more.push(x);
+  }
   return key.concat(more);
 }
 function listenSect(n,who,artistsHtml){

@@ -123,6 +123,24 @@ async function ask(p,t){
   await ask(p,"zzzzqqqq");
   say("no match, no list", await p.$eval("#res",e=>e.hidden));
 
+  // --- the playlists' own artists, lifted from the published track list. Before they
+  // were indexed, a name could be sitting in a playlist the map links to and still find
+  // nothing: the map knew the style, the playlist knew the artist, and the two did not
+  // meet. So the test is that a name NOT written into any note or key-artist list still
+  // reaches the style whose playlist contains it.
+  const deep=[["Elizabeth Cotten","Folk Revival"],["Dave Van Ronk","Folk Revival"],
+    ["Gillian Welch","Bluegrass"]];
+  for(const [who,style] of deep){
+    const r=await ask(p,who.toLowerCase());
+    const hit=r.find(h=>h.kind==="res-style" && h.name===style);
+    say("\""+who+"\" reaches "+style, !!hit);
+    // and the row says WHY it is there, or a search result is a riddle
+    if(hit) say("  naming the artist that matched", new RegExp(who.split(" ")[0]).test(hit.line));
+  }
+  // a roster this big must not drown the name match: a style called X still wins "X"
+  const bg=await ask(p,"bluegrass");
+  say("a style name still beats its own roster", bg[0].kind==="res-style" && /Bluegrass/.test(bg[0].name));
+
   // --- the marks. Every result carries one, and which one says what kind it is without
   // a word: a style wears its family colour, a page and a source wear the glyph they
   // already wear where they live.
