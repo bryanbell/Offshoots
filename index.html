@@ -460,6 +460,13 @@ body.open .pcnt{display:none}
     var(--lrc,var(--fg)) 55%,color-mix(in srgb,var(--lrc,var(--fg)) 74%,#000) 100%);
   box-shadow:0 1px 2px rgb(0 0 0 / .22)}
 .listrow .lrico svg{width:20px;height:20px}
+/* ---- a trial, on the three Explore rows only ----
+   No disc, and the glyph grown into the space the disc was holding. The colour moves
+   back into the icon because there is no longer anything behind it to sit on, so duotone
+   goes back to drawing its ghost layer in the hue at 20% over the panel. Everything else
+   on the map keeps the filled circle; this is here to be compared against it. */
+.sect-browse .listrow .lrico{background:none;box-shadow:none;color:var(--lrc,var(--fg))}
+.sect-browse .listrow .lrico svg{width:30px;height:30px}
 .lr-roots{--lrc:#4fa86e} .lr-fams{--lrc:#7a86d6} .lr-pl{--lrc:#d1699a}
 .lr-top{--lrc:#d99a3c} .lr-random{--lrc:#52a8bd} .lr-about{--lrc:#9b8ad6}
 .lr-install{--lrc:#5f9fd4}
