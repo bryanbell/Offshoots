@@ -361,56 +361,66 @@ const MEDICON={"read":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-h
 // Laid out like a news list rather than a stack of cards: what it is and who ran it on
 // top, the headline next, and the reason to read it underneath. One block, hairlines
 // between, so the eye runs down the titles instead of stopping at every box.
+//
+// A mark per row, so the eye has something to land on. Real favicons would be better
+// and are not available: nothing in this session can reach those hosts, and hotlinking
+// them would break the installed copy offline and tell every publisher who is reading.
+// So the mark is drawn from the data: the source's own initials, in the medium's colour.
+const RD_SKIP=/^(the|of|and|a|an|for|on|in|at|de|la)$/i;
+const rdCap = t => t.charAt(0).toUpperCase() + t.slice(1);
+const rdMono = p => {
+  const t = p.replace(/^the\s+/i,"").trim();
+  if(/^[A-Z0-9][A-Z0-9&.']{1,3}$/.test(t)) return t;            // NPR, PBS, KQED, SPIN
+  const w = t.split(/[\s/.-]+/).filter(x=>x && !RD_SKIP.test(x));
+  if(w.length>=2) return w.slice(0,3).map(x=>x[0]).join("").toUpperCase();
+  return (w[0]||t).slice(0,2).replace(/^./,c=>c.toUpperCase());
+};
+// one source, as a row. Lifted out of readSect so the guest-picks page can draw the very
+// same row rather than a second rendering of the same facts that drifts from this one.
+function readRow(r){
+  const kind = esc(r[4]);
+  // the icon carries the medium; the word is added only where it is a promise the kind
+  // does not already make, so no row ever reads "Audio Listen"
+  const SAY={listen:"Listen",watch:"Watch"};
+  const say = SAY[r[7]] && !/^(audio|documentary)$/.test(r[4]) ? SAY[r[7]] : "";
+  // a 33 1/3 is one short book about one record, which makes it the narrowest door into
+  // a style there is, so it gets the series badge and a record instead of a shelf
+  const ser = r[4]==="33 1/3";
+  // every one of these carried the same sentence, which told you nothing a glance at
+  // the badge did not. The artist is the fact a title alone withholds (Psychocandy is
+  // not much use without The Jesus and Mary Chain), so it takes the kicker, the badge
+  // is left to the tile that already draws it, and the note goes.
+  // a series row spends its kicker on the record, which the title alone withholds, and
+  // drops the year: the badge and the author are enough to know what you are opening,
+  // and three facts ran the line onto a second one.
+  const who = typeof pickerOf==="function" ? pickerOf(r[0]) : "";
+  const p = who && pickers()[who];
+  const kicker = (ser
+      ? (r[8] ? `<i class="rdk rdby">${esc(r[8])}</i> \u00b7 ${esc(r[2])}`
+              : `${esc(r[2])}` + (r[3] ? ` \u00b7 ${r[3]}` : ""))
+      : `<i class="rdk">${esc(rdCap(r[4]))}</i>`
+        + (say ? ` <i class="rdv">${say}</i>` : "")
+        // a year only when there is one: plenty of what is worth reading or watching
+        // carries no date, and a dangling separator is worse than a missing fact
+        + ` \u00b7 ${esc(r[2])}` + (r[3] ? ` \u00b7 ${r[3]}` : ""))
+    + (r[5] ? ` <i class="rdw">${esc(rdCap(r[5]))}</i>` : "");
+  return `<a class="rd rd-${ser?"series":esc(r[7])}${p?" rdpick":""}" href="${esc(r[0])}" target="_blank" rel="noopener noreferrer" title="${kind}, ${esc(r[7])}">`
+    + `<i class="rdi">${ser ? `<b class="rdser">33\u2153</b>`
+        : r[7]==="book" ? MEDICON.book
+        : (m=>`<b class="rdmo${m.length>3?" wide":""}">${esc(m)}</b>`)(rdMono(r[2]))}</i>`
+    + `<span class="rdx"><span class="rdm">${kicker}</span>`
+    + `<span class="rdt">${esc(r[1])}</span>`
+    + (r[6] ? `<span class="rdn">${esc(r[6])}</span>` : "")
+    // whose pick it is, said on the row itself. A guest section nobody has visited is a
+    // section nobody knows about; the credit is what sends them there.
+    + (p ? `<span class="rdpb">${pickerAvatar(p,"")}`
+         + `<span>${esc(p.name)}\u2019s pick</span></span>` : "")
+    + `</span></a>`;
+}
 function readSect(n){
   const rows = (typeof READ!=="undefined" && READ[n.id]) || [];
   if(!rows.length) return "";
-  const cap = t => t.charAt(0).toUpperCase() + t.slice(1);
-  // A mark per row, so the eye has something to land on. Real favicons would be better
-  // and are not available: nothing in this session can reach those hosts, and hotlinking
-  // them would break the installed copy offline and tell every publisher who is reading.
-  // So the mark is drawn from the data: the source's own initials, in the medium's colour.
-  const SKIP=/^(the|of|and|a|an|for|on|in|at|de|la)$/i;
-  const mono = p => {
-    const t = p.replace(/^the\s+/i,"").trim();
-    if(/^[A-Z0-9][A-Z0-9&.']{1,3}$/.test(t)) return t;          // NPR, PBS, KQED, SPIN
-    const w = t.split(/[\s/.-]+/).filter(x=>x && !SKIP.test(x));
-    if(w.length>=2) return w.slice(0,3).map(x=>x[0]).join("").toUpperCase();
-    return (w[0]||t).slice(0,2).replace(/^./,c=>c.toUpperCase());
-  };
-  const items = rows.map(r=>{
-    const kind = esc(r[4]);
-    // the icon carries the medium; the word is added only where it is a promise the kind
-    // does not already make, so no row ever reads "Audio Listen"
-    const SAY={listen:"Listen",watch:"Watch"};
-    const say = SAY[r[7]] && !/^(audio|documentary)$/.test(r[4]) ? SAY[r[7]] : "";
-    // a 33 1/3 is one short book about one record, which makes it the narrowest door into
-    // a style there is, so it gets the series badge and a record instead of a shelf
-    const ser = r[4]==="33 1/3";
-    // every one of these carried the same sentence, which told you nothing a glance at
-    // the badge did not. The artist is the fact a title alone withholds (Psychocandy is
-    // not much use without The Jesus and Mary Chain), so it takes the kicker, the badge
-    // is left to the tile that already draws it, and the note goes.
-    // a series row spends its kicker on the record, which the title alone withholds, and
-    // drops the year: the badge and the author are enough to know what you are opening,
-    // and three facts ran the line onto a second one.
-    const kicker = (ser
-        ? (r[8] ? `<i class="rdk rdby">${esc(r[8])}</i> \u00b7 ${esc(r[2])}`
-                : `${esc(r[2])}` + (r[3] ? ` \u00b7 ${r[3]}` : ""))
-        : `<i class="rdk">${esc(cap(r[4]))}</i>`
-          + (say ? ` <i class="rdv">${say}</i>` : "")
-          // a year only when there is one: plenty of what is worth reading or watching
-          // carries no date, and a dangling separator is worse than a missing fact
-          + ` \u00b7 ${esc(r[2])}` + (r[3] ? ` \u00b7 ${r[3]}` : ""))
-      + (r[5] ? ` <i class="rdw">${esc(cap(r[5]))}</i>` : "");
-    return `<a class="rd rd-${ser?"series":esc(r[7])}" href="${esc(r[0])}" target="_blank" rel="noopener noreferrer" title="${kind}, ${esc(r[7])}">`
-      + `<i class="rdi">${ser ? `<b class="rdser">33\u2153</b>`
-          : r[7]==="book" ? MEDICON.book
-          : (m=>`<b class="rdmo${m.length>3?" wide":""}">${esc(m)}</b>`)(mono(r[2]))}</i>`
-      + `<span class="rdx"><span class="rdm">${kicker}</span>`
-      + `<span class="rdt">${esc(r[1])}</span>`
-      + (r[6] ? `<span class="rdn">${esc(r[6])}</span>` : "") + `</span></a>`;
-  }).join("");
-  return sect("read","Go deeper",`<div class="reads">${items}</div>`,
+  return sect("read","Go deeper",`<div class="reads">${rows.map(readRow).join("")}</div>`,
     `<span class="sectaside">${rows.length} ${rows.length===1?"source":"sources"}</span>`);
 }
 
@@ -1195,8 +1205,9 @@ function openShareSheet(btn){
 // every style has a URL: the page plus #id, which boot() already reads back
 function styleURL(id){ return location.origin + location.pathname + location.search + "#" + encodeURIComponent(id); }
 // "about" is the one hash that is not a style id
-const ABOUT_HASH="about", INSTALL_HASH="install", MODES_HASH="modes";
-const FOLDS={[ABOUT_HASH]:".aboutwrap", [INSTALL_HASH]:".installwrap", [MODES_HASH]:".modelist"};
+const ABOUT_HASH="about", INSTALL_HASH="install", MODES_HASH="modes", PICKS_HASH="picks";
+const FOLDS={[ABOUT_HASH]:".aboutwrap", [INSTALL_HASH]:".installwrap", [MODES_HASH]:".modelist",
+  [PICKS_HASH]:".picklist"};
 function foldURL(hash){ return location.origin + location.pathname + location.search + "#" + hash; }
 function openAbout(scroll,hash){
   // these two used to be folds on the root panel; they are pages now, so the hash that
@@ -1365,6 +1376,8 @@ const LRCHEV="<svg class=\"lrcv\" viewBox=\"0 0 256 256\" fill=\"currentColor\" 
 // chips in a row, and the roots were a pill up in the header.
 // The list rows, from the same Phosphor Duotone set as everything else.
 const ROWICON={"roots":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M232,127.82c.09,33.94-28.41,63.3-62.34,64.16a63.72,63.72,0,0,1-41.66-14,63.71,63.71,0,0,1-41.65,14c-33.93-.86-62.44-30.22-62.35-64.16a64,64,0,0,1,40.13-59.2,68,68,0,0,1,127.74,0A64,64,0,0,1,232,127.82Z\" opacity=\"0.2\"/><path d=\"M198.1,62.59a76,76,0,0,0-140.2,0A71.71,71.71,0,0,0,16,127.8C15.9,166,48,199,86.14,200A72.22,72.22,0,0,0,120,192.47V232a8,8,0,0,0,16,0V192.47A72.17,72.17,0,0,0,168,200l1.82,0C208,199,240.11,166,240,127.8A71.71,71.71,0,0,0,198.1,62.59ZM169.45,184a56.08,56.08,0,0,1-33.45-10v-41l43.58-21.78a8,8,0,1,0-7.16-14.32L136,115.06V88a8,8,0,0,0-16,0v51.06L83.58,120.84a8,8,0,1,0-7.16,14.32L120,156.94v17a56,56,0,0,1-33.45,10C56.9,183.23,31.92,157.52,32,127.84A55.79,55.79,0,0,1,67.11,76a8,8,0,0,0,4.53-4.67,60,60,0,0,1,112.72,0A8,8,0,0,0,188.89,76,55.79,55.79,0,0,1,224,127.84C224.08,157.52,199.1,183.23,169.45,184Z\"/></svg>","fams":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M224,80l-96,56L32,80l96-56Z\" opacity=\"0.2\"/><path d=\"M230.91,172A8,8,0,0,1,228,182.91l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,36,169.09l92,53.65,92-53.65A8,8,0,0,1,230.91,172ZM220,121.09l-92,53.65L36,121.09A8,8,0,0,0,28,134.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,121.09ZM24,80a8,8,0,0,1,4-6.91l96-56a8,8,0,0,1,8.06,0l96,56a8,8,0,0,1,0,13.82l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,24,80Zm23.88,0L128,126.74,208.12,80,128,33.26Z\"/></svg>","pl":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M200,192a24,24,0,1,1-24-24A24,24,0,0,1,200,192Z\" opacity=\"0.2\"/><path d=\"M32,64a8,8,0,0,1,8-8H216a8,8,0,0,1,0,16H40A8,8,0,0,1,32,64Zm8,72H160a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16Zm72,48H40a8,8,0,0,0,0,16h72a8,8,0,0,0,0-16Zm135.66-57.7a8,8,0,0,1-10,5.36L208,122.75V192a32.05,32.05,0,1,1-16-27.69V112a8,8,0,0,1,10.3-7.66l40,12A8,8,0,0,1,247.66,126.3ZM192,192a16,16,0,1,0-16,16A16,16,0,0,0,192,192Z\"/></svg>","top":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M232,56v64L168,56Z\" opacity=\"0.2\"/><path d=\"M232,48H168a8,8,0,0,0-5.66,13.66L188.69,88,136,140.69l-34.34-34.35a8,8,0,0,0-11.32,0l-72,72a8,8,0,0,0,11.32,11.32L96,123.31l34.34,34.35a8,8,0,0,0,11.32,0L200,99.31l26.34,26.35A8,8,0,0,0,240,120V56A8,8,0,0,0,232,48Zm-8,52.69L187.31,64H224Z\"/></svg>","random":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M107.14,98.8,128,128l-20.86,29.2A64,64,0,0,1,55.06,184H32V72H55.06A64,64,0,0,1,107.14,98.8ZM200.94,72a64,64,0,0,0-52.08,26.8L128,128l20.86,29.2A64,64,0,0,0,200.94,184H232V72Z\" opacity=\"0.2\"/><path d=\"M237.66,178.34a8,8,0,0,1,0,11.32l-24,24a8,8,0,0,1-11.32-11.32L212.69,192H200.94a72.12,72.12,0,0,1-58.59-30.15l-41.72-58.4A56.1,56.1,0,0,0,55.06,80H32a8,8,0,0,1,0-16H55.06a72.12,72.12,0,0,1,58.59,30.15l41.72,58.4A56.1,56.1,0,0,0,200.94,176h11.75l-10.35-10.34a8,8,0,0,1,11.32-11.32ZM143,107a8,8,0,0,0,11.16-1.86l1.2-1.67A56.1,56.1,0,0,1,200.94,80h11.75L202.34,90.34a8,8,0,0,0,11.32,11.32l24-24a8,8,0,0,0,0-11.32l-24-24a8,8,0,0,0-11.32,11.32L212.69,64H200.94a72.12,72.12,0,0,0-58.59,30.15l-1.2,1.67A8,8,0,0,0,143,107Zm-30,42a8,8,0,0,0-11.16,1.86l-1.2,1.67A56.1,56.1,0,0,1,55.06,176H32a8,8,0,0,0,0,16H55.06a72.12,72.12,0,0,0,58.59-30.15l1.2-1.67A8,8,0,0,0,113,149Z\"/></svg>","about":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M224,128a96,96,0,1,1-96-96A96,96,0,0,1,224,128Z\" opacity=\"0.2\"/><path d=\"M144,176a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176Zm88-48A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128ZM124,96a12,12,0,1,0-12-12A12,12,0,0,0,124,96Z\"/></svg>","install":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M216,48V208H40V48A16,16,0,0,1,56,32H200A16,16,0,0,1,216,48Z\" opacity=\"0.2\"/><path d=\"M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,124.69V32a8,8,0,0,0-16,0v92.69L93.66,98.34a8,8,0,0,0-11.32,11.32Z\"/></svg>"};
+const ROWICON_PICKS="<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M224,128a95.76,95.76,0,0,1-31.8,71.37A72,72,0,0,0,128,160a40,40,0,1,0-40-40,40,40,0,0,0,40,40,72,72,0,0,0-64.2,39.37h0A96,96,0,1,1,224,128Z\" opacity=\"0.2\"/><path d=\"M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24ZM74.08,197.5a64,64,0,0,1,107.84,0,87.83,87.83,0,0,1-107.84,0ZM96,120a32,32,0,1,1,32,32A32,32,0,0,1,96,120Zm97.76,66.41a79.66,79.66,0,0,0-36.06-28.75,48,48,0,1,0-59.4,0,79.66,79.66,0,0,0-36.06,28.75,88,88,0,1,1,131.52,0Z\"/></svg>";
+ROWICON.picks=ROWICON_PICKS;
 const rowIcon = k => `<i class="lrico mi lr-${k}">${ROWICON[k]||""}</i>`;
 function browseBtn(key,label,count,title,inner){
   return `<div class="navwrap nav-br">`
@@ -1400,6 +1413,10 @@ function browseRow(){
   return sect("browse","",`<div class="listgrp sep">`
     + pageRow("roots","Roots",nr,`Roots: ${nr} styles with nothing before them here`)
     + pageRow("top","Most influential",TOPN,`The ${TOPN} styles that led to the most`)
+    + (pickCount("pete")
+        ? pageRow("picks","Pete\u2019s Picks",pickCount("pete"),
+            "Pete\u2019s Picks: books and records chosen by a guest")
+        : "")
     + randomRow()+`</div>`);
 }
 // Phosphor Icons, the Duotone weight, MIT. Inlined as paths so the map stays one
@@ -1608,6 +1625,7 @@ const PAGES_DEF={
     lede:"Twenty-seven moods, places and tasks. Each one opens a dozen styles that suit it. The circles on the way in reorder themselves around the ones you open; this list sorts how you ask.",
     top:modeSortHtml(),
     html:modeListHtml()+copyRow("modes")}),
+  picks:()=>picksPage("pete"),
   roots:()=>({title:"Roots",
     lede:"Styles with nothing before them here. Everything else on the map descends from these.",
     html:styleRows(firstLevel(),x=>x.year<1950?x.disp:x.year)}),
@@ -1642,6 +1660,62 @@ function copyRow(hash){
   return `<button type="button" class="aboutcopy pagecopy" data-aboutcopy="${esc(hash)}">`
     + `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 11.6a3.2 3.2 0 0 0 4.6 0l2.6-2.6a3.2 3.2 0 0 0-4.6-4.6l-1 1"/><path d="M11.6 8.4a3.2 3.2 0 0 0-4.6 0L4.4 11a3.2 3.2 0 0 0 4.6 4.6l1-1"/></svg>`
     + `<span class="lbl">Copy a link to this</span></button>`;
+}
+
+// ---------- guest picks ----------
+// A section that belongs to a person instead of to a style. Everything in it is an
+// ordinary Go deeper row living on whatever styles it belongs to; PICKED only says whose
+// it is. So this page is a view over the existing data rather than a second copy of it,
+// and a pick cannot drift out of sync with the row it is.
+const PICKER_GLYPH="<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M192,96a64,64,0,1,1-64-64A64,64,0,0,1,192,96Z\" opacity=\"0.2\"/><path d=\"M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z\"/></svg>";
+function pickEntry(url){ return (typeof PICKED!=="undefined" && PICKED[url]) || null; }
+function pickerOf(url){ const e=pickEntry(url); return e ? (Array.isArray(e)?e[0]:e) : ""; }
+function pickNote(url){ const e=pickEntry(url); return (Array.isArray(e) && e[1]) || ""; }
+function pickers(){ return (typeof PICKERS!=="undefined" && PICKERS) || {}; }
+// every picked source, once, with the styles it sits on. A work picked for seven styles
+// is one pick that names seven places, not seven picks.
+function pickList(who){
+  const seen=new Map();
+  for(const [sid,rows] of Object.entries((typeof READ!=="undefined"&&READ)||{})){
+    for(const r of rows){
+      if(pickerOf(r[0])!==who) continue;
+      if(!seen.has(r[0])) seen.set(r[0],{row:r,styles:[]});
+      if(byId[sid]) seen.get(r[0]).styles.push(sid);
+    }
+  }
+  return [...seen.values()];
+}
+function pickCount(who){ return pickList(who).length; }
+// the placeholder. There is no photograph yet, so the mark is drawn rather than loaded,
+// and the day there is one only PICKERS[].avatar changes.
+function pickerAvatar(p,size){
+  const cls="pava"+(size?" "+size:"");
+  return p.avatar
+    ? `<span class="${cls}" style="background-image:url(${esc(p.avatar)})"></span>`
+    : `<span class="${cls} pavanone">${PICKER_GLYPH}</span>`;
+}
+function picksPage(who){
+  const p=pickers()[who]; if(!p) return null;
+  const items=pickList(who);
+  if(!items.length) return null;
+  const html=items.map(({row,styles})=>{
+    const where=styles.map(id=>`<button type="button" class="pickwho" data-go="${esc(id)}">`
+      + `<i class="dot" style="background:${FAM[byId[id].fam].c}"></i>`
+      + `<span>${esc(byId[id].name)}</span></button>`).join("");
+    // the pick's own note where it has one, so the book is described as a book here and
+    // as a chapter of itself over on the style
+    const note=pickNote(row[0]);
+    const r=note ? row.slice(0,6).concat([note],row.slice(7)) : row;
+    return `<div class="pickit">`
+      + readRow(r)
+      + (where?`<div class="pickon"><span class="pickonl">On</span>${where}</div>`:"")
+      + `</div>`;
+  }).join("");
+  return {title:p.name+"\u2019s Picks",
+    lede:p.blurb,
+    top:`<div class="pickhead">${pickerAvatar(p,"big")}`
+      + `<div class="pickwho2"><b>${esc(p.name)}</b><em>${esc(p.role)}</em></div></div>`,
+    html:`<div class="picklist">${html}</div>`+copyRow(PICKS_HASH)};
 }
 function pageRow(key,label,count,title){
   return `<button type="button" class="listrow" data-page="${key}"${title?` title="${esc(title)}" aria-label="${esc(title)}"`:""}>`

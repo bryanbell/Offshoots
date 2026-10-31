@@ -904,6 +904,46 @@ p.subcap{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:6px 0 10p
 /* the note is the reason to tap, so it reads brighter than the line above it */
 .rdn{display:block;margin-top:4px;font:400 var(--t-sub)/1.4 var(--f-body);
   color:color-mix(in srgb,var(--fg) 82%,transparent)}
+
+/* ---------- guest picks ----------
+   A section that belongs to a person rather than to a style, so the one thing it needs
+   is a face. There is no photograph yet, so the avatar is a drawn mark on a tinted disc
+   and the class is the only thing that changes the day there is one: pavanone goes, a
+   background-image arrives, and every size of it updates at once. */
+.pava{flex:none;display:grid;place-items:center;border-radius:50%;overflow:hidden;
+  width:20px;height:20px;background-size:cover;background-position:center;
+  background-color:color-mix(in srgb,var(--pickc) 26%,transparent);color:var(--pickc)}
+.pava svg{width:68%;height:68%;display:block}
+.pava.big{width:52px;height:52px}
+:root{--pickc:#d9a441}
+/* the credit on a source row, so a pick found in the wild says where it came from and
+   there is a reason to go looking for the rest */
+.rdpb{display:inline-flex;align-items:center;gap:6px;margin-top:7px;
+  padding:3px 9px 3px 3px;border-radius:999px;
+  background:color-mix(in srgb,var(--pickc) 15%,transparent);
+  font:600 var(--t-foot)/1 var(--f-body);color:var(--pickc)}
+.rd.rdpick{--rdc:var(--pickc)}
+/* the page: who it is, then the picks, each with the styles it lives on */
+.pickhead{display:flex;align-items:center;gap:13px;margin:0 0 4px}
+.pickwho2{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pickwho2 b{font:700 var(--t-body)/1.25 var(--f-body)}
+.pickwho2 em{font-style:normal;font:400 var(--t-foot)/1.3 var(--f-body);color:var(--muted)}
+.picklist{display:block}
+.pickit{padding:4px 0}
+.pickit + .pickit{border-top:.5px solid var(--sep)}
+.pickit .rd{padding-inline:0}
+.pickit .rd + .rd::after{display:none}
+/* on a picks page the credit is the page, so the row does not repeat it */
+.pickit .rdpb{display:none}
+.pickon{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:0 0 10px}
+.pickonl{font:600 var(--t-foot)/1 var(--f-body);color:var(--muted);margin-right:1px}
+.pickwho{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;
+  gap:6px;padding:5px 11px;border-radius:999px;font:500 var(--t-foot)/1 var(--f-body);
+  background:var(--fill2);transition:background .15s}
+.pickwho .dot{flex:none;width:9px;height:9px;border-radius:50%}
+.pickwho:hover{background:color-mix(in srgb,var(--fg) 14%,transparent)}
+.pickwho:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+.lr-picks{--lrc:var(--pickc)}
 .who{display:flex;flex-wrap:wrap;gap:7px}
 /* ---------- the artists on one line ----------
    Wrapped across three rows the chips gave the longest name the widest row and left a

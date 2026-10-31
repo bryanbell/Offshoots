@@ -240,7 +240,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   // Families, Playlists and Most influential came out: they were reference lists, and
   // what is left is the two rows that are ways in rather than ways to look something up
   say("one list: "+(grp&&grp.labels.join(" / ")),
-    !!grp && grp.labels.join("/")==="Roots/Most influential/Surprise me");
+    !!grp && grp.labels.join("/")==="Roots/Most influential/Pete\u2019s Picks/Surprise me");
   say("  with a count on each ("+(grp&&grp.counts.join(", "))+")", !!grp && grp.counts.every(c=>c.length>0));
   // the shaded card went: a panel is already a card, and a second one inside it pushed
   // every row in by two gutters. The rows span it and a hairline does the dividing.
@@ -250,9 +250,10 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
     !!grp && grp.icons && grp.oneCard && grp.radius>=10);
   say("  separators inset to the name ("+(grp&&grp.inset)+")", !!grp && parseFloat(grp.inset)>=40);
   say("  rows at least "+(grp&&grp.tap)+"px", !!grp && grp.tap>=44);
-  // four of them open a list; the last is a destination, so it has no chevron
-  say("  the first two open a list, the last does not", !!grp &&
-    grp.chevrons[0]===true && grp.chevrons[1]===true && grp.chevrons[2]===false);
+  // all but the last open something; Surprise me is a destination, so it has no chevron
+  say("  every row but the last opens something", !!grp &&
+    grp.chevrons.slice(0,-1).every(x=>x===true) &&
+    grp.chevrons[grp.chevrons.length-1]===false);
 
   // Roots pushes a page rather than dropping a menu, so the test follows it in and back
   await p.click('[data-page="roots"]'); await onPage(p,"roots");
