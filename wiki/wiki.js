@@ -67,10 +67,18 @@ function classPage(record, families) {
   header.append(heading);
   detail.append(header);
   if (record.description) detail.append(make('p', record.description, 'lede'));
-  const actions = make('div', '', 'actions');
-  for (const [name, url] of Object.entries(record.links)) actions.append(link(name, url, 'pill'));
-  if (record.style) actions.append(link('On Music Atlas', '/#' + encodeURIComponent(record.style), 'pill'));
-  detail.append(actions);
+  // Where each link goes, said in words, one row each with the arrow that says whether
+  // it leaves: the app's Play it on ... line, not a row of buttons that read as a toggle.
+  const actions = make('ul', '', 'golist');
+  const row = (text, url, out) => {
+    const a = link(text, url);
+    if (out) { a.target = '_blank'; a.rel = 'noopener'; }
+    a.append(make('span', out ? '↗' : '→', 'goarrow'));
+    const li = make('li'); li.append(a); actions.append(li);
+  };
+  for (const [name, url] of Object.entries(record.links)) row('Listen on ' + name, url, true);
+  if (record.style) row('Show it on Music Atlas', '/#' + encodeURIComponent(record.style), false);
+  if (actions.children.length) detail.append(actions);
   if (record.parents.length) detail.append(lineLine('From', record.parents));
   if (record.children.length) detail.append(lineLine('Led to', record.children));
   if (record.lineage) detail.append(make('p', record.lineage));

@@ -73,7 +73,7 @@ main>*{max-width:46rem}
 main.wide>*{max-width:none}
 h1,h2,h3{font-family:var(--f-body);color:var(--fg)}
 h1{font:700 var(--t-title1)/1.1 var(--f-body);letter-spacing:-.03em;margin:6px 0 10px}
-.detail h1{font-size:28px;margin:0}
+.detail h1{font-size:28px;line-height:1.15;margin:0}
 h2{font:700 var(--t-title2)/1.25 var(--f-body);letter-spacing:-.02em;margin:40px 0 12px}
 h3{font:700 var(--t-head)/1.3 var(--f-body);letter-spacing:-.012em;margin:28px 0 8px}
 h2 a.anchor,h3 a.anchor{color:var(--muted);opacity:0;margin-left:.35em;font-weight:400}
@@ -150,12 +150,16 @@ select{appearance:none;-webkit-appearance:none;height:40px;padding:0 34px 0 16px
 .track-list b{display:block;font-weight:600}
 .track-list small{display:block;font-size:var(--t-foot)}
 .track-list .seq{color:var(--muted);font:var(--t-foot)/1.6 var(--f-mono);font-variant-numeric:tabular-nums;text-align:right}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 20px}
-/* the first link is the one you came for, filled like the app's playlist button */
-.pill{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 18px;border-radius:999px;
-  font:600 var(--t-sub)/1 var(--f-body);color:var(--bluetx);background:color-mix(in srgb,var(--accent) 13%,transparent)}
-.pill:first-child{background:var(--bluebtn);color:#fff}
-.pill:hover{filter:brightness(1.06)}
+/* a class's links: one grouped card, a row per destination, the words saying where it
+   goes and an arrow saying whether it leaves. Text links, not buttons. */
+.golist{list-style:none;padding:0;margin:16px 0 20px;border-radius:14px;overflow:hidden;
+  background:linear-gradient(var(--cardtop) 0 1px,#0000 1px),var(--fill2);box-shadow:0 0 0 1px var(--cardline),var(--cardsh)}
+.golist li{position:relative;margin:0}
+.golist li+li::before{content:"";position:absolute;left:16px;right:0;top:0;height:.5px;background:var(--sep)}
+main .golist a{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:var(--tap);padding:0 16px;
+  color:var(--link);font:500 var(--t-sub)/1.3 var(--f-body);text-decoration:none}
+.golist a:hover{background:color-mix(in srgb,var(--fg) 6%,transparent)}
+.goarrow{flex:none;color:var(--muted);font-size:var(--t-sub)}
 .detail>a.backpill{display:inline-flex;align-items:center;height:var(--tap);padding:0 16px 0 13px;border-radius:999px;
   background:var(--fill2);color:var(--fg);font:500 var(--t-sub)/1 var(--f-body);margin-bottom:12px}
 .detail>a.backpill:hover{background:var(--fill)}
@@ -194,6 +198,10 @@ figcaption{font-size:var(--t-foot);color:var(--muted)}
   .toc{display:none}
   main{padding:20px 16px 48px;border-radius:20px 20px 0 0;box-shadow:0 -1px 0 var(--cardline)}
   .infobox{float:none;width:auto;margin:16px 0}
+  /* a class title is three parts long: on a phone it gets the app's smaller title step */
+  .detail h1{font-size:22px;line-height:1.2}
+  .detail header{gap:14px;align-items:flex-start}
+  .cover{width:84px}
   table{display:block;overflow-x:auto}
 }
 /* a row is a row, not a link in a sentence: no underline, and the description kept to
