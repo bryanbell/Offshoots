@@ -930,7 +930,9 @@ function goHome(){
   // and the panel comes up with it. Clearing the selection already rebuilt the panel as
   // Explore; leaving it minimised meant the button looked like it had only emptied the
   // map, with the thing it had just built hidden behind a handle. On a wide screen the
-  // panel is always open and this does nothing.
+  // panel is always open and this does nothing. A sheet put away with its close button
+  // is dismissed, not just lowered: setOpen alone left it off screen behind the pill.
+  document.body.classList.remove("sheetgone");
   setOpen(true);
 }
 function syncBack(){

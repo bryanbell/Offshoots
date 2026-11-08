@@ -489,5 +489,22 @@ const openCx=async q=>{ await q.$eval(".sect-connections",e=>{ if(!e.open) e.ope
     await r.goBack().catch(()=>{});
     say("a shared link's first browser back leaves the site", !r.url().startsWith("file:"));
     await c.close(); }
+  // Put away with its close button, the root sheet is dismissed (sheetgone), and the map
+  // button then shows. Tapping it set the sheet open but left it dismissed, off screen
+  // behind the bottom pill, so the tap looked like it did nothing.
+  { const c=await b.newContext({viewport:{width:M.width,height:M.height},isMobile:true,hasTouch:true});
+    const q=await c.newPage();
+    await q.goto(URL); await ready(q); await settle(q);
+    await q.tap(".ppage[data-p=root] ~ * .pmin, .pcard .pmin"); await settle(q);
+    const shut=await q.evaluate(()=>({home:!document.getElementById("mapHome").hidden,
+      gone:document.body.classList.contains("sheetgone")}));
+    say("root sheet closed: the map button shows", shut.home && shut.gone);
+    await q.tap("#mapHome"); await settle(q);
+    const up=await q.evaluate(()=>({gone:document.body.classList.contains("sheetgone"),
+      open:document.body.classList.contains("open"),
+      top:document.getElementById("panel").getBoundingClientRect().top, h:innerHeight}));
+    say("  and tapping it brings the sheet back on screen ("+Math.round(up.top)+" of "+up.h+")",
+      !up.gone && up.open && up.top < up.h*0.5);
+    await c.close(); }
   await b.close();
 })();
