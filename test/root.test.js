@@ -55,22 +55,24 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   // on the grounds that the title covered it, which worked while there was one list.
   const groups=await p.$$eval("#panelBody .sect .secttl",e=>e.map(x=>x.textContent));
   say("four section headings: "+groups.join(" / "),
-    groups.join("/")==="Collections/Exploring the Atlas/Go Deeper/About This Map");
+    groups.join("/")==="Collections/Explore the Atlas/Go Deeper/About This Map");
   say("  not Find: these are for when you do not know what you want", !/find/i.test(groups.join(" ")));
   say("  and Collections is called that here too, the way its own page is",
     groups[0]==="Collections");
-  // Only Go deeper keeps a line under it. The other two had captions for things that
-  // already say what they are: two labelled rows, and a row of pictures of a cat asleep,
-  // a nightcap and a coffee shop.
+  // Collections and Explore the Atlas carry the welcome card's own two lines, so the
+  // panel draws the line between the two ways in with the words the welcome used.
   const ledes=await p.$$eval("#panelBody .sect .sectlede",e=>e.map(x=>x.textContent));
-  say("  one line, under the one section whose contents are not self-evident",
-    ledes.length===1 && ledes[0]==="Stories and context behind the music.");
+  const hp=await p.evaluate(()=>[document.getElementById("hpath-modes-d"),document.getElementById("hpath-atlas-d")].map(e=>e?e.textContent:""));
+  say("  Collections and the Atlas say what the welcome says: "+ledes.slice(0,2).join(" / "),
+    ledes.length===3 && ledes[0]==="Find music for the moment." && ledes[1]==="Follow the connections between musical styles."
+    && (!hp[0] || (hp[0]===ledes[0] && hp[1]===ledes[1])));
+  say("  and Go deeper keeps its own", ledes[2]==="Stories and context behind the music.");
   say("  and none are left loose", (await p.$$eval("#panelBody > .more > [data-page]",e=>e.length))===0);
 
   // ---- About, a section in the body ----
   // It was a fold directly under the title: a closed row at the top of the panel, with
   // the one paragraph explaining the whole thing behind a triangle nobody turns. It is
-  // an ordinary open section now, between Exploring the Atlas and Go deeper.
+  // an ordinary open section now, between Explore the Atlas and Go deeper.
   const fold=await p.evaluate(()=>{ const d=document.querySelector(".sect-about");
     if(!d) return null;
     const h=d.querySelector(".secttl"), ttl=document.querySelector(".ovcard .bigttl");
@@ -479,18 +481,19 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   // "See all" came back in its place, because a chevron alone never said what it opened.
   say("the collections heading opens the set", await p.$eval(".sect-modes .secthead",
     e=>e.tagName==="BUTTON" && e.dataset.page==="modes" && !e.querySelector(".sectaside")));
-  say("  saying so in words", await p.$eval(".sect-modes .secthead .seeall",
-    e=>e.textContent==="See all"));
-  // on one line, words then chevron. The box was a grid from when it held the chevron
-  // alone, and a grid gives every child a row of its own: "See all" came out stacked on
-  // top of its own chevron at every phone width.
-  say("  on one line with its chevron", await p.$eval(".sect-modes .secthead",h=>{
-    const sa=h.querySelector(".seeall").getBoundingClientRect();
+  // The chevron sits on the end of the title, "Collections >", rather than out on the
+  // far right with "See all" in front of it: one mark, where the eye already is.
+  say("  with its chevron on the end of the title", await p.$eval(".sect-modes .secthead",h=>{
+    const t=h.querySelector(".secttl").getBoundingClientRect();
     const cv=h.querySelector(".sectcv svg").getBoundingClientRect();
-    return Math.abs(sa.top-cv.top)<10 && cv.left>=sa.right-1;}));
-  // and only there: the other two headings open nothing, so neither offers to
-  say("  and nowhere else on the panel",
-    (await p.$$("#panelBody .sect .seeall")).length===1);
+    return Math.abs((t.top+t.bottom)/2-(cv.top+cv.bottom)/2)<8 && cv.left>=t.right-1 && cv.left-t.right<14;}));
+  // the line under it is part of the same control, not a dead strip between two taps
+  say("  and its line is inside the same button", await p.$eval(".sect-modes .secthead",h=>{
+    const l=h.querySelector(".sectlede"), r=h.getBoundingClientRect(), t=h.querySelector(".secttl").getBoundingClientRect();
+    return !!l && l.textContent==="Find music for the moment." && r.height>=44
+      && l.getBoundingClientRect().top-t.bottom<8;}));
+  say("  and no See all anywhere on the panel",
+    (await p.$$("#panelBody .seeall")).length===0 && !/see all/i.test(await p.$eval("#panelBody",e=>e.innerText)));
 
   // ---- how early the collections come ----
   // The panel is four sections rather than a list, a row of covers and a colophon, and
