@@ -1,7 +1,7 @@
 // Reads a School of Listening update manifest and says what it would change.
 //
 // The manifest is the spreadsheet's own account of a batch of classes: the Music Atlas node
-// id, the two public playlist URLs, the playlist title, the artists and the ordered songs.
+// id, the public playlist URLs (Apple Music, Spotify and, once they exist, Qobuz), the playlist title, the artists and the ordered songs.
 // It is written for a person, so this parses it rather than trusting a shape, and it
 // reports before it writes: a manifest is often a re-issue of one already applied, and the
 // interesting part is the handful of lines that differ, not the 40 that do not.
@@ -19,6 +19,9 @@ function parse(txt){
     const title=(block.match(/^([0-9][0-9.]*\s+.+·.+)$/m)||[])[1];
     const ap=(block.match(/^Apple Music URL:\s*(\S+)/m)||[])[1]||"";
     const sp=(block.match(/^Spotify URL:\s*(\S+)/m)||[])[1]||"";
+    // Qobuz, once the playlists are there: open.qobuz.com/playlist/<id>, play.qobuz.com
+    // or www.qobuz.com/<locale>/playlists/<slug>/<id>; the id is the last run of digits
+    const qb=(block.match(/^Qobuz URL:\s*(\S+)/m)||[])[1]||"";
     const artists=((block.match(/^Artists:\s*(.+)$/m)||[])[1]||"")
       .split(";").map(s=>s.trim()).filter(Boolean);
     const songs=[];
@@ -31,6 +34,7 @@ function parse(txt){
     out.push({id,title:title?title.trim():"",
       ap:(ap.match(/\/playlist\/(pl\.[A-Za-z0-9-]+)/)||[])[1],
       sp:(sp.match(/playlist\/([A-Za-z0-9]+)/)||[])[1],
+      qb:(qb.match(/playlists?\/(?:[^\s\/]+\/)?(\d+)/)||[])[1],
       artists,songs});
   }
   return out;
@@ -51,6 +55,7 @@ if(require.main===module){
     if(!ids.has(c.id)){ console.log("  ?? "+c.id+" is not a style in the map"); continue; }
     if(c.ap && D.PLAY[c.id]!=="/playlist/"+c.ap) why.push("apple");
     if(c.sp && (D.SPLAY||{})[c.id]!==c.sp) why.push("spotify");
+    if(c.qb && (D.QPLAY||{})[c.id]!==c.qb) why.push("qobuz");
     if(c.title && D.PTITLE[c.id]!==c.title) why.push("title");
     if(c.artists.length && !same(D.ROSTER[c.id],c.artists)) why.push("artists");
     const songs=c.songs.map(s=>s[1]);
@@ -73,6 +78,7 @@ if(require.main===module){
   for(const {c,why} of changes){
     if(why.includes("apple")) put("PLAY",c.id,"/playlist/"+c.ap);
     if(why.includes("spotify")) put("SPLAY",c.id,c.sp);
+    if(why.includes("qobuz")) put("QPLAY",c.id,c.qb);
     if(why.includes("title")) put("PTITLE",c.id,c.title);
     if(why.includes("artists")) put("ROSTER",c.id,c.artists);
     if(why.includes("songs")) put("SONGS",c.id,c.songs.map(x=>x[1]));

@@ -481,6 +481,13 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
         intro:!!document.querySelector(".sthead .stintro")}; });
     say("the peek shows the description and still the whole playlist button ("+pk.bottom+" of "+pk.vh+")",
       pk.intro && pk.bottom<=pk.vh);
+    // and nothing sits on it: the floating chevron that says the sheet carries more is not
+    // drawn over a playlist, and the button's bottom edge is the button, not the sheet
+    const clear=await w.evaluate(()=>{ const a=document.querySelector("#panelBody a.plbtn"), r=a.getBoundingClientRect();
+      const t=document.getElementById("ptoggle");
+      const hit=document.elementFromPoint(Math.round(r.left+r.width/2), Math.min(innerHeight-2,Math.round(r.bottom-3)));
+      return {chev:getComputedStyle(t).display, edge:!!(hit&&hit.closest("a.plbtn"))}; });
+    say("  with no chevron over it, and its bottom edge still tappable", clear.chev==="none" && clear.edge);
     await raise(w); await opened(w);
     const r=await w.evaluate(()=>{ const s=document.querySelector(".sthead .stintro");
       const tl=document.querySelector(".sect-connections .tally");

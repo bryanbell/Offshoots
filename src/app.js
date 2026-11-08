@@ -86,10 +86,11 @@ const OPENGO="<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"t
 function plist(n){
   const ap=(typeof PLAY!=="undefined"&&PLAY[n.id])||"";
   const sp=(typeof SPLAY!=="undefined"&&SPLAY[n.id])||"";
-  if(!ap && !sp) return "";
+  const qb=qbOf(n.id);
+  if(!ap && !sp && !qb) return "";
   const t=(typeof PTITLE!=="undefined"&&PTITLE[n.id])||n.name;
   return `<a class="plrow pl" target="_blank" rel="noopener"`
-    + ` data-ap="${ap?esc("https://music.apple.com"+ap):""}" data-spid="${esc(sp)}" data-style="${esc(n.name)}">`
+    + ` data-ap="${ap?esc("https://music.apple.com"+ap):""}" data-spid="${esc(sp)}" data-qb="${esc(qb)}" data-style="${esc(n.name)}">`
     + cover(n.id,n)
     // the arrow used to be a disc at the right-hand end, taking width the long playlist
     // titles needed. It sits at the end of the service line instead, where it still says
@@ -123,7 +124,7 @@ function xrow(x,id){
     : `<span class="pcov pcovph" aria-hidden="true"${x.c?` style="--c:${esc(x.c)}"`:""}>`
       + `<b>${esc(ini)}</b></span>`;
   return `<a class="plrow pl xplay" target="_blank" rel="noopener"`
-    + ` data-ap="${x.ap?esc("https://music.apple.com"+x.ap):""}" data-spid="${esc(x.sp||"")}"`
+    + ` data-ap="${x.ap?esc("https://music.apple.com"+x.ap):""}" data-spid="${esc(x.sp||"")}" data-qb="${esc(qbPlay(x.qb||""))}"`
     + ` data-style="${esc(x.title)}">`
     + art
     + `<span class="pltx"><b class="plttl">${esc(x.title)}</b>`
@@ -133,10 +134,11 @@ function xrow(x,id){
 }
 function paintPlay(){
   document.querySelectorAll("#panelBody a.plrow, #panelBody a.plbtn, #panelBody a.xopen, #panelBody a.trkbtn, #panelBody a.pklis").forEach(a=>{
-    const ap=a.dataset.ap||"", sp=a.dataset.spid||"", nm=a.dataset.style||"";
+    const ap=a.dataset.ap||"", sp=a.dataset.spid||"", qb=a.dataset.qb||"", nm=a.dataset.style||"";
     const lbl=a.querySelector(".plsvc"); if(!lbl) return;
     const track=a.classList.contains("trkbtn");
     const url = SVC==="spotify" ? (sp?(track?sp:"https://open.spotify.com/playlist/"+sp):"")
+      : SVC==="qobuz" ? qb
       : SVC==="apple" ? ap : "";
     if(url){
       a.classList.remove("off"); a.removeAttribute("aria-disabled");
@@ -148,7 +150,9 @@ function paintPlay(){
         : a.classList.contains("xopen")?"xopen"
         : a.classList.contains("pklis")?"pklis"
         : "plrow"+(a.classList.contains("xplay")?" xplay":"");
-      a.className=base+" "+(SVC==="spotify"?"sp":"pl");
+      // "pl" is Apple's, which the Mac link handler rewrites to music:; a Qobuz playlist
+      // gets its own class so it opens on the web, the way Qobuz artist links already do
+      a.className=base+" "+(SVC==="spotify"?"sp":SVC==="qobuz"?"qb":"pl");
       a.href=url; if(SVC==="spotify") a.dataset.sp=sp; else delete a.dataset.sp;
       a.hidden=false;
       // the button says where it is going; a row says what it is; a short one says only
@@ -182,6 +186,13 @@ const BRAND={apple:"#fa233b",spotify:"#1db954",qobuz:"#0070ef"};
 let SVC="apple"; try{ SVC=localStorage.getItem("svc")||"apple" }catch(e){}
 const spHref = name=>`https://open.spotify.com/search/${encodeURIComponent(name)}`;
 const qbHref = name=>`https://www.qobuz.com/us-en/search?q=${encodeURIComponent(name)}`;
+// Qobuz playlists, when there are any: QPLAY in data.js holds a playlist id or a full URL
+// per style, the way SPLAY holds Spotify's. Empty today, so every Qobuz playlist button
+// says "Not on Qobuz yet" and the picker says so up front; filling the table is the whole
+// job, nothing here needs changing when it is.
+const qbPlay = v=> !v ? "" : /^https?:\/\//.test(v) ? v : "https://open.qobuz.com/playlist/"+v;
+const qbOf = id=> qbPlay((typeof QPLAY!=="undefined"&&QPLAY[id])||"");
+const QOBUZ_PLAYLISTS = typeof QPLAY!=="undefined" && Object.keys(QPLAY).length>0;
 const svcHref = name=> SVC==="spotify" ? spHref(name) : SVC==="qobuz" ? qbHref(name) : amHref(name);
 const svcName = ()=> SVC==="spotify" ? "Spotify" : SVC==="qobuz" ? "Qobuz" : "Apple Music";
 // Phosphor, MIT, like every other icon here. One symbol per kind of act, so a row of artists reads at a glance:
@@ -1336,7 +1347,7 @@ function svcPicker(kind){ return `<span class="svc${kind==="inline"?" svcinline"
   + `<option value="spotify"${SVC==="spotify"?" selected":""}>Spotify</option>`
   // Qobuz has artist links but no playlists anywhere on the map yet, so its option says
   // so before you choose it rather than after every playlist button goes grey
-  + `<option value="qobuz"${SVC==="qobuz"?" selected":""}>Qobuz (no playlists yet)</option>`
+  + `<option value="qobuz"${SVC==="qobuz"?" selected":""}>Qobuz${QOBUZ_PLAYLISTS?"":" (no playlists yet)"}</option>`
   + `</select></span>`; }
 // one control at the top right of every panel: it puts the card away and leaves the map
 // whole. The pull tab at the bottom of the screen brings it back.
@@ -1488,12 +1499,13 @@ function introLine(n){
 function startSect(n){
   const ap=(typeof PLAY!=="undefined"&&PLAY[n.id])||"";
   const sp=(typeof SPLAY!=="undefined"&&SPLAY[n.id])||"";
-  if(!ap && !sp) return "";
+  const qb=qbOf(n.id);
+  if(!ap && !sp && !qb) return "";
   // "Listen", the word the collection rows' pill uses for the same act: one verb for
   // opening a playlist wherever it is (it read "Open playlist in" here, "Open in" on the
   // cross-style playlists and "Listen" on the rows)
   const open=`<a class="plbtn pl" target="_blank" rel="noopener" data-lbl="Listen in"`
-    + ` data-ap="${ap?esc("https://music.apple.com"+ap):""}" data-spid="${esc(sp)}"`
+    + ` data-ap="${ap?esc("https://music.apple.com"+ap):""}" data-spid="${esc(sp)}" data-qb="${esc(qb)}"`
     + ` data-style="${esc(n.name)}">`
     + `<i class="plbgo" aria-hidden="true">${OPENGO}</i><span class="plsvc"></span></a>`;
   // The cover and the playlist's name, then the button that says where it opens. A
@@ -1552,7 +1564,7 @@ function acrossSect(n){
       + (x.note?`<span class="xnote">${esc(x.note)}</span>`:"")
       + (links?`<span class="xalso">Also featured in</span><span class="xlinks">${links}</span>`:"")
       + `<a class="xopen pl" target="_blank" rel="noopener" data-lbl="Listen in"`
-      + ` data-ap="${x.ap?esc("https://music.apple.com"+x.ap):""}" data-spid="${esc(x.sp||"")}"`
+      + ` data-ap="${x.ap?esc("https://music.apple.com"+x.ap):""}" data-spid="${esc(x.sp||"")}" data-qb="${esc(qbPlay(x.qb||""))}"`
       + ` data-style="${esc(x.title)}"><span class="plsvc"></span>`
       + `<i class="xgoi" aria-hidden="true">${OPENGO}</i></a>`
       + `</div></div>`;
@@ -2089,9 +2101,10 @@ function modePicks(m){
     // the shortest path to hearing anything was two taps and a guess.
     const ap=(typeof PLAY!=="undefined"&&PLAY[id])||"";
     const sp=(typeof SPLAY!=="undefined"&&SPLAY[id])||"";
-    const listen = (ap||sp)
+    const qb=qbOf(id);
+    const listen = (ap||sp||qb)
       ? `<a class="pklis pl" target="_blank" rel="noopener" data-lbl="Listen" data-short`
-        + ` data-ap="${ap?esc("https://music.apple.com"+ap):""}" data-spid="${esc(sp)}"`
+        + ` data-ap="${ap?esc("https://music.apple.com"+ap):""}" data-spid="${esc(sp)}" data-qb="${esc(qb)}"`
         + ` data-style="${esc(n.name)}"><span class="plsvc"></span>${OPENGO}</a>`
       : "";
     return `<div class="pk">`
@@ -2551,7 +2564,7 @@ function headTrack(k){
   const n = h.style && byId[h.style];
   return `<div class="trkcard">`
     + `<a class="trkbtn" target="_blank" rel="noopener"`
-    + ` data-ap="${esc(h.ap||"")}" data-spid="${esc(h.sp||"")}"`
+    + ` data-ap="${esc(h.ap||"")}" data-spid="${esc(h.sp||"")}" data-qb="${esc(qbPlay(h.qb||""))}"`
     + ` data-style="${esc(h.title)}" data-lbl="Play it on">`
     + `<span class="trktx"><b class="trkttl">${esc(h.title)}</b>`
     + `<span class="trkby">${esc(h.artist)} · ${h.year}</span>`

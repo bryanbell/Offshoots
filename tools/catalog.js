@@ -39,6 +39,7 @@ function noteNames(note){
 
 const apple=p=>p?"https://music.apple.com"+p:undefined;
 const spotify=i=>i?"https://open.spotify.com/playlist/"+i:undefined;
+const qobuz=i=>!i?undefined:/^https?:\/\//.test(i)?i:"https://open.qobuz.com/playlist/"+i;
 const wiki=r=>(r[7]||[]).find(s=>/wikipedia\.org\/wiki\//.test(s));
 
 const SITE="https://musicatlas.us";
@@ -59,8 +60,9 @@ const styles=D.DATA.map(r=>{
     // carrying the name twice cost 70 KB that the reader has to pay for
     grewOutOf:(r[4]?r[4].split(" "):[]),
     ledTo:D.DATA.filter(x=>(x[4]||"").split(" ").indexOf(id)>=0).map(x=>x[0]),
-    playlist:(D.PLAY&&D.PLAY[id])||(D.SPLAY&&D.SPLAY[id])
-      ? {appleMusic:apple((D.PLAY||{})[id]), spotify:spotify((D.SPLAY||{})[id])} : undefined,
+    playlist:(D.PLAY&&D.PLAY[id])||(D.SPLAY&&D.SPLAY[id])||(D.QPLAY&&D.QPLAY[id])
+      ? {appleMusic:apple((D.PLAY||{})[id]), spotify:spotify((D.SPLAY||{})[id]),
+         qobuz:qobuz((D.QPLAY||{})[id])} : undefined,
     wikipedia:wiki(r)
   };
   for(const k of Object.keys(o)) if(o[k]===undefined) delete o[k];

@@ -2074,6 +2074,11 @@ button.navttl[aria-expanded="true"] .lrcv{transform:rotate(180deg);opacity:1}
     box-shadow:0 1px 6px rgb(0 0 0 / .28)}
   body:not(.open) #ptoggle #expand .lbl{display:none}
   body:not(.open) #ptoggle #expand svg{width:15px;height:15px}
+  /* Not on a style with a playlist: there the bottom of the half-open sheet is the Listen
+     button, and the chevron sat on it. The grabber at the top still opens the sheet. */
+  body:not(.open) aside#panel:has(#panelBody a.plbtn) #ptoggle{display:none}
+  /* and the strip kept clear for it goes too, or it clips the bottom of the button */
+  body:not(.open) aside#panel:has(#panelBody a.plbtn){padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}
 }
 
 

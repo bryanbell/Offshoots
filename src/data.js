@@ -1718,6 +1718,13 @@ const SPLAY = {
   "corridosbelicos":"7qYBOisTDexWPgYcezpl7r",
   "dariacore":"5UC98NviONRJUcktwXzCGV",
 };
+// Qobuz playlists, one per style, the way SPLAY holds Spotify's: the playlist id
+// (open.qobuz.com/playlist/<id>) or a full https URL. Empty until the School of Listening
+// playlists are on Qobuz; tools/manifest.js fills it from a manifest's "Qobuz URL:" line,
+// and the app turns Qobuz's playlist buttons on as entries arrive, with no other change.
+const QPLAY = {
+};
+
 const DESC = {"nujazz":"Jazz played over programmed beats rather than swing, mostly out of Europe: house and downtempo rhythms underneath, with live horns, Rhodes and double bass on top.","synthpunk":"The guitar handed over to a cheap synthesiser, the same aggression played on keys.","appalachian":"Anglo-Celtic ballads and fiddle tunes passed down through families, sung plain over banjo, fiddle and open-tuned guitar.",
 "ragtime":"A march's steady left hand against a syncopated right, written out for piano and played with a dancer's snap.",
 "tinpan":"The craft of the published song, built for sheet music and parlor pianos, with a verse that exists to set up the chorus.",
@@ -2474,7 +2481,7 @@ const FAMMAP = {"exp":"#bac5d5","latin":"#2fa984","gospel":"#879c5d","folk":"#cf
 // regulating how you feel, listening to think about yourself, and listening to be with people.
 const MODES = [
   ["focus","Focus","Working or studying, when words get in the way.",
-   "Words compete with the words in your own head, so what survives is instrumental, steady and a little uneventful — music that puts a floor under the work instead of asking for attention.",
+   "Words compete with the words in your own head, so what survives is instrumental, steady and a little uneventful: music that puts a floor under the work instead of asking for attention.",
    [
     ["ambient","Written to be as ignorable as it is interesting"],
     ["modernclassical","Slow piano and strings, long arcs, no hooks"],
@@ -2599,7 +2606,7 @@ const MODES = [
    [
     ["melodeath","Harmonized riffs that set the pace and hold it"],
     ["melmetalcore","A chorus to sing and a breakdown to push into"],
-    ["house","Four-on-the-floor at 120–128 — the original treadmill tempo"],
+    ["house","Four-on-the-floor at 120–128, the original treadmill tempo"],
     ["techno","Machine-steady and relentless"],
     ["trap","Half-time and heavy, built for the last set"],
     ["thrash","Nothing but forward momentum"],
@@ -2608,7 +2615,7 @@ const MODES = [
     ["crunk","Shouted call-and-response for the last rep"],
     ["speedmetal","Double kick used as a metronome"],
     ["hiphouse","Rapping over a house beat, which is as efficient as it sounds"],
-    ["gqom","Heavy and lurching — hard to coast through"],
+    ["gqom","Heavy and lurching, hard to coast through"],
     ["phonk","Cowbells and distortion, engineered for the fourth set"],
     ["driftphonk","Distorted and absurd, which helps at rep eight"],
     ["rage","Built for the moment the weight stops moving"],
@@ -2650,7 +2657,7 @@ const MODES = [
     ["ukgpop","Breakbeats with the weight taken out"],
     ["futurefunk","Four-on-the-floor and permanently cheerful"],
     ["electroclash","A stiff 128 that does your counting for you"],
-    ["italo","120-ish and bright — a riding tempo"],
+    ["italo","120-ish and bright, a riding tempo"],
     ["afrobeat","Fifteen-minute grooves that go the distance"],
     ["techno","Machine-steady for as long as you need"],
     ["house","The steady four that paces itself"],
@@ -3655,7 +3662,7 @@ const MODES = [
     ["balada","Grand romantic Spanish-language pop"],
     ["brill","Professional songwriters, amateur feelings"],
     ["wallofsound","Teenage romance at symphony scale"],
-    ["beach_music","Carolina shag — a whole region's date night"],
+    ["beach_music","Carolina shag, a whole region's date night"],
     ["retro_soul","Old-fashioned devotion, recorded last year"],
     ["baroquepop","Harpsichords and longing"],
     ["trapsoul","Late-night texting music"],
@@ -3837,7 +3844,7 @@ const MODES = [
     ["modal","Few chords, enormous space"],
     ["prog","Side-long, deliberate, built to be followed"],
     ["postrock","Twelve minutes to arrive somewhere"],
-    ["shoegaze","Detail buried under volume — headphones only"],
+    ["shoegaze","Detail buried under volume, headphones only"],
     ["drone","One tone held until the room changes shape"],
     ["minimalism","Changes you only notice after they have happened"],
     ["ambient","Rewards the attention it refuses to demand"],
@@ -13005,4 +13012,4 @@ const PHOTO = {
 };
 
 // ---------- export tail ---------- (build.js drops everything from this line on)
-if (typeof module !== "undefined") module.exports = {FAMS, DATA, ART, DONE, PLAY, SPLAY, DESC, COVER, PTITLE, FAMSKIN, FAMMAP, MODES, HEADTRACK, ROSTER, SONGS, READ, ACTIVE, ROLE, PICKERS, PICKED, PHOTO, COVERART, STYLEART, XPLAY};
+if (typeof module !== "undefined") module.exports = {FAMS, DATA, ART, DONE, PLAY, SPLAY, QPLAY, DESC, COVER, PTITLE, FAMSKIN, FAMMAP, MODES, HEADTRACK, ROSTER, SONGS, READ, ACTIVE, ROLE, PICKERS, PICKED, PHOTO, COVERART, STYLEART, XPLAY};
