@@ -528,11 +528,11 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
     return {n:r.length, hiMin:Math.min(...hi), loMax:Math.max(...lo),
       inks:[...new Set(r.map(x=>getComputedStyle(x).fill))],
       inline:r.filter(x=>/fill/.test(x.getAttribute("style")||"")).length,
-      // the family colour belongs where it says something: the rail on the left and the
-      // dot on every style. On the lanes it was a third telling of the same thing, across
-      // a fifth of the screen, and it is what made the map hard to read.
-      railHues:new Set([...document.querySelectorAll(".lane.c")]
-        .map(x=>getComputedStyle(x).getPropertyValue("--c").trim())).size,
+      // the family colour belongs on the dot on every style. The lane column is in the
+      // map's own ink: two greys alternating like the bands, and no count beside the name.
+      laneFills:new Set([...document.querySelectorAll(".lane.c")].map(x=>getComputedStyle(x).backgroundColor)).size,
+      laneRails:[...document.querySelectorAll(".lane.c")].filter(x=>/inset 3px/.test(getComputedStyle(x).boxShadow)||/rgb\(\d+, \d+, \d+\) 3px/.test(getComputedStyle(x).boxShadow)).length,
+      counts:document.querySelectorAll(".lane .cnt").length,
       dotHues:new Set([...document.querySelectorAll("#chart .n")]
         .map(x=>getComputedStyle(x).getPropertyValue("--c").trim())).size};
   });
@@ -540,9 +540,9 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("low rows all darker than high rows", bands.loMax < bands.hiMin);
   say("  in one neutral ink, not eighteen family ones ("+bands.inks.length+")",
     bands.inks.length===1 && bands.inline===0 ? true : bands.inks.join(", "));
-  say("  while the rail and the dots keep the colour that means something ("
-    +bands.railHues+" rails, "+bands.dotHues+" dots)",
-    bands.railHues===nFams && bands.dotHues===nFams);
+  say("  the dots keep the family colour ("+bands.dotHues+")", bands.dotHues===nFams);
+  say("  and the lane column is monochrome: "+bands.laneFills+" greys, no rail, no count",
+    bands.laneFills<=2 && bands.laneRails===0 && bands.counts===0);
   say("no mobile errors", p._errs.filter(x=>!/Failed to load/.test(x)).length===0);
 
   const d=await fresh(b,Dk);

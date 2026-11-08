@@ -63,7 +63,7 @@ const readMap=(p)=>p.evaluate(()=>{
   const labels=[...document.querySelectorAll("#chart .n text:not(.halo)")].map(px).sort((a,b)=>a-b);
   const one=s=>{const e=document.querySelector(s); return e?+px(e).toFixed(1):null;};
   return {n:labels.length, min:+labels[0].toFixed(1), max:+labels[labels.length-1].toFixed(1),
-    axis:one("#axis text"), lane:one(".lane .vt"), count:one(".lane .cnt")};
+    axis:one("#axis text"), lane:one(".lane .vt")};
 });
 // decorative glyphs and counters are not reading copy, so they are exempt by name
 const EXEMPT="\\b(cnt|vt|ck|dot|sw|mi|cv|shg|upchev|svcchev|pkgo|plgo)\\b";
@@ -196,9 +196,9 @@ const readRules=(p)=>p.evaluate(()=>{
     // labels, so the spread there is a third rather than a half. The desktop keeps a half.
     const spread = name==="phone" ? 1.3 : 1.5;
     say(name+" map: and the biggest is at least "+spread+"x the smallest", mp.max>=mp.min*spread);
-    const chrome=[["axis",mp.axis],["lane name",mp.lane],["lane count",mp.count]].filter(([,v])=>v!==null);
+    const chrome=[["axis",mp.axis],["lane name",mp.lane]].filter(([,v])=>v!==null);
     const smallChrome=chrome.filter(([,v])=>v<11);
-    say(name+" map: axis, lane and count all at or above 11px ("
+    say(name+" map: axis and lane names at or above 11px ("
         +chrome.map(([k,v])=>k+" "+v).join(", ")+")", smallChrome.length===0);
     if(!(mp.n>400 && mp.min>=floor-0.01) || mp.max-mp.min<2 || smallChrome.length) bad++;
 
