@@ -43,11 +43,22 @@ const roots=D.DATA.filter(r=>!parents(r).length);
 say("the roots are all pre-1950 ("+roots.length+" of them)", few(roots.filter(r=>r[2]>=1950).map(r=>r[0])));
 
 // ---------- side tables keyed by style id ----------
-for(const t of ["ART","PLAY","SPLAY","DESC","COVER","PTITLE","STYLEART","ROSTER","SONGS","READ"])
+for(const t of ["ART","PLAY","SPLAY","QPLAY","DESC","COVER","PTITLE","STYLEART","ROSTER","SONGS","READ"])
   say(t+" is keyed by style ids that exist", few(Object.keys(D[t]||{}).filter(k=>!set.has(k))));
 say("DONE lists style ids that exist", few(D.DONE.filter(k=>!set.has(k))));
 say("every ART entry is a list of names", few(Object.entries(D.ART).filter(([k,v])=>!Array.isArray(v)||v.some(a=>typeof a!=="string"||!a.trim())).map(([k])=>k)));
 say("every PLAY path is an Apple Music playlist path", few(Object.entries(D.PLAY).filter(([k,v])=>!/^\/(us\/)?playlist\/[^\s]+$/.test(v)).map(([k])=>k)));
+// Qobuz playlists are empty until they are made; the table has to be there, so the app and
+// the manifest tool have somewhere to read and write, and what goes in has to be a playlist
+say("QPLAY exists ("+Object.keys(D.QPLAY||{}).length+" Qobuz playlists so far)", !!D.QPLAY && typeof D.QPLAY==="object");
+say("every QPLAY entry is a Qobuz playlist id or URL", few(Object.entries(D.QPLAY||{}).filter(([k,v])=>
+  !/^(\d+|https:\/\/(open|play|www)\.qobuz\.com\/.*playlist\/\S+)$/.test(String(v))).map(([k])=>k)));
+// and the manifest tool reads a Qobuz link in either of the shapes Qobuz hands out
+{ const {parse}=require("../tools/manifest.js");
+  const m=parse("==========\nMusic Atlas node ID: ambient\nQobuz URL: https://open.qobuz.com/playlist/12345678\n"
+    +"==========\nMusic Atlas node ID: dub\nQobuz URL: https://www.qobuz.com/us-en/playlists/the-essential-dub/24681357\n");
+  say("the manifest tool reads both Qobuz playlist link shapes",
+    m.length===2 && m[0].qb==="12345678" && m[1].qb==="24681357" ? true : JSON.stringify(m.map(x=>x.qb))); }
 say("every DESC is one sentence that ends", few(Object.entries(D.DESC).filter(([k,v])=>typeof v!=="string"||v.length<20).map(([k])=>k)));
 
 // ---------- families ----------
