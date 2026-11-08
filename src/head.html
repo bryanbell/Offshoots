@@ -680,14 +680,19 @@ body.open .pcnt{display:none}
    is taller than they are. A fixed 44px band drew its hairline at 44 while the row drew
    its own at 53, which is the double rule. The band takes whichever is taller and carries
    the only hairline; the row's own is turned off wherever the band paints. */
+/* the band runs 8px past the buttons, so the hairline clears them rather than running
+   along their bottom edge */
 #panel.pscrolled .pcard .navrow::before{content:"";position:absolute;left:0;right:0;top:0;
-  height:max(var(--tap), 100%);background:var(--barglass,var(--panel));box-shadow:0 .5px 0 var(--line);z-index:0}
+  height:max(calc(var(--tap) + 8px), 100%);background:var(--barglass,var(--panel));box-shadow:0 .5px 0 var(--line);z-index:0}
 #panel.pscrolled .pcard .navrow{box-shadow:none}
 /* the back button and the close button are both positioned out of the grid, which leaves
    the title as the only item in flow and parks it in the first column. It spans the bar
    instead, and the side tracks keep it clear of the two buttons. */
 .pcard .navrow .navttl.ovttl{position:absolute;left:0;right:0;top:0;height:var(--tap);
   display:grid;place-items:center;text-align:center;z-index:1;
+  /* the phone rule that bleeds an in-flow title's tap area (margin -6px, padding 6px)
+     lifted this one 6px above the buttons it sits between */
+  margin:0;padding-block:0;
   padding-inline:calc(var(--tap) + 6px);
   opacity:0;transform:translateY(7px);pointer-events:none;
   transition:opacity .2s ease,transform .2s cubic-bezier(.32,.72,0,1)}
