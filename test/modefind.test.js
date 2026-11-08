@@ -37,6 +37,13 @@ const ready=async q=>{ await arm(q); await until(q,()=>!!document.querySelector(
   const g0=await geo();
   await p.tap(".ppage:not([hidden]) .mfindin"); await p.waitForTimeout(700); await settle(p);
   const g1=await geo();
+  // the field is placed and then focused in the same tap: moving it out from under a
+  // finger that is still down had cancelled the focus, so the keyboard never came up
+  say("tapping the field on a phone focuses it", await p.evaluate(()=>document.activeElement&&document.activeElement.classList.contains("mfindin")));
+  const hdr=await p.evaluate(()=>{ const f=document.querySelector(".ppage:not([hidden]) .mfindin").getBoundingClientRect();
+    const b=[...document.querySelectorAll("#panelBack,.pcard .pmin")].filter(x=>x.getClientRects().length).map(x=>x.getBoundingClientRect().bottom);
+    return {f:f.top, b:Math.max(...b)}; });
+  say("  and lifts it clear of the header's buttons ("+Math.round(hdr.f-hdr.b)+"px below them)", hdr.f>hdr.b+4);
   say("on a phone, focusing the field takes the sheet up ("+Math.round(g0.sheet)+" to "+Math.round(g1.sheet)+"px) and lifts the field ("
     +Math.round(g0.field)+" to "+Math.round(g1.field)+"px)", g1.sheet<g0.sheet-80 && g1.field<g0.field-150 && g1.field<160);
   await p.evaluate(()=>document.activeElement.blur()); await p.waitForTimeout(700); await settle(p);
@@ -55,7 +62,10 @@ const ready=async q=>{ await arm(q); await until(q,()=>!!document.querySelector(
   const firsts=[["sad","Sit With It"],["angry","Burn It Off"],["relaxed","Wind Down"],
     ["nostalgic","Back Then"],["heartbreak","On Your Mind"],["first date","With Someone"],
     ["i want to feel happy","Lift the Mood"],["something to study to","Focus"],["grumpy","Burn It Off"],
-    ["bummer","Sit With It"],["exhausted","Wind Down"],["smitten","On Your Mind"]];
+    ["bummer","Sit With It"],["exhausted","Wind Down"],["smitten","On Your Mind"],
+    ["drunk","Nightcap"],["tipsy","Nightcap"],["garage","Shop Radio"],["uplifting","Lift the Mood"],
+    // ties go to the exact word, and to the collection that lists the word first
+    ["lifting","Workout"],["trippy","Third Eye"],["walking","Wandering"],["concentrate","Focus"]];
   const miss=[];
   for(const [q,want] of firsts){ const s=await type(q); if(s.hits[0]!==want) miss.push(q+" gave "+(s.hits[0]||"nothing")); }
   say("feelings and moments find their collection first ("+firsts.length+" phrases)", miss.length?miss.join("; "):true);
