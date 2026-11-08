@@ -560,7 +560,7 @@ function draw(){
   const svg=$("chart"); svg.setAttribute("width",W); svg.setAttribute("height",H); svg.setAttribute("viewBox",`0 0 ${W} ${H}`); svg.style.setProperty("--fs",FS+"px"); svg.innerHTML=s;
   $("inner").style.width=W+"px";
   const L=$("lanes"); L.style.top=(bar+AXH)+"px"; L.style.setProperty("--lz",1);
-  L.innerHTML = `<div class="lane fill" style="top:0;height:${HEADH}px;left:0;width:${LABELW-8}px"></div>` + lanes.map((l,i)=>`<div class="lane c" data-fam="${l.k}" style="--c:${FAM[l.k].c};top:${l.y0}px;height:${l.h}px;left:0;width:${LABELW-8}px" title="${esc(FAM[l.k].name)} · ${l.count} styles"><span class="vt">${esc(FAM[l.k].short)}</span><span class="cnt">${l.count}</span></div>`).join("");
+  L.innerHTML = `<div class="lane fill" style="top:0;height:${HEADH}px;left:0;width:${LABELW-8}px"></div>` + lanes.map((l,i)=>`<div class="lane c${i%2?"":" b2"}" data-fam="${l.k}" style="--c:${FAM[l.k].c};top:${l.y0}px;height:${l.h}px;left:0;width:${LABELW-8}px" title="${esc(FAM[l.k].name)} · ${l.count} styles"><span class="vt">${esc(FAM[l.k].short)}</span></div>`).join("");
   L.style.transform=`translateX(${scroller.scrollLeft}px)`;
 }
 scroller.addEventListener("scroll",()=>{ const t=`translateX(${scroller.scrollLeft}px)`; $("lanes").style.transform=t;
