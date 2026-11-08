@@ -29,6 +29,19 @@ const ready=async q=>{ await arm(q); await until(q,()=>!!document.querySelector(
       page:pg.dataset.p};});
   const type=async v=>{ await p.fill(".ppage:not([hidden]) .mfindin",v); await settle(p); return state(); };
 
+  // On a phone the keyboard takes the bottom half of the screen, where the matches would
+  // be. Focusing the field takes the sheet up near the top and lifts the field under the
+  // header; leaving it puts the sheet back.
+  const geo=()=>p.evaluate(()=>({sheet:document.getElementById("panel").getBoundingClientRect().top,
+    field:document.querySelector(".ppage:not([hidden]) .mfindin").getBoundingClientRect().top}));
+  const g0=await geo();
+  await p.tap(".ppage:not([hidden]) .mfindin"); await p.waitForTimeout(700); await settle(p);
+  const g1=await geo();
+  say("on a phone, focusing the field takes the sheet up ("+Math.round(g0.sheet)+" to "+Math.round(g1.sheet)+"px) and lifts the field ("
+    +Math.round(g0.field)+" to "+Math.round(g1.field)+"px)", g1.sheet<g0.sheet-80 && g1.field<g0.field-150 && g1.field<160);
+  await p.evaluate(()=>document.activeElement.blur()); await p.waitForTimeout(700); await settle(p);
+  const g2=await geo();
+  say("  and leaving it puts the sheet back", Math.abs(g2.sheet-g0.sheet)<4);
   const s0=await state();
   say("the filter sits on the Collections page, empty, with the sorted sections under it",
     s0.page==="modes" && s0.value==="" && s0.sections && s0.sort && !s0.clear && !s0.hits.length);
@@ -41,7 +54,8 @@ const ready=async q=>{ await arm(q); await until(q,()=>!!document.querySelector(
   // the words someone would type for a feeling find the collection made for it, first
   const firsts=[["sad","Sit With It"],["angry","Burn It Off"],["relaxed","Wind Down"],
     ["nostalgic","Back Then"],["heartbreak","On Your Mind"],["first date","With Someone"],
-    ["i want to feel happy","Lift the Mood"],["something to study to","Focus"],["grumpy","Burn It Off"]];
+    ["i want to feel happy","Lift the Mood"],["something to study to","Focus"],["grumpy","Burn It Off"],
+    ["bummer","Sit With It"],["exhausted","Wind Down"],["smitten","On Your Mind"]];
   const miss=[];
   for(const [q,want] of firsts){ const s=await type(q); if(s.hits[0]!==want) miss.push(q+" gave "+(s.hits[0]||"nothing")); }
   say("feelings and moments find their collection first ("+firsts.length+" phrases)", miss.length?miss.join("; "):true);
@@ -53,8 +67,15 @@ const ready=async q=>{ await arm(q); await until(q,()=>!!document.querySelector(
   say("a half-typed word already works", s2.hits[0]==="Sleep");
   const s3=await type("loud");
   say("loud and quiet lean on how loud each collection is", s3.hits.length>=3 && s3.hits.includes("Workout"));
+  // a slip of the thumb still finds it, but a real word is not read as a typo of another
+  say("one letter off still finds it (hapy, nostalgc)",
+    (await type("hapy")).hits[0]==="Lift the Mood" && (await type("nostalgc")).hits[0]==="Back Then");
+  say("  while a real word is not read as a typo of another (bummer is not summer)",
+    (await type("bummer")).hits.join()==="Sit With It");
+  // nothing found is not a dead end: it says so and offers collections to tap
   const s4=await type("zzqx");
-  say("nothing found says so, with something to try", !s4.hits.length && /Nothing fits/.test(s4.none) && /sad/.test(s4.none));
+  say("nothing found says so, and offers "+s4.hits.length+" collections to start from instead",
+    /Nothing fits/.test(s4.head) && s4.hits.length>=4 && new Set(s4.hits).size===s4.hits.length && s4.hits.includes("Sit With It"));
 
   // clearing puts the page back as it was
   await type("sad");
