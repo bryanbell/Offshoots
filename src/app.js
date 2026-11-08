@@ -1235,9 +1235,12 @@ function sheetOpenH(){
   const r=box.getBoundingClientRect(), vv=window.visualViewport;
   const vTop=vv?vv.offsetTop:0, vBot=vv?vv.offsetTop+vv.height:innerHeight;
   const top=Math.max(r.top,vTop), bot=Math.min(r.bottom,vBot);
-  // typing into the collection filter takes the sheet almost to the top: the keyboard
-  // has the bottom half, and the matches need the space between it and the field
-  const sheetTop=top+(KBDFIELD?0.02:0.2)*Math.max(0,bot-top);
+  // typing into the collection filter takes the sheet to the top of its box. Not measured
+  // against the visible area: iOS pans that when the keyboard comes up, and the sheet
+  // followed the pan instead of rising. The keyboard has the bottom half; the matches
+  // need the space between it and the field.
+  if(KBDFIELD) return Math.max(0, r.height-8);
+  const sheetTop=top+0.2*Math.max(0,bot-top);
   // unrounded: a rounded value next to the one already applied is a new height the sheet
   // animates to, a stray transition sitting on the panel that the glide test catches
   return Math.max(0, r.bottom-sheetTop);
@@ -2576,19 +2579,46 @@ function kbdPad(){
   const kb = KBDFIELD && vv ? Math.max(0, Math.round(innerHeight-(vv.height+vv.offsetTop))) : 0;
   b.style.paddingBottom = kb ? kb+"px" : "";
 }
-function fieldToTop(inp){
+// Below the header, not under it. The header's row is short and its buttons overhang
+// it, so the row's own height put the field behind them: the band painted on scroll is
+// what has to be cleared, and it is at least a tap target plus its 8px.
+function fieldToTop(inp,smooth){
   const b=$("panelBody"); if(!b) return;
-  const nav=b.querySelector(".pcard > .navrow"), nh=nav?nav.getBoundingClientRect().height:0;
+  const nav=b.querySelector(".pcard > .navrow");
+  const tap=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--tap"))||44;
+  const band=Math.max(nav?nav.getBoundingClientRect().height:0, tap+8);
   const br=b.getBoundingClientRect(), ir=inp.getBoundingClientRect();
-  b.scrollTo({top: Math.max(0, b.scrollTop + (ir.top-br.top) - nh - 10), behavior: reduce?"auto":"smooth"});
+  b.scrollTo({top: Math.max(0, b.scrollTop + (ir.top-br.top) - band - 10), behavior: smooth&&!reduce?"smooth":"auto"});
 }
-document.addEventListener("focusin",e=>{
-  const t=e.target; if(!(t&&t.classList&&t.classList.contains("mfindin")) || !OVERLAY) return;
-  KBDFIELD=true;
+// Raise the sheet and lift the field on the touch, before the focus: iOS pans the page to
+// a field as it focuses it, and a field already near the top gives it nothing to pan for.
+function kbdUp(t){
+  if(!OVERLAY) return;
+  const first=!KBDFIELD; KBDFIELD=true;
   if(!OPEN) setOpen(true); else syncSheetH();
   kbdPad();
-  // after the sheet has grown and the keyboard has come up, both of which move the field
-  setTimeout(()=>{ kbdPad(); fieldToTop(t); },320);
+  if(first) fieldToTop(t,false);
+  // and again once the sheet has finished growing and the keyboard is up
+  setTimeout(()=>{ kbdPad(); fieldToTop(t,true); },360);
+}
+// The tap is taken at touchend, not touchstart: moving the field out from under a finger
+// that is still down cancels the focus. Here the finger is up, so the field is placed
+// first and then focused in the same gesture, which is what lets iOS raise its keyboard
+// for a focus() call. A touch that moved is a scroll and is left alone.
+let MFT=null;
+document.addEventListener("touchstart",e=>{
+  const t=e.target; MFT = t&&t.classList&&t.classList.contains("mfindin") && document.activeElement!==t
+    ? {t, x:e.touches[0].clientX, y:e.touches[0].clientY} : null;
+},{capture:true,passive:true});
+document.addEventListener("touchend",e=>{
+  const s=MFT; MFT=null; if(!s || !OVERLAY) return;
+  const c=e.changedTouches[0]; if(Math.hypot(c.clientX-s.x,c.clientY-s.y)>10) return;
+  e.preventDefault();
+  kbdUp(s.t);
+  s.t.focus({preventScroll:true});
+},{capture:true,passive:false});
+document.addEventListener("focusin",e=>{
+  const t=e.target; if(t&&t.classList&&t.classList.contains("mfindin")) kbdUp(t);
 });
 document.addEventListener("focusout",e=>{
   const t=e.target; if(!(t&&t.classList&&t.classList.contains("mfindin"))) return;
