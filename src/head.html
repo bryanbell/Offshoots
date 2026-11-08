@@ -2261,7 +2261,10 @@ a.wk.pl:hover,a.wk.sp:hover{background:color-mix(in srgb,var(--ink,var(--fg)) 84
   color:color-mix(in srgb,var(--ink,var(--link)) 80%,var(--fg))}
 .svcinline .svcchev{width:14px;height:14px;opacity:.8}
 /* the section is framed: a rule above the heading, another below the options */
-.sect-listen{margin-top:20px;padding:0}
+/* 10px under the description, down from 20 (with .sthead's bottom margin, which collapses
+   into this one): with the 128px cover, the button of a style with a two-line description
+   ended a pixel below the half-open sheet on a 393x852 phone */
+.sect-listen{margin-top:10px;padding:0}
 .sect-listen .secthead{margin-bottom:10px}
 .sect-listen .secthead .svc{flex:none;display:flex;min-width:0}
 
@@ -2367,7 +2370,7 @@ a.am .amgo{display:none}
    block below is one of those steps, in that order. */
 
 /* name and date on one line, the date set back so the name still reads as the heading */
-.sthead{margin:2px 0 18px}
+.sthead{margin:2px 0 10px}
 .pttl{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;margin:0 0 2px;
   font:700 var(--t-title1)/var(--t-title1-lh) var(--f-body);letter-spacing:-.025em;color:var(--fg)}
 .pttl .ptyr{font:400 var(--t-sub)/1 var(--f-mono);color:var(--muted);letter-spacing:0}

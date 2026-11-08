@@ -1687,11 +1687,12 @@ $("panel").addEventListener("change",e=>{
     setPickSort(t.value);
     const page=t.closest(".ppage");
     const list=page&&page.querySelector(".picks");
-    const head=page&&page.querySelector(".secthead.picksort");
     const m=page && typeof MODES!=="undefined"
       && MODES.find(x=>"mode:"+x[0]===page.dataset.p);
+    // the heading is left as it is: its picker already shows the choice and the count does
+    // not change with the order. It was rebuilt through pickSortHead(), which called itself
+    // and threw on every change of sort.
     if(list&&m){ list.innerHTML=modePicks(m); amUpgrade(); }
-    if(head) head.outerHTML=pickSortHead();
     return; }
 });
 function clearNav(m){
@@ -2515,9 +2516,6 @@ function pickOrder(m,how){
 }
 function pickSortHtml(){
   return inlinePick('class="psortsel"',"Sort this collection.",PICKSORTS,pickSort());
-}
-function pickSortHead(){
-  return pickSortHead();
 }
 // A collection is a shelf of forty now, and picking off a shelf is work. This does the
 // picking: one of these, opened, which is the whole transaction most of the time. It takes
