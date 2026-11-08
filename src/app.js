@@ -2559,19 +2559,17 @@ function modeTop(m){
 function headTrack(k){
   const h = (typeof HEADTRACK!=="undefined") && HEADTRACK[k];
   if(!h) return "";
-  const n = h.style && byId[h.style];
-  return `<div class="trkcard">`
+  // the song on one line with the same listen pill a style row carries: headphones and
+  // an arrow out, the service named only to screen readers. The row back to its style on
+  // the map went; the song is the point here, not where it is filed.
+  return `<div class="trkcard"><div class="trkhead">`
+    + `<span class="trktx"><b class="trkttl">${esc(h.title)}</b>`
+    + `<span class="trkby">${esc(h.artist)} \u00b7 ${h.year}</span></span>`
     + `<a class="trkbtn" target="_blank" rel="noopener"`
     + ` data-ap="${esc(h.ap||"")}" data-spid="${esc(h.sp||"")}" data-qb="${esc(qbPlay(h.qb||""))}"`
-    + ` data-style="${esc(h.title)}" data-lbl="Play it on">`
-    + `<span class="trktx"><b class="trkttl">${esc(h.title)}</b>`
-    + `<span class="trkby">${esc(h.artist)} · ${h.year}</span>`
-    + `<span class="plline"><span class="plsvc"></span><span class="plgo">${OPENGO}</span></span></span></a>`
+    + ` data-style="${esc(h.title)}" data-lbl="Listen on">`
+    + `${HEADPH}<span class="plsvc"></span>${UPRIGHT}</a></div>`
     + (h.why?`<p class="trkwhy">${esc(h.why)}</p>`:"")
-    + (n?`<button type="button" class="listrow trkgo" data-go="${esc(h.style)}"`
-        + ` title="Show ${esc(n.name)} on the map">`
-        + `<span class="lrlbl">Where It Sits on the Atlas</span>`
-        + `<em class="lrct">${esc(n.name)}</em>${GOCHEV}</button>`:"")
     + `</div>`;
 }
 // The foot of a collection, where the style panel keeps its own: in the flow under

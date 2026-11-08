@@ -2437,23 +2437,22 @@ a.am .amgo{display:none}
 .trkcard{margin:2px 0 18px;padding:14px;border-radius:16px;
   background:linear-gradient(var(--cardtop) 0 1px,#0000 1px),var(--fill2);
   box-shadow:0 0 0 1px var(--cardline),var(--cardsh)}
-.trkbtn{display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;
-  padding:2px;text-decoration:none;cursor:pointer;color:var(--fg)}
-.trkbtn:hover .trkttl{text-decoration:underline;text-underline-offset:3px}
-.trkbtn.off{color:var(--muted);cursor:default}
+.trkhead{display:flex;align-items:center;gap:12px}
+/* the listen pill from the style rows, the same size and the same two glyphs */
+.trkbtn{position:relative;flex:none;display:inline-flex;align-items:center;gap:3px;min-height:36px;padding:0 11px 0 12px;
+  border-radius:999px;text-decoration:none;cursor:pointer;color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 12%,transparent);transition:background .15s}
+.trkbtn::before{content:"";position:absolute;inset:-4px -2px}
+.trkbtn:hover{background:color-mix(in srgb,var(--accent) 20%,transparent)}
+.trkbtn:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+.trkbtn svg.hp{width:17px;height:17px;flex:none}
+.trkbtn svg.ur{width:11px;height:11px;flex:none;align-self:flex-start;margin-top:10px}
+.trkbtn .plsvc{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.trkbtn.off{display:none}
 .trktx{display:flex;flex-direction:column;min-width:0;flex:1 1 auto}
 .trkttl{font:700 var(--t-head)/1.2 var(--f-body);letter-spacing:-.014em}
 .trkby{font:400 var(--t-foot)/var(--t-foot-lh) var(--f-mono);color:var(--muted);margin-top:2px}
-.trkbtn .plline{display:flex;align-items:center;gap:6px;margin-top:6px;color:var(--muted)}
-.trkbtn .plsvc{font:600 var(--t-foot)/1.2 var(--f-body);opacity:.9}
-.trkbtn .plgo{flex:none;display:grid;place-items:center;width:14px;height:14px;opacity:.9}
-.trkbtn.off .plgo{display:none}
 .trkwhy{margin:10px 2px 0;font:400 var(--t-sub)/var(--t-sub-lh) var(--f-body);color:var(--muted)}
-/* the way back to the map from a track, which is the one thing a song cannot say itself */
-.trkgo{margin-top:10px;min-height:44px;padding:0 4px;gap:10px}
-.trkgo .lrlbl{font:500 var(--t-sub)/var(--t-sub-lh) var(--f-body);color:var(--muted)}
-.trkgo .lrct{font:500 var(--t-foot) var(--f-mono);color:var(--muted);
-  font-variant-numeric:tabular-nums}
 .plbtn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;
   box-sizing:border-box;min-height:52px;padding:13px 18px;border-radius:14px;
   text-decoration:none;cursor:pointer;

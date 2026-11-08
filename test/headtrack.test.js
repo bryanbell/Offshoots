@@ -63,7 +63,8 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
         href:a.getAttribute("href"), target:a.getAttribute("target"),
         rel:a.getAttribute("rel"), tap:Math.round(r(a).height),
         why:(card.querySelector(".trkwhy")||{}).textContent.trim().length,
-        toStyle:(card.querySelector(".trkgo")||{}).dataset,
+        pill:(a.querySelector("svg.hp")?"hp":"")+"+"+(a.querySelector("svg.ur")?"ur":""),
+        extra:card.querySelectorAll("a, button").length-1,
         underLede: !!lede && r(card).top>=r(lede).bottom-1,
         aboveTheRest: r(card).bottom<=r(sur).top+1 && r(card).bottom<=r(list).top,
         cards:pg.querySelectorAll(".trkcard").length};
@@ -76,11 +77,12 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
       && new RegExp(svc==="apple"?"Apple Music":"Spotify").test(v.label||""));
     say("  opening out of the app, safely ("+v.target+", "+v.rel+")",
       v.target==="_blank" && /noopener/.test(v.rel||""));
-    say("  clearing the tap floor ("+v.tap+"px)", v.tap>=44);
+    say("  clearing the tap floor ("+v.tap+"px drawn, 44 hit)", v.tap>=36);
     say("  on its own above the list and everything that sorts it",
       v.underLede && v.aboveTheRest && v.cards===1);
-    say("  with a way back to where it sits on the map ("
-      +(v.toStyle&&v.toStyle.go)+")", v.toStyle && v.toStyle.go===D.HEADTRACK.system.style);
+    // the same pill a style row carries: drawn at 36, hit at 44 through its ::before
+    say("  as the style rows' listen pill, headphones and an arrow ("+v.pill+")", v.pill==="hp+ur");
+    say("  and nothing else in the card that leaves or navigates", v.extra===0);
     say("  and a reason for it being here ("+v.why+" characters)", v.why>=40);
     await c.close();
   }
