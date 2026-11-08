@@ -537,7 +537,7 @@ const spell=n=>n<=20?WORDS[n]
       return {on:(u.querySelector(".sortx")||{}).textContent,
         first:(u.querySelector(".moderows .mrlbl")||{}).textContent};});
     say("a remembered sort is honoured next time the page opens",
-      r.on==="A–Z" && r.first==="Burn It Off");
+      r.on==="A–Z" && r.first==="Back Then");
     await s2.close(); }
 
   // a stored value that is not one of the four must not strand the page on an empty list
