@@ -2478,6 +2478,9 @@ const MLOUD={quiet:[1,2],calm:[1,2],soft:[1,2],gentle:[1,2],mellow:[1,2],chill:[
   loud:[4,5],energy:[4,5],energetic:[4,5],intense:[4,5],upbeat:[3,4,5],fast:[4,5],
   high:[4,5],heavy:[5],wild:[5],big:[4,5]};
 const mwords=v=>unq(String(v||"").toLowerCase()).split(/[^a-z0-9à-ÿ]+/).filter(Boolean);
+// what a no-match falls back to: a feeling, a restless one, a place, a drive, a time
+// late and a time early, one collection each
+const MFTRY=["sad","restless","kitchen","drive","late","morning"];
 let MFIDX=null;
 function mfIndex(){
   if(MFIDX) return MFIDX;
@@ -2485,28 +2488,40 @@ function mfIndex(){
     deck:mwords(m[2]), lede:mwords(m[3]), lv:m[5]||3}));
 }
 // how well one typed word fits one word of a collection's text
-function mfit(w,q){
+// one letter off: a slip of the thumb ("hapy", "nostalgc"), for words long enough that
+// one letter does not turn them into a different word
+function near1(a,b){
+  if(Math.abs(a.length-b.length)>1 || a===b) return false;
+  let i=0; while(i<a.length && a[i]===b[i]) i++;
+  if(a.length===b.length) return a.slice(i+1)===b.slice(i+1)
+    || (a[i]===b[i+1] && a[i+1]===b[i] && a.slice(i+2)===b.slice(i+2));
+  return a.length>b.length ? a.slice(i+1)===b.slice(i) : a.slice(i)===b.slice(i+1);
+}
+function mfit(w,q,typo){
   if(w===q) return 1;
   if(q.length>=3 && w.startsWith(q)) return .85;
   // an ending on the word ("relaxed" for relax), not a longer word that contains it:
   // "heartbreak" must not find every lede with "heart" in it
   if(q.length>=5 && w.length>=4 && q.length-w.length<=3 && q.startsWith(w)) return .75;
+  if(typo && q.length>=4 && w.length>=4 && near1(w,q)) return .6;
   return 0;
 }
 function modeFind(text){
   const qs=mwords(text).filter(q=>!MSTOP.has(q));
   if(!qs.length) return null;
+  const X=mfIndex();
+  const one=(x,q,typo)=>{
+    const best=(ws,wt,min)=> q.length<min ? 0 : wt*Math.max(0,...ws.map(w=>mfit(w,q,typo)));
+    const loud = MLOUD[q] && MLOUD[q].includes(x.lv) ? 1.5 : 0;
+    return Math.max(best(x.name,4,1), best(x.key,3,2), best(x.deck,2,3), best(x.lede,1,4), loud); };
+  // a typed word is read as a typo only when it finds nothing as typed: "bummer" is a word
+  // of its own and must not also bring in everything with "summer" in it
+  const per=qs.map(q=>{ const s=X.map(x=>one(x,q,false));
+    return s.some(v=>v>0) ? s : X.map(x=>one(x,q,true)); });
   const out=[];
-  for(const x of mfIndex()){
-    let sc=0, hit=0;
-    for(const q of qs){
-      const best=(ws,wt,min)=> q.length<min ? 0 : wt*Math.max(0,...ws.map(w=>mfit(w,q)));
-      const loud = MLOUD[q] && MLOUD[q].includes(x.lv) ? 1.5 : 0;
-      const s1=Math.max(best(x.name,4,1), best(x.key,3,2), best(x.deck,2,3), best(x.lede,1,4), loud);
-      if(s1>0){ sc+=s1; hit++; }
-    }
-    if(hit) out.push({m:x.m, sc, hit});
-  }
+  X.forEach((x,i)=>{ let sc=0, hit=0;
+    for(const s of per) if(s[i]>0){ sc+=s[i]; hit++; }
+    if(hit) out.push({m:x.m, sc, hit}); });
   return out.sort((a,b)=>b.hit-a.hit || b.sc-a.sc || a.m[1].localeCompare(b.m[1]));
 }
 function modeFindHtml(){
@@ -2522,8 +2537,17 @@ function modeFindHtml(){
 function modeFindOut(text){
   const r=modeFind(text);
   if(!r) return "";
-  if(!r.length) return `<p class="mfnone">Nothing fits “${esc(text.trim())}” yet. `
-    + `Try a feeling (sad, restless), a place (kitchen, car) or a time (late, morning).</p>`;
+  // Nothing found is not a dead end. The words the message used to suggest typing are
+  // looked up here instead, and what they find is shown: a feeling, a place, a drive and
+  // two times of day, one collection each, ready to tap rather than to retype.
+  if(!r.length){
+    const seen=new Set(), alt=[];
+    for(const w of MFTRY){ const f=modeFind(w); const m=f&&f.find(x=>!seen.has(x.m[0]));
+      if(m){ seen.add(m.m[0]); alt.push(m.m); } }
+    return `<section class="modesec mfres mfalt"><h3 class="modesech"><span class="msecttl">Nothing fits</span>`
+      + `<span class="msecsub">“${esc(text.trim())}”. Start from one of these</span></h3>`
+      + `<div class="moderows listgrp" role="list">${alt.map(modeRow).join("")}</div></section>`;
+  }
   return `<section class="modesec mfres"><h3 class="modesech"><span class="msecttl">`
     + `${r.length===1?"One fits":spellCount(r.length)+" fit"}</span>`
     + `<span class="msecsub">“${esc(text.trim())}”</span></h3>`

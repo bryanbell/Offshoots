@@ -41,7 +41,8 @@ const ready=async q=>{ await arm(q); await until(q,()=>!!document.querySelector(
   // the words someone would type for a feeling find the collection made for it, first
   const firsts=[["sad","Sit With It"],["angry","Burn It Off"],["relaxed","Wind Down"],
     ["nostalgic","Back Then"],["heartbreak","On Your Mind"],["first date","With Someone"],
-    ["i want to feel happy","Lift the Mood"],["something to study to","Focus"],["grumpy","Burn It Off"]];
+    ["i want to feel happy","Lift the Mood"],["something to study to","Focus"],["grumpy","Burn It Off"],
+    ["bummer","Sit With It"],["exhausted","Wind Down"],["smitten","On Your Mind"]];
   const miss=[];
   for(const [q,want] of firsts){ const s=await type(q); if(s.hits[0]!==want) miss.push(q+" gave "+(s.hits[0]||"nothing")); }
   say("feelings and moments find their collection first ("+firsts.length+" phrases)", miss.length?miss.join("; "):true);
@@ -53,8 +54,15 @@ const ready=async q=>{ await arm(q); await until(q,()=>!!document.querySelector(
   say("a half-typed word already works", s2.hits[0]==="Sleep");
   const s3=await type("loud");
   say("loud and quiet lean on how loud each collection is", s3.hits.length>=3 && s3.hits.includes("Workout"));
+  // a slip of the thumb still finds it, but a real word is not read as a typo of another
+  say("one letter off still finds it (hapy, nostalgc)",
+    (await type("hapy")).hits[0]==="Lift the Mood" && (await type("nostalgc")).hits[0]==="Back Then");
+  say("  while a real word is not read as a typo of another (bummer is not summer)",
+    (await type("bummer")).hits.join()==="Sit With It");
+  // nothing found is not a dead end: it says so and offers collections to tap
   const s4=await type("zzqx");
-  say("nothing found says so, with something to try", !s4.hits.length && /Nothing fits/.test(s4.none) && /sad/.test(s4.none));
+  say("nothing found says so, and offers "+s4.hits.length+" collections to start from instead",
+    /Nothing fits/.test(s4.head) && s4.hits.length>=4 && new Set(s4.hits).size===s4.hits.length && s4.hits.includes("Sit With It"));
 
   // clearing puts the page back as it was
   await type("sad");
