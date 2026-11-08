@@ -21,11 +21,11 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
   say("the map itself has no hash", (await hash())==="");
 
   // ---- the address follows the stack ----
-  await p.click('[data-mode="system"]');
-  await until(p,()=>!!document.querySelector('.ppage[data-p="mode:system"]')); await settle(p);
+  await p.click('[data-mode="speakertest"]');
+  await until(p,()=>!!document.querySelector('.ppage[data-p="mode:speakertest"]')); await settle(p);
   const inside=await hash();
   // a colon is legal in a fragment and %3A is not what anyone would recognise in a link
-  say("a collection puts its own address in the bar ("+inside+")", inside==="#mode:system");
+  say("a collection puts its own address in the bar ("+inside+")", inside==="#mode:speakertest");
   await p.click("#panelBack"); await settle(p); await new Promise(r=>setTimeout(r,350));
   say("  and going back takes it off again ("+JSON.stringify(await hash())+")",
     (await hash())==="");
@@ -44,7 +44,7 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
     onStyle!=="#mode:dinner" && /^#[a-z0-9_]+$/i.test(onStyle));
 
   // ---- reachable cold, which is the whole point of having one ----
-  for(const key of ["system","nightcap","dinner"]){
+  for(const key of ["speakertest","nightcap","dinner"]){
     const q=await ctx.newPage();
     await q.goto(URL+"#mode:"+key);
     await arm(q); await shown(q,"#chart .n"); await settle(q);
@@ -75,12 +75,12 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
 
   // ---- the share button ----
   const q=await ctx.newPage();
-  await q.goto(URL+"#mode:system");
+  await q.goto(URL+"#mode:speakertest");
   await arm(q); await shown(q,"#chart .n"); await settle(q);
-  await until(q,()=>!!document.querySelector('.ppage[data-p="mode:system"]'));
+  await until(q,()=>!!document.querySelector('.ppage[data-p="mode:speakertest"]'));
   await settle(q); await new Promise(r=>setTimeout(r,300));
   const v=await q.evaluate(()=>{
-    const pg=document.querySelector('.ppage[data-p="mode:system"]');
+    const pg=document.querySelector('.ppage[data-p="mode:speakertest"]');
     const sb=pg.querySelector("[data-share]");
     const list=pg.querySelector(".picks");
     const r=x=>x?x.getBoundingClientRect():null;
@@ -91,18 +91,18 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
   note("the button", JSON.stringify({label:v.label, key:v.key, name:v.name}));
   say("a collection carries one share button", v.n===1);
   say("  naming the collection, not the app (\""+v.name+"\")",
-    v.name==="Speaker Test" && v.key==="mode:system" && v.label==="Share this collection");
+    v.name==="Speaker Test" && v.key==="mode:speakertest" && v.label==="Share this collection");
   say("  at the foot, under the list", v.underList);
   say("  clearing the tap floor ("+v.tap+"px)", v.tap>=44);
   // what it shares is the thing you are standing in
   await q.evaluate(()=>{ navigator.share=undefined; });
-  await q.locator('.ppage[data-p="mode:system"] [data-share]').scrollIntoViewIfNeeded();
+  await q.locator('.ppage[data-p="mode:speakertest"] [data-share]').scrollIntoViewIfNeeded();
   await settle(q);
-  await q.click('.ppage[data-p="mode:system"] [data-share]');
+  await q.click('.ppage[data-p="mode:speakertest"] [data-share]');
   await until(q,()=>/copied/i.test(document.querySelector(".ppage:not([hidden]) [data-share] .shlbl").textContent));
   const clip=await q.evaluate(()=>navigator.clipboard.readText()).catch(()=>"");
   say("  and shares the collection's own address (\""+clip.split("#")[1]+"\")",
-    /#mode:system$/.test(clip));
+    /#mode:speakertest$/.test(clip));
   say("  saying so in words", /copied/i.test(await q.evaluate(()=>
     document.querySelector(".ppage:not([hidden]) [data-share] .shlbl").textContent)));
   await q.close();
@@ -151,5 +151,12 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
       say("  and still shares the style (\""+c.split("#")[1]+"\")", /#gospel$/.test(c)); }
     await r.close();
   }
+  // a renamed collection's old link still opens it, and the bar moves to the new address
+  { const o=await ctx.newPage();
+    await o.goto(URL+"#mode:system");
+    await until(o,()=>!!document.querySelector('.ppage[data-p="mode:speakertest"]')); await settle(o);
+    say("an old #mode:system link opens Speaker Test at its new address ("+(await o.evaluate(()=>location.hash))+")",
+      (await o.evaluate(()=>location.hash))==="#mode:speakertest");
+    await o.close(); }
   await b.close();
 })();

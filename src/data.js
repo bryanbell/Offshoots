@@ -3937,7 +3937,7 @@ const MODES = [
     ["ragtime","Syncopation with a snap, short and bright"],
     ["jazz_early","Horns weaving cheerfully with nowhere to be"]
    ],2],
-  ["system","Speaker Test","The one song you put on to find out what a stereo has got.",
+  ["speakertest","Speaker Test","The one song you put on to find out what a stereo has got.",
    "Not Listen properly, which is about the music. This is about the equipment, and the five ways it gives itself away: how low it reaches and whether it stops cleanly, whether a voice arrives in the room or behind glass, whether a cymbal rings out or sizzles, how far it falls between the quietest moment and the loudest, and whether you can point at where each player is standing. Roughly in that order.",
    [
     ["dub","Bass with echo behind it, which finds the room's corners"],
@@ -4217,7 +4217,7 @@ const MODEWORDS = {
 "cosmic":"psychedelic trippy trip meditation spaced out space spacey cosmic otherworldly hypnotic drone ambient mind",
 "deep":"headphones audiophile album close listening immersive attentive vinyl record player hifi",
 "morning":"wake up waking up breakfast sunrise early dawn coffee fresh start gentle hopeful slow",
-"system":"stereo speakers sound system audiophile hifi car audio test bass demo subwoofer",
+"speakertest":"stereo speakers sound system audiophile hifi car audio test bass demo subwoofer",
 "phone":"phone speaker no headphones laptop small speaker",
 "wander":"walk walking wander wandering stroll strolling alone solo explore exploring flaneur headphones city park sightseeing aimless meander daydream reflective",
 "backthen":"nostalgia nostalgic memories memory remember throwback retro old days childhood growing up the good old days youth high school college times reminisce sentimental",
@@ -4226,7 +4226,7 @@ const MODEWORDS = {
 };
 
 const HEADTRACK = {
-  "system": {
+  "speakertest": {
     title: "Money for Nothing",
     artist: "Dire Straits",
     year: 1985,

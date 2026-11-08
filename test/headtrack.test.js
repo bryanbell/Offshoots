@@ -46,11 +46,11 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
     await c.addInitScript(v=>{ try{ localStorage.setItem("svc",v); }catch(e){} }, svc);
     const p=await c.newPage();
     await p.goto(URL); await arm(p); await shown(p,"#chart .n"); await settle(p);
-    await p.click('[data-mode="system"]');
-    await until(p,()=>!!document.querySelector('.ppage[data-p="mode:system"]'));
+    await p.click('[data-mode="speakertest"]');
+    await until(p,()=>!!document.querySelector('.ppage[data-p="mode:speakertest"]'));
     await settle(p); await new Promise(r=>setTimeout(r,300));
     const v=await p.evaluate(()=>{
-      const pg=document.querySelector('.ppage[data-p="mode:system"]');
+      const pg=document.querySelector('.ppage[data-p="mode:speakertest"]');
       const card=pg.querySelector(".trkcard"), a=pg.querySelector(".trkbtn");
       // the one line under the name. The how-it-sounds paragraph that used to sit
       // here too is no longer rendered, so this reads the line that is.
@@ -71,7 +71,7 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
     });
     note(svc, JSON.stringify({label:v.label, href:v.href}));
     say(svc+": the track is named, with who and when ("+v.by+")",
-      v.title===D.HEADTRACK.system.title && /Dire Straits/.test(v.by) && /1985/.test(v.by));
+      v.title===D.HEADTRACK.speakertest.title && /Dire Straits/.test(v.by) && /1985/.test(v.by));
     say("  linked to the song in the service you picked",
       new RegExp("^https://"+host.replace(/\./g,"\\.")+"/").test(v.href||"")
       && new RegExp(svc==="apple"?"Apple Music":"Spotify").test(v.label||""));
