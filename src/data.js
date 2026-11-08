@@ -4104,7 +4104,7 @@ const MODES = [
     ["chillwave","Summers seen through a broken VHS"],
     ["vaporwave","A shopping mall that only exists in memory now"]
    ],2],
-  ["lonely","Nobody Around","When the quiet is the problem, not the cure.",
+  ["lonely","Keep Me Company","When the quiet is the problem, not the cure.",
    "Not grief, which is Sit With It, and not the walk you chose to take alone, which is Wandering. This is the empty apartment and the phone that does not ring. Psychologists studying music as a social surrogate found that lonely people reach for favourite, familiar music rather than something new, and that it works through connection: to the singer, and to the people a song reminds you of. So this is built around voices, close-miked and talking to one person, many of them singing about being alone so that you are not the only one who is.",
    [
     ["honkytonk","Lonesome is the native language here"],
