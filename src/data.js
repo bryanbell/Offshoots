@@ -4026,7 +4026,49 @@ const MODES = [
     ["bedroompop","Made on a laptop, mixed on earbuds, meant for exactly this"],
     ["hyperpop","Mixed loud and bright for phones, which is where it lives"],
     ["egg_punk","Trebly, cheap and deliberately small"]
-   ],3]
+   ],3],
+  ["wander","Wandering","On your own, on foot, going nowhere in particular.",
+   "Not the commute, which has somewhere to be, and not the run, which has a pace to hold. Headphones on and no destination: the street turns into the rest of the mix, which is what Shuhei Hosokawa meant by the Walkman effect, music giving the walking self its own room in a crowd. Mid-tempo or under, because fast music quickens a walk and this one is meant to wander. Melodic enough to keep you company, open enough to let the city in.",
+   [
+    ["citypop","Made for a Walkman in a big city, and still the best fit for one"],
+    ["ambient","Music as a place, with the street filling in the rest"],
+    ["bossa","An easy stride and nowhere to be"],
+    ["hardbop","A walking bass line, in the most literal sense"],
+    ["indiepop","Jangling guitars at strolling pace, a little in love with everything"],
+    ["dreampop","The world gone soft at the edges, the way it does on a long walk"],
+    ["jazzrap","A head-nod tempo, which is a walking tempo"],
+    ["lofi_hh","The default for headphones and a long sidewalk"],
+    ["minimalism","Patterns that shift as slowly as the view"],
+    ["krautrock","Motorik, a beat that never stops moving forward"],
+    ["indiefolk","A voice close in your ear, like someone walking with you"],
+    ["cool","Space around every note, room for your own thoughts"],
+    ["chamberpop","Small orchestras for side streets and old buildings"],
+    ["westcoast_jazz","Sunlit and unhurried, a stroll by the water"],
+    ["folkrock","Twelve-string jangle for a road with no end in mind"],
+    ["boombap","The original headphone walk, snare on every other step"],
+    ["abstract","No rapper, so the city does the talking"],
+    ["postrock","Builds that take the length of a long block"],
+    ["modal","One scale held for minutes, nowhere to resolve to"],
+    ["sunshine","An afternoon with the sun out and the day free"],
+    ["chillwave","Summer streets through a washed-out filter"],
+    ["bedroompop","Small and private, a song that is only in your head"],
+    ["neopsych","The ordinary street made a little strange"],
+    ["triphop","Slow beats for a city in grey weather"],
+    ["futuregarage","Wet pavement and streetlights, in the drums"],
+    ["deephouse","A steady kick right at walking cadence"],
+    ["dub","Bass and echo, with the traffic as the rest of the mix"],
+    ["rocksteady","Ska slowed to a stroll"],
+    ["highlife","Guitars that saunter rather than march"],
+    ["tropicalia","Wandering in every direction at once"],
+    ["hypnagogic","A street that looks like a half-remembered one"],
+    ["lofi","Guitar songs recorded close, the way you hear them in earbuds"],
+    ["modernclassical","Piano for a park bench and a pigeon"],
+    ["neosoul","Warm and loose, a Sunday with no plans"],
+    ["nujazz","Jazz over a beat that keeps you moving without hurrying you"],
+    ["ukjazz","A city's own sound, made for walking through one"],
+    ["artpop","For noticing things nobody else does"],
+    ["slowcore","When the walk turns into thinking"]
+   ],2],
 ];
 
 // ---------- the one track a collection opens with ----------
@@ -4074,6 +4116,7 @@ const MODEWORDS = {
 "morning":"wake up waking up breakfast sunrise early",
 "system":"stereo speakers sound system audiophile hifi car audio test",
 "phone":"phone speaker no headphones laptop small speaker",
+"wander":"walk walking wander wandering stroll strolling alone solo explore exploring flaneur headphones city park sightseeing",
 };
 
 const HEADTRACK = {
