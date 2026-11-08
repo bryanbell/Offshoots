@@ -672,15 +672,23 @@ function sect(key,label,html,aside,page,lede,seeall,fold){
   // a heading that opens a fuller version of what is under it becomes the control that
   // opens it, chevron and all, rather than sitting beside a separate row that does
   const inner = `<h3 class="secttl">${esc(label)}</h3>${aside||""}`
-    + (page?`<span class="sectcv">${seeall?`<b class="seeall">See all</b>`:""}${GOCHEV}</span>`:"");
+    // the chevron on the end of the title says the heading opens something; "See all"
+    // out on the far right said it a second time, in a column of its own
+    + (page?`<span class="sectcv">${GOCHEV}</span>`:"");
+  // A heading that opens a page and has a line under it takes the line inside: title,
+  // chevron and line are one control, so the line is not a dead strip between the
+  // heading you can tap and the row you can tap.
+  const golede = !!(page && lede && !fold);
   const head = label
-    ? (page ? `<button type="button" class="secthead sectgo" data-page="${esc(page)}"
-         aria-label="${esc(label)}, see all">${inner}</button>`
+    ? (page ? `<button type="button" class="secthead sectgo${golede?" golede":""}" data-page="${esc(page)}"
+         aria-label="${esc(label)}, see all${golede?". "+esc(lede):""}">`
+         + (golede ? `<span class="sectrow">${inner}</span><span class="sectlede">${esc(lede)}</span>` : inner)
+         + `</button>`
              : `<div class="secthead">${inner}</div>`)
     : "";
   // One line under the heading saying what the section is for. It reads as part of the
   // heading rather than as content, so the heading tightens up to meet it.
-  const sub = lede ? `<p class="sectlede">${esc(lede)}</p>` : "";
+  const sub = lede && !golede ? `<p class="sectlede">${esc(lede)}</p>` : "";
   // A section that folds. The heading becomes the control, as it does when a heading
   // opens a page, except that what it opens is itself. "shut" or "open" says where it
   // starts; everything else about it is a section like any other.
@@ -2268,16 +2276,15 @@ function appShareBtn(){
 // itself is still at #roots for anyone who had it.
 function onMapSect(){
   const top=topIds();
-  return sect("onmap","Exploring the Atlas",
+  return sect("onmap","Explore the Atlas",
     `<div class="listgrp sep">`
     + goRow("top","Most influential","Explore musical crossroads",top.length,
         ` data-page="top"`,`The ${top.length} styles that led to the most`)
     + goRow("random","Surprise me","Jump somewhere unexpected",null,
         ` data-random`,"Open any style, chosen at random")
     + `</div>`,
-    // no lede: the two rows under it say what they do, and a line telling you to choose a
-    // style sat above a list of two things that are not styles
-    "", "", "");
+    // the welcome card's line, word for word, paired with the one over Collections
+    "", "", "Follow the connections between musical styles.");
 }
 function goRow(key,label,sub,count,attr,title){
   return `<button type="button" class="listrow lrtwo"${attr||""}`
@@ -2439,12 +2446,13 @@ function modeSect(){
   // few are in reach, the heading opens the lot, and nothing is buried under a scroll
   // of its own.
   const circles=modeOrder(true).map(m=>modeTile(m)).join("");
-  // "Collections" and nothing under it: the page this opens is called Collections, the
-  // pictures say what they are, and "By mood, place or task" was a caption for a row that
-  // had already shown you a cat asleep, a nightcap and a coffee shop.
+  // The lede is the welcome card's line, word for word. Not a caption for the pictures
+  // ("By mood, place or task" was that, and the pictures said it better): it says why
+  // this section is a different way in from the Atlas below it, in the words the
+  // welcome already used to draw the same line.
   return sect("modes","Collections",
     `<div class="mrow" role="list">${circles}</div>`,
-    "", "modes", "", true);
+    "", "modes", "Find music for the moment.", true);
 }
 // the same set as a page, which is what the row's heading opens. The same tiles too:
 // this was a two-column list of 28px thumbnails in a shaded card, so the one picture per
