@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow"><title>Map as data | Music Atlas Wiki</title><link rel="stylesheet" href="/wiki/wiki.css"><script src="/wiki/chrome.js" defer></script></head>
+<body><a class="skip" href="#main">Skip to content</a><div class="shell"><aside class="sidebar"><a class="brand" href="/wiki/">Music Atlas</a><small>Reference wiki</small><a class="backlink" href="/">&larr; Open the atlas</a><nav aria-label="Wiki"><a href="/wiki/">Overview</a><a href="/wiki/catalog/">Catalog</a><a href="/wiki/handbook/">Handbook</a><a href="/wiki/art/">Art &amp; color</a><a href="/wiki/covers/">Cover prompts</a><a href="/wiki/data/" aria-current="page">Map as data</a></nav></aside><main id="main">
+<p class="eyebrow">Music Atlas</p><h1>The map as data</h1>
+<p class="lede">The map's structure and descriptions as one JSON file, for handing to a language model.</p>
+<p><a href="/musicatlas.json">musicatlas.us/musicatlas.json</a> &middot; about 187 KB</p>
+<pre><code>https://musicatlas.us/musicatlas.json</code></pre>
+<h2>What it is for</h2>
+<p>Give the address to a model and ask where to go next from something you already like. The lineage lets it say <em>why</em> two styles are related, not only that they are. Every style carries the address of its own panel in the atlas, so an answer can link to what it names.</p>
+<h2>What is in it, and what is not</h2>
+<p>Every style, its year, family, parents and children, its description and its atlas URL. There are no artist lists and no song titles: those are most of the bytes, they already sit in the app behind each playlist, and a file too big to fetch is no use to a model.</p>
+<p>The file carries its own note to the reader (<code>readMe</code>) on what a link does and does not claim. Coverage is uneven: not every style has a playlist, and absence from the file is not evidence that something does not exist.</p>
+<p>It is regenerated from the map on every deploy by <code>tools/catalog.js</code>.</p>
+<h2>How the atlas is built</h2>
+<p>One HTML file, with nothing fetched while it runs, so it keeps working with no connection; playlists open in Apple Music, Spotify or Qobuz, which do need one. The icons are <a href="https://phosphoricons.com">Phosphor</a>, MIT licence, inlined as paths. Everything else was drawn or written for the atlas.</p>
+</main></div></body></html>

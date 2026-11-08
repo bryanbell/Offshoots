@@ -44,15 +44,6 @@ const ART_DIR="art/", STYLE_DIR="styles/", XPLAY_DIR="xplay/", ART_EXT=".jpg";
 const CDN = /(^|\.)(musicatlas\.us|netlify\.app)$/.test(location.hostname);
 const COVER_W = 480;   // 200px panel cover at 2x and a 112px row cover at 3x both fit
 const artURL = (path,w) => CDN ? `/.netlify/images?url=/${path}&w=${w||COVER_W}&q=75` : path;
-// the machine-readable copy of all this, written beside the page by the build
-// One file: the structure of the map and what each style is. It carried every artist and
-// every song title once, which made it half a megabyte, and the thing that fails when you
-// hand a model a URL is almost never the server but the reader, which caps or times out
-// long before that. The artists and songs live in the app, behind the playlists.
-const CATALOG=[
-  {file:"musicatlas.json", name:"musicatlas.json", kb:"190 KB",
-   label:"Copy the data link", sub:"Every style, its lineage and its page"}
-];
 // two letters for a style with no art file, so the row keeps its shape
 function initials(name){
   const w=String(name||"").split(/[^A-Za-z0-9]+/).filter(Boolean);
@@ -1832,8 +1823,6 @@ $("panel").addEventListener("click",e=>{
   if(!OPEN && OVERLAY){ if(!e.target.closest("a")) setOpen(true); return; }   // only the minimised sheet is tap-to-open
   { const ac=e.target.closest("[data-aboutcopy]");
     if(ac){ copyAbout(ac); return; } }
-  { const dc=e.target.closest("[data-datacopy]");
-    if(dc){ copyData(dc); return; } }
   { const ss=e.target.closest("[data-sharesheet]");
     if(ss){ openShareSheet(ss); return; } }
   { const sb=e.target.closest("[data-share]");
@@ -1945,58 +1934,6 @@ function setHash(id){
   // keeping the entry's own state, which carries its number (see histPush): replacing it
   // with null made every entry read as the first, and one back walked several
   try{ history.replaceState(history.state,"",want || location.pathname+location.search); }catch(e){ if(id) location.hash=want; }
-}
-// The row that hands the file over.
-//
-// It used to be a link that opened the JSON. Installed to a home screen there is no
-// browser chrome and no back: opening half a megabyte of JSON in the app's own window
-// trapped you in it. And it was the wrong thing to offer anyway. Nobody wants to read
-// 496 KB of JSON; they want its address, to give to a model. So the row copies the URL,
-// which is the same useful act in both cases, and the address is printed under it: a
-// link when there is somewhere to come back from, plain selectable text when there is not.
-// the same link glyph the About copy control wears, so the two read as one action
-const COPYGLYPH="<svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M8.4 11.6a3.2 3.2 0 0 0 4.6 0l2.6-2.6a3.2 3.2 0 0 0-4.6-4.6l-1 1\"/><path d=\"M11.6 8.4a3.2 3.2 0 0 0-4.6 0L4.4 11a3.2 3.2 0 0 0 4.6 4.6l1-1\"/></svg>";
-const DATAICON="<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M43.18,128a29.78,29.78,0,0,1,8,10.26c4.8,9.9,4.8,22,4.8,33.74,0,24.31,1,36,24,36a8,8,0,0,1,0,16c-17.48,0-29.32-6.14-35.2-18.26-4.8-9.9-4.8-22-4.8-33.74,0-24.31-1-36-24-36a8,8,0,0,1,0-16c23,0,24-11.69,24-36,0-11.72,0-23.84,4.8-33.74C50.68,38.14,62.52,32,80,32a8,8,0,0,1,0,16C57,48,56,59.69,56,84c0,11.72,0,23.84-4.8,33.74A29.78,29.78,0,0,1,43.18,128ZM240,120c-23,0-24-11.69-24-36,0-11.72,0-23.84-4.8-33.74C205.32,38.14,193.48,32,176,32a8,8,0,0,0,0,16c23,0,24,11.69,24,36,0,11.72,0,23.84,4.8,33.74a29.78,29.78,0,0,0,8,10.26,29.78,29.78,0,0,0-8,10.26c-4.8,9.9-4.8,22-4.8,33.74,0,24.31-1,36-24,36a8,8,0,0,0,0,16c17.48,0,29.32-6.14,35.2-18.26,4.8-9.9,4.8-22,4.8-33.74,0-24.31,1-36,24-36a8,8,0,0,0,0-16Z\"/></svg>";
-// The data address is handed to other people and to models, so it names the site too
-// rather than resolving against whatever host is open.
-function catalogURL(file){
-  try{ return new URL(file, SITE).href; }
-  catch(e){ return file; }
-}
-function dataRow(){
-  return CATALOG.map(c=>{
-    const u=catalogURL(c.file), shown=u.replace(/^https?:\/\//,"");
-    // file:// has no address worth handing to anyone, so the row only copies. The test
-    // is on where the page is open, not on the address shown: that names the site now,
-    // so it is https even when the page itself is a local file.
-    const openable=/^https?:/.test(location.href) && !installed();
-    return `<button type="button" class="dataline" data-datacopy="${esc(c.file)}"`
-      + ` aria-label="Copy the link to ${esc(c.name)}">`
-      + DATAICON
-      + `<span class="dltx"><b class="lbl">${esc(c.label)}</b>`
-      + `<small>${esc(c.sub)} \u00b7 ${esc(c.kb)}</small></span>`
-      + `<i class="dlgo">${COPYGLYPH}</i></button>`
-      + `<p class="dataurl">`
-      + (openable
-          ? `<a href="${esc(c.file)}" target="_blank" rel="noopener">${esc(shown)}</a>`
-          : `<span>${esc(shown)}</span>`)
-      + `</p>`;
-  }).join("");
-}
-function copyData(btn){
-  const url=catalogURL(btn.dataset.datacopy||CATALOG[0].file), lbl=btn.querySelector(".lbl");
-  const flash=t=>{ if(!lbl) return; if(btn._was==null) btn._was=lbl.textContent;
-    btn.classList.add("done"); lbl.textContent=t;
-    clearTimeout(btn._t); btn._t=setTimeout(()=>{ btn.classList.remove("done");
-      if(btn._was!=null){ lbl.textContent=btn._was; btn._was=null; } },1600); };
-  const fallback=()=>{ const ta=document.createElement("textarea"); ta.value=url;
-    ta.setAttribute("readonly",""); ta.style.cssText="position:fixed;top:0;left:0;opacity:0";
-    document.body.appendChild(ta); ta.select();
-    try{ document.execCommand("copy"); flash("Link copied"); }catch(e){ flash("Copy failed"); }
-    ta.remove(); };
-  if(navigator.clipboard&&navigator.clipboard.writeText)
-    navigator.clipboard.writeText(url).then(()=>flash("Link copied"),fallback);
-  else fallback();
 }
 function copyAbout(btn){
   const url=foldURL(btn.dataset.aboutcopy||ABOUT_HASH), lbl=btn.querySelector(".lbl");
@@ -2827,27 +2764,18 @@ const PAGES_DEF={
     return {title:"About This Map", html:`
     <div class="about"><div class="abouthd"><img class="appicon" alt="" src="${ICONSRC()}"><p class="stats">${$("stats").textContent} · ${np} with a playlist</p></div>
     <h4 class="subh">What It Is</h4>
-    <p>Every style sits at the year it became a named, recorded scene, joined to the styles it grew out of. Time runs left to right. Follow a line backwards and you get the ingredients of a sound.</p>
-    <p>It is not here to settle arguments. It is here to make the inheritance visible, so you can get from a record you already love to the thing it came out of, and hear why they are related.</p>
+    <p>Every style sits at the year it became a named, recorded scene, joined to the styles it grew out of. Time runs left to right; follow a line backwards and you get the ingredients of a sound. It is here to make the inheritance visible, not to settle arguments.</p>
     <h4 class="subh">Reading It</h4>
-    <p>Size means descendants: the bigger the name, the more styles grew out of it. A play triangle inside a dot means that style has a playlist, linked in its panel. Everything before 1950 sits left of the divider, set in italic, on its own compressed scale. Zoom far enough out and the styles that led nowhere drop to plain dots.</p>
+    <p>The bigger the name, the more styles grew out of it. A play triangle means the style has a playlist. Everything before 1950 sits left of the divider, in italic, on its own compressed scale.</p>
     <h4 class="subh">Where It Comes From</h4>
-    <p>This was compiled by hand, not pulled from a database. Styles, years and parentage come from the general music-historical record: scene histories, discographies, reference works and critical writing, cross-checked where accounts disagree. ${withSrc} entries carry a Sources list naming the pages they were checked against. The others stand on that general reading and are not individually cited.</p>
+    <p>Compiled by hand from the music-historical record: scene histories, discographies, reference works and criticism, cross-checked where accounts disagree. ${withSrc} entries list the sources they were checked against.</p>
     <h4 class="subh">What a Link Claims</h4>
-    <p>A link means one style is a direct stylistic parent of another. Not every influence on it, and not merely something it shared a decade with. A year marks when a scene cohered, not its earliest precursor. Styles from elsewhere appear when they charted here or seeded scenes here.</p>
-    <p>Boundaries, dates and parentage are all contested, and a lineage is a reading rather than a fact. Take each link as the consensus view, and the map as an argument you are free to disagree with.</p>
+    <p>That one style is a direct stylistic parent of another, not merely an influence or a neighbour in time. A year marks when a scene cohered, not its earliest precursor. Lineage is contested; take each link as the consensus reading and the map as an argument you are free to disagree with.</p>
     <h4 class="subh">The Playlists</h4>
-    <p>Each one runs in chronological order, and the first few tracks are deliberately not the style proper. They are the records that pushed it into being, or the earliest examples of it, cut before anyone had a name for it.</p>
-    <p>So a playlist starts just outside its own style and arrives at it, which is the same move the map makes. If the opening tracks sound like something else, that is the point: that is what it grew out of.</p>
-    <h4 class="subh">The Map as Data</h4>
-    <p>The shape of the map is published as JSON, to be handed to a language model: ask it where to go next from something you already like, and the lineage lets it say <i>why</i> two things are related rather than only that they are. Every style in it carries the address of its own panel here, so an answer can link to the thing it names.</p>
-    <p>It is the structure and the descriptions, not a catalogue of recordings. There are no artist lists and no song titles: those are most of the bytes, they are already in the app behind each playlist, and a file too big to fetch is no use to anyone.</p>
-    <p>The file explains itself to whatever reads it, including what the lineage does and does not claim, and that coverage is uneven: ${np} of ${DATA.length} styles have a playlist. Absence in the file is not evidence that something does not exist.</p>
-    ${dataRow()}
-    <h4 class="subh">How It Is Built</h4>
-    <p>One HTML file, with nothing fetched while it runs, so it keeps working with no connection. The icons are <b>Phosphor</b>, under the MIT licence, inlined as paths rather than loaded from anywhere. Playlists open in Apple Music or Spotify, which do need a connection. Everything else here was drawn or written for this map.</p>
-    <h4 class="subh">Behind the Map</h4>
-    <p>The playlists come from a listening curriculum, the School of Listening, and the people who make it keep a reference wiki: the class catalog with every track, how a class is researched and published, and how the covers are drawn. <a class="wikilink" href="${esc(new URL("wiki/",SITE).href)}" target="_blank" rel="noopener">Open the wiki ↗</a></p>
+    <p>Each runs in chronological order and opens just outside its own style, on the records that pushed it into being, before arriving at it. If the first tracks sound like something else, that is what it grew out of.</p>
+    <h4 class="subh">Go Deeper</h4>
+    <p>The class catalog, how the playlists and covers are made, and the map as data for a language model live in the wiki. <a class="wikilink" href="${esc(new URL("wiki/",SITE).href)}" target="_blank" rel="noopener">Open the wiki ↗</a></p>
+    <p class="note">Icons by <b>Phosphor</b>, MIT licence.</p>
     <button type="button" class="aboutcopy" data-aboutcopy="about"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 11.6a3.2 3.2 0 0 0 4.6 0l2.6-2.6a3.2 3.2 0 0 0-4.6-4.6l-1 1"/><path d="M11.6 8.4a3.2 3.2 0 0 0-4.6 0L4.4 11a3.2 3.2 0 0 0 4.6 4.6l1-1"/></svg><span class="lbl">Copy a link to this</span></button></div>`}; },
   install:()=>({title:"How to Install It", html:`<div class="about">${openInRow()}<p>Music Atlas is a web page, so there is nothing to download and no app store. Every platform below can pin it to a home screen or dock, where it opens full screen with no browser chrome around it.</p><h4 class="subh">iPhone and iPad</h4><ol class="steps"><li>Open this page in <b>Safari</b>. Chrome and Firefox on iOS cannot do this.</li><li>Tap the <b>Share</b> button, the square with an arrow coming out of it: ${SHAREGLYPH}${shareStep()}</li><li>Scroll down the list and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li></ol><h4 class="subh">Android</h4><ol class="steps"><li>Open this page in <b>Chrome</b>.</li><li>Tap the <b>three dots</b> at the top right.</li><li>Tap <b>Add to Home screen</b>, then <b>Install</b> or <b>Add</b>. Samsung Internet and Firefox have the same item in their own menus.</li></ol><h4 class="subh">Mac</h4><ol class="steps"><li>In <b>Safari</b>, choose <b>File &rsaquo; Add to Dock</b>, then <b>Add</b>. It lands in the Dock and opens in its own window.</li><li>In <b>Chrome</b>, the same thing is under the three dots at <b>Cast, Save and Share &rsaquo; Install page as app</b>.</li></ol><h4 class="subh">Windows</h4><ol class="steps"><li>In <b>Edge</b> or <b>Chrome</b>, look for the <b>install icon</b> at the right-hand end of the address bar, a monitor with an arrow in it, and click it.</li><li>No icon there? Open the <b>three dots</b> menu and choose <b>Apps &rsaquo; Install this site as an app</b> in Edge, or <b>Cast, Save and Share &rsaquo; Install page as app</b> in Chrome.</li><li>Tick <b>Pin to taskbar</b> when it offers, and it behaves like any other app.</li></ol><details class="xfold"><summary class="subh"><span>Linux: Ubuntu and Linux Mint</span>${FOLDTRI}</summary><div class="xfoldb"><p class="note">Both ship <b>Firefox</b> as the default browser, and Firefox on the desktop cannot do this at all: it dropped the feature years ago and has no Install or Add to Home Screen item in any menu. You need a Chromium-based browser for this part. On Ubuntu, <code>sudo snap install chromium</code>; on Mint, <code>sudo apt install chromium</code>. Google Chrome and Edge work the same way.</p><ol class="steps"><li>Open this page in <b>Chromium</b>, <b>Chrome</b> or <b>Edge</b>.</li><li>Look for the <b>install icon</b> at the right-hand end of the address bar, a monitor with an arrow in it, and click it. Otherwise open the <b>three dots</b> menu and choose <b>Cast, Save and Share &rsaquo; Install page as app</b>.</li><li>Click <b>Install</b>. It is added to your applications menu like anything installed from a package.</li><li>To keep it to hand: on <b>Ubuntu</b>, open <b>Show Applications</b>, right-click it and choose <b>Pin to Dash</b>. On <b>Mint</b>, find it in the menu, right-click and choose <b>Add to panel</b> or <b>Add to desktop</b>.</li></ol><p class="note">Ubuntu's Chromium is a snap, which is confined and keeps its own storage. That changes nothing here, but it does mean the installed copy is sandboxed separately from Firefox and will not see anything saved in it.</p></div></details><h4 class="subh">What You Get</h4><p>The whole map is a single file, so once it has loaded it keeps working without a connection. The playlist links still need one, since those open Apple Music or Spotify.</p><button type="button" class="aboutcopy" data-aboutcopy="install"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 11.6a3.2 3.2 0 0 0 4.6 0l2.6-2.6a3.2 3.2 0 0 0-4.6-4.6l-1 1"/><path d="M11.6 8.4a3.2 3.2 0 0 0-4.6 0L4.4 11a3.2 3.2 0 0 0 4.6 4.6l1-1"/></svg><span class="lbl">Copy a link to this</span></button></div>`})
 };
@@ -2988,8 +2916,8 @@ function pageRow(key,label,count,title){
 // What the map is, folded shut under its own title, the way a style's description sits
 // under its name. It was a row at the foot of the panel before, which is the last place
 // anyone looks for the thing that explains the first screen they saw. Short on purpose:
-// the full page is one tap further on, and it still holds the sources, the colophon and
-// the data link.
+// the full page is one tap further on, and holds the method and sources. The data link,
+// the colophon and the rest of the working detail moved to the wiki.
 // It was a fold directly under the title, which put the one paragraph explaining the
 // whole thing in the one place nobody opens, and spent the top of the panel on a closed
 // row. It is an ordinary section now, in the body with the others, open: a short
@@ -3003,7 +2931,7 @@ function aboutMapSect(){
   return sect("about","About This Map",
     `<div class="listgrp abmore">`
     + goRow("about","What this is and where it\u2019s from",
-        "Compiled by hand. The sources, the method, and the map as data.",
+        "Compiled by hand. What it is, how to read it, and its sources.",
         null,` data-page="about"`,
         "About this map: what it is for, where it comes from, and what a link claims")
     + `</div>`);

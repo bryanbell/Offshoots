@@ -2552,32 +2552,6 @@ span.xcov b{font:700 19px var(--f-body);color:#fff;opacity:.92}
 .pcard:not(.ovcard) .navrow{min-height:var(--tap)}
 .navgap{min-width:0}
 
-/* the row on About that hands the whole map to a machine */
-.dataline{display:flex;align-items:center;gap:12px;margin:14px 0 4px;padding:12px 14px;
-  min-height:var(--tap);box-sizing:border-box;border-radius:14px;text-decoration:none;
-  background:var(--fill2);color:var(--fg);transition:background .15s}
-.dataline:hover{background:var(--fill);color:var(--fg)}
-.dataline > svg{flex:none;width:26px;height:26px;color:var(--muted)}
-.dataline .dltx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.dataline .dltx b{font:600 var(--t-body)/var(--t-body-lh) var(--f-body)}
-.dataline .dltx small{font:400 var(--t-foot)/var(--t-foot-lh) var(--f-mono);color:var(--muted)}
-.dataline .dlgo{flex:none;display:grid;place-items:center;width:15px;height:15px;color:var(--muted)}
-.dataline .dlgo svg{width:15px;height:15px}
-.dataline:hover .dlgo{color:var(--fg)}
-.dataline{all:unset;box-sizing:border-box;cursor:pointer;width:100%;
-  display:flex;align-items:center;gap:12px;margin:14px 0 4px;padding:12px 14px;
-  min-height:var(--tap);border-radius:14px;background:var(--fill2);color:var(--fg);
-  transition:background .15s}
-.dataline.done{background:color-mix(in srgb,var(--ok) 18%,var(--fill2))}
-.dataline.done .dlgo{color:var(--ok)}
-.dataline:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
-/* the address itself, printed so it can be read and selected by hand when there is no
-   chrome to open it with */
-.dataurl{margin:0 0 6px;padding:0 14px;overflow-wrap:anywhere;
-  font:400 var(--t-foot)/var(--t-foot-lh) var(--f-mono);color:var(--muted)}
-.dataurl a{color:var(--link);text-decoration:underline;text-underline-offset:3px}
-.dataurl a:hover{color:var(--fg)}
-.dataurl span{-webkit-user-select:text;user-select:text}
 
 /* ---------- what all:unset throws away ----------
    A browser's own stylesheet sets user-select:none on a button, because a control is
