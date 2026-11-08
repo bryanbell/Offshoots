@@ -29,6 +29,19 @@ const ready=async q=>{ await arm(q); await until(q,()=>!!document.querySelector(
       page:pg.dataset.p};});
   const type=async v=>{ await p.fill(".ppage:not([hidden]) .mfindin",v); await settle(p); return state(); };
 
+  // On a phone the keyboard takes the bottom half of the screen, where the matches would
+  // be. Focusing the field takes the sheet up near the top and lifts the field under the
+  // header; leaving it puts the sheet back.
+  const geo=()=>p.evaluate(()=>({sheet:document.getElementById("panel").getBoundingClientRect().top,
+    field:document.querySelector(".ppage:not([hidden]) .mfindin").getBoundingClientRect().top}));
+  const g0=await geo();
+  await p.tap(".ppage:not([hidden]) .mfindin"); await p.waitForTimeout(700); await settle(p);
+  const g1=await geo();
+  say("on a phone, focusing the field takes the sheet up ("+Math.round(g0.sheet)+" to "+Math.round(g1.sheet)+"px) and lifts the field ("
+    +Math.round(g0.field)+" to "+Math.round(g1.field)+"px)", g1.sheet<g0.sheet-80 && g1.field<g0.field-150 && g1.field<160);
+  await p.evaluate(()=>document.activeElement.blur()); await p.waitForTimeout(700); await settle(p);
+  const g2=await geo();
+  say("  and leaving it puts the sheet back", Math.abs(g2.sheet-g0.sheet)<4);
   const s0=await state();
   say("the filter sits on the Collections page, empty, with the sorted sections under it",
     s0.page==="modes" && s0.value==="" && s0.sections && s0.sort && !s0.clear && !s0.hits.length);

@@ -1229,12 +1229,15 @@ function sheetMax(){ return sheetOpenH(); }
 // Size it from what is really visible instead: the part of the sheet's container that is
 // inside the visual viewport. The map keeps a fifth of that and the sheet takes the rest,
 // in the browser and the installed app alike (70vh had left the app's map a third).
+let KBDFIELD=false;
 function sheetOpenH(){
   const el=$("panel"), box=el&&el.offsetParent; if(!box) return Math.round(innerHeight*0.7);
   const r=box.getBoundingClientRect(), vv=window.visualViewport;
   const vTop=vv?vv.offsetTop:0, vBot=vv?vv.offsetTop+vv.height:innerHeight;
   const top=Math.max(r.top,vTop), bot=Math.min(r.bottom,vBot);
-  const sheetTop=top+0.2*Math.max(0,bot-top);
+  // typing into the collection filter takes the sheet almost to the top: the keyboard
+  // has the bottom half, and the matches need the space between it and the field
+  const sheetTop=top+(KBDFIELD?0.02:0.2)*Math.max(0,bot-top);
   // unrounded: a rounded value next to the one already applied is a new height the sheet
   // animates to, a stray transition sitting on the panel that the glide test catches
   return Math.max(0, r.bottom-sheetTop);
@@ -2564,6 +2567,34 @@ function runModeFind(inp){
   const c=page.querySelector(".mfclear"); if(c) c.hidden=!v;
 }
 document.addEventListener("input",e=>{ const t=e.target; if(t&&t.classList&&t.classList.contains("mfindin")) runModeFind(t); });
+// On a phone the keyboard takes the bottom half of the screen, which is where the sheet
+// was showing the matches. While the field has focus the sheet goes almost to the top,
+// the field scrolls up under the header, and the body is padded by the keyboard's height
+// so the last match can still be scrolled clear of it.
+function kbdPad(){
+  const b=$("panelBody"), vv=window.visualViewport; if(!b) return;
+  const kb = KBDFIELD && vv ? Math.max(0, Math.round(innerHeight-(vv.height+vv.offsetTop))) : 0;
+  b.style.paddingBottom = kb ? kb+"px" : "";
+}
+function fieldToTop(inp){
+  const b=$("panelBody"); if(!b) return;
+  const nav=b.querySelector(".pcard > .navrow"), nh=nav?nav.getBoundingClientRect().height:0;
+  const br=b.getBoundingClientRect(), ir=inp.getBoundingClientRect();
+  b.scrollTo({top: Math.max(0, b.scrollTop + (ir.top-br.top) - nh - 10), behavior: reduce?"auto":"smooth"});
+}
+document.addEventListener("focusin",e=>{
+  const t=e.target; if(!(t&&t.classList&&t.classList.contains("mfindin")) || !OVERLAY) return;
+  KBDFIELD=true;
+  if(!OPEN) setOpen(true); else syncSheetH();
+  kbdPad();
+  // after the sheet has grown and the keyboard has come up, both of which move the field
+  setTimeout(()=>{ kbdPad(); fieldToTop(t); },320);
+});
+document.addEventListener("focusout",e=>{
+  const t=e.target; if(!(t&&t.classList&&t.classList.contains("mfindin"))) return;
+  KBDFIELD=false; kbdPad(); syncSheetH();
+});
+if(window.visualViewport) visualViewport.addEventListener("resize",()=>{ if(KBDFIELD) kbdPad(); });
 document.addEventListener("click",e=>{
   const c=e.target.closest&&e.target.closest(".mfclear"); if(!c) return;
   const i=c.parentNode.querySelector(".mfindin"); if(!i) return;
