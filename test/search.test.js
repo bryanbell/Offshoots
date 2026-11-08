@@ -198,12 +198,12 @@ async function ask(p,t){
 
   // a collection is found by its name, and by a word for the feeling or the job it is for
   { const r=await ask(p,"dinner"), r2=await ask(p,"sit with"), r3=await ask(p,"sad"),
-      r4=await ask(p,"cant settle"), r5=await ask(p,"collections");
+      r4=await ask(p,"cant zone"), r5=await ask(p,"collections");
     const top3=(rs,n)=>rs.slice(0,3).some(x=>x.kind==="res-page" && x.name===n);
     say('"dinner" offers the Dinner collection', top3(r,"Dinner"));
     say('"sit with" offers Sit With It', top3(r2,"Sit With It"));
     say('"sad" offers Sit With It ('+r3.slice(0,3).map(x=>x.name).join(", ")+")", top3(r3,"Sit With It"));
-    say('"cant settle" finds Can\'t Settle without the apostrophe', top3(r4,"Can't Settle"));
+    say('"cant zone" finds Can\'t Zone In without the apostrophe', top3(r4,"Can't Zone In"));
     say('"collections" offers the Collections page', top3(r5,"Collections"));
     say("  each wearing a glyph", [r,r2,r3].every(rs=>rs.filter(x=>x.kind==="res-page").every(x=>x.glyph)));
     // and it opens: the page for that collection, not a style
