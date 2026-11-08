@@ -4037,6 +4037,45 @@ const MODES = [
 //
 // ap and sp are whole URLs here rather than the id fragments PLAY and SPLAY keep, because
 // a track is not a playlist and the two services address them differently.
+// Words someone might type for a collection that are not in its name or line, so a
+// search for a feeling ("sad") finds the collection for it (Sit With It).
+const MODEWORDS = {
+"focus":"concentrate concentration study studying reading homework work deep work",
+"coding":"programming code developer hacking debugging",
+"restless":"anxious anxiety antsy restless fidgety bored boredom can't sit still",
+"workout":"gym exercise lifting weights training cardio pump",
+"miles":"run running jog jogging cycling bike ride riding",
+"winddown":"relax relaxing unwind decompress evening chill calm",
+"sleep":"bedtime insomnia nap tired asleep",
+"party":"dance dancing party club clubbing rave",
+"houseparty":"party friends over pregame hosting",
+"road":"drive driving car highway travel",
+"camping":"campfire outdoors woods tent nature",
+"commute":"drive driving car train bus traffic",
+"nightdrive":"drive driving car late night midnight",
+"dinner":"dinner party hosting guests eating",
+"cooking":"kitchen baking food chef",
+"cocktails":"drinks bar party",
+"coffee":"cafe café working background",
+"gaming":"games video games playing",
+"chores":"cleaning housework laundry errands admin productive motivation",
+"garage":"workshop tools working on the car wrenching",
+"lift":"happy happiness cheer up cheerful upbeat feel good mood",
+"hype":"confidence pump up hype nervous interview big game",
+"burn":"angry anger mad furious rage frustrated pissed",
+"nightcap":"late night whiskey alone solitude",
+"sit":"sad sadness grief grieving heartbreak heartbroken depressed down blue crying melancholy",
+"onmind":"missing someone love crush longing breakup nostalgia",
+"together":"romantic romance date night love couple intimate",
+"showkid":"kids children teaching learning young",
+"family":"family grandparents holidays thanksgiving christmas",
+"cosmic":"psychedelic trippy trip meditation spaced out",
+"deep":"headphones audiophile album close listening",
+"morning":"wake up waking up breakfast sunrise early",
+"system":"stereo speakers sound system audiophile hifi car audio test",
+"phone":"phone speaker no headphones laptop small speaker",
+};
+
 const HEADTRACK = {
   "system": {
     title: "Money for Nothing",
@@ -13011,4 +13050,4 @@ const PHOTO = {
 };
 
 // ---------- export tail ---------- (build.js drops everything from this line on)
-if (typeof module !== "undefined") module.exports = {FAMS, DATA, ART, DONE, PLAY, SPLAY, QPLAY, DESC, COVER, PTITLE, FAMSKIN, FAMMAP, MODES, HEADTRACK, ROSTER, SONGS, READ, ACTIVE, ROLE, PICKERS, PICKED, PHOTO, COVERART, STYLEART, XPLAY};
+if (typeof module !== "undefined") module.exports = {FAMS, DATA, ART, DONE, PLAY, SPLAY, QPLAY, DESC, COVER, PTITLE, FAMSKIN, FAMMAP, MODES, MODEWORDS, HEADTRACK, ROSTER, SONGS, READ, ACTIVE, ROLE, PICKERS, PICKED, PHOTO, COVERART, STYLEART, XPLAY};

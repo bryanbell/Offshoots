@@ -3081,8 +3081,25 @@ function pageIndex(){
       sub:pickCount(who)+" chosen by a guest",
       terms:(p.name+" picks "+p.role+" "+p.blurb).toLowerCase()});
   }
+  // every collection by name, and the two list pages themselves. A collection is found by
+  // its name or the line under it ("dinner", "drive"), not by the longer paragraph, which
+  // would put half of them under any three letters.
+  if(typeof MODES!=="undefined") for(const m of MODES){
+    const n=m[4].filter(([id])=>byId[id]).length;
+    const w=(typeof MODEWORDS!=="undefined" && MODEWORDS[m[0]])||"";
+    out.push({key:"mode:"+m[0], label:m[1], sub:m[2]+" \u00b7 "+n+" styles",
+      mode:m[0], lv:m[5]||3, words:w.toLowerCase().split(/\s+/).filter(Boolean),
+      terms:(m[1]+" "+m[2]+" "+w+" collection").toLowerCase()});
+  }
+  out.push({key:"modes", label:"Collections", sub:"Every collection, by mood, place or task",
+    terms:"collections moods modes ways in"});
+  out.push({key:"top", label:"Most Influential", sub:"The styles that led to the most",
+    terms:"most influential influence"});
   return out;
 }
+// apostrophes drop out on both sides, so "cant" finds Can't Settle and a phone's curly
+// quote finds it as well as a straight one
+const unq=v=>v.replace(/['\u2019]/g,"");
 // Does the query land at the START of a word in this blob, or inside one?
 //
 // Everything here is matched with a bare indexOf, which has no idea where words begin, so
@@ -3112,10 +3129,14 @@ function find(t){
     if(n.search.includes(t)) return rank(n.search,t,2);
     if(t.length>=4 && n.songsearch.includes(t)) return rank(n.songsearch,t,3); return 9; };
   for(const n of nodes){ const sc=score(n); if(sc<9) out.push({k:"style",sc,n,ord:n.year}); }
+  const tu=unq(t);
   for(const p of pageIndex()){
-    const lb=p.label.toLowerCase();
-    const sc = lb.startsWith(t) ? 1.2 : lb.includes(t) ? 2.5
-      : (t.length>=3 && p.terms.includes(t)) ? 4.5 : 9;
+    const lb=unq(p.label.toLowerCase()), tm=unq(p.terms);
+    // a keyword typed whole ("sad") is as good as the collection's name: it ranks with
+    // the styles' own names, above a style that only has the word in an artist or a note
+    const kw=p.words && tu.length>=3 && p.words.some(w=>unq(w)===tu);
+    const sc = lb.startsWith(tu) ? 1.2 : kw ? 1.3 : lb.includes(tu) ? rank(lb,tu,2.5)
+      : (tu.length>=3 && tm.includes(tu)) ? rank(tm,tu,4.5) : 9;
     if(sc<9) out.push({k:"page",sc,p,ord:0});
   }
   for(const x of xIndex()){
@@ -3179,6 +3200,10 @@ function hitMark(h){
   if(h.k==="style") return `<i class="rico rdot" style="background:${FAM[h.n.fam].c}"></i>`;
   // a crossing wears the playlist glyph the listen rows already wear
   if(h.k==="cross") return `<i class="rico rm-listen">${ROWICON.pl||""}</i>`;
+  // a collection wears its own glyph, in the colour of how loud it is
+  if(h.k==="page" && h.p.mode) return `<i class="rico rm-mode lv${h.p.lv}">${MODEICON[h.p.mode]||""}</i>`;
+  if(h.k==="page" && (h.p.key==="modes"||h.p.key==="top"))
+    return `<i class="rico rm-mode lv3">${ROWICON[h.p.key]||ROWICON.pl||""}</i>`;
   if(h.k==="page"){ const med=h.p.key.indexOf("med:")===0 ? h.p.key.slice(4) : "";
     return `<i class="rico ${med?"rm-"+med:"rm-picks"}">`
       + (med ? (MEDPAGEICON[med]||"") : (ROWICON.picks||"")) + `</i>`; }

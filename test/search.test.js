@@ -196,6 +196,25 @@ async function ask(p,t){
     say("  while searching the longer word still finds it ("+(r2[0]||{}).name+")",
       r2.length>0); }
 
+  // a collection is found by its name, and by a word for the feeling or the job it is for
+  { const r=await ask(p,"dinner"), r2=await ask(p,"sit with"), r3=await ask(p,"sad"),
+      r4=await ask(p,"cant settle"), r5=await ask(p,"collections");
+    const top3=(rs,n)=>rs.slice(0,3).some(x=>x.kind==="res-page" && x.name===n);
+    say('"dinner" offers the Dinner collection', top3(r,"Dinner"));
+    say('"sit with" offers Sit With It', top3(r2,"Sit With It"));
+    say('"sad" offers Sit With It ('+r3.slice(0,3).map(x=>x.name).join(", ")+")", top3(r3,"Sit With It"));
+    say('"cant settle" finds Can\'t Settle without the apostrophe', top3(r4,"Can't Settle"));
+    say('"collections" offers the Collections page', top3(r5,"Collections"));
+    say("  each wearing a glyph", [r,r2,r3].every(rs=>rs.filter(x=>x.kind==="res-page").every(x=>x.glyph)));
+    // and it opens: the page for that collection, not a style
+    await ask(p,"sad");
+    await p.evaluate(()=>{ const b=[...document.querySelectorAll("#res button")]
+      .find(x=>(x.querySelector(".rnm")||{}).textContent==="Sit With It"); if(b) b.click(); });
+    await onPage(p,"mode:sit");
+    say("  and tapping it opens the collection", await p.evaluate(()=>{
+      const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
+      return !!u && u.dataset.p==="mode:sit"; })); }
+
   say("no page errors", errs.length===0 ? true : errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
   await b.close();
 })();
