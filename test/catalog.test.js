@@ -109,93 +109,30 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
     /reading|contested/i.test(r.lineage||""));
   say("  and that absence is not evidence", /absence/i.test(r.caution||""));
 
-  // ---- and the app points at it ----
+  // ---- and the wiki hands it over ----
+  // The data link used to be a copy row on About. It is working detail, so it moved to the
+  // wiki's "Map as data" page; About keeps one link to the wiki that names it.
+  const wk=fs.readFileSync(path.join(__dirname,"..","wiki","data","index.html"),"utf8");
+  say("the wiki's data page links the file by the site's address",
+    /href="\/musicatlas\.json"/.test(wk) && /https:\/\/musicatlas\.us\/musicatlas\.json/.test(wk));
+  const said=+(wk.match(/about (\d+) KB/)||[])[1];
+  say("  and says its size honestly ("+said+" KB said, "+kb+" KB on disk)",
+    !!said && Math.abs(said-kb)<=kb*0.2);
+  say("  small enough to hand over whole (about "
+    + Math.round(raw.length/4/1000)+"k tokens)", raw.length/4 < 60000);
+  say("  and every wiki page can reach it", ["","catalog","handbook","art","covers"].every(d=>
+    /href="\/wiki\/data\/"/.test(fs.readFileSync(path.join(__dirname,"..","wiki",d,"index.html"),"utf8"))));
   const b=await chromium.launch(); await skipWelcome(b);
-  const ctx=await b.newContext({viewport:{width:430,height:930}});
-  const p=await ctx.newPage();
+  const p=await (await b.newContext({viewport:{width:430,height:930}})).newPage();
   await p.goto(URL+"#about"); await arm(p); await shown(p,"#chart .n"); await settle(p);
   await until(p,()=>!!document.querySelector('.ppage[data-p="about"]'));
   await settle(p);
-  const rows=await p.evaluate(()=>
-    [...document.querySelectorAll('.ppage[data-p="about"] .dataline')].map((a,i)=>({
-      tag:a.tagName, file:a.dataset.datacopy||"",
-      tap:Math.round(a.getBoundingClientRect().height),
-      url:(document.querySelectorAll('.ppage[data-p="about"] .dataurl')[i]||{}).textContent||"",
-      label:a.textContent.replace(/\s+/g," ").trim()})));
-  say("About offers it (\""+(rows[0]&&rows[0].label)+"\")",
-    rows.length===1 && rows[0].file==="musicatlas.json");
-  say("  as a control, clearing the tap floor ("+(rows[0]&&rows[0].tap)+"px)",
-    !!rows[0] && rows[0].tag==="BUTTON" && rows[0].tap>=44);
-  const link=rows[0];
-  // the page says how big it is, because the size is the thing that decides whether you
-  // can hand it to a model in one go
-  // the size is what decides whether you can hand it over in one go, so it may not lie
-  const said=+(rows[0].label.match(/(\d+) KB/)||[])[1];
-  say("  and says its size honestly ("+said+" KB said, "+kb+" KB on disk)",
-    !!said && Math.abs(said-kb)<=kb*0.2);
-  // what actually decides whether a model can take it in one go
-  say("  small enough to hand over whole (about "
-    + Math.round(raw.length/4/1000)+"k tokens)", raw.length/4 < 60000);
-
-  // ---- and it cannot trap you ----
-  // Installed to a home screen there is no chrome and no back, so opening half a megabyte
-  // of JSON in the app's own window was a dead end. The row copies the address instead,
-  // which is the useful act either way: nobody reads 496 KB of JSON, they hand over its
-  // URL. The address is printed under it, and is only a link where there is somewhere to
-  // come back from.
-  const srv=require("http").createServer((rq,rs)=>{
-    const f=path.join(__dirname,"..", rq.url==="/"?"index.html":decodeURIComponent(rq.url.split("?")[0]));
-    fs.readFile(f,(e,d)=>{ if(e){rs.statusCode=404;rs.end("");return;}
-      // without a type the page is downloaded rather than rendered
-      rs.setHeader("content-type", /\.json$/.test(f)?"application/json":"text/html");
-      rs.end(d); });
-  }).listen(8753);
-  const mode=async standalone=>{
-    const c=await b.newContext({viewport:{width:430,height:930},
-      permissions:["clipboard-read","clipboard-write"]});
-    const q=await c.newPage();
-    if(standalone) await q.addInitScript(()=>{
-      const mm=window.matchMedia.bind(window);
-      window.matchMedia=x=>/display-mode: standalone/.test(x)
-        ? {matches:true,addEventListener(){},removeEventListener(){},addListener(){},removeListener(){}}
-        : mm(x); });
-    await q.goto("http://127.0.0.1:8753/index.html#about");
-    await arm(q); await shown(q,"#chart .n"); await settle(q);
-    await until(q,()=>!!document.querySelector('.ppage[data-p="about"] .dataline'));
-    await settle(q);
-    const before=await q.evaluate(()=>({
-      anchors:document.querySelectorAll(".dataurl a").length,
-      navs:document.querySelectorAll('.dataline[href]').length}));
-    // The label says "Link copied" and then goes back to itself on a timer. Every way of
-    // looking at it afterwards races that timer: a fixed wait, and then a poll, both missed
-    // it on a loaded box and failed a copy that had worked. So watch instead of looking.
-    // An observer installed before the click cannot miss the word however late this gets
-    // to read the answer.
-    await q.evaluate(()=>{ window.__said=false;
-      new MutationObserver(()=>{ const e=document.querySelector(".dataline .lbl");
-        if(e && e.textContent==="Link copied") window.__said=true; })
-        .observe(document.body,{subtree:true,childList:true,characterData:true}); });
-    await q.click(".dataline");
-    await until(q,()=>window.__said===true);
-    const said=await q.evaluate(()=>window.__said ? "Link copied"
-      : document.querySelector(".dataline .lbl").textContent);
-    const clip=await q.evaluate(()=>navigator.clipboard.readText()).catch(()=>"");
-    const here=q.url();
-    await c.close();
-    return {...before, said, clip, here};
-  };
-  const web=await mode(false), app=await mode(true);
-  say("in a browser the address is a link you can open ("+web.anchors+")", web.anchors===1);
-  say("installed, they are text rather than a way out of the app ("+app.anchors+")",
-    app.anchors===0);
-  say("  and the row itself never navigates", web.navs===0 && app.navs===0);
-  // Issue #17: the data address is handed to other people and other models, so it is the
-  // site's own address now, not wherever this copy happens to be served from.
-  say("either way it copies the site's address (\""+app.clip+"\")",
-    app.clip==="https://musicatlas.us/musicatlas.json" && app.clip===web.clip);
-  say("  and says so (\""+app.said+"\")", app.said==="Link copied" && web.said===app.said);
-  say("  without leaving the page", /index\.html#about$/.test(app.here));
-  srv.close();
+  const ab=await p.evaluate(()=>{const pg=document.querySelector('.ppage[data-p="about"]');
+    const w=pg.querySelector("a.wikilink");
+    return {rows:pg.querySelectorAll(".dataline").length, wiki:w?w.href:"",
+      names:/as data/i.test((w&&w.parentElement.textContent)||"")};});
+  say("About no longer carries the data row", ab.rows===0);
+  say("  it points at the wiki and says the data is there", /\/wiki\/$/.test(ab.wiki) && ab.names);
 
   await b.close();
 })();

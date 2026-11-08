@@ -102,7 +102,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   // questions and has 185px to ask them in at 320px, so both lines wrap instead.
   say("  with neither line cut off", !!fold && fold.clipped===false);
   say("  and the sub saying what is behind it ("+(fold&&fold.sub)+")",
-    !!fold && /sources/i.test(fold.sub) && /data/i.test(fold.sub));
+    !!fold && /sources/i.test(fold.sub) && /read/i.test(fold.sub));
   say("  with the full page one tap on ("+(fold&&fold.more&&fold.more.page)+")",
     !!fold && fold.more.page==="about");
   // and it is a row, like every other way out of this panel: a card, a glyph, a chevron.
