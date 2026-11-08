@@ -1698,7 +1698,7 @@ $("panel").addEventListener("change",e=>{
     const page=t.closest(".ppage");
     const list=page&&page.querySelector(".toplist");
     const head=page&&page.querySelector(".secthead.picksort");
-    if(list) list.outerHTML=topGridHtml();
+    if(list) list.outerHTML=topListHtml();
     if(head) head.outerHTML=topSortHtml();
     return; }
   if(t.classList.contains("psortsel")){
@@ -2697,22 +2697,47 @@ function topSortHtml(){
     + inlinePick('class="tsortsel"',"Sort the most influential.",TOPSORTS,topSort())
     + `</h3></div>`;
 }
-// The same shape the collections page is: a grid of art with the name under it, on the
-// panel rather than in a card. It was a boxed list of coloured dots, which told you the
-// family and nothing else, on a page whose whole subject is styles you might not know
-// yet. The art is what says what a style sounds like before the name does.
-function topGridHtml(){
-  return `<div class="toplist topgrid" role="list">` + topOrderBy(topSort()).map(id=>{
-    const x=byId[id];
-    return `<button type="button" class="mcirc tcirc" data-go="${esc(id)}"`
-      + ` title="Show ${esc(x.name)} on the map"`
-      + ` aria-label="${esc(x.name)}. ${x.children.length} styles came out of it.">`
-      // the badge sits outside the art's own clip, so the disc can crop its picture
-      // while the count still overlaps the edge of it
-      + `<span class="tart"><i class="mco tco">${cover(id,x,true)}</i>`
-      + `<b class="tcct">${x.children.length}</b></span>`
-      + `<span class="mclbl">${esc(x.name)}</span></button>`;
-  }).join("") + `</div>`;
+// The same structures the Collections page uses, row for row: a rounded square of the
+// art, the name, one line on what it is, the count before the chevron, and the list cut
+// into titled sections wherever the sort cuts it. Two pages of the same kind should not
+// look like two different components. The square is tinted with the family's colour, so
+// a style whose art has not loaded still says where it lives.
+function topRow(id){
+  const x=byId[id], n=x.children.length;
+  const deck=(typeof DESC!=="undefined"&&DESC[id]) || (FAM[x.fam].name+" \u00b7 "+(x.disp||x.year));
+  return `<button type="button" class="moderow toprow" data-go="${esc(id)}"`
+    + ` style="--lvc:${esc(FAM[x.fam].c)}" title="Show ${esc(x.name)} on the map"`
+    + ` aria-label="${esc(x.name)}. ${n} styles came out of it. Shows it on the map.">`
+    + `<i class="mrart hasimg">${cover(id,x,true)}</i>`
+    + `<span class="mrtx"><b class="mrlbl">${esc(x.name)}</b>`
+    + `<span class="mrdeck">${esc(deck)}</span></span>`
+    + `<em class="mrct">${n}</em>` + GOCHEV + `</button>`;
+}
+// Influence is cut into bands by how much came out of each, the way Quietest is cut into
+// bands of intensity; A to Z by letter; Most used by what this browser has opened.
+const TOPBANDS=[[15,"Fifteen or More"],[12,"Twelve to Fourteen"],[0,"Under Twelve"]];
+function topSections(how){
+  const ids=topOrderBy(how), out=[];
+  const add=(key,title,sub,id)=>{ const g=out[out.length-1];
+    if(g && g.key===key) g.rows.push(id); else out.push({key,title,sub,rows:[id]}); };
+  if(how==="az"){ ids.forEach(id=>{ const k=byId[id].name[0].toUpperCase(); add(k,k,"",id); }); return out; }
+  if(how==="used"){
+    const use=styleUse(), hot=ids.filter(id=>(+use[id]||0)>0), cold=ids.filter(id=>!((+use[id]||0)>0));
+    if(hot.length) out.push({key:"hot",title:"Opened Here",sub:"What this browser comes back to",rows:hot});
+    if(cold.length) out.push({key:"cold",title:hot.length?"Not Opened Yet":"Everything",sub:hot.length?"":"Nothing opened here yet",rows:cold});
+    return out; }
+  ids.forEach(id=>{ const n=byId[id].children.length, b=TOPBANDS.find(t=>n>=t[0]);
+    add("b"+b[0],b[1],"Styles that came out of each",id); });
+  return out;
+}
+function topListHtml(){
+  const secs=topSections(topSort()).map(g=>
+    `<section class="modesec" aria-labelledby="tsec-${esc(String(g.key))}">`
+    + `<h3 class="modesech" id="tsec-${esc(String(g.key))}"><span class="msecttl">${esc(g.title)}</span>`
+    + (g.sub?`<span class="msecsub">${esc(g.sub)}</span>`:"")
+    + `<span class="sectaside">${g.rows.length}</span></h3>`
+    + `<div class="moderows listgrp" role="list">${g.rows.map(topRow).join("")}</div></section>`).join("");
+  return `<div class="modelist toplist">${secs}</div>`;
 }
 function styleRows(ids,detail){
   return `<div class="listgrp plist">` + ids.map(id=>{ const x=byId[id];
@@ -2769,7 +2794,7 @@ const PAGES_DEF={
   top:()=>({title:"Most Influential",
     lede:"The styles that led to the most, counted by what came directly out of them.",
     top:topSortHtml(),
-    html:topGridHtml()+pageShareBtn("top","Most influential","Share this list")}),
+    html:topListHtml()+pageShareBtn("top","Most Influential","Share this list")}),
   about:()=>{ const np=playable().length,
       withSrc=DATA.filter(r=>Array.isArray(r[7])&&r[7].length).length;
     return {title:"About This Map", html:`

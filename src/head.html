@@ -1115,46 +1115,17 @@ a.deepsug:focus-visible{outline:0;box-shadow:inset 0 0 0 2px color-mix(in srgb,v
    around a grid of round pictures framed them twice. */
 .modegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));
   gap:20px 8px;padding:8px 0 4px;align-items:start;justify-items:center}
-/* Most influential is the same grid, down to the round art. The count rode under the
-   name as a third line, which left a ragged step wherever a name wrapped to two and made
-   the tile three things tall. It is a badge on the disc now, the way an unread count sits
-   on an app icon: the number belongs to the picture, not to the caption. */
-.topgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));
-  gap:20px 8px;padding:8px 0 4px;align-items:start;justify-items:center}
-.topgrid .tcirc{width:100%;gap:9px}
-/* the badge has to escape the disc's overflow:hidden, so the disc keeps its own clip and
-   this holds the two of them */
-.tart{position:relative;width:84px;height:84px;flex:none}
-.tcirc .tart .tco{width:100%;height:100%;border-radius:50%;overflow:hidden;position:relative;
-  background:var(--fill2);
-  /* a keyline: a hairline of ink outside, a hairline of the panel inside, so a light
-     tile does not melt into a light page and a dark one is not a hole in it */
-  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--fg) 14%,transparent),
-    0 0 0 1px var(--panel), 0 0 0 2px color-mix(in srgb,var(--fg) 12%,transparent),
-    0 1px 3px rgb(0 0 0 / .18)}
-/* The sleeves are drawn with a worn paper edge, lighter than the art inside them. Square
-   that reads as the edge of a record sleeve; cropped round it becomes a bright rim around
-   the disc, brightest where the art itself is dark, like Post-Punk and Trap. Scaled so the
-   edge falls outside the crop. 10%, not the 2 or 3 it sounds like it should need: the
-   border is a few pixels on an 84px disc, and at 6% a warm arc still showed along the
-   bottom of the darkest sleeves. Measured against those rather than against a number. */
-.tcirc .tco img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-  display:block;max-width:none;margin:0;border-radius:0;box-shadow:none;
-  transform:scale(1.10)}
-/* a style with no art of its own gets the family-colour tile the playlist rows use, which
-   arrives from the error handler as .pcovph and needs telling what size it is here */
-.tcirc .tco .pcovph{position:absolute;inset:0;display:grid;place-items:center;
-  width:100%;height:100%;margin:0;border-radius:0;background:var(--c,var(--fill2))}
-.tcirc .tco .pcovph b{font:700 24px var(--f-body);color:#fff;opacity:.92}
-/* How many came out of it, which is the one number this page is about. Ink on paper and
-   a ring of the panel's own ground, so it reads on a dark sleeve and a pale one alike and
-   stays right when the theme flips: both tokens swap with it. */
-.tcct{position:absolute;top:-3px;right:-3px;z-index:2;
-  min-width:25px;height:25px;padding:0 7px;box-sizing:border-box;border-radius:999px;
-  display:grid;place-items:center;
-  background:var(--fg);color:var(--panel);
-  font:700 12.5px/1 var(--f-body);letter-spacing:-.01em;font-variant-numeric:tabular-nums;
-  box-shadow:0 0 0 2.5px var(--panel),0 1px 3px rgb(0 0 0 / .3)}
+/* Most influential uses the Collections rows (.moderow, .mrart, .mrtx, .mrct) and their
+   sections; these are only what a style's art needs that a collection's does not. The
+   sleeves carry a worn paper edge, scaled just past the square's crop. */
+.toprow .mrart img{transform:scale(1.06)}
+/* a style with no art of its own gets the family-colour tile, which arrives from the
+   error handler as .pcovph and needs telling what size it is here */
+.mrart .pcovph{position:absolute;inset:0;display:grid;place-items:center;
+  width:100%;height:100%;margin:0;border-radius:0;background:var(--c,var(--lvc,var(--fill2)))}
+.mrart .pcovph b{font:700 21px var(--f-body);color:#fff;opacity:.92}
+/* a style's description is a sentence, not a collection's short line: two lines at most */
+.toprow .mrdeck{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 /* the row sets a tile width from the scroller it lives in; in the grid the column is the
    width, and the disc inside it stays the size it is on the row */
 .modegrid .mcirc{width:100%}

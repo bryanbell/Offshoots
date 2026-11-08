@@ -88,13 +88,11 @@ const state=p=>p.evaluate(()=>{
     await p.evaluate(()=>{const l=document.querySelector("#panelBack .bklbl");
       return getComputedStyle(l).display!=="none" && l.getBoundingClientRect().width>20;}));
   say("  it starts at the top", st.scroll===0);
-  // the page wears the collections grid now: art tiles with the name under them, not a
-  // boxed list of coloured dots. The dot said which family and nothing else, on a page
-  // whose whole subject is styles you may not know yet.
-  const n=await p.$$eval('.ppage[data-p="top"] .topgrid .tcirc',e=>e.length);
+  // the page wears the Collections rows: art square, name, a line, the count, a chevron
+  const n=await p.$$eval('.ppage[data-p="top"] .moderows .toprow',e=>e.length);
   say("  listing "+n+" styles", n===24);
   say("  each one carrying its art",
-    await p.$$eval('.ppage[data-p="top"] .tcirc .tco',
+    await p.$$eval('.ppage[data-p="top"] .toprow .mrart',
       e=>e.length===24 && e.every(x=>!!x.querySelector("img, .pcovph"))));
 
   // pushing the same page twice would stack it on itself
@@ -111,34 +109,17 @@ const state=p=>p.evaluate(()=>{
 
   // Escape unwinds before it closes the panel
   await p.click('.sect-onmap [data-page="top"]'); await onPage(p,"top");
-  // the count is a badge on the disc now, the way an unread count sits on an app icon.
-  // It has to clear the art's own clip, or it is a number with its top sliced off.
-  const badge=await p.evaluate(()=>{
-    const t=[...document.querySelectorAll('.ppage[data-p="top"] .tcirc')];
-    const r=x=>x.getBoundingClientRect();
+  // the same parts in the same places as a collection row, so the two pages cannot drift
+  const tr=await p.evaluate(()=>{
+    const t=[...document.querySelectorAll('.ppage[data-p="top"] .toprow')];
     return {n:t.length,
-      numbers:t.every(x=>/^\d+$/.test((x.querySelector(".tcct")||{}).textContent||"")),
-      round:t.every(x=>getComputedStyle(x.querySelector(".tco")).borderRadius==="50%"),
-      // top right of the art, overlapping it rather than sitting inside or beside it
-      placed:t.every(x=>{const a=r(x.querySelector(".tco")), b=r(x.querySelector(".tcct"));
-        return b.top<a.top && b.right>a.right && b.left>a.left+a.width/2;}),
-      // nothing clipping it: the disc crops its picture, the wrapper must not crop this
-      unclipped:t.every(x=>getComputedStyle(x.querySelector(".tart")).overflow==="visible"),
-      legible:t.every(x=>{const b=r(x.querySelector(".tcct"));
-        return b.width>=20 && b.height>=20;})};});
-  say("  with a count badge on every one", badge.n===24 && badge.numbers);
-  say("    on a round tile, at its top right", badge.round && badge.placed);
-  say("    clear of the art's own clip, at a size you can read",
-    badge.unclipped && badge.legible);
-  // the sleeves carry a worn paper edge, lighter than the art inside them, which a round
-  // crop turns into a bright rim. The art is scaled past it rather than cropped at it.
-  // wait for the tiles' images to exist: on a loaded runner this read the page before
-  // they had been placed and failed once in a few dozen runs, with nothing wrong
-  await until(p,()=>document.querySelectorAll('.ppage[data-p="top"] .tco img').length>=12);
-  say("    with the art scaled past the sleeve's own edge",
-    await p.$$eval('.ppage[data-p="top"] .tco img', e=>e.length>0 && e.every(x=>{
-      const m=getComputedStyle(x).transform.match(/matrix\(([-\d.]+)/);
-      return !!m && parseFloat(m[1])>=1.08;})));
+      parts:t.every(x=>x.querySelector(".mrart") && x.querySelector(".mrlbl")
+        && x.querySelector(".mrdeck") && x.querySelector(".lrcv")),
+      numbers:t.every(x=>/^\d+$/.test((x.querySelector(".mrct")||{}).textContent||"")),
+      secs:document.querySelectorAll('.ppage[data-p="top"] .modesec .modesech').length};});
+  say("  with a collection row's parts on every one", tr.n===24 && tr.parts);
+  say("    and the count before the chevron", tr.numbers);
+  say("    cut into titled sections ("+tr.secs+")", tr.secs>=2);
 
   // Most influential and Collections are the same kind of page and are built the same
   // way: a lede, a Sorted by picker, a grid of art, and a link to the page itself. This
@@ -148,13 +129,11 @@ const state=p=>p.evaluate(()=>{
     const q=await fresh(b,M,hash);
     const v=await q.evaluate(()=>{
       const u=document.querySelector(".ppage:not([hidden])");
-      // the two pages share their skeleton; the list itself differs (Collections is a list
-      // of rows with a line under each name, Most influential a grid of circles), so the
-      // body's shape is not part of the comparison
+      // the list is the same component on both: sections of rows
       return {lede:!!u.querySelector(".pglede"),
         sortedBy:((u.querySelector(".secthead.picksort .secttl")||{}).textContent||"").trim().slice(0,9),
         picker:!!u.querySelector(".sortpick select"),
-        list:!!u.querySelector(".moderows, .topgrid"),
+        list:!!u.querySelector(".modelist .modesec .moderows .moderow"),
         copy:!!u.querySelector(".shbtn.wide[data-share]")};});
     await q.close(); return v; };
   const a=await skel("#top"), c=await skel("#modes");
@@ -166,7 +145,7 @@ const state=p=>p.evaluate(()=>{
 
   // and the sort on it actually sorts
   { const q=await fresh(b,M,"#top");
-    const names=()=>q.$$eval(".topgrid .mclbl",e=>e.map(x=>x.textContent));
+    const names=()=>q.$$eval(".toplist .mrlbl",e=>e.map(x=>x.textContent));
     const byInfl=await names();
     await q.selectOption(".tsortsel","az");
     await q.waitForFunction(()=>document.querySelector(".tsortsel").value==="az");
@@ -234,11 +213,10 @@ const state=p=>p.evaluate(()=>{
     const d=await state(dl);
     say(hash+" lands on its own page", d.key===key);
     say("  with a way back to the map ("+d.backLbl+")", d.back && d.backLbl==="Music Atlas");
-    // the collections page is a grid of circles rather than a list of rows, so count
-    // whichever of the two that page is made of
+    // plain list rows, or the collection rows Collections and Most influential share
     if(rows) say("  carrying all "+rows,
-      (await dl.$$eval('.ppage:not([hidden]) .listrow, .ppage:not([hidden]) .moderows .moderow,'
-        +' .ppage:not([hidden]) .topgrid .tcirc', e=>e.length))===rows);
+      (await dl.$$eval('.ppage:not([hidden]) .listrow, .ppage:not([hidden]) .moderows .moderow',
+        e=>e.length))===rows);
     await dl.close();
   }
 
