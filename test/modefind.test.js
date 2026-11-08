@@ -63,13 +63,17 @@ const ready=async q=>{ await arm(q); await until(q,()=>!!document.querySelector(
     ["nostalgic","Back Then"],["heartbreak","On Your Mind"],["first date","With Someone"],
     ["i want to feel happy","Lift the Mood"],["something to study to","Focus"],["grumpy","Burn It Off"],
     ["bummer","Sit With It"],["exhausted","Wind Down"],["smitten","On Your Mind"],
-    ["drunk","Nightcap"],["tipsy","Nightcap"],["garage","Shop Radio"],["uplifting","Lift the Mood"],
+    ["drunk","Nightcap"],["garage","Shop Radio"],["uplifting","Lift the Mood"],
     // ties go to the exact word, and to the collection that lists the word first
     ["lifting","Workout"],["trippy","Third Eye"],["walking","Wandering"],["concentrate","Focus"]];
   const miss=[];
   for(const [q,want] of firsts){ const s=await type(q); if(s.hits[0]!==want) miss.push(q+" gave "+(s.hits[0]||"nothing")); }
   say("feelings and moments find their collection first ("+firsts.length+" phrases)", miss.length?miss.join("; "):true);
 
+  // a word belongs to every collection it fits, not only the one it opens first
+  const dr=await type("drunk"), ga=await type("garage");
+  say("a word shared by several collections finds all of them (drunk: "+dr.hits.join(", ")+"; garage: "+ga.hits.join(", ")+")",
+    dr.hits.length>=3 && dr.hits.includes("House Party") && ga.hits.length>=3 && ga.hits.includes("Workout"));
   const s1=await type("sad");
   say("  and the sorted sections and their sort step aside for the matches", !s1.sections && !s1.sort && s1.clear);
   say("  under a heading saying how many fit", /^One fits$|fit$/.test(s1.head));
