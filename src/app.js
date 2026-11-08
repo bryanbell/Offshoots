@@ -2462,6 +2462,95 @@ function modeListHtml(){
     + `<div class="moderows listgrp" role="list">${g.rows.map(modeRow).join("")}</div></section>`).join("");
   return `<div class="modelist">${secs}</div>`;
 }
+// ---------- finding a collection by what you type ----------
+// The Collections page has its own filter: type a mood, a place, a moment or a feeling
+// and the list narrows to the collections that fit. Every word typed is matched against
+// the collection's name, the words in MODEWORDS (what someone might call that need), the
+// line under the name, and, for longer words, the lede paragraph. A word counts if it
+// starts a word there ("slee" finds Sleep) or is that word with an ending on it ("relaxed"
+// finds relax). Words like quiet or loud also lean on how loud each collection is. The
+// list is ranked by how many of the words found something, then by where they found it.
+const MSTOP=new Set(("a an and the to for of in on at by my me i im ive id want wanna need some "
+  +"something feel feeling feels like with when while it its is am are be just really very "
+  +"bit kind sort music song songs tunes listen listening put play get go up").split(" "));
+const MLOUD={quiet:[1,2],calm:[1,2],soft:[1,2],gentle:[1,2],mellow:[1,2],chill:[1,2],
+  peaceful:[1,2],low:[1,2],slow:[1,2],still:[1],hushed:[1],
+  loud:[4,5],energy:[4,5],energetic:[4,5],intense:[4,5],upbeat:[3,4,5],fast:[4,5],
+  high:[4,5],heavy:[5],wild:[5],big:[4,5]};
+const mwords=v=>unq(String(v||"").toLowerCase()).split(/[^a-z0-9à-ÿ]+/).filter(Boolean);
+let MFIDX=null;
+function mfIndex(){
+  if(MFIDX) return MFIDX;
+  return MFIDX=MODES.map(m=>({m, name:mwords(m[1]), key:mwords((typeof MODEWORDS!=="undefined"&&MODEWORDS[m[0]])||""),
+    deck:mwords(m[2]), lede:mwords(m[3]), lv:m[5]||3}));
+}
+// how well one typed word fits one word of a collection's text
+function mfit(w,q){
+  if(w===q) return 1;
+  if(q.length>=3 && w.startsWith(q)) return .85;
+  // an ending on the word ("relaxed" for relax), not a longer word that contains it:
+  // "heartbreak" must not find every lede with "heart" in it
+  if(q.length>=5 && w.length>=4 && q.length-w.length<=3 && q.startsWith(w)) return .75;
+  return 0;
+}
+function modeFind(text){
+  const qs=mwords(text).filter(q=>!MSTOP.has(q));
+  if(!qs.length) return null;
+  const out=[];
+  for(const x of mfIndex()){
+    let sc=0, hit=0;
+    for(const q of qs){
+      const best=(ws,wt,min)=> q.length<min ? 0 : wt*Math.max(0,...ws.map(w=>mfit(w,q)));
+      const loud = MLOUD[q] && MLOUD[q].includes(x.lv) ? 1.5 : 0;
+      const s1=Math.max(best(x.name,4,1), best(x.key,3,2), best(x.deck,2,3), best(x.lede,1,4), loud);
+      if(s1>0){ sc+=s1; hit++; }
+    }
+    if(hit) out.push({m:x.m, sc, hit});
+  }
+  return out.sort((a,b)=>b.hit-a.hit || b.sc-a.sc || a.m[1].localeCompare(b.m[1]));
+}
+function modeFindHtml(){
+  return `<div class="mfind" role="search">`
+    + `<svg class="mfico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4 4"/></svg>`
+    + `<input class="mfindin" type="search" enterkeyhint="search" autocomplete="off" autocorrect="off"`
+    + ` autocapitalize="none" spellcheck="false" data-1p-ignore data-lpignore="true"`
+    + ` placeholder="A mood, a place, a moment" aria-label="Find a collection by mood, place, moment or feeling">`
+    + `<button type="button" class="mfclear" aria-label="Clear" hidden><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>`
+    + `</div>`;
+}
+// what the filter shows in place of the sorted sections while something is typed
+function modeFindOut(text){
+  const r=modeFind(text);
+  if(!r) return "";
+  if(!r.length) return `<p class="mfnone">Nothing fits “${esc(text.trim())}” yet. `
+    + `Try a feeling (sad, restless), a place (kitchen, car) or a time (late, morning).</p>`;
+  return `<section class="modesec mfres"><h3 class="modesech"><span class="msecttl">`
+    + `${r.length===1?"One fits":spellCount(r.length)+" fit"}</span>`
+    + `<span class="msecsub">“${esc(text.trim())}”</span></h3>`
+    + `<div class="moderows listgrp" role="list">${r.map(x=>modeRow(x.m)).join("")}</div></section>`;
+}
+function runModeFind(inp){
+  const page=inp.closest(".ppage"); if(!page) return;
+  const v=inp.value, on=!!modeFind(v);
+  let out=page.querySelector(".mfindout");
+  if(!out){ out=document.createElement("div"); out.className="mfindout"; out.setAttribute("aria-live","polite");
+    const list=page.querySelector(".modelist"); if(list) list.before(out); }
+  out.innerHTML=on ? modeFindOut(v) : "";
+  page.classList.toggle("mfinding",on);
+  const c=page.querySelector(".mfclear"); if(c) c.hidden=!v;
+}
+document.addEventListener("input",e=>{ const t=e.target; if(t&&t.classList&&t.classList.contains("mfindin")) runModeFind(t); });
+document.addEventListener("click",e=>{
+  const c=e.target.closest&&e.target.closest(".mfclear"); if(!c) return;
+  const i=c.parentNode.querySelector(".mfindin"); if(!i) return;
+  i.value=""; runModeFind(i); i.focus();
+});
+// Escape clears what is typed first; a second Escape goes back, as it does everywhere else
+document.addEventListener("keydown",e=>{
+  const t=e.target; if(!(t&&t.classList&&t.classList.contains("mfindin"))) return;
+  if(e.key==="Escape" && t.value){ e.stopPropagation(); e.preventDefault(); t.value=""; runModeFind(t); }
+  if(e.key==="Enter"){ e.preventDefault(); t.blur(); }
+},true);
 // The collections this style turns up in. The rest of the panel says what the style is
 // and where it came from; this says what it is for, which is the question a collection
 // answers. 92 of the 461 styles are in none, and those get no section rather than an
@@ -2792,7 +2881,7 @@ const PAGES_DEF={
   },
   modes:()=>({title:"Collections",
     lede:spellCount(MODES.length)+" moods, places and tasks, each opening the styles that suit it.",
-    top:modeSortHtml(),
+    top:modeFindHtml()+modeSortHtml(),
     // the same share button every collection page ends with, not the bare copy-link
     // that About and How to install carry: this page is something to hand to someone
     html:modeListHtml()+pageShareBtn("modes","Collections","Share the collections")}),
