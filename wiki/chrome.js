@@ -20,7 +20,7 @@
   }
   if (heads.length < 2) return;
   const toc = document.createElement('div'); toc.className = 'toc';
-  const label = document.createElement('small'); label.textContent = 'On this page';
+  const label = document.createElement('small'); label.textContent = 'On This Page';
   const ol = document.createElement('ol');
   const links = new Map();
   for (const h of heads) {

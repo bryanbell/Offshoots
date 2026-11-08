@@ -13,6 +13,12 @@ const link = (name, href, className) => {
   element.href = href;
   return element;
 };
+// a lineage line: the label bold, the styles after it, in the app's From / Led to wording
+const lineLine = (label, names) => {
+  const p = make('p', '', 'lineage');
+  p.append(make('b', label), document.createTextNode(' · ' + names.join(', ')));
+  return p;
+};
 const classUrl = id => '/wiki/catalog/?class=' + encodeURIComponent(id);
 
 function palettePage(families) {
@@ -47,7 +53,7 @@ function classPage(record, families) {
   const detail = byId('detail');
   detail.hidden = false;
   document.title = record.title + ' | Music Atlas Wiki';
-  detail.append(link('← Class catalog', '/wiki/catalog/'));
+  detail.append(link('← Catalog', '/wiki/catalog/', 'backpill'));
   const header = make('header');
   if (record.art) {
     const cover = make('img', '', 'cover');
@@ -65,11 +71,11 @@ function classPage(record, families) {
   for (const [name, url] of Object.entries(record.links)) actions.append(link(name, url, 'pill'));
   if (record.style) actions.append(link('On Music Atlas', '/#' + encodeURIComponent(record.style), 'pill'));
   detail.append(actions);
-  if (record.parents.length) detail.append(make('p', 'From · ' + record.parents.join(', ')));
-  if (record.children.length) detail.append(make('p', 'Led to · ' + record.children.join(', ')));
+  if (record.parents.length) detail.append(lineLine('From', record.parents));
+  if (record.children.length) detail.append(lineLine('Led to', record.children));
   if (record.lineage) detail.append(make('p', record.lineage));
   const sequences = Object.entries(record.sequences);
-  detail.append(make('h2', 'Track list'));
+  detail.append(make('h2', 'Track List'));
   if (!sequences.length) {
     detail.append(make('p', 'Open a playlist to see its tracks.', 'muted'));
     return;
@@ -120,10 +126,11 @@ function catalogPage(classes, families) {
       (id ? ' · The requested class could not be found' : '');
     byId('results').replaceChildren(...matches.map(({record, songs}) => {
       const row = make('li');
-      row.append(link(record.title, classUrl(record.id)));
+      const a = link(record.title, classUrl(record.id));
+      row.append(a);
       const match = words.length && songs.find(pair => words.every(word => normalize(pair.slice(0,2).join(' ')).includes(word)));
-      if (match) row.append(make('small', match[0] + ' · ' + match[1]));
-      else if (record.description) row.append(make('small', record.description));
+      if (match) a.append(make('small', match[0] + ' · ' + match[1]));
+      else if (record.description) a.append(make('small', record.description));
       return row;
     }));
   }
