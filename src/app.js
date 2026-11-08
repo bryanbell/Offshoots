@@ -1489,7 +1489,10 @@ function startSect(n){
   const ap=(typeof PLAY!=="undefined"&&PLAY[n.id])||"";
   const sp=(typeof SPLAY!=="undefined"&&SPLAY[n.id])||"";
   if(!ap && !sp) return "";
-  const open=`<a class="plbtn pl" target="_blank" rel="noopener" data-lbl="Open playlist in"`
+  // "Listen", the word the collection rows' pill uses for the same act: one verb for
+  // opening a playlist wherever it is (it read "Open playlist in" here, "Open in" on the
+  // cross-style playlists and "Listen" on the rows)
+  const open=`<a class="plbtn pl" target="_blank" rel="noopener" data-lbl="Listen in"`
     + ` data-ap="${ap?esc("https://music.apple.com"+ap):""}" data-spid="${esc(sp)}"`
     + ` data-style="${esc(n.name)}">`
     + `<i class="plbgo" aria-hidden="true">${OPENGO}</i><span class="plsvc"></span></a>`;
@@ -1516,7 +1519,8 @@ function startSect(n){
     + (who?`<span class="startwho">${who}</span>`:"")
     + `</span></div>`
     + open
-    + `<div class="svcline"><span class="svclbl">Your music service</span>${svcPicker("inline")}</div>`);
+    // the same name the picker has at the foot of the root panel
+    + `<div class="svcline"><span class="svclbl">Music service</span>${svcPicker("inline")}</div>`);
 }
 // Key artists, with the style in the heading so the row says whose list this is when you
 // have scrolled past the name.
@@ -1547,7 +1551,7 @@ function acrossSect(n){
       + `<b class="xttl">${esc(x.title)}</b>`
       + (x.note?`<span class="xnote">${esc(x.note)}</span>`:"")
       + (links?`<span class="xalso">Also featured in</span><span class="xlinks">${links}</span>`:"")
-      + `<a class="xopen pl" target="_blank" rel="noopener" data-lbl="Open in"`
+      + `<a class="xopen pl" target="_blank" rel="noopener" data-lbl="Listen in"`
       + ` data-ap="${x.ap?esc("https://music.apple.com"+x.ap):""}" data-spid="${esc(x.sp||"")}"`
       + ` data-style="${esc(x.title)}"><span class="plsvc"></span>`
       + `<i class="xgoi" aria-hidden="true">${OPENGO}</i></a>`
@@ -1566,8 +1570,11 @@ function linksSect(n,anc,desc){
   // the reach of the style, which used to sit under the description: it belongs with the
   // links it counts rather than with the prose
   const dfams=new Set([...desc.keys()].map(k=>byId[k].fam));
-  const tally=`<p class="tally">${anc.size} ancestor styles \u00b7 ${desc.size} descendant styles`
-    + `${desc.size?` across ${dfams.size} ${dfams.size===1?"family":"families"}`:""}</p>`;
+  // in the fold's own terms, Before this style and After this style, counted all the way
+  // out rather than one step (it read "ancestor styles · descendant styles")
+  const nst=k=>k===1?"1 style":k+" styles";
+  const tally=`<p class="tally">In all, ${nst(anc.size)} before it and ${desc.size} after`
+    + `${desc.size?`, across ${dfams.size} ${dfams.size===1?"family":"families"}`:""}</p>`;
   // Which way each column points. On the map a parent is to the left of its child because
   // it came earlier, so the arrows are that same axis rather than a generic up and down,
   // and they take currentColor so they tint with the heading. The heading text is still
@@ -2428,7 +2435,7 @@ function modeSections(how){
     const use=modeUse(), hot=list.filter(m=>(+use[m[0]]||0)>0), cold=list.filter(m=>!((+use[m[0]]||0)>0));
     const out=[];
     if(hot.length) out.push({key:"hot",title:"Opened here",sub:"What this browser comes back to",rows:hot});
-    if(cold.length) out.push({key:"cold",title:hot.length?"Not yet":"Everything",sub:hot.length?"":"Nothing opened here yet",rows:cold});
+    if(cold.length) out.push({key:"cold",title:hot.length?"Not opened yet":"Everything",sub:hot.length?"":"Nothing opened here yet",rows:cold});
     return out; }
   const out=[]; list.forEach(m=>{ const k=m[5]||3;
     const g=out[out.length-1]; if(g && g.key===k) g.rows.push(m);
