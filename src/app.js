@@ -920,11 +920,12 @@ function pageTitleOf(key){
 // back presses needed to reach the overview. The map may not be in the trail at all,
 // which happens on a shared link, and that is exactly when the shortcut earns its place.
 function goHome(){
-  if(!state.sel) return;
   TRAIL.length=0;                    // home is a reset, not another step: back goes with it
   if(typeof MODE!=="undefined") MODE=null;
-  GOINGBACK=true;
-  try{ clearSel(); } finally { GOINGBACK=false; }
+  if(state.sel){ GOINGBACK=true; try{ clearSel(); } finally { GOINGBACK=false; } }
+  // a page pushed over the root (Collections, About...) with nothing selected: rebuild the
+  // root rather than popping page by page
+  else if(PSTACK.length){ setHash(""); emptyPanel(); }
   syncBack();
   // and the panel comes up with it. Clearing the selection already rebuilt the panel as
   // Explore; leaving it minimised meant the button looked like it had only emptied the
@@ -937,8 +938,14 @@ function syncBack(){
   // root, so there is always one tap back to the whole picture
   // a disabled pill sitting over the lane strip is a control that does nothing taking up
   // the one corner the map has: it goes when there is nowhere to go back to
+  // It shows wherever the root panel is not in front of you: a style, a page pushed over
+  // the root, or the root itself with the sheet put away. It only hides when the root is
+  // what you are looking at. A desktop sidebar is never put away.
   const hm=$("mapHome");
-  if(hm){ hm.hidden = !state.sel; hm.disabled = false; }
+  // (OPEN and OVERLAY are lets further down; read before boot reaches them, they throw)
+  let shown=true; try{ shown = !OVERLAY || OPEN; }catch(e){}
+  if(hm){ const rootUp = !state.sel && !PSTACK.length && shown;
+    hm.hidden = rootUp; hm.disabled = false; }
   // back itself lives in the panel now, where it is not sitting beside a From button
   const b=$("panelBack"); if(!b) return;
   // a pushed page owns the back button while it is up: it is the nearer thing to leave
@@ -1091,7 +1098,7 @@ function setOpen(v){
   setOpenNow(v);
   if(glide) glideSheet(from);
 }
-function setOpenNow(v){ closeNav(); if(v) syncSheetH(); OPEN=v; setTimeout(sizeCard,0); setTimeout(syncMapPad,0); setTimeout(syncMapPad,380); if(OVERLAY && state.sel) setTimeout(()=>{ if(state.sel) select(state.sel,{scroll:true,smooth:!reduce,repaint:false}) },260); $("panel").classList.toggle("open",v); document.body.classList.toggle("open",v); $("expand").setAttribute("aria-expanded",v); $("expand").setAttribute("aria-label",v?"Hide details":"Show details"); $("pclose").setAttribute("aria-label",v?"Collapse details":"Expand details"); { const g=$("grab"); if(g){ g.setAttribute("aria-expanded",String(v)); g.setAttribute("aria-label",v?"Collapse details":"Expand details"); } } paintExpand(); if(v) $("panel").scrollTop=0; }
+function setOpenNow(v){ closeNav(); if(v) syncSheetH(); OPEN=v; syncBack(); setTimeout(sizeCard,0); setTimeout(syncMapPad,0); setTimeout(syncMapPad,380); if(OVERLAY && state.sel) setTimeout(()=>{ if(state.sel) select(state.sel,{scroll:true,smooth:!reduce,repaint:false}) },260); $("panel").classList.toggle("open",v); document.body.classList.toggle("open",v); $("expand").setAttribute("aria-expanded",v); $("expand").setAttribute("aria-label",v?"Hide details":"Show details"); $("pclose").setAttribute("aria-label",v?"Collapse details":"Expand details"); { const g=$("grab"); if(g){ g.setAttribute("aria-expanded",String(v)); g.setAttribute("aria-label",v?"Collapse details":"Expand details"); } } paintExpand(); if(v) $("panel").scrollTop=0; }
 function openPanel(){ setOpen(true); }
 function closePanel(){ setOpen(false); }
 function syncPeek(){}
