@@ -1203,7 +1203,7 @@ function restoreSheet(){ document.body.classList.remove("sheetgone"); if(WASOPEN
 function syncPull(){ const el=$("sheetpull"); if(!el) return; const l=el.querySelector(".plbl"); if(!l) return;
   const n=state.sel&&byId[state.sel];
   l.textContent = n ? n.name : "Music Atlas";
-  el.setAttribute("aria-label", n ? "Show details for "+n.name : "Show the map details");
+  el.setAttribute("aria-label", n ? "Show details for "+n.name : "Show Music Atlas details");
   el.setAttribute("title", l.textContent);
   // wear the family ground the panel is painted with; its inline vars survive display:none
   const pan=$("panel");
@@ -1328,7 +1328,7 @@ function navBtn(kind,ids){
     + (n?`<div class="navmenu" role="menu" hidden><div class="navhd">${label}</div>${items}</div>`:"")
     + `</div>`;
 }
-const chips = ids=> ids.length ? `<div class="chips">${ids.map(id=>chip(id)).join("")}</div>` : `<p class="empty">None in this map.</p>`;
+const chips = ids=> ids.length ? `<div class="chips">${ids.map(id=>chip(id)).join("")}</div>` : `<p class="empty">None in the atlas yet.</p>`;
 const byYear = (a,b)=>byId[a].year-byId[b].year||byId[a].name.localeCompare(byId[b].name);
 
 function noteHtml(n){
@@ -1609,7 +1609,7 @@ function linksSect(n,anc,desc){
           + `<span class="nm">${esc(byId[i].name)}</span>`
           + `<small>${byId[i].year<1950?esc(byId[i].disp):byId[i].year}</small>`
           + GOCHEV + `</button>`).join("")}</div>`
-      : `<p class="cxnone">Nothing on the map yet.</p>`)
+      : `<p class="cxnone">Nothing in the atlas yet.</p>`)
     + `</div>`;
   // Shut. It is the longest thing on a style panel, two columns of up to twenty-five
   // names each, and it is a place to go next rather than something to read on the way
@@ -2773,7 +2773,7 @@ const PAGES_DEF={
       + (activeYears(x)?`<em class="lrct amyr">${esc(activeYears(x))}</em>`:"")
       + `<i class="lrcv lrgov">${OPENGO}</i></a>`; };
     return {title:"Key Artists",
-      lede:`Everyone the map names for ${n.name}, the three or four on the panel first.`,
+      lede:`Everyone the atlas names for ${n.name}, the three or four on the panel first.`,
       // the same control the style panel carries, because this is where the links it
       // governs actually are. Saying "each one opens in Apple Music" in the lede was a
       // fact with no handle on it, and it went stale the moment you changed the service
@@ -2789,7 +2789,7 @@ const PAGES_DEF={
     html:modeListHtml()+pageShareBtn("modes","Collections","Share the collections")}),
   picks:()=>picksPage("pete"),
   roots:()=>({title:"Roots",
-    lede:"Styles with nothing before them here. Everything else on the map descends from these.",
+    lede:"Styles with nothing before them here. Everything else in the atlas descends from these.",
     html:styleRows(firstLevel(),x=>x.year<1950?x.disp:x.year)}),
   top:()=>({title:"Most Influential",
     lede:"The styles that led to the most, counted by what came directly out of them.",
@@ -2797,7 +2797,7 @@ const PAGES_DEF={
     html:topListHtml()+pageShareBtn("top","Most Influential","Share this list")}),
   about:()=>{ const np=playable().length,
       withSrc=DATA.filter(r=>Array.isArray(r[7])&&r[7].length).length;
-    return {title:"About This Map", html:`
+    return {title:"About Music Atlas", html:`
     <div class="about"><div class="abouthd"><img class="appicon" alt="" src="${ICONSRC()}"><p class="stats">${$("stats").textContent} · ${np} with a playlist</p></div>
     <h4 class="subh">What It Is</h4>
     <p>Every style sits at the year it became a named, recorded scene, joined to the styles it grew out of. Time runs left to right; follow a line backwards and you get the ingredients of a sound. It is here to make the inheritance visible, not to settle arguments.</p>
@@ -2806,14 +2806,14 @@ const PAGES_DEF={
     <h4 class="subh">Where It Comes From</h4>
     <p>Compiled by hand from the music-historical record: scene histories, discographies, reference works and criticism, cross-checked where accounts disagree. ${withSrc} entries list the sources they were checked against.</p>
     <h4 class="subh">What a Link Claims</h4>
-    <p>That one style is a direct stylistic parent of another, not merely an influence or a neighbour in time. A year marks when a scene cohered, not its earliest precursor. Lineage is contested; take each link as the consensus reading and the map as an argument you are free to disagree with.</p>
+    <p>That one style is a direct stylistic parent of another, not merely an influence or a neighbour in time. A year marks when a scene cohered, not its earliest precursor. Lineage is contested; take each link as the consensus reading and the atlas as an argument you are free to disagree with.</p>
     <h4 class="subh">The Playlists</h4>
     <p>Each runs in chronological order and opens just outside its own style, on the records that pushed it into being, before arriving at it. If the first tracks sound like something else, that is what it grew out of.</p>
     <h4 class="subh">Go Deeper</h4>
-    <p>The class catalog, how the playlists and covers are made, and the map as data for a language model live in the wiki. <a class="wikilink" href="${esc(new URL("wiki/",SITE).href)}" target="_blank" rel="noopener">Open the wiki ↗</a></p>
+    <p>The class catalog, how the playlists and covers are made, and the atlas as data for a language model live in the wiki. <a class="wikilink" href="${esc(new URL("wiki/",SITE).href)}" target="_blank" rel="noopener">Open the wiki ↗</a></p>
     <p class="note">Icons by <b>Phosphor</b>, MIT licence.</p>
     <button type="button" class="aboutcopy" data-aboutcopy="about"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 11.6a3.2 3.2 0 0 0 4.6 0l2.6-2.6a3.2 3.2 0 0 0-4.6-4.6l-1 1"/><path d="M11.6 8.4a3.2 3.2 0 0 0-4.6 0L4.4 11a3.2 3.2 0 0 0 4.6 4.6l1-1"/></svg><span class="lbl">Copy a link to this</span></button></div>`}; },
-  install:()=>({title:"How to Install It", html:`<div class="about">${openInRow()}<p>Music Atlas is a web page, so there is nothing to download and no app store. Every platform below can pin it to a home screen or dock, where it opens full screen with no browser chrome around it.</p><h4 class="subh">iPhone and iPad</h4><ol class="steps"><li>Open this page in <b>Safari</b>. Chrome and Firefox on iOS cannot do this.</li><li>Tap the <b>Share</b> button, the square with an arrow coming out of it: ${SHAREGLYPH}${shareStep()}</li><li>Scroll down the list and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li></ol><h4 class="subh">Android</h4><ol class="steps"><li>Open this page in <b>Chrome</b>.</li><li>Tap the <b>three dots</b> at the top right.</li><li>Tap <b>Add to Home screen</b>, then <b>Install</b> or <b>Add</b>. Samsung Internet and Firefox have the same item in their own menus.</li></ol><h4 class="subh">Mac</h4><ol class="steps"><li>In <b>Safari</b>, choose <b>File &rsaquo; Add to Dock</b>, then <b>Add</b>. It lands in the Dock and opens in its own window.</li><li>In <b>Chrome</b>, the same thing is under the three dots at <b>Cast, Save and Share &rsaquo; Install page as app</b>.</li></ol><h4 class="subh">Windows</h4><ol class="steps"><li>In <b>Edge</b> or <b>Chrome</b>, look for the <b>install icon</b> at the right-hand end of the address bar, a monitor with an arrow in it, and click it.</li><li>No icon there? Open the <b>three dots</b> menu and choose <b>Apps &rsaquo; Install this site as an app</b> in Edge, or <b>Cast, Save and Share &rsaquo; Install page as app</b> in Chrome.</li><li>Tick <b>Pin to taskbar</b> when it offers, and it behaves like any other app.</li></ol><details class="xfold"><summary class="subh"><span>Linux: Ubuntu and Linux Mint</span>${FOLDTRI}</summary><div class="xfoldb"><p class="note">Both ship <b>Firefox</b> as the default browser, and Firefox on the desktop cannot do this at all: it dropped the feature years ago and has no Install or Add to Home Screen item in any menu. You need a Chromium-based browser for this part. On Ubuntu, <code>sudo snap install chromium</code>; on Mint, <code>sudo apt install chromium</code>. Google Chrome and Edge work the same way.</p><ol class="steps"><li>Open this page in <b>Chromium</b>, <b>Chrome</b> or <b>Edge</b>.</li><li>Look for the <b>install icon</b> at the right-hand end of the address bar, a monitor with an arrow in it, and click it. Otherwise open the <b>three dots</b> menu and choose <b>Cast, Save and Share &rsaquo; Install page as app</b>.</li><li>Click <b>Install</b>. It is added to your applications menu like anything installed from a package.</li><li>To keep it to hand: on <b>Ubuntu</b>, open <b>Show Applications</b>, right-click it and choose <b>Pin to Dash</b>. On <b>Mint</b>, find it in the menu, right-click and choose <b>Add to panel</b> or <b>Add to desktop</b>.</li></ol><p class="note">Ubuntu's Chromium is a snap, which is confined and keeps its own storage. That changes nothing here, but it does mean the installed copy is sandboxed separately from Firefox and will not see anything saved in it.</p></div></details><h4 class="subh">What You Get</h4><p>The whole map is a single file, so once it has loaded it keeps working without a connection. The playlist links still need one, since those open Apple Music or Spotify.</p><button type="button" class="aboutcopy" data-aboutcopy="install"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 11.6a3.2 3.2 0 0 0 4.6 0l2.6-2.6a3.2 3.2 0 0 0-4.6-4.6l-1 1"/><path d="M11.6 8.4a3.2 3.2 0 0 0-4.6 0L4.4 11a3.2 3.2 0 0 0 4.6 4.6l1-1"/></svg><span class="lbl">Copy a link to this</span></button></div>`})
+  install:()=>({title:"How to Install It", html:`<div class="about">${openInRow()}<p>Music Atlas is a web page, so there is nothing to download and no app store. Every platform below can pin it to a home screen or dock, where it opens full screen with no browser chrome around it.</p><h4 class="subh">iPhone and iPad</h4><ol class="steps"><li>Open this page in <b>Safari</b>. Chrome and Firefox on iOS cannot do this.</li><li>Tap the <b>Share</b> button, the square with an arrow coming out of it: ${SHAREGLYPH}${shareStep()}</li><li>Scroll down the list and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li></ol><h4 class="subh">Android</h4><ol class="steps"><li>Open this page in <b>Chrome</b>.</li><li>Tap the <b>three dots</b> at the top right.</li><li>Tap <b>Add to Home screen</b>, then <b>Install</b> or <b>Add</b>. Samsung Internet and Firefox have the same item in their own menus.</li></ol><h4 class="subh">Mac</h4><ol class="steps"><li>In <b>Safari</b>, choose <b>File &rsaquo; Add to Dock</b>, then <b>Add</b>. It lands in the Dock and opens in its own window.</li><li>In <b>Chrome</b>, the same thing is under the three dots at <b>Cast, Save and Share &rsaquo; Install page as app</b>.</li></ol><h4 class="subh">Windows</h4><ol class="steps"><li>In <b>Edge</b> or <b>Chrome</b>, look for the <b>install icon</b> at the right-hand end of the address bar, a monitor with an arrow in it, and click it.</li><li>No icon there? Open the <b>three dots</b> menu and choose <b>Apps &rsaquo; Install this site as an app</b> in Edge, or <b>Cast, Save and Share &rsaquo; Install page as app</b> in Chrome.</li><li>Tick <b>Pin to taskbar</b> when it offers, and it behaves like any other app.</li></ol><details class="xfold"><summary class="subh"><span>Linux: Ubuntu and Linux Mint</span>${FOLDTRI}</summary><div class="xfoldb"><p class="note">Both ship <b>Firefox</b> as the default browser, and Firefox on the desktop cannot do this at all: it dropped the feature years ago and has no Install or Add to Home Screen item in any menu. You need a Chromium-based browser for this part. On Ubuntu, <code>sudo snap install chromium</code>; on Mint, <code>sudo apt install chromium</code>. Google Chrome and Edge work the same way.</p><ol class="steps"><li>Open this page in <b>Chromium</b>, <b>Chrome</b> or <b>Edge</b>.</li><li>Look for the <b>install icon</b> at the right-hand end of the address bar, a monitor with an arrow in it, and click it. Otherwise open the <b>three dots</b> menu and choose <b>Cast, Save and Share &rsaquo; Install page as app</b>.</li><li>Click <b>Install</b>. It is added to your applications menu like anything installed from a package.</li><li>To keep it to hand: on <b>Ubuntu</b>, open <b>Show Applications</b>, right-click it and choose <b>Pin to Dash</b>. On <b>Mint</b>, find it in the menu, right-click and choose <b>Add to panel</b> or <b>Add to desktop</b>.</li></ol><p class="note">Ubuntu's Chromium is a snap, which is confined and keeps its own storage. That changes nothing here, but it does mean the installed copy is sandboxed separately from Firefox and will not see anything saved in it.</p></div></details><h4 class="subh">What You Get</h4><p>Music Atlas is a single file, so once it has loaded it keeps working without a connection. The playlist links still need one, since those open Apple Music or Spotify.</p><button type="button" class="aboutcopy" data-aboutcopy="install"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 11.6a3.2 3.2 0 0 0 4.6 0l2.6-2.6a3.2 3.2 0 0 0-4.6-4.6l-1 1"/><path d="M11.6 8.4a3.2 3.2 0 0 0-4.6 0L4.4 11a3.2 3.2 0 0 0 4.6 4.6l1-1"/></svg><span class="lbl">Copy a link to this</span></button></div>`})
 };
 // the link that puts a page's own URL on the clipboard, which About and How to install
 // already ended with. Any page in FOLDS can be opened straight from that link.
@@ -2922,7 +2922,7 @@ function mediaPage(t){
   const m=MEDIA.find(x=>x[0]===t); if(!m) return null;
   const items=sourceList(r=>r[7]===t);
   if(!items.length) return null;
-  return {title:m[1], lede:m[2]+". "+items.length+" of them, across the whole map.",
+  return {title:m[1], lede:m[2]+". "+items.length+" of them, across the whole atlas.",
     html:`<div class="picklist">${items.map(x=>sourceItem(x)).join("")}</div>`};
 }
 // the section under the browse list: a person's shelf first, then the whole library by
@@ -2964,12 +2964,12 @@ function pageRow(key,label,count,title){
 // answer and not the question. The page behind it is already organised under exactly
 // those two headings, so the row points at them and the page does the explaining.
 function aboutMapSect(){
-  return sect("about","About This Map",
+  return sect("about","About Music Atlas",
     `<div class="listgrp abmore">`
     + goRow("about","What this is and where it\u2019s from",
         "Compiled by hand. What it is, how to read it, and its sources.",
         null,` data-page="about"`,
-        "About this map: what it is for, where it comes from, and what a link claims")
+        "About Music Atlas: what it is for, where it comes from, and what a link claims")
     + `</div>`);
 }
 // The two settings that belong to the whole app rather than to any style: where playlists
@@ -3073,7 +3073,7 @@ function xIndex(){
 // the pages this search can land on, with the words someone would actually type for them
 function pageIndex(){
   const out=MEDIA.filter(([t])=>medCount(t)).map(([t,label,blurb])=>({
-    key:"med:"+t, label, sub:medCount(t)+" across the map",
+    key:"med:"+t, label, sub:medCount(t)+" across the atlas",
     terms:(label+" "+blurb).toLowerCase()}));
   for(const [who,p] of Object.entries(pickers())){
     if(!pickCount(who)) continue;
