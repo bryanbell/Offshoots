@@ -1149,7 +1149,10 @@ function setPbar(t,s){ PBAR={t:t||"",s:s||""}; const a1=$("pbarTitle"), a2=$("pb
       // but a close button. Keyed on its top, the compact one arrives as the big one
       // starts to disappear. The 6px is hysteresis, so a title resting exactly on the
       // line cannot flicker.
-      ttl: big&&nav ? (()=>{ const t=big.getBoundingClientRect().top,
+      // The root's title rests inside the bar's height, so at rest it is not under the bar
+      // whatever the geometry says: nothing is painted there until you scroll.
+      ttl: big&&nav ? (()=>{ if(body.scrollTop<=0) return false;
+        const t=big.getBoundingClientRect().top,
           b=nav.getBoundingClientRect().bottom;
         return cls.contains("barttl") ? t < b+6 : t <= b; })() : cls.contains("barttl")};
   };

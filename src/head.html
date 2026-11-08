@@ -697,6 +697,12 @@ body.open .pcnt{display:none}
    itself at every width rather than only on a phone */
 #panel.barttl .pcard:not(.ovcard) .navrow>#panelBack .bklbl{display:none}
 @media (max-width:899px){ .ovcard .bigttl{margin:14px 0 8px} }
+/* The root's title starts at the top of the card, not under it. The control row above it
+   is empty there (no back; on a desktop no close either) and the title's own 14px margin
+   on top of that row left a band of nothing over the first thing you read. On a desktop it
+   rises into that row; on a phone it sits level with the close button, centred on it. */
+.ppage[data-p="root"] .bigttl{margin-top:-13px}
+@media (max-width:899px){ .ppage[data-p="root"] .bigttl{margin-top:-9px} }
 /* beside the share button there is no room for the destination's name, and the two
    glyphs already say map and back */
 .ovcard .navleft .navback{padding:0 12px;max-width:none}

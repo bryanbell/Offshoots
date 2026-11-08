@@ -294,12 +294,15 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
       size:parseFloat(getComputedStyle(t.querySelector(".mn")||t).fontSize),
       sectSize:sect?parseFloat(getComputedStyle(sect).fontSize):0,
       flush:sect?Math.round(tb.left-sect.getBoundingClientRect().left):99,
-      belowRow:Math.round(tb.top-rb.bottom), inRow:!!row.querySelector(".bigttl"),
+      belowRow:Math.round(tb.top-rb.bottom), fromTop:Math.round(tb.top-card.getBoundingClientRect().top),
+      inRow:!!row.querySelector(".bigttl"),
       controls:[...row.querySelectorAll("button")].filter(b=>!b.hidden).length,
       rowH:Math.round(rb.height)}; });
   say("the root is titled "+(hdr&&hdr.name), !!hdr && hdr.name==="Music Atlas");
-  say("  left-aligned under the row, "+(hdr&&hdr.belowRow)+"px below it",
-    !!hdr && hdr.align==="left" && hdr.belowRow>=0 && hdr.inRow===false);
+  // it starts at the top of the card: the row above is empty on the root, and the band of
+  // nothing it left over the first thing you read is what was asked to go
+  say("  left-aligned at the top of the card, "+(hdr&&hdr.fromTop)+"px down",
+    !!hdr && hdr.align==="left" && hdr.fromTop>=0 && hdr.fromTop<=6 && hdr.inRow===false);
   say("  flush with the section headings ("+(hdr&&hdr.flush)+"px)", !!hdr && Math.abs(hdr.flush)<=1);
   say("  and bigger than them, "+(hdr&&hdr.size)+" against "+(hdr&&hdr.sectSize),
     !!hdr && hdr.size>=28 && hdr.size>hdr.sectSize);
