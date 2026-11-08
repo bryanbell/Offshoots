@@ -220,7 +220,7 @@ const spell=n=>n<=20?WORDS[n]
       tall:t.every(x=>x.getBoundingClientRect().height>=64),
       same:new Set(t.map(x=>Math.round(x.getBoundingClientRect().height))).size};});
   say("listing all "+all.n+" as rows, one per line", all.n===nModes && all.cols===1 && !all.over && all.inside);
-  say("  each with its art as a "+all.art+"px rounded square", all.art>=56 && all.radius!=="0px");
+  say("  each with its art as a "+all.art+"px circle", all.art>=56 && all.radius==="50%");
   say("  its name and what it is for", all.labelled && all.decks);
   say("  and a chevron saying it opens, which the label says too", all.chev && all.opens);
   say("  all "+all.same+" height"+(all.same===1?"":"s")+", none under 64px", all.tall && all.same<=2);
