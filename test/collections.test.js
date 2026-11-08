@@ -50,6 +50,7 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
   const b=await chromium.launch(); await skipWelcome(b);
   for(const [tag,vp] of [["phone  ",{width:390,height:844}],["desktop",{width:1280,height:900}]]){
     const p=await (await b.newContext({viewport:vp})).newPage();
+    const perr=[]; p.on("pageerror",e=>perr.push(e.message));
     await p.goto(URL); await arm(p); await shown(p,"#chart .n"); await settle(p);
     if(await p.evaluate(()=>!document.body.classList.contains("open"))){
       await raise(p);
@@ -151,6 +152,9 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
     say("    and puts what this browser opens most at the top (\""+un2[0]+"\")",
       un2[0]==="Tropicália" && un2.length===v.names.length);
     await p.selectOption('.psortsel','fit'); await settle(p);
+    // changing the order used to rebuild the heading through a function that called
+    // itself, so every change threw while the list still re-sorted
+    say("    and changing the order raises no error", perr.length===0 ? true : perr[0]);
 
     // the control's one promise: it lands you on something from this collection
     const inHere=new Set(dinner[4].map(([id])=>id));
