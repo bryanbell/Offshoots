@@ -350,6 +350,11 @@ aside h3,.pcard h3.sec{font:700 var(--t-head)/var(--t-head-lh) var(--f-body);let
   font:600 var(--t-sub)/1 var(--f-body);color:var(--accent);
   background:color-mix(in srgb,var(--accent) 12%,transparent);transition:background .15s}
 .pklis svg{width:13px;height:13px;flex:none}
+/* icons only: the word is kept for setPlay and screen readers, the aria-label carries it */
+.pklis{gap:3px;padding:0 11px 0 12px}
+.pklis .plsvc{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.pklis svg.hp{width:17px;height:17px}
+.pklis svg.ur{width:11px;height:11px;align-self:flex-start;margin-top:10px}
 .pklis:hover{background:color-mix(in srgb,var(--accent) 20%,transparent)}
 .pklis:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
 .pklis[hidden]{display:none}

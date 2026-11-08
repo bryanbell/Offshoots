@@ -80,6 +80,10 @@ function playLabel(n){
   if(t&&c) return "";
   return t ? "Start by listening to" : "Start with this playlist";
 }
+// The collection rows' Listen pill is two glyphs, no word: headphones for the act and an
+// up-right arrow for leaving the app. The word stays as its accessible name and title.
+const HEADPH="<svg class=\"hp\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M201.89,54.66A103.43,103.43,0,0,0,128.79,24H128A104,104,0,0,0,24,128v56a24,24,0,0,0,24,24H64a24,24,0,0,0,24-24V144a24,24,0,0,0-24-24H40.36A88.12,88.12,0,0,1,190.54,65.93,87.39,87.39,0,0,1,215.65,120H192a24,24,0,0,0-24,24v40a24,24,0,0,0,24,24h16a24,24,0,0,0,24-24V128A103.41,103.41,0,0,0,201.89,54.66ZM64,136a8,8,0,0,1,8,8v40a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V136Zm152,48a8,8,0,0,1-8,8H192a8,8,0,0,1-8-8V144a8,8,0,0,1,8-8h24Z\"/></svg>";
+const UPRIGHT="<svg class=\"ur\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z\"/></svg>";
 const OPENGO="<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M224,104a8,8,0,0,1-16,0V59.32l-66.33,66.34a8,8,0,0,1-11.32-11.32L196.68,48H152a8,8,0,0,1,0-16h64a8,8,0,0,1,8,8Zm-40,24a8,8,0,0,0-8,8v72H48V80h72a8,8,0,0,0,0-16H48A16,16,0,0,0,32,80V208a16,16,0,0,0,16,16H176a16,16,0,0,0,16-16V136A8,8,0,0,0,184,128Z\"/></svg>";
 // one row: art left, labels middle, play button right. paintPlay() repoints it at the
 // selected service, or marks it unavailable while keeping the row in place.
@@ -2105,7 +2109,7 @@ function modePicks(m){
     const listen = (ap||sp||qb)
       ? `<a class="pklis pl" target="_blank" rel="noopener" data-lbl="Listen" data-short`
         + ` data-ap="${ap?esc("https://music.apple.com"+ap):""}" data-spid="${esc(sp)}" data-qb="${esc(qb)}"`
-        + ` data-style="${esc(n.name)}"><span class="plsvc"></span>${OPENGO}</a>`
+        + ` data-style="${esc(n.name)}">${HEADPH}<span class="plsvc"></span>${UPRIGHT}</a>`
       : "";
     return `<div class="pk">`
       + `<button type="button" class="pick c withart" style="--c:${FAM[n.fam].c}" data-go="${esc(id)}"`
