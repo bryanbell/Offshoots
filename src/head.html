@@ -255,6 +255,15 @@ svg{display:block}
 #chart.sel .e.on.d3{opacity:.3;stroke-width:1}
 #chart.sel .n.on.d2{opacity:.8}
 #chart.sel .n.on.d3{opacity:.55}
+/* hover preview from a collection row, over whatever the map was showing */
+#chart.peek .n,#chart.peek.sel .n.on{opacity:.18}
+#chart.peek .n.pvn{opacity:1}
+#chart.peek .n.pv{opacity:1}
+#chart.peek .n.pv text:not(.halo){font-weight:700;fill:var(--accent)}
+#chart.peek .n.pv text.halo{font-weight:700}
+#chart.peek .n.pv circle{stroke:var(--accent);stroke-width:2.5}
+#chart.peek .e,#chart.peek.sel .e.on{opacity:0}
+#chart.peek .e.pve{opacity:1;stroke-width:2}
 /* zoom */
 .zoom{position:absolute;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:12;display:flex;flex-direction:column;border-radius:999px;overflow:hidden}
 .zoom button{width:44px;height:44px;border:0;background:transparent;color:var(--fg);font:400 22px/1 var(--f-body);cursor:pointer;touch-action:manipulation}

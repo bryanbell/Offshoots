@@ -2117,6 +2117,41 @@ function modePicks(m){
       + listen + `</div>`;
   }).join("");
 }
+// Hovering a collection row previews the style on the map: it lights the style and the
+// lines straight to and from it, and the map slides to it. A preview only. It is its own
+// layer of classes (peek, pv, pvn, pve), so state.sel, the trail and the address are
+// untouched, and moving off the list puts the map's highlighting back as it was. Desktop
+// with a mouse only: on a phone the sheet covers the map and there is no hover.
+const PEEKOK=()=>!OVERLAY && matchMedia("(hover:hover) and (pointer:fine)").matches;
+let PEEKID=null, PEEKT=0;
+function peekStyle(id){
+  const svg=$("chart"); if(!svg) return;
+  svg.querySelectorAll(".pv,.pvn,.pve").forEach(g=>g.classList.remove("pv","pvn","pve"));
+  PEEKID=id;
+  if(!id || !byId[id]){ svg.classList.remove("peek"); return; }
+  const n=byId[id], near=new Set([...n.parents,...n.children].map(x=>x.id||x));
+  svg.classList.add("peek");
+  svg.querySelectorAll(".n").forEach(g=>{
+    const k=g.dataset.id;
+    if(k===id){ g.classList.add("pv"); g.parentNode.appendChild(g); }
+    else if(near.has(k)) g.classList.add("pvn");
+  });
+  svg.querySelectorAll(".e").forEach(e=>{ if(e.dataset.p===id||e.dataset.c===id) e.classList.add("pve"); });
+  centerOn(n,true);
+}
+// a short wait, so sweeping the pointer down the list doesn't send the map lurching
+// through every row it crosses on the way
+document.addEventListener("pointerover",e=>{
+  if(e.pointerType!=="mouse" || !PEEKOK()) return;
+  const b=e.target.closest && e.target.closest(".picks .pk .pick[data-go]");
+  const id=b ? b.dataset.go : null;
+  if(id===PEEKID) { clearTimeout(PEEKT); return; }
+  clearTimeout(PEEKT);
+  PEEKT=setTimeout(()=>peekStyle(id), id?140:60);
+});
+document.documentElement.addEventListener("mouseleave",()=>{ clearTimeout(PEEKT); if(PEEKID) peekStyle(null); });
+// opening a style, or any repaint of the panel, ends the preview
+document.addEventListener("click",e=>{ if(PEEKID && e.target.closest && e.target.closest("[data-go]")){ clearTimeout(PEEKT); peekStyle(null); } },true);
 // twelve chips fill a phone screen, so the picks can open out of sight below them
 // Bring the chosen mode's list to the top of the sheet. #panel is overflow:hidden and
 // never scrolled, which is why the earlier version of this moved nothing at all: the
