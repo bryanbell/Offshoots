@@ -55,7 +55,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   // on the grounds that the title covered it, which worked while there was one list.
   const groups=await p.$$eval("#panelBody .sect .secttl",e=>e.map(x=>x.textContent));
   say("four section headings: "+groups.join(" / "),
-    groups.join("/")==="Collections/Explore the Atlas/Go Deeper/About This Map");
+    groups.join("/")==="Collections/Explore the Atlas/Go Deeper/About Music Atlas");
   say("  not Find: these are for when you do not know what you want", !/find/i.test(groups.join(" ")));
   say("  and Collections is called that here too, the way its own page is",
     groups[0]==="Collections");
@@ -88,7 +88,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
       clipped:[...d.querySelectorAll(".lrlbl,.lrsub")].some(x=>x.scrollWidth>x.clientWidth+1),
       more:(d.querySelector("[data-page=\"about\"]")||{}).dataset||{}}; });
   say("About the map is a section, not a fold", !!fold && fold.isFold===false
-    && fold.label==="About This Map");
+    && fold.label==="About Music Atlas");
   // The job of this section is to raise two questions, not answer them: what am I looking
   // at, and where did this come from. It briefly answered them in place, carrying the
   // whole methodology paragraph as the row's own label, which came to eleven lines and
@@ -448,7 +448,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
       scroll:b.scrollTop, stats:(pg.querySelector(".stats")||{}).textContent||""}; });
   // the page is "About this map", the same words the section that opens it uses: the old
   // title repeated the app's own tagline back at you and wrapped to two lines doing it
-  say("tapping it pushes the page", ab.up && ab.title==="About This Map");
+  say("tapping it pushes the page", ab.up && ab.title==="About Music Atlas");
   // the claims the section used to make in place are the page's job now: what the map is,
   // how styles connect, what a playlist is, and under its own heading, where it came from.
   // Not fenced to one continent either: Reggae, Dub, Ska, Jungle, Grime, Krautrock, Bossa
