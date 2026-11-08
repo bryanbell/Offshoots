@@ -91,7 +91,7 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
   note("the button", JSON.stringify({label:v.label, key:v.key, name:v.name}));
   say("a collection carries one share button", v.n===1);
   say("  naming the collection, not the app (\""+v.name+"\")",
-    v.name==="Test the speakers" && v.key==="mode:system" && v.label==="Share this collection");
+    v.name==="Speaker Test" && v.key==="mode:system" && v.label==="Share this collection");
   say("  at the foot, under the list", v.underList);
   say("  clearing the tap floor ("+v.tap+"px)", v.tap>=44);
   // what it shares is the thing you are standing in

@@ -242,7 +242,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
       inFlow:getComputedStyle(s).position==="static",
       menus:document.querySelectorAll("button.navttl, .navttl[aria-haspopup]").length};});
   say("both directions are on the panel (\""+seg.title+"\": "+seg.heads.join(" | ")+")",
-    !!seg && /^Before this style/.test(seg.heads[0]) && /^After this style/.test(seg.heads[1]));
+    !!seg && /^Before This Style/.test(seg.heads[0]) && /^After This Style/.test(seg.heads[1]));
   say("  listing "+seg.counts.join(" and ")+" styles by name",
     seg.counts[0]+seg.counts[1] > 0);
   say("  in the flow, with no menu left on a title", seg.inFlow && seg.menus===0);

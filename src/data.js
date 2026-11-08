@@ -2554,7 +2554,7 @@ const MODES = [
     ["abstract","Sample loops doing the work of a drummer"],
     ["newgrass","Acoustic runs at speed, wordless for whole stretches"]
    ],3],
-  ["restless","Can't settle","When nothing will go in and nothing will sit still.",
+  ["restless","Can't Settle","When nothing will go in and nothing will sit still.",
    "The usual advice is something quieter. It often works the other way round: dense and relentless gives the restless part something to hold, and heavy repetition keeps novelty low so nothing new can hijack you. Studies adding steady noise find it lifts people who are easily distracted and does nothing for people who are not.",
    [
     ["blackmetal","Tremolo and blast beats as one unbroken weather front"],
@@ -2648,7 +2648,7 @@ const MODES = [
     ["raprock","Dumb, loud and timed to the lift"],
     ["bloghouse","Compressed to the ceiling, which is the point here"]
    ],5],
-  ["miles","Run or ride","Going the distance at a pace you can hold.",
+  ["miles","Run or Ride","Going the distance at a pace you can hold.",
    "An hour at one effort, not ten sets. Cadence is the thing: runners land near 160–180 steps a minute, so 130–140 BPM meets every other footfall and 170ish meets each one. Long forms, few drops and little dynamic range, so nothing yanks you off your pace or asks to be listened to while you are also breathing.",
    [
     ["melodeath","Twin leads that keep the legs turning over"],
@@ -2692,7 +2692,7 @@ const MODES = [
     ["threestep","Skipping garage drums that fall between your steps"],
     ["stompclap","Stomps and claps setting a stride for you"]
    ],4],
-  ["winddown","Wind down","For the hour between finishing and sleeping.",
+  ["winddown","Wind Down","For the hour between finishing and sleeping.",
    "Slow tempos, soft attacks and space between the notes. Getting under your own resting pulse is most of the trick.",
    [
     ["slowcore","Quiet, unhurried, barely there"],
@@ -2759,7 +2759,7 @@ const MODES = [
     ["westcoast_jazz","Airy counterpoint played without ever raising the volume"],
     ["smoothjazz","Soft, predictable and never changing dynamic level"]
    ],1],
-  ["party","Dance floor","Keeping a room moving once it already is.",
+  ["party","Dance Floor","Keeping a room moving once it already is.",
    "A floor beat people can find without counting, choruses that arrive early, and enough familiarity that nobody has to work at it.",
    [
     ["disco","The style that invented the modern dance floor"],
@@ -2808,7 +2808,7 @@ const MODES = [
     ["crunknb","A sung hook over a beat that shouts"],
     ["snap","Space left in the beat for the room"]
    ],5],
-  ["houseparty","House party","Shouting along with a drink in your hand.",
+  ["houseparty","House Party","Shouting along with a drink in your hand.",
    "Party is a dance floor and a DJ. This is the other kind: a living room with the furniture pushed back, where recognition beats taste and the measure of a song is whether thirty people can yell the words at it. Ordered oldest to newest, so the back half is what currently gets played, and it carries two styles built around a drop for the point in the night when the room wants one.",
    [
     ["frat","The ancestor, and it still works"],
@@ -2859,7 +2859,7 @@ const MODES = [
     ["cowpunk","Country at punk speed, which clears furniture"],
     ["snap","Dance instructions, which solves the standing-around problem"]
    ],5],
-  ["road","Road trip","Hours of open highway with the next town far off.",
+  ["road","Road Trip","Hours of open highway with the next town far off.",
    "The long drive, not the daily one: nothing here has to survive stopping. A mid-tempo groove that keeps going without needing you to follow it, and a chorus big enough to beat a windshield at seventy.",
    [
     ["krautrock","Motorik: a beat built out of the highway itself"],
@@ -2999,7 +2999,7 @@ const MODES = [
     ["alt_hh","Looser sampling that never depends on getting anywhere"],
     ["underground","Dusty loops and dense rhyming, built for headphones"]
    ],2],
-  ["nightdrive","Night drive","The city after midnight, from behind the wheel.",
+  ["nightdrive","Night Drive","The city after midnight, from behind the wheel.",
    "Not the highway, which is Road trip, and not the daily drive, which is Commuting. Empty avenues, lights changing for nobody, and the bass turned up because there is no one to bother. Mid-tempo and wide, with the melancholy kept in reserve: anything that belongs to daylight is out.",
    [
     ["quiet_storm","The station you leave on after midnight"],
@@ -3182,7 +3182,7 @@ const MODES = [
     ["artpop","Clever enough to notice, poised enough to ignore"],
     ["worldbeat","Bright, percussive and unbothered by being talked over"]
    ],2],
-  ["coffee","Coffee shop","Working near strangers, half listening to the room.",
+  ["coffee","Coffee Shop","Working near strangers, half listening to the room.",
    "Playing to people who did not choose it, at a volume nobody asked about. It has to work for the person reading, the person on a laptop and the person in the queue, so nothing that demands attention and nothing anyone could object to. Agreeable, but not wallpaper, since the staff hear it all day.",
    [
     ["indiefolk","Acoustic and unobjectionable, and it still has a voice"],
@@ -3278,7 +3278,7 @@ const MODES = [
     ["hyperpop","Maximal and pitched up, somehow easy to tune out"],
     ["dariacore","Chopped fragments colliding at the speed of play"]
    ],3],
-  ["chores","Getting it done","Chores, admin, and the things you have been avoiding.",
+  ["chores","Getting It Done","Chores, admin, and the things you have been avoiding.",
    "Nothing here has to be followed. It wants to be familiar, mid-tempo and forgiving of being half-ignored, so losing a minute to the washing machine costs nothing. A workout locks to a cadence and a party needs the room; this needs neither.",
    [
     ["njs","Swing beat and a chorus you already know"],
@@ -3329,7 +3329,7 @@ const MODES = [
     ["countryrap","Beats that push while the banjo keeps it light"],
     ["worldbeat","Percussion that keeps going when you leave the room"]
    ],3],
-  ["garage","Shop radio","Hands busy, tools running, radio on the shelf.",
+  ["garage","Shop Radio","Hands busy, tools running, radio on the shelf.",
    "Shop radio: whatever has been coming out of the paint-spattered boombox on the shelf since the place opened. Riffs and twang that hold up over a compressor, nothing delicate, nothing that needs attention, and loud enough to sing to with your head under a hood. Classic rock is the spine, as it is on every trade's playlist; around it the country the landscapers and carpenters play, the grunge and nu metal the under-fifties grew up on, the blues and soul the rock stations were built from, and the conjunto and corridos of every body shop in Texas.",
    [
     ["hardrock","The shop radio's default setting for fifty years"],
@@ -3375,7 +3375,7 @@ const MODES = [
     ["southern_hh","Heavy low end for a bay with a good subwoofer"],
     ["raprock","Riffs and rhymes, the shop class crossover"]
    ],4],
-  ["lift","Lift the mood","For deliberately changing how you feel.",
+  ["lift","Lift the Mood","For deliberately changing how you feel.",
    "Major keys, chords that change often, and more than one voice singing at once. Steering mood is the most common reason people reach for music at all.",
    [
     ["deathcore","The breakdown as the cue to move the weight"],
@@ -3426,7 +3426,7 @@ const MODES = [
     ["christianhh","Rap built to end somewhere better than it started"],
     ["rnb","A dance band behind a voice that is sure"]
    ],3],
-  ["hype","Walk in tall","The ten minutes before you walk in.",
+  ["hype","Walk In Tall","The ten minutes before you walk in.",
    "Swagger rather than speed. Front-loaded, brash and certain of itself, for the three minutes before the thing rather than during it. Workout is led by tempo and Burn it off is anger; this is neither.",
    [
     ["melmetalcore","The big chorus, then the drop everyone waits for"],
@@ -3475,7 +3475,7 @@ const MODES = [
     ["garage","Amateurs certain they are the best band alive"],
     ["crunknb","Smooth on top, aggressive underneath, certain throughout"]
    ],4],
-  ["burn","Burn it off","Anger with nowhere else to go.",
+  ["burn","Burn It Off","Anger with nowhere else to go.",
    "Anger wants volume, distortion and a tempo above your pulse. Playing it through tends to work better than reaching for something calming first.",
    [
     ["blackmetal","Cold, fast and indifferent to you"],
@@ -3562,7 +3562,7 @@ const MODES = [
     ["citypop","Polished nightlife music for staying in"],
     ["psych_soul","Echo and wah at the end of a long evening"]
    ],1],
-  ["sit","Sit with it","For bad news, and for not wanting to be cheered up.",
+  ["sit","Sit With It","For bad news, and for not wanting to be cheered up.",
    "Sad music is reliably one of the most pleasurable kinds there is: slow, minor, a single voice close to the microphone, the feeling rehearsed at a safe distance.",
    [
     ["delta","One voice, one guitar, nothing hidden"],
@@ -3606,7 +3606,7 @@ const MODES = [
     ["antifolk","Unpolished on purpose, which is easier to believe"],
     ["neopsych","Melodies bent slightly out of true"]
    ],1],
-  ["onmind","On your mind","Someone you keep thinking about, present or gone.",
+  ["onmind","On Your Mind","Someone you keep thinking about, present or gone.",
    "Not being with someone: thinking about them. High major keys, a voice close and a little nervous, and words in the second person about something that has not been said yet. A great deal of pop exists to sell this one feeling.",
    [
     ["synthpop","Longing routed through a synthesiser"],
@@ -3651,7 +3651,7 @@ const MODES = [
     ["postpunk","Bass where the solo was, and nobody relaxing"],
     ["protorap","Spoken plainly, which is how it actually sounds"]
    ],2],
-  ["together","With someone","One other person, close enough not to need talking.",
+  ["together","With Someone","One other person, close enough not to need talking.",
    "The third thing the research keeps finding, after mood and self-reflection: music as a way of being with someone. Slow enough to talk over, or shared enough that everyone already knows it.",
    [
     ["doowop","Four people on a corner, no instruments required"],
@@ -3698,7 +3698,7 @@ const MODES = [
     ["frat","Three chords, a shouted chorus, a saxophone"],
     ["rnb","Where most of this started, and still works"]
    ],2],
-  ["showkid","Show the kids","Music that shapes a listener, met while young.",
+  ["showkid","Show the Kids","Music that shapes a listener, met while young.",
    "Not children's music, which is a genre a kid grows out of. The rule here is that the first question a kid asks, how is that sound being made, has an answer they can see: a washboard worn as a shirt, a games console with three channels, two turntables, hands moving faster than looks possible. That lands at four, where it is a body response, and at fifteen, where what gets through is that a person did this on purpose. Chosen so none of it needs skipping with someone small in the room.",
    [
     ["chiptune","A games console with three voices, and that is the whole band"],
@@ -3742,7 +3742,7 @@ const MODES = [
     ["powermetal","Galloping riffs and dragons, played completely straight"],
     ["progmetal","Odd meters counted out with visible effort"]
    ],3],
-  ["family","Family's over","Three generations in one room and one stereo.",
+  ["family","Family's Over","Three generations in one room and one stereo.",
    "Weighted toward whoever is oldest, since they are the one least likely to meet the others halfway, and chosen so nobody younger has to sit through it politely. Songs with a shape people can sing along to even when they do not know the record.",
    [
     ["tradpop","Sinatra, Crosby, and a room that goes quiet"],
@@ -3791,7 +3791,7 @@ const MODES = [
     ["british_blues","The records the oldest person in the room bought"],
     ["rnb","Postwar records that nobody present objects to"]
    ],3],
-  ["cosmic","Third eye","The long way out, with the lights off.",
+  ["cosmic","Third Eye","The long way out, with the lights off.",
    "Music for the part of the mind that wants out: the long form, the drone, the repetition that stops being repetition, the echo that becomes a room. Its lineage runs from the evening raga through Coltrane and Sun Ra, the acid scenes of 1966, the Krautrock and Berlin school that turned a synthesizer into a spaceship, Eno's ambient and the new age that followed, dub's echo chamber, the rave and its comedown rooms, out to Flying Lotus and the modern psych bands. Nothing here is in a hurry, and all of it is for lying on the floor with the lights off.",
    [
     ["raga","Where the drone and the long form came from; an evening raga is the original trip"],
@@ -3837,7 +3837,7 @@ const MODES = [
     ["hauntology","Half-remembered radio from a world gone to bed"],
     ["cloudrap","A beat left to float"]
    ],1],
-  ["deep","Listen properly","Sitting down with the record and nothing else running.",
+  ["deep","Listen Properly","Sitting down with the record and nothing else running.",
    "Wide dynamic range and long forms that only pay off if you give them the whole stretch. This is the one that rewards headphones and an hour.",
    [
     ["freejazz","No net and no map"],
@@ -3937,7 +3937,7 @@ const MODES = [
     ["ragtime","Syncopation with a snap, short and bright"],
     ["jazz_early","Horns weaving cheerfully with nowhere to be"]
    ],2],
-  ["system","Test the speakers","What a system can do, when you want to hear it.",
+  ["system","Speaker Test","The one song you put on to find out what a stereo has got.",
    "Not Listen properly, which is about the music. This is about the equipment, and the five ways it gives itself away: how low it reaches and whether it stops cleanly, whether a voice arrives in the room or behind glass, whether a cymbal rings out or sizzles, how far it falls between the quietest moment and the loudest, and whether you can point at where each player is standing. Roughly in that order.",
    [
     ["dub","Bass with echo behind it, which finds the room's corners"],
@@ -3983,7 +3983,7 @@ const MODES = [
     ["salsa","Percussion spread across the field, all of it distinct"],
     ["raga","Tanpura under a single line, which tests the floor"]
    ],4],
-  ["phone","Phone speaker","For the speaker in your hand, which has no bass at all.",
+  ["phone","Phone Speaker","For the speaker in your hand, which has no bass at all.",
    "Midrange, and the attack rather than the weight. A phone's driver rolls off hard below 500 Hz and gives up entirely under 200, then lifts what is left between 3 and 9 kHz, so voices, guitars, horns and snares survive and anything that leans on a sub does not. Much of this was made for exactly that: AM radio, dashboards, jukeboxes and transistors. Thriller and Saturday Night Fever were both mixed on a single five-inch cube for the same reason, which is that the midrange is what most people actually hear.",
    [
     ["doowop","Four voices and a bass singer, with nothing underneath them to lose"],
@@ -4042,9 +4042,8 @@ const HEADTRACK = {
     title: "Money for Nothing",
     artist: "Dire Straits",
     year: 1985,
-    why: "One of the first records most people heard off a CD, and still the one a shop "
-       + "puts on to sell a stereo. The drums, the guitar tone and the width of the intro "
-       + "are each a test on their own.",
+    why: "The quick, sure-fire test. Thirty seconds of that intro and you know what the "
+       + "speakers, the sub and the room can do.",
     style: "rocknroll",
     ap: "https://music.apple.com/us/album/money-for-nothing/89345591?i=89343444",
     sp: "https://open.spotify.com/track/4yqtwO7MQIIXqoiRBPHAgR"

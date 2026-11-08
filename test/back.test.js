@@ -336,7 +336,7 @@ const openCx=async q=>{ await q.$eval(".sect-connections",e=>{ if(!e.open) e.ope
   // home cleared. It used to read "Back to the map", which said the trail was empty but
   // also that the mood had been forgotten on the way into one of its styles.
   // the collection's name, which is what its circle and its page both say now
-  say("not the walk from before", (await label(p))==="Back to Wind down");
+  say("not the walk from before", (await label(p))==="Back to Wind Down");
   say("no page errors", p._errs.length===0 ? true : p._errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
 
   // the three pieces of map chrome sit on one line, and the search surfaces are light
@@ -468,7 +468,7 @@ const openCx=async q=>{ await q.$eval(".sect-connections",e=>{ if(!e.open) e.ope
       await q.$eval(`.sect-connections .cxgo[data-go="${nx}"]`,e=>e.scrollIntoView({block:"center"})); await settle(q);
       await q.click(`.sect-connections .cxgo[data-go="${nx}"]`); await at(q,"#"+nx); await open(q); hops.push(nx);
     }
-    note("walked", "Wind down -> "+[first,...hops].join(" -> "));
+    note("walked", "Wind Down -> "+[first,...hops].join(" -> "));
     const h=()=>q.evaluate(()=>location.hash);
     await q.goBack(); await at(q,"#"+hops[0]);
     say("browser back steps one style back ("+(await h())+")", (await h())==="#"+hops[0]);

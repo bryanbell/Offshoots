@@ -177,8 +177,8 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   say("  the two that are left go to the map, and say what for: "
     + noRoots.rows.map(r=>r.lbl+" ("+r.sub+")").join(", "),
     noRoots.rows.length===2
-    && noRoots.rows[0].lbl==="Most influential" && noRoots.rows[0].sub==="Explore musical crossroads"
-    && noRoots.rows[1].lbl==="Surprise me" && noRoots.rows[1].sub==="Jump somewhere unexpected");
+    && noRoots.rows[0].lbl==="Most Influential" && noRoots.rows[0].sub==="Explore musical crossroads"
+    && noRoots.rows[1].lbl==="Surprise Me" && noRoots.rows[1].sub==="Jump somewhere unexpected");
   // the number on the row is the number of rows on the page it opens, not a constant
   // written beside it that goes on saying 24 after the selection changes
   // counted here the way the app counts it, rather than read back off the app, so the
@@ -365,7 +365,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   // they were reference lists, and the map is the reference. What is left is the two
   // rows that take you somewhere the map cannot take you by being looked at.
   say("one list: "+(grp&&grp.labels.join(" / ")),
-    !!grp && grp.labels.join("/")==="Most influential/Surprise me");
+    !!grp && grp.labels.join("/")==="Most Influential/Surprise Me");
   say("  with a second line on each ("+(grp&&grp.subs.join(", "))+")",
     !!grp && grp.subs.every(c=>c.length>0));
   say("  with an icon on each, the same as the library rows below", !!grp && grp.icons===true);

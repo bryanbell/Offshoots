@@ -273,11 +273,11 @@ const spell=n=>n<=20?WORDS[n]
   { const q=await seeded({road:5,party:2});
     const after=await q.$$eval(".mcirc .mclbl",e=>e.map(x=>x.textContent));
     say("a tally puts the most-opened first ("+after.slice(0,2).join(", ")+")",
-      after[0]==="Road trip" && after[1]==="Dance floor");
+      after[0]==="Road Trip" && after[1]==="Dance Floor");
     say("  without losing any of the "+after.length,
       after.length===nModes && new Set(after).size===nModes);
     say("  and the rest keep their order",
-      after.slice(2).join("/")===before.filter(x=>x!=="Road trip"&&x!=="Dance floor").join("/"));
+      after.slice(2).join("/")===before.filter(x=>x!=="Road Trip"&&x!=="Dance Floor").join("/"));
     // the list behind the heading is the stable reference, so it must not reorder
     await q.click(".sect-modes .secthead"); await onPage(q,"modes");
     const page=await q.$$eval(".ppage:not([hidden]) .modelist .mrlbl",e=>e.map(x=>x.textContent));
@@ -537,7 +537,7 @@ const spell=n=>n<=20?WORDS[n]
       return {on:(u.querySelector(".sortx")||{}).textContent,
         first:(u.querySelector(".moderows .mrlbl")||{}).textContent};});
     say("a remembered sort is honoured next time the page opens",
-      r.on==="A–Z" && r.first==="Burn it off");
+      r.on==="A–Z" && r.first==="Burn It Off");
     await s2.close(); }
 
   // a stored value that is not one of the four must not strand the page on an empty list

@@ -1616,8 +1616,8 @@ function linksSect(n,anc,desc){
   // through. The count beside the heading says how much is behind it.
   const n2=from.length+led.length;
   return sect("connections","Explore the Connections",
-    `<div class="cxwrap">${col("cxfrom","Before this style","from",from)}`
-    + `${col("cxled","After this style","led",led)}</div>${tally}`,
+    `<div class="cxwrap">${col("cxfrom","Before This Style","from",from)}`
+    + `${col("cxled","After This Style","led",led)}</div>${tally}`,
     `<span class="sectaside">${n2} ${n2===1?"style":"styles"}</span>`,
     "", "", false, "shut");
 }
@@ -2222,9 +2222,9 @@ function onMapSect(){
   const top=topIds();
   return sect("onmap","Explore the Atlas",
     `<div class="listgrp sep">`
-    + goRow("top","Most influential","Explore musical crossroads",top.length,
+    + goRow("top","Most Influential","Explore musical crossroads",top.length,
         ` data-page="top"`,`The ${top.length} styles that led to the most`)
-    + goRow("random","Surprise me","Jump somewhere unexpected",null,
+    + goRow("random","Surprise Me","Jump somewhere unexpected",null,
         ` data-random`,"Open any style, chosen at random")
     + `</div>`,
     // the welcome card's line, word for word, paired with the one over Collections
@@ -2435,8 +2435,8 @@ function modeSections(how){
   if(how==="used"){
     const use=modeUse(), hot=list.filter(m=>(+use[m[0]]||0)>0), cold=list.filter(m=>!((+use[m[0]]||0)>0));
     const out=[];
-    if(hot.length) out.push({key:"hot",title:"Opened here",sub:"What this browser comes back to",rows:hot});
-    if(cold.length) out.push({key:"cold",title:hot.length?"Not opened yet":"Everything",sub:hot.length?"":"Nothing opened here yet",rows:cold});
+    if(hot.length) out.push({key:"hot",title:"Opened Here",sub:"What this browser comes back to",rows:hot});
+    if(cold.length) out.push({key:"cold",title:hot.length?"Not Opened Yet":"Everything",sub:hot.length?"":"Nothing opened here yet",rows:cold});
     return out; }
   const out=[]; list.forEach(m=>{ const k=m[5]||3;
     const g=out[out.length-1]; if(g && g.key===k) g.rows.push(m);
@@ -2528,7 +2528,7 @@ function modeTop(m){
   // button in accent fill first, which made it the loudest thing on the page and read as
   // the thing to do rather than the shortcut past the list.
   return `<div class="listgrp modetop">`
-    + goRow("random","Surprise me",`One of these ${n}, at random`,null,
+    + goRow("random","Surprise Me",`One of these ${n}, at random`,null,
         ` data-pickany="${esc(m[0])}"`,
         `Open one of these ${n} styles, chosen at random`)
     + `</div>`
@@ -2559,7 +2559,7 @@ function headTrack(k){
     + (h.why?`<p class="trkwhy">${esc(h.why)}</p>`:"")
     + (n?`<button type="button" class="listrow trkgo" data-go="${esc(h.style)}"`
         + ` title="Show ${esc(n.name)} on the map">`
-        + `<span class="lrlbl">Where it sits on the atlas</span>`
+        + `<span class="lrlbl">Where It Sits on the Atlas</span>`
         + `<em class="lrct">${esc(n.name)}</em>${GOCHEV}</button>`:"")
     + `</div>`;
 }

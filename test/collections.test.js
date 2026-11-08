@@ -95,7 +95,7 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
     note(tag, v.names.length+" picks, row \""+v.label+" / "+v.sub+"\"");
     say(tag+": the whole collection is on the page", v.names.length===dinner[4].length);
     say("  with a control that picks one for you (\""+v.label+"\")",
-      v.label==="Surprise me");
+      v.label==="Surprise Me");
     // the same row as Surprise me on the Explore panel: icon, label, second line, chevron,
     // in a card. It said the same thing as an accent-filled button, and shouted it.
     say("    drawn as a go row in a card, saying what it picks from (\""+v.sub+"\")",

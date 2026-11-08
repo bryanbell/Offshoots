@@ -74,7 +74,7 @@ const look=p=>p.evaluate(()=>{
       v.heads.every(h=>h.sameInk));
     say("    and left out of the reading, the words being the label",
       v.heads.every(h=>h.hidden)
-      && v.heads[0].text==="Before this style" && v.heads[1].text==="After this style");
+      && v.heads[0].text==="Before This Style" && v.heads[1].text==="After This Style");
     // the mark is a claim that the row goes somewhere; it has to be true
     const went=await p.evaluate(async()=>{
       const was=location.hash; document.querySelector(".cxgo").click();
