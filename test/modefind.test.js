@@ -62,7 +62,10 @@ const ready=async q=>{ await arm(q); await until(q,()=>!!document.querySelector(
   const firsts=[["sad","Sit With It"],["angry","Burn It Off"],["relaxed","Wind Down"],
     ["nostalgic","Back Then"],["heartbreak","On Your Mind"],["first date","With Someone"],
     ["i want to feel happy","Lift the Mood"],["something to study to","Focus"],["grumpy","Burn It Off"],
-    ["bummer","Sit With It"],["exhausted","Wind Down"],["smitten","On Your Mind"]];
+    ["bummer","Sit With It"],["exhausted","Wind Down"],["smitten","On Your Mind"],
+    ["drunk","Nightcap"],["tipsy","Nightcap"],["garage","Shop Radio"],["uplifting","Lift the Mood"],
+    // ties go to the exact word, and to the collection that lists the word first
+    ["lifting","Workout"],["trippy","Third Eye"],["walking","Wandering"],["concentrate","Focus"]];
   const miss=[];
   for(const [q,want] of firsts){ const s=await type(q); if(s.hits[0]!==want) miss.push(q+" gave "+(s.hits[0]||"nothing")); }
   say("feelings and moments find their collection first ("+firsts.length+" phrases)", miss.length?miss.join("; "):true);

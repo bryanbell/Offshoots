@@ -2516,8 +2516,14 @@ function modeFind(text){
   const qs=mwords(text).filter(q=>!MSTOP.has(q));
   if(!qs.length) return null;
   const X=mfIndex();
+  // An exact word beats a near one ("lifting" is Workout's word, not Lift the Mood's
+  // name with an ending on it), and among keywords the one listed earlier is the one the
+  // collection is built around ("concentrate" opens Focus's list and is sixth in Can't
+  // Zone In's). Both are small, so they only ever break ties.
   const one=(x,q,typo)=>{
-    const best=(ws,wt,min)=> q.length<min ? 0 : wt*Math.max(0,...ws.map(w=>mfit(w,q,typo)));
+    const best=(ws,wt,min)=> q.length<min ? 0 : wt*Math.max(0,...ws.map((w,i)=>{
+      const f=mfit(w,q,typo); if(!f) return 0;
+      return f + (f===1?.15:0) - .1*i/Math.max(1,ws.length); }));
     const loud = MLOUD[q] && MLOUD[q].includes(x.lv) ? 1.5 : 0;
     return Math.max(best(x.name,4,1), best(x.key,3,2), best(x.deck,2,3), best(x.lede,1,4), loud); };
   // a typed word is read as a typo only when it finds nothing as typed: "bummer" is a word
