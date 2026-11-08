@@ -1976,7 +1976,7 @@ function shareSel(btn0){
     : hereURL();
   const nm = page ? (btn0.dataset.sharename||"") : n ? n.name : "";
   const title = nm ? "Music Atlas · "+nm : "Music Atlas";
-  const text  = nm ? nm+" on Music Atlas" : "Music Atlas — what grew out of what in popular music";
+  const text  = nm ? nm+" on Music Atlas" : "Find music for the moment, then trace it back to where it started.";
   const btn=btn0 || document.querySelector("#panel [data-share]");
   // the wide button says what happened in words; the round one has no room for words, so
   // .done swaps its glyph for a tick and that is the whole message
