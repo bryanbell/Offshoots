@@ -2476,7 +2476,9 @@ function inModesSect(n){
   return sect("inmodes","Collections",
     `<div class="mrow" role="list">${mine.map(m=>modeTile(m)).join("")}</div>`,
     `<span class="sectaside">${mine.length}</span>`,
-    "", "Where this style turns up.");
+    // the heading opens every collection, as the root's does: a section named for a place
+    // in the app is the way to that place
+    "modes", "Where this style turns up.");
 }
 
 // ---------- the panel as a stack of pages ----------
