@@ -19,10 +19,10 @@ Run it on your own machine, not in a Claude session: both sandboxes sit behind a
 allowlist that blocks Wikidata and Commons.
 
     pip3 install pillow
-    python3 artist-photos.py keyartists.json ./artists
+    python3 artist-photos.py keyartists.json ./assets/artists
 
 Resumable: a name whose file is already there is skipped, so you can stop it and run it
-again. Writes artists/credits.json and artists/report.txt when it finishes.
+again. Writes assets/artists/credits.json and assets/artists/report.txt when it finishes.
 """
 
 import json, os, re, sys, time, unicodedata, urllib.parse, urllib.request, urllib.error

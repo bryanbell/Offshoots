@@ -17,7 +17,13 @@ descriptions, and 368 styles with a playlist on Apple Music and Spotify.
 | `src/` | The app: CSS and markup, data, code. `node src/build.js` joins them into `index.html` |
 | `index.html` | The whole app as one page. Generated, not in git: Netlify builds it on deploy, `npm test` builds it locally |
 | `test/` | Browser checks that drive the built page |
-| `art/` | Playlist cover art, one square JPEG per style |
+| `assets/` | Every image, one folder per kind (below). Old top-level paths 301 here |
+| `assets/style-cover-art/` | Playlist cover art with the title, one square JPEG per style |
+| `assets/style-previews/` | The same art without lettering, for rows that print the name beside it |
+| `assets/artists/` | Artist portraits, with `fallbacks/` |
+| `assets/album-covers/` | Album sleeves |
+| `assets/collections/` | Collection tiles, one per mode |
+| `assets/crossplay-cover-art/` | Covers for playlists that span styles |
 | `suggest.html` | The form for suggesting a Go deeper link |
 | `contribute.html` | The page that hands out the bookmarklet |
 | `netlify/functions/` | `suggest.mjs`, which files each suggestion as an issue |
@@ -111,7 +117,7 @@ consts; in the page `ROSTER[id]` reads the same as it always did. The page is st
 file; it just does not compile 470 KB of names before it can draw the map.
 
 On the live site the playlist covers are requested through Netlify's image CDN
-(`/.netlify/images?url=/art/…&w=480`), which resizes and re-encodes them; from a
+(`/.netlify/images?url=/assets/style-cover-art/…&w=480`), which resizes and re-encodes them; from a
 `file://` copy or any other host the JPEGs are used as they are, and a cover the CDN
 will not serve falls back to its file.
 
@@ -135,7 +141,7 @@ repeat visit and not much else. Against that, a self-contained page can be maile
 opened from a disk or dropped into any host, and every extra fetched file is another
 relative URL that can resolve wrong where the page is served from a path with no
 trailing slash. That has already bitten once: see `artBase()` in `app.js`, which
-exists because `art/x.jpg` resolved against the parent directory and every cover
+exists because `assets/style-cover-art/x.jpg` resolved against the parent directory and every cover
 404'd. The maintenance argument for splitting is already answered by `src/`.
 
 ## Tests
@@ -156,7 +162,7 @@ they would only report the same slip as blank spots.
 The runner takes suites longest-first, from the timings it kept in `test/.timings.json`
 on the last run, so the two eight-minute suites start at once instead of at the end.
 
-They load `index.html` over `file://`, so `art/` resolves from this folder and covers
+They load `index.html` over `file://`, so `assets/style-cover-art/` resolves from this folder and covers
 render exactly as they do when served.
 
 One trap worth knowing before adding a test: setting `location.hash` on a page that

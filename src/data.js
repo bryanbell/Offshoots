@@ -11411,7 +11411,7 @@ const XPLAY = [
 // row the title belongs in the picture, because the picture IS the playlist. In a list
 // the row already says the name right next to it, so a second copy baked into the art
 // competes with it; these read faster there.
-// 306 styles; the rest fall back to art/ and then to the family-colour tile.
+// 306 styles; the rest fall back to assets/style-cover-art/ and then to the family-colour tile.
 const STYLEART = {
   "ac":"ac",
   "acidhouse":"acid-house",
@@ -12752,7 +12752,7 @@ const COVERART = {
 };
 
 // ---------- artist portraits ----------
-// name -> the file under artists/. Keyed by the name the map already uses rather than
+// name -> the file under assets/artists/. Keyed by the name the map already uses rather than
 // by a slug recomputed here, because the folder and the map agreeing by coincidence is
 // not the same as them agreeing by construction. 520 of 2,218; everyone else keeps the
 // role glyph, which is why the glyph had to stay a deliberate design and not a stopgap.

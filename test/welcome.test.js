@@ -93,7 +93,7 @@ const svcStored=q=>q.evaluate(()=>{ try{ return localStorage.getItem("svc"); }ca
     say("Explore Collections closes the card and opens the collections page", (await page(p))==="modes");
     const modes=await p.evaluate(()=>{
       const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
-      const tiles=[...u.querySelectorAll("img")].filter(i=>/moods\//.test(i.getAttribute("src")||""));
+      const tiles=[...u.querySelectorAll("img")].filter(i=>/assets\/collections\//.test(i.getAttribute("src")||""));
       const r=u.getBoundingClientRect();
       return {tiles:tiles.length, open:document.body.classList.contains("open"),
         visible:tiles.filter(i=>{const b=i.getBoundingClientRect(); return b.top<innerHeight && b.bottom>0;}).length};});

@@ -594,7 +594,7 @@ const onPage=async(q,k)=>{ await until(q,k=>{
   // has a real image loses it, that a name always draws the same one, and that the file
   // named is a file that exists.
   const fs=require("fs"), path=require("path");
-  const FBDIR=path.join(__dirname,"..","artists","fallbacks");
+  const FBDIR=path.join(__dirname,"..","assets","artists","fallbacks");
   const cat=JSON.parse(fs.readFileSync(path.join(FBDIR,"catalog.json"),"utf8"));
   const known=new Set(cat.entries.map(e=>e.file));
   say("the library is on disk and matches its catalog ("+cat.entries.length+")",

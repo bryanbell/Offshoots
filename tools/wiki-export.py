@@ -77,7 +77,7 @@ for node in styles.values():
     for parent in node[4].split():
         children[parent].append(node[1])
 covers = set(subprocess.check_output(
-    ["git", "-C", str(wiki.parent), "ls-tree", "-r", "--name-only", "HEAD", "art"], text=True).splitlines())
+    ["git", "-C", str(wiki.parent), "ls-tree", "-r", "--name-only", "HEAD", "assets/style-cover-art"], text=True).splitlines())
 coverage = collections.defaultdict(dict)
 for r in workbook["Publication Coverage"]:
     url = playlist(r.get("F", ""))
@@ -110,7 +110,7 @@ def add(number, title, links, description="", library="", lineage=""):
     canonical = [pair for _, pair in sorted(class_tracks[library].items())]
     if canonical and not sequences:
         sequences["Curriculum order"] = canonical
-    art = "art/" + atlas["COVER"].get(style, style or "") + ".jpg"
+    art = "assets/style-cover-art/" + atlas["COVER"].get(style, style or "") + ".jpg"
     key = re.sub(r"[^a-z0-9]+", "-", normalized(title)).strip("-") or "class"
     catalog.append(dict(
         id=key, number=number, title=title, links=links, description=description or atlas["DESC"].get(style, ""),

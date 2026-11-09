@@ -50,9 +50,9 @@ const getters='for(const k of '+JSON.stringify(LAZY)+'){ let v; Object.definePro
 // showing the old picture. Each gets a short hash of its bytes as ?v=, so a new painting
 // is a new address and every browser fetches it at once; an unchanged one stays cached.
 const MOODV={};
-for(const f of fs.readdirSync(path.join(ROOT,"moods")).filter(f=>/\.jpg$/.test(f)))
+for(const f of fs.readdirSync(path.join(ROOT,"assets","collections")).filter(f=>/\.jpg$/.test(f)))
   MOODV[f.slice(0,-4)]=require("crypto").createHash("sha1")
-    .update(fs.readFileSync(path.join(ROOT,"moods",f))).digest("hex").slice(0,8);
+    .update(fs.readFileSync(path.join(ROOT,"assets","collections",f))).digest("hex").slice(0,8);
 const moodv="const MOODV="+JSON.stringify(MOODV)+";\n";
 
 const app=fs.readFileSync(path.join(SRC,"app.js"),"utf8");

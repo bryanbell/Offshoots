@@ -12,7 +12,7 @@
   # Skip the deploy when nothing served changed. Netlify runs this in the repo; exit 0
   # means "nothing to do". Commits that touch only test/, the tools that are not the
   # build, or the docs are not the site. Add a path here if it starts being served.
-  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- src tools/catalog.js suggest.html contribute.html appicon.svg netlify.toml netlify art artists covers moods styles xplay wiki"
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- src tools/catalog.js suggest.html contribute.html appicon.svg netlify.toml netlify assets wiki"
 
 [build.environment]
   NODE_VERSION = "22"
@@ -42,32 +42,32 @@
 # repeat visit paints from cache and a replaced file shows up within a day or so.
 # index.html keeps the default and is always fresh.
 [[headers]]
-  for = "/art/*"
+  for = "/assets/style-cover-art/*"
   [headers.values]
     Cache-Control = "public, max-age=604800, stale-while-revalidate=2592000"
 
 [[headers]]
-  for = "/artists/*"
+  for = "/assets/artists/*"
   [headers.values]
     Cache-Control = "public, max-age=604800, stale-while-revalidate=2592000"
 
 [[headers]]
-  for = "/covers/*"
+  for = "/assets/album-covers/*"
   [headers.values]
     Cache-Control = "public, max-age=604800, stale-while-revalidate=2592000"
 
 [[headers]]
-  for = "/moods/*"
+  for = "/assets/collections/*"
   [headers.values]
     Cache-Control = "public, max-age=604800, stale-while-revalidate=2592000"
 
 [[headers]]
-  for = "/styles/*"
+  for = "/assets/style-previews/*"
   [headers.values]
     Cache-Control = "public, max-age=604800, stale-while-revalidate=2592000"
 
 [[headers]]
-  for = "/xplay/*"
+  for = "/assets/crossplay-cover-art/*"
   [headers.values]
     Cache-Control = "public, max-age=604800, stale-while-revalidate=2592000"
 
@@ -75,3 +75,36 @@
   for = "/wiki/*"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+
+# Images moved under /assets/ (one folder per kind). The old addresses redirect so a
+# copy of the page loaded before the move, or a link shared to an image, still resolves.
+[[redirects]]
+  from = "/art/*"
+  to = "/assets/style-cover-art/:splat"
+  status = 301
+
+[[redirects]]
+  from = "/artists/*"
+  to = "/assets/artists/:splat"
+  status = 301
+
+[[redirects]]
+  from = "/covers/*"
+  to = "/assets/album-covers/:splat"
+  status = 301
+
+[[redirects]]
+  from = "/moods/*"
+  to = "/assets/collections/:splat"
+  status = 301
+
+[[redirects]]
+  from = "/styles/*"
+  to = "/assets/style-previews/:splat"
+  status = 301
+
+[[redirects]]
+  from = "/xplay/*"
+  to = "/assets/crossplay-cover-art/:splat"
+  status = 301
+

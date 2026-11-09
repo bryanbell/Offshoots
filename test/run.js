@@ -5,7 +5,7 @@
 //   node test/run.js -1                              one at a time, output in order
 //
 // Each suite drives a real Chromium through Playwright and prints one line per check,
-// prefixed PASS or FAIL. They load index.html over file://, so art/ resolves from the
+// prefixed PASS or FAIL. They load index.html over file://, so assets/style-cover-art/ resolves from the
 // repo's own folder and covers render exactly as they do when served.
 //
 // Why it runs them in parallel: most of a suite's time is a page loading or a wait for
