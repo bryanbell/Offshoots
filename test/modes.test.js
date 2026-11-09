@@ -177,7 +177,12 @@ const spell=n=>n<=20?WORDS[n]
   // only the ones with a painting: a collection waiting for art has its broken img
   // removed on error, so there is no src left to be named after anything
   say("  named for the collection it belongs to",
-    moodart.filter(a=>onDisk(a.mode)).every(a=>a.src==="moods/"+a.mode+".jpg"));
+    moodart.filter(a=>onDisk(a.mode)).every(a=>new RegExp("^moods/"+a.mode+"\\.jpg\\?v=[0-9a-f]{8}$").test(a.src)));
+  // the ?v= is the file's own hash, so a repainted cover is a new address and no browser
+  // keeps the old one for the week the cache allows
+  { const crypto=require("crypto"); const bad=moodart.filter(a=>onDisk(a.mode)).filter(a=>
+      a.src.split("?v=")[1]!==crypto.createHash("sha1").update(fs.readFileSync(path.join(dir,a.mode+".jpg"))).digest("hex").slice(0,8));
+    say("  each address carries its file's hash", bad.length===0 ? true : bad.map(a=>a.mode).join(", ")); }
   const torn=moodart.filter(a=>a.torn).map(a=>a.mode);
   say("  none of them torn", torn.length===0 ? true : torn.join(", "));
   say("  with the glyph still under it, for one that will not load",
