@@ -202,7 +202,10 @@ const PHOTO_DIR="artists/", COVER_DIR="covers/", FB_DIR="artists/fallbacks/",
 // is a glyph behind the browser's torn-page icon, which is what a collection with no
 // painting yet actually looked like. Taking the image out of the DOM on error is what
 // uncovers the symbol.
-const moodArt = key => `<img src="${MOOD_DIR}${encodeURIComponent(key)}.jpg"`
+// ?v= is a hash of the file the build saw (MOODV), so a repainted cover is a new address
+const moodSrc = key => MOOD_DIR+encodeURIComponent(key)+".jpg"
+  + (typeof MOODV!=="undefined" && MOODV[key] ? "?v="+MOODV[key] : "");
+const moodArt = key => `<img src="${moodSrc(key)}"`
   + ` alt="" loading="lazy" decoding="async" onerror="this.remove()">`;
 // ---------- a stand-in where there is no portrait and no record ----------
 // 3,353 of the 4,850 acts the map names have neither a photo nor a sleeve, and the role
@@ -3707,7 +3710,7 @@ function openHello(){
   // three collection tiles stand in for "Collections": the first three in the order,
   // which are the ones the row shows first too
   const arts=w.querySelectorAll(".hpart img");
-  MODES.slice(0,arts.length).forEach((m,i)=>{ arts[i].src=MOOD_DIR+m[0]+".jpg"; });
+  MODES.slice(0,arts.length).forEach((m,i)=>{ arts[i].src=moodSrc(m[0]); });
   w.hidden=false; document.body.classList.add("hello-open");
   // the card takes focus, not a button: a ring on a filled button reads as pressed, and
   // the dialog still announces itself and still hands Tab to the first path

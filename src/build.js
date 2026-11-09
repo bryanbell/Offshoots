@@ -46,8 +46,17 @@ for(const t of LAZY){
 const getters='for(const k of '+JSON.stringify(LAZY)+'){ let v; Object.defineProperty(globalThis,k,{configurable:true,'
   +'get(){ return v || (v=JSON.parse(document.getElementById("t-"+k).textContent)); }}); }\n';
 
+// Collection covers are cached for a week under their own names, so a repainted one kept
+// showing the old picture. Each gets a short hash of its bytes as ?v=, so a new painting
+// is a new address and every browser fetches it at once; an unchanged one stays cached.
+const MOODV={};
+for(const f of fs.readdirSync(path.join(ROOT,"moods")).filter(f=>/\.jpg$/.test(f)))
+  MOODV[f.slice(0,-4)]=require("crypto").createHash("sha1")
+    .update(fs.readFileSync(path.join(ROOT,"moods",f))).digest("hex").slice(0,8);
+const moodv="const MOODV="+JSON.stringify(MOODV)+";\n";
+
 const app=fs.readFileSync(path.join(SRC,"app.js"),"utf8");
-const out=head+json+"<script>\n"+data.trim()+"\n"+getters+app+"\n</script>\n";
+const out=head+json+"<script>\n"+data.trim()+"\n"+getters+moodv+app+"\n</script>\n";
 fs.writeFileSync(path.join(ROOT,"index.html"),out);
 console.log("built index.html — "+out.length+" bytes");
 // The same contents as one JSON file, for a reader that cannot look at a picture. Built
