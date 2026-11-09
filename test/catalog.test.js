@@ -120,7 +120,7 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
     !!said && Math.abs(said-kb)<=kb*0.2);
   say("  small enough to hand over whole (about "
     + Math.round(raw.length/4/1000)+"k tokens)", raw.length/4 < 60000);
-  say("  and every wiki page can reach it", ["","catalog","handbook","art","covers"].every(d=>
+  say("  and every wiki page can reach it", ["","catalog","handbook","art","covers","tiles"].every(d=>
     /href="\/wiki\/data\/"/.test(fs.readFileSync(path.join(__dirname,"..","wiki",d,"index.html"),"utf8"))));
   const b=await chromium.launch(); await skipWelcome(b);
   const p=await (await b.newContext({viewport:{width:430,height:930}})).newPage();
