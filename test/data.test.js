@@ -101,3 +101,22 @@ say("the export tail names every table", (()=>{
   const declared=[...src.matchAll(/^const ([A-Z_]+)\s*=/gm)].map(x=>x[1]);
   return few(declared.filter(d=>!listed.has(d)));
 })());
+
+// ---------- the stylesheet: hover only where something hovers ----------
+// A :hover rule outside @media (hover:hover) sticks on a phone after a touch, and rows lit
+// up as a list was scrolled. Every :hover selector sits inside that query; touch gets a
+// delayed :active instead (head.html, top of the stylesheet).
+{
+  const h=fs.readFileSync(path.join(ROOT,"src","head.html"),"utf8");
+  const css=h.slice(h.indexOf("<style>")+7, h.indexOf("</style>")).replace(/\/\*[\s\S]*?\*\//g,"");
+  const bad=[]; const stack=[]; let pre="";
+  for(const ch of css){
+    if(ch==="{"){ const p=pre.trim(); stack.push(p);
+      if(!p.startsWith("@") && /:hover/.test(p) && !stack.slice(0,-1).some(x=>/^@media[^{]*\(hover:\s*hover\)/.test(x))) bad.push(p.slice(0,60));
+      pre=""; }
+    else if(ch==="}"){ stack.pop(); pre=""; }
+    else if(ch===";"){ pre=""; }
+    else pre+=ch;
+  }
+  say("every :hover rule is inside @media (hover:hover)", few(bad));
+}
