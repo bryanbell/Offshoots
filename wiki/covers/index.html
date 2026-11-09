@@ -9,8 +9,9 @@
 <tr><th>Lines</th><td>Shape, Colors, Type, Style, Typography, Detail, Full bleed, Finish</td></tr>
 <tr><th>One idea</th><td>Per cover</td></tr>
 <tr><th>Quiet zone</th><td>Upper right, always empty</td></tr>
-<tr><th>Title height</th><td>20&ndash;25% of the canvas</td></tr>
-<tr><th>Locked</th><td>2026-09-30, amended through October</td></tr>
+<tr><th>Title width</th><td>Full width, margin to margin, no height cap</td></tr>
+<tr><th>Artwork</th><td>Lower 55% of the canvas</td></tr>
+<tr><th>Locked</th><td>2026-09-30, amended through November</td></tr>
 </table></aside>
 
 <h2>Principles</h2>
@@ -35,6 +36,9 @@
 <li>Forms can break past the bottom, left and right edges and use dramatic scale. Keep them out of the upper right.</li>
 <li>Middle complexity: more than one plain shape, less than a scene. A few large shapes beat many small ones.</li>
 <li>No blurs. The &ldquo;wrong&rdquo; or dreamy feeling, where a class calls for it, comes from warped and wavy shapes, never from blur or glitch effects.</li>
+<li>One concrete, readable object plus motion beats an abstract device. Circles, rays and bands on their own read as nothing; an object that has nothing to do with the genre reads as a mistake. Draw from the title first, the subtitle second.</li>
+<li>Do not reuse a main object across covers. Before writing a batch, list the objects already used (a turntable, a drum machine, a sneaker, a microphone) and pick something else, or make the repeat do something clearly different.</li>
+<li>Guitars come out malformed unless told otherwise. Any cover with a guitar adds to its Detail line: <em>the guitar has exactly six simple strings, a plain headstock, and normal proportions</em>.</li>
 <li>Avoid leaning on groups of thin lines or stacked bands. Check new prompts against covers already on that shelf so a device is not repeated.</li>
 <li>Study shelf (91): research the artist before proposing. Base the image on a specific, documented part of their story, and list sources. For image generators, give the artist&rsquo;s name only as title text to set, and state &ldquo;abstract only, no people or figures.&rdquo; If the generator still refuses, render the art with no text and set the type afterward.</li>
 </ul>
@@ -52,9 +56,9 @@
 <h2>The Standing Lines</h2>
 <p>These go into every prompt verbatim. They exist because each one fixed something a generator got wrong: the Typography line after a title changed face and slid down the page, the Finish line after the aging roughened the lettering, the Detail line after covers arrived too busy to read at thumbnail size, Full bleed after frames and mats crept in.</p>
 <dl>
-<dt>Typography</dt><dd><code class="long">Typography: fixed series footprint at upper left, the title starting at the top margin; title in an ultra-condensed, heavy grotesque sans serif, all caps, clean and crisp; subtitle directly below in a bold grotesque sans, title case; the title runs the full width from the left margin to the right margin whenever possible, scaled up until it fills that width; it must occupy at least 20% of the total canvas height, capped at 25% for short titles that would grow taller; stack multi-word titles one word per line when a single line would drop below 20% height or would squeeze the letters narrower than the typeface's normal condensed proportions; stacked lines each run the full width, and a stacked title may take up to about 35% of the canvas height; never shrink the title to accommodate artwork. No numbers, labels, or any text other than the title and subtitle.</code></dd>
+<dt>Typography</dt><dd><code class="long">Typography: fixed series footprint at upper left, the title starting at the top margin; title in an ultra-condensed, heavy grotesque sans serif, all caps, clean and crisp; subtitle directly below in a bold grotesque sans, title case; the title runs the full width from the left margin to the right margin, scaled up until it fills that width; stack multi-word titles one word per line only when a single line would squeeze the letters narrower than the typeface's normal condensed proportions; never shrink the title to accommodate artwork. No numbers, labels, or any text other than the title and subtitle.</code></dd>
 <dt>Detail</dt><dd><code class="long">Detail: flat, simplified forms like a screen print; each object reduced to two or three solid color shapes, close to a silhouette; no shading, highlights, gradients, or surface texture on any object; a small number of distinct elements, favoring a few large shapes over many small ones; no fine interior detail such as leaf veins, window panes, railings, or wood grain (the aged finish is separate); repeated elements stay countable, never a swarm.</code></dd>
-<dt>Style</dt><dd><code class="long">Style: mid-century screen-print poster; layered semi-transparent forms, each about 60% opaque, whose overlaps mix into new, deeper colors like overlapping inks or colored gels; prefer movement over rest.</code></dd>
+<dt>Style</dt><dd><code class="long">Style: mid-century screen-print poster; layered semi-transparent forms, each about 60% opaque, whose overlaps mix into new, deeper colors like overlapping inks or colored gels; prefer movement over rest. [Prompts may append a few words of mood and period, such as <em>with a raw late-1960s garage edge; rough, pushing, in motion</em>. On light grounds add: <em>darker inks so the art reads on the light ground</em>.]</code></dd>
 <dt>Full bleed</dt><dd><code class="long">Full bleed: no frame, border, or mat; the ground color runs to every edge of the canvas; the worn raw-paper edge is only a thin frayed rim, never a border.</code></dd>
 <dt>Finish</dt><dd><code class="long">Finish: aged record sleeve; subtle printed-paper grain over the whole cover; ink very slightly faded but colors still rich; a few faint scratches and one or two thin crease lines running diagonally across the cover; softly rounded corners with worn, frayed edges showing a little raw paper. The aging must not change the typeface; lettering stays crisp and even, only lightly touched by the grain. On framed artist covers, the aging applies to the inset panel only; the gallery white border stays clean.</code></dd>
 </dl>
@@ -64,11 +68,11 @@
 <pre><code>Draw this
 
 GENRE &middot; Subtitle
-- Shape: [one idea, its placement, what breaks past which edge; everything kept below the subtitle and clear of the upper right]
+- Shape: [one idea, its placement, what breaks past which edge]. The artwork stays in the lower 55% of the canvas, with clear space between it and the subtitle; nothing in the upper right.
 - Colors: [shelf ground name] ground (#hex), flat and untinted; [artwork colors by name, and where overlaps deepen]
-- Type: [title color name] (#hex), never tinted to match the artwork
+- Type: [title color name] (#hex), never tinted to match the artwork; [TITLE] on one line, running the full width [or: stack the title on two lines: FIRST / SECOND, each line running the full width]
 - Style: mid-century screen-print poster; layered semi-transparent forms, each about 60% opaque, whose overlaps mix into new, deeper colors like overlapping inks or colored gels; prefer movement over rest.
-- Typography: fixed series footprint at upper left, the title starting at the top margin; title in an ultra-condensed, heavy grotesque sans serif, all caps, clean and crisp; subtitle directly below in a bold grotesque sans, title case; the title runs the full width from the left margin to the right margin whenever possible, scaled up until it fills that width; it must occupy at least 20% of the total canvas height, capped at 25% for short titles that would grow taller; stack multi-word titles one word per line when a single line would drop below 20% height or would squeeze the letters narrower than the typeface's normal condensed proportions; stacked lines each run the full width, and a stacked title may take up to about 35% of the canvas height; never shrink the title to accommodate artwork. No numbers, labels, or any text other than the title and subtitle.
+- Typography: fixed series footprint at upper left, the title starting at the top margin; title in an ultra-condensed, heavy grotesque sans serif, all caps, clean and crisp; subtitle directly below in a bold grotesque sans, title case; the title runs the full width from the left margin to the right margin, scaled up until it fills that width; stack multi-word titles one word per line only when a single line would squeeze the letters narrower than the typeface's normal condensed proportions; never shrink the title to accommodate artwork. No numbers, labels, or any text other than the title and subtitle.
 - Detail: flat, simplified forms like a screen print; each object reduced to two or three solid color shapes, close to a silhouette; no shading, highlights, gradients, or surface texture on any object; a small number of distinct elements, favoring a few large shapes over many small ones; no fine interior detail such as leaf veins, window panes, railings, or wood grain (the aged finish is separate); repeated elements stay countable, never a swarm. [add a list of what is excluded for this cover: no hands, no people, no logos, no license plate, and so on; then an exact count: exactly one X, three Y, one Z]
 - Full bleed: no frame, border, or mat; the ground color runs to every edge of the canvas; the worn raw-paper edge is only a thin frayed rim, never a border.
 - Finish: aged record sleeve; subtle printed-paper grain over the whole cover; ink very slightly faded but colors still rich; a few faint scratches and one or two thin crease lines running diagonally across the cover; softly rounded corners with worn, frayed edges showing a little raw paper. The aging must not change the typeface; lettering stays crisp and even, only lightly touched by the grain. On framed artist covers, the aging applies to the inset panel only; the gallery white border stays clean.</code></pre>
@@ -82,6 +86,22 @@ DETROIT TECHNO &middot; The Future Comes From Detroit
 - Colors: seafoam ground (#D6EAE4), flat and untinted; factory in graphite with rust smokestacks, rocket in ink navy with lacquer red fins, exhaust plume stepping from mustard to salmon, stars in ink navy, overlaps deepening where the plume crosses the factory
 - Type: warm ink (#29251F)
 - [Style, Typography, Detail, Full bleed and Finish lines as above, with Detail ending: no windows, pipes, railings, ladders, or people; exactly one factory, three smokestacks, one rocket, and four stars]</code></pre>
+
+<h2>Titles That Need Care</h2>
+<ul>
+<li><b>Long and slash titles.</b> A title like <em>RAGGA / DIGITAL DANCEHALL</em> is stacked on two lines in the Type line. When even that is cramped, pick one name for the cover (Newgrass, Old-Time and New Outlaw were settled this way).</li>
+<li><b>Accents.</b> Generators often drop accents (DANZ&Oacute;N, CHA-CHA-CH&Aacute;, TROPIC&Aacute;LIA, SIERRE&Ntilde;O, B&Eacute;LICOS). Name the accent in the Type line and check the result; fix in post if it is lost.</li>
+<li><b>Apostrophes</b> stay as written (JERKIN&rsquo;).</li>
+</ul>
+
+<h2>When the Generator Refuses</h2>
+<p>Some titles and some imagery trip the generator&rsquo;s content filter. Grindcore was refused twice: once for a firecracker, then for the words <em>grind</em> and <em>flash</em>, which it read as sexual. Impacts, shattering and heavy hits (Deathcore, Brostep, Industrial, Screamo) are the likeliest to be flagged. Keep weapons, gore and threats out of every prompt; Drill and Corridos B&eacute;licos carry their force through a fence of chants and a charging horse instead.</p>
+<p>When a cover is refused, render the art with no text and set the type afterward:</p>
+<ol>
+<li>Send the prompt with the title, subtitle and Typography line removed, and add: <em>no text of any kind; leave the top 40% of the canvas as empty ground color</em>.</li>
+<li>Composite the title over it. The series type is Anton for the title and Archivo Black for the subtitle (both free, from Fontsource). Title: drawn letter by letter with a light stroke, stretched to run from 3% to 97% of the width at about 29.5% of the canvas height, starting 2.2% from the top. Subtitle: about 5.8% of the canvas height, 1.2% below the title.</li>
+<li>Scale the art to about 86% and anchor it bottom left, filling the top with the ground sampled from the art, and feather the top and right edges so the seam disappears. Add a light grain over the type so it sits in the print.</li>
+</ol>
 
 <h2>Collection Tiles</h2>
 <p>The round tiles for the listening collections (Focus, Night Drive, Nightcap and the rest) are a different format from a class cover and take a different prompt. A tile is a moment seen through the listener&rsquo;s eyes, not an abstract idea. It carries no text, and it is shown at icon size, cropped to a circle. Locked 2026-11-08, after three rounds of tests.</p>
