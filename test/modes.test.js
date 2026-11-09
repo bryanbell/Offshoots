@@ -161,7 +161,7 @@ const spell=n=>n<=20?WORDS[n]
   // The list is checked both ways, so it cannot outlive the gap it describes.
   const AWAITING=[];   // every collection has its painting
   const fs=require("fs"), path=require("path");
-  const dir=path.join(__dirname,"..","moods");
+  const dir=path.join(__dirname,"..","assets","collections");
   const onDisk=m=>fs.existsSync(path.join(dir,m+".jpg"));
   const missing=moodart.filter(a=>!onDisk(a.mode)).map(a=>a.mode);
   const unexpected=missing.filter(m=>!AWAITING.includes(m));
@@ -177,7 +177,7 @@ const spell=n=>n<=20?WORDS[n]
   // only the ones with a painting: a collection waiting for art has its broken img
   // removed on error, so there is no src left to be named after anything
   say("  named for the collection it belongs to",
-    moodart.filter(a=>onDisk(a.mode)).every(a=>new RegExp("^moods/"+a.mode+"\\.jpg\\?v=[0-9a-f]{8}$").test(a.src)));
+    moodart.filter(a=>onDisk(a.mode)).every(a=>new RegExp("^assets/collections/"+a.mode+"\\.jpg\\?v=[0-9a-f]{8}$").test(a.src)));
   // the ?v= is the file's own hash, so a repainted cover is a new address and no browser
   // keeps the old one for the week the cache allows
   { const crypto=require("crypto"); const bad=moodart.filter(a=>onDisk(a.mode)).filter(a=>
@@ -374,7 +374,7 @@ const spell=n=>n<=20?WORDS[n]
       const i=x.querySelector("img.pcov"); if(!i) continue;
       const s=i.getAttribute("src")||"", id=x.dataset.go||"";
       out.n++;
-      if(s.indexOf("styles/")===0){ out.bare++; continue; }
+      if(s.indexOf("assets/style-previews/")===0){ out.bare++; continue; }
       if(S[id]) out.wrong.push(id+" -> "+s); else out.noart++;
     }
     return out;});

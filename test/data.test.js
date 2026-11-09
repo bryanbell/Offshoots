@@ -85,11 +85,11 @@ say("every pick is credited to a picker that exists",
 // A missing image falls back silently in the page (artBase() exists because of a 404
 // incident), so the only place a dangling stem is ever noticed is here.
 const has=(dir,stem)=>["jpg","jpeg","png","webp"].some(x=>fs.existsSync(path.join(ROOT,dir,stem+"."+x)));
-for(const [t,dir] of [["COVER","art"],["STYLEART","styles"],["PHOTO","artists"],["COVERART","covers"]])
+for(const [t,dir] of [["COVER","assets/style-cover-art"],["STYLEART","assets/style-previews"],["PHOTO","assets/artists"],["COVERART","assets/album-covers"]])
   say("every "+t+" stem has a file in "+dir+"/ ("+Object.keys(D[t]).length+")",
     few(Object.entries(D[t]).filter(([k,s])=>!has(dir,s)).map(([k,s])=>k+" -> "+dir+"/"+s)));
-say("every mode has a tile in moods/", few(D.MODES.filter(m=>!has("moods",m[0])).map(m=>m[0])));
-say("every cross-style playlist with art has it in xplay/", few(D.XPLAY.filter(x=>x.art&&!has("xplay",x.id)).map(x=>x.id)));
+say("every mode has a tile in assets/collections/", few(D.MODES.filter(m=>!has("assets/collections",m[0])).map(m=>m[0])));
+say("every cross-style playlist with art has it in assets/crossplay-cover-art/", few(D.XPLAY.filter(x=>x.art&&!has("assets/crossplay-cover-art",x.id)).map(x=>x.id)));
 
 // ---------- the file itself ----------
 const src=fs.readFileSync(path.join(ROOT,"src","data.js"),"utf8");

@@ -6,7 +6,7 @@
 // art does. The failure was invisible because its symptom was the normal state.
 const fs=require("fs"), path=require("path");
 const D=require("../src/data.js");
-const ART=path.join(__dirname,"..","art"), EXT=".jpg";
+const ART=path.join(__dirname,"..","assets","style-cover-art"), EXT=".jpg";
 // Anything that is not true is a failure. A check that answered with its detail instead
 // of false used to print with no prefix at all, so the runner counted it as no check and
 // the run came back clean: a failing assertion that reported what went wrong was the one
@@ -73,7 +73,7 @@ say("  and at least 300px", small.length===0 ? true : small.slice(0,6).join(", "
 // PHOTO maps an artist name to a file under artists/. Both directions matter: an entry
 // with no file draws a broken image where a glyph would have been fine, and a file
 // nothing points at is weight in the folder and in every deploy that carries it.
-const PDIR=path.join(__dirname,"..","artists");
+const PDIR=path.join(__dirname,"..","assets","artists");
 if(fs.existsSync(PDIR)){
   const have=new Set(fs.readdirSync(PDIR).filter(f=>f.endsWith(EXT)).map(f=>f.slice(0,-EXT.length)));
   const want=Object.entries(D.PHOTO||{});
@@ -107,7 +107,7 @@ if(fs.existsSync(PDIR)){
 // A crossing asks for its file only when it says art:true, so the two have to agree:
 // art:true with no file is a torn icon, and a file nothing claims is weight in the deploy.
 {
-  const XD=path.join(__dirname,"..","xplay");
+  const XD=path.join(__dirname,"..","assets","crossplay-cover-art");
   const X=D.XPLAY||[];
   const have=fs.existsSync(XD)
     ? new Set(fs.readdirSync(XD).filter(f=>f.endsWith(EXT)).map(f=>f.slice(0,-EXT.length)))
@@ -127,7 +127,7 @@ if(fs.existsSync(PDIR)){
 // Same pictures as art/, lettering removed. STYLEART only ever draws where a row prints
 // the name itself, and it falls back to art/, so a gap here is cosmetic rather than
 // broken; a name pointing at a file that is not there is not.
-const SDIR=path.join(__dirname,"..","styles");
+const SDIR=path.join(__dirname,"..","assets","style-previews");
 if(fs.existsSync(SDIR)){
   const have=new Set(fs.readdirSync(SDIR).filter(f=>f.endsWith(EXT)).map(f=>f.slice(0,-EXT.length)));
   const want=Object.entries(D.STYLEART||{});
@@ -148,7 +148,7 @@ if(fs.existsSync(SDIR)){
 // ---- album covers, the stand-in where there is no portrait ----
 // COVERART only ever draws for a name PHOTO does not cover, so an entry in both is dead
 // weight at best and, if the two ever disagree about which is newer, a silent swap.
-const CDIR=path.join(__dirname,"..","covers");
+const CDIR=path.join(__dirname,"..","assets","album-covers");
 if(fs.existsSync(CDIR)){
   const have=new Set(fs.readdirSync(CDIR).filter(f=>f.endsWith(EXT)).map(f=>f.slice(0,-EXT.length)));
   const want=Object.entries(D.COVERART||{});
