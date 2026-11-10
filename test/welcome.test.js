@@ -154,19 +154,19 @@ const svcStored=q=>q.evaluate(()=>{ try{ return localStorage.getItem("svc"); }ca
     const panel=await q.evaluate(()=>{
       const sv=document.querySelector(".svctx");
       const links=[...document.querySelectorAll("#panel a[href]")].map(a=>a.href)
-        .filter(h=>/spotify|music\.apple|qobuz/.test(h));
+        .filter(h=>/spotify|music\.apple|qobuz|music\.youtube/.test(h));
       return {picker:sv?sv.textContent.trim():"none", n:links.length,
         apple:links.length>0 && links.every(h=>/music\.apple/.test(h)),
         opts:document.querySelectorAll('#panel .svcsel option').length};});
     say("a style panel still works with no service chosen: "+panel.n+" Apple Music links by default",
       panel.n>0 && panel.apple);
-    say("  with the picker right there ("+panel.opts+" services)", panel.opts===3);
+    say("  with the picker right there ("+panel.opts+" services)", panel.opts===4);
     await q.selectOption('#panel .svcsel','spotify');
     await until(q,()=>{ try{ return localStorage.getItem("svc")==="spotify"; }catch(e){ return true; } });
     await settle(q);
     const after=await q.evaluate(()=>{
       const links=[...document.querySelectorAll("#panel a[href]")].map(a=>a.href)
-        .filter(h=>/spotify|music\.apple|qobuz/.test(h));
+        .filter(h=>/spotify|music\.apple|qobuz|music\.youtube/.test(h));
       return {cur:!!document.querySelector("#chart .n.cur"), open:document.body.classList.contains("open"),
         allSpotify:links.length>0 && links.every(h=>/open\.spotify\.com/.test(h))};});
     say("picking Spotify there keeps the style and the panel and rewrites the links",

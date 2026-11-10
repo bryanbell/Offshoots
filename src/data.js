@@ -1354,16 +1354,16 @@ const PLAY = {
   "dariacore":"/playlist/pl.u-lxJKRIjDJxa",
 };
 const SPLAY = {
-  djent:"/playlist/pl.u-5Yz2oFOvRdQ",
-  blackgaze:"/playlist/pl.u-pDdEgh2pPrJ",
-  mathcore:"/playlist/pl.u-5Yz8BCOvRdQ",
-  rapmetal:"/playlist/pl.u-pDdomi2pPrJ",
-  metalcore:"/playlist/pl.u-2OvEaFxENmo",
-  screamo:"/playlist/pl.u-MLpdahlbVeW",
-  youthcrew:"/playlist/pl.u-5Yzg5HOvRdQ",
-  crust:"/playlist/pl.u-pDdeRC2pPrJ",
-  nyhc:"/playlist/pl.u-81AlESVdWmP",
-  deathrock:"/playlist/pl.u-2OvgBCxENmo",
+  "djent":"/playlist/pl.u-5Yz2oFOvRdQ",
+  "blackgaze":"/playlist/pl.u-pDdEgh2pPrJ",
+  "mathcore":"/playlist/pl.u-5Yz8BCOvRdQ",
+  "rapmetal":"/playlist/pl.u-pDdomi2pPrJ",
+  "metalcore":"/playlist/pl.u-2OvEaFxENmo",
+  "screamo":"/playlist/pl.u-MLpdahlbVeW",
+  "youthcrew":"/playlist/pl.u-5Yzg5HOvRdQ",
+  "crust":"/playlist/pl.u-pDdeRC2pPrJ",
+  "nyhc":"/playlist/pl.u-81AlESVdWmP",
+  "deathrock":"/playlist/pl.u-2OvgBCxENmo",
   "blackmetal":"0zPXpyQEaV5tVDQxPqymoX",
   "melodeath":"0EiieoSYddgxdCJFzlLycm",
   "melmetalcore":"0JB9c7CPXsZaYBcwsozkPF",
@@ -1733,6 +1733,12 @@ const SPLAY = {
 // playlists are on Qobuz; tools/manifest.js fills it from a manifest's "Qobuz URL:" line,
 // and the app turns Qobuz's playlist buttons on as entries arrive, with no other change.
 const QPLAY = {
+};
+// YouTube Music playlists, one per style, the same way: the playlist id (the list= value
+// in music.youtube.com/playlist?list=<id>, PL… or OLAK5uy_…) or a full https URL. Empty
+// until the playlists are on YouTube Music; tools/manifest.js fills it from a manifest's
+// "YouTube Music URL:" line, and the app turns its playlist buttons on as entries arrive.
+const YPLAY = {
 };
 
 const DESC = {"nujazz":"Jazz played over programmed beats rather than swing, mostly out of Europe: house and downtempo rhythms underneath, with live horns, Rhodes and double bass on top.","synthpunk":"The guitar handed over to a cheap synthesiser, the same aggression played on keys.","appalachian":"Anglo-Celtic ballads and fiddle tunes passed down through families, sung plain over banjo, fiddle and open-tuned guitar.",
@@ -2377,16 +2383,16 @@ const COVER = {
   "deathrock":"deathrock",
 };
 const PTITLE = {
-  djent:"43.02.1 DJENT · The Low Riff Disagrees with the Beat",
-  blackgaze:"43.01.1.2.1.1 BLACKGAZE · The Blast Beat Opens a Sky",
-  mathcore:"43.12.1 MATHCORE · The Riff Keeps Changing the Count",
-  rapmetal:"42.18.1 RAP METAL · The Verse Leans Into the Riff",
-  metalcore:"43.12 METALCORE · The Riff Makes Room for the Breakdown",
-  screamo:"44.01.4.2 SCREAMO · The Quiet Makes the Scream Count",
-  youthcrew:"44.01.1.4.1 YOUTH CREW · The Chorus Belongs to Everyone",
-  crust:"44.01.10.1 CRUST PUNK · The Riff Drags the World Behind It",
-  nyhc:"44.01.1.4 NEW YORK HARDCORE · The Room Answers the Riff",
-  deathrock:"44.01.2.4.1 DEATHROCK · The Guitar Throws a Shadow",
+  "djent":"43.02.1 DJENT · The Low Riff Disagrees with the Beat",
+  "blackgaze":"43.01.1.2.1.1 BLACKGAZE · The Blast Beat Opens a Sky",
+  "mathcore":"43.12.1 MATHCORE · The Riff Keeps Changing the Count",
+  "rapmetal":"42.18.1 RAP METAL · The Verse Leans Into the Riff",
+  "metalcore":"43.12 METALCORE · The Riff Makes Room for the Breakdown",
+  "screamo":"44.01.4.2 SCREAMO · The Quiet Makes the Scream Count",
+  "youthcrew":"44.01.1.4.1 YOUTH CREW · The Chorus Belongs to Everyone",
+  "crust":"44.01.10.1 CRUST PUNK · The Riff Drags the World Behind It",
+  "nyhc":"44.01.1.4 NEW YORK HARDCORE · The Room Answers the Riff",
+  "deathrock":"44.01.2.4.1 DEATHROCK · The Guitar Throws a Shadow",
   "blackmetal":"43.01.1.2.1 BLACK METAL · The Riff Becomes a Climate",
   "melodeath":"43.01.1.2.2 MELODIC DEATH METAL · The Riff Learns to Sing",
   "melmetalcore":"43.01.1.2.2.1 MELODIC METALCORE · The Melody Meets the Breakdown",
@@ -13280,4 +13286,4 @@ const PHOTO = {
 };
 
 // ---------- export tail ---------- (build.js drops everything from this line on)
-if (typeof module !== "undefined") module.exports = {FAMS, DATA, ART, DONE, PLAY, SPLAY, QPLAY, DESC, COVER, PTITLE, FAMSKIN, FAMMAP, MODES, MODEWORDS, HEADTRACK, ROSTER, SONGS, READ, ACTIVE, ROLE, PICKERS, PICKED, PHOTO, COVERART, STYLEART, XPLAY};
+if (typeof module !== "undefined") module.exports = {FAMS, DATA, ART, DONE, PLAY, SPLAY, QPLAY, YPLAY, DESC, COVER, PTITLE, FAMSKIN, FAMMAP, MODES, MODEWORDS, HEADTRACK, ROSTER, SONGS, READ, ACTIVE, ROLE, PICKERS, PICKED, PHOTO, COVERART, STYLEART, XPLAY};
