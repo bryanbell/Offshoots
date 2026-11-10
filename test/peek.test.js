@@ -88,6 +88,23 @@ const look=p=>p.evaluate(()=>{
   await m.waitForTimeout(400);
   say("on a phone nothing previews", !(await look(m)).peek);
 
+  // Most Influential's rows preview the same way
+  { const t=await b.newPage({viewport:{width:1280,height:800}});
+    t.on("pageerror",e=>errs.push(String(e)));
+    await t.goto(URL+"#top"); await ready(t);
+    await until(t,()=>document.querySelectorAll(".toplist .toprow[data-go]").length>3); await settle(t);
+    const tb=await look(t);
+    const tid=await t.$eval(".toplist .toprow[data-go]",x=>x.dataset.go);
+    await t.hover(`.toplist .toprow[data-go="${tid}"]`);
+    const lit=await until(t,id=>{const g=document.querySelector("#chart .n.pv"); return !!g&&g.dataset.id===id;},tid);
+    const ton=await look(t);
+    say("hovering a Most Influential row lights that style and its lines", !!lit && ton.peek && ton.near>0 && ton.lines>0);
+    say("  without selecting it", ton.sel===tb.sel && ton.hash===tb.hash);
+    await t.mouse.move(200,400);
+    await until(t,()=>!document.getElementById("chart").classList.contains("peek"));
+    say("  and moving off ends it", !(await look(t)).peek);
+    await t.close(); }
+
   say("no page errors", errs.length===0 || errs.join(" | "));
   await b.close();
 })();

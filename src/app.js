@@ -2088,7 +2088,7 @@ function modePicks(m){
       + listen + `</div>`;
   }).join("");
 }
-// Hovering a collection row previews the style on the map: it lights the style and the
+// Hovering a collection row, or a Most Influential row, previews the style on the map: it lights the style and the
 // lines straight to and from it, and the map slides to it. A preview only. It is its own
 // layer of classes (peek, pv, pvn, pve), so state.sel, the trail and the address are
 // untouched, and moving off the list puts the map's highlighting back as it was. Desktop
@@ -2114,7 +2114,7 @@ function peekStyle(id){
 // through every row it crosses on the way
 document.addEventListener("pointerover",e=>{
   if(e.pointerType!=="mouse" || !PEEKOK()) return;
-  const b=e.target.closest && e.target.closest(".picks .pk .pick[data-go]");
+  const b=e.target.closest && e.target.closest(".picks .pk .pick[data-go], .toplist .toprow[data-go]");
   const id=b ? b.dataset.go : null;
   if(id===PEEKID) { clearTimeout(PEEKT); return; }
   clearTimeout(PEEKT);
