@@ -544,12 +544,22 @@ const spell=n=>n<=20?WORDS[n]
     const r=await s.evaluate(()=>{const sec=document.querySelector(".ppage:not([hidden]) .modesec");
       return {title:sec.querySelector(".msecttl").textContent,
         modes:[...sec.querySelectorAll(".moderow")].map(x=>x.dataset.mode)};});
+    // the real row, without the suite-wide full row
+    await s.addInitScript(()=>{ window.__MA_ROWALL=false; });
     await s.goto(URL); await ready(s);
-    const row=await s.evaluate(()=>[...document.querySelectorAll(".ppage[data-p=root] [data-mode]")].map(x=>x.dataset.mode));
+    const row=await s.evaluate(()=>{const r=document.querySelector(".ppage[data-p=root] .mrow");
+      const c=[...r.querySelectorAll(".mcirc")], last=c[c.length-1];
+      return {modes:c.filter(x=>x.dataset.mode).map(x=>x.dataset.mode),
+        allPage:last&&last.dataset.page, allLbl:last&&last.textContent.trim(), lastIsAll:!!last&&!last.dataset.mode};});
     say("at "+t+" the list opens on "+r.title+" ("+r.modes.slice(0,3).join(", ")+")",
       r.title===part && r.modes.includes(lead) && !r.modes.includes(notFirst));
-    say("  and the root's row starts there too ("+row.slice(0,3).join(", ")+")",
-      row.slice(0,r.modes.length).join()===r.modes.slice(0,row.length).join() && row[0]===r.modes[0]);
+    say("  and the root's row is just that group ("+row.modes.length+": "+row.modes.slice(0,3).join(", ")+")",
+      row.modes.join()===r.modes.join());
+    say("  ending in a circle that opens every collection ("+row.allLbl+")",
+      row.lastIsAll && row.allPage==="modes" && /^All \d+$/.test(row.allLbl));
+    if(t==="03:00"){ await s.click(".ppage[data-p=root] .mcall");
+      await s.waitForFunction(()=>{const p=[...document.querySelectorAll(".ppage")].pop(); return p&&p.dataset.p==="modes";},{timeout:5000}).catch(()=>{});
+      say("  which opens the Collections page", await s.evaluate(()=>[...document.querySelectorAll(".ppage")].pop().dataset.p==="modes")); }
     await c.close(); }
 
   // the control has to survive the narrowest phone without clipping a label
