@@ -216,9 +216,6 @@ body.panning{user-select:none;-webkit-user-select:none}
 #maphead .mmeta{margin:0;font:400 var(--t-foot)/1.3 var(--f-mono);
   color:color-mix(in srgb,var(--muted) 78%,transparent)}
 @media (max-width:699px){ #maphead{padding:11px 64px 13px 64px} }
-/* on desktop the map pill carries its word ("Map"), so it is twice the round button's
-   width and the row starts clear of that instead */
-@media (min-width:900px){ #maphead{padding-left:112px} }
 
 /* The family column is in the map's own ink, not the family colours: the same neutral as
    the bands it sits beside, a step stronger so it reads as a column, alternating with
@@ -657,6 +654,16 @@ body.open .pcnt{display:none}
 .navback.tomap{padding:0 12px}
 .navback[hidden]{display:grid;visibility:hidden;pointer-events:none}
 .navback svg{width:20px;height:20px}
+/* Home, round and unlabelled, to the left of Back in the same group */
+.navhome{all:unset;box-sizing:border-box;display:grid;place-items:center;flex:none;
+  width:var(--tap);height:var(--tap);border-radius:50%;cursor:pointer;color:var(--fg);background-color:var(--fill2)}
+.navhome[hidden]{display:none}
+.navhome svg{width:20px;height:20px}
+@media (hover:hover){.navhome:hover{background:var(--fill)}}
+.navhome:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+/* with Home beside it, Back gives up some width so the pair still clears the title */
+.navrow.hashome .navback{max-width:min(42vw,180px)}
+#panel.pscrolled .navrow.hashome .ovttl{padding-inline:calc(var(--tap) * 2 + 14px)}
 @media (hover:hover){.navback:hover{background:var(--fill)}}
 .navback:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
 @media (max-width:899px){ .navback{min-width:var(--tap);height:var(--tap)} .navback svg{width:20px;height:20px} .navback .bklbl{font-size:var(--t-sub)} }
@@ -1574,47 +1581,31 @@ aside{display:flex;flex-direction:column;position:absolute;z-index:30;top:calc(e
    as a card. The rim is an inset shadow, not a background layer: as a background gradient
    it rasterised as a wide pale band across the top of these controls, which read as the
    button being cut off. An inset shadow follows the border radius and stays 1px. */
-.pmin,.navback,.brback,#wikix,#wikiout{
+.pmin,.navback,.navhome,.brback,#wikix,#wikiout{
   box-shadow:inset 0 1px 0 var(--cardtop),0 0 0 1px var(--cardline),var(--ctlsh)}
 /* The two map circles wear the same glass as the zoom control. They were filled with
    --fg, which made them the heaviest thing on the map, darker than any style name and
    sitting on top of the lane they covered. Glass with an ink icon is the app's control
    skin everywhere else; the ring and shadow keep an edge against a busy lane. */
-#mapSearch,#mapHome{
+#mapSearch{
   box-shadow:inset 0 1px 0 var(--cardtop),0 0 0 1px var(--cardline),0 6px 20px rgb(0 0 0 / .12)}
 #mapSearch{position:absolute;z-index:24;top:var(--chromet,10px);right:16px;display:grid;place-items:center;
   width:42px;height:42px;border:0;border-radius:50%;cursor:pointer;transition:background-color .15s;
   background-color:var(--glass);color:var(--fg)}
 #mapSearch svg{width:18px;height:18px}
-/* the way out of a lineage you have walked four taps into */
-/* mirrors #mapSearch: same inset from its edge, same size, same skin, so the two map
-   controls read as a pair rather than as one control and one afterthought */
 /* The map chrome sits in the map's top corners, over the year axis rather than below it,
    so it holds the corners of the screen instead of floating in the map. */
 :root{--chromet:calc(env(safe-area-inset-top,0px) + 10px)}
 @media (max-width:899px){ :root{--chromet:calc(env(safe-area-inset-top,0px) + 8px)} }
-#navpills{position:absolute;z-index:24;top:var(--chromet,10px);left:16px;display:flex;align-items:center;gap:8px}
-#mapHome{display:grid;place-items:center;flex:none;width:42px;height:42px;border:0;border-radius:50%;cursor:pointer;
-  transition:background-color .15s,opacity .15s;
-  background-color:var(--glass);color:var(--fg)}
-#mapHome[hidden]{display:none}
-#mapHome svg{width:18px;height:18px}
-@media (hover:hover){#mapHome:hover:not(:disabled){background-color:color-mix(in srgb,var(--fg) 6%,var(--glass))}}
-
-body.searching #navpills{display:none}
-@media (max-width:899px){
-  #navpills{top:var(--chromet,10px);left:12px;gap:7px}
-  #mapHome{width:40px;height:40px}
-}
+/* (the map's home button moved into the panel header, beside Back: #panelHome) */
 @media (hover:hover){#mapSearch:hover{background:color-mix(in srgb,var(--fg) 6%,var(--glass))}}
 body.searching #mapSearch{display:none}
-/* On desktop the two map controls say what they are: a pill with the icon and a word.
-   On a phone they stay round icons, where the corners are tight and the thumb knows them. */
+/* On desktop the map's search control says what it is: a pill with the icon and a word.
+   On a phone it stays a round icon, where the corner is tight and the thumb knows it. */
 .mclbl{display:none}
 @media (min-width:900px){
-  #mapSearch,#mapHome{width:auto;padding:0 16px 0 13px;border-radius:999px;
+  #mapSearch{width:auto;padding:0 16px 0 13px;border-radius:999px;
     display:flex;align-items:center;gap:7px}
-  #mapHome[hidden]{display:none}
   .mclbl{display:inline;font:500 var(--t-sub)/1 var(--f-body);color:var(--fg)}
 }
 @media (max-width:899px){ #mapSearch{top:var(--chromet,10px);right:12px;width:40px;height:40px} }
@@ -2639,6 +2630,7 @@ span.xcov b{font:700 19px var(--f-body);color:#fff;opacity:.92}
 .pmin,
 .listrow,
 .navback,
+.navhome,
 .shuf,
 .navmenu button,
 .mcirc,
@@ -2688,9 +2680,6 @@ button,[role="button"]{-webkit-user-select:none; user-select:none}
           <div id="lanes"></div>
           <svg id="chart" role="img" aria-label="Genre lineage chart"></svg>
         </div>
-      </div>
-      <div id="navpills">
-        <button id="mapHome" class="glass" type="button" hidden aria-label="Back to the map" title="Back to the map"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.6 7.4 3.6v10.8l-4.6 2z"/><path d="M7.4 3.6 12.6 5.6v10.8L7.4 14.4z"/><path d="M12.6 5.6 17.2 3.6v10.8l-4.6 2z"/></svg><span class="mclbl" aria-hidden="true">Map</span></button>
       </div>
       <button id="mapSearch" class="glass" type="button" aria-label="Search styles and artists" title="Search styles and artists"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4 4"/></svg><span class="mclbl" aria-hidden="true">Search</span></button>
       <div id="bottomSearch">

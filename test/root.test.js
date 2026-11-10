@@ -257,21 +257,12 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
     say("  panning 200px moves the title with the map ("+before+" to "+after.ttl+")", before-after.ttl>=190);
     say("  while the lane strip stays pinned at "+after.strip, after.strip<=1);
     await q.close(); }
-  // the back and map pills float over the top left of the map, where the title now is
+  // the map's top-left corner has no control over it any more (Home moved into the panel
+  // header), so nothing can cover the title, tagline or counts there
   { const q=await b.newPage({viewport:{width:1440,height:900}});
     await q.goto(URL+"#delta"); await ready(q);
-    // the pills are what this block measures, and they only appear once boot has chosen
-    // the deep-linked style
-    await until(q,()=>{const e=document.getElementById("navpills");
-      return !!e && e.getBoundingClientRect().width>0;});
-    await q.evaluate(()=>{ document.getElementById("scroller").scrollTop=0; }); await settle(q);
-    const hit=await q.evaluate(()=>{ const a=document.getElementById("navpills").getBoundingClientRect();
-      const over=s=>{ const e=document.querySelector(s); if(!e) return false;
-        const r=e.getBoundingClientRect();
-        return !(a.right<r.left||a.left>r.right||a.bottom<r.top||a.top>r.bottom); };
-      return {vis:a.width>0, title:over("#maphead .mh"), tag:false, meta:over("#maphead .mmeta")}; });
-    say("with a style selected the pills are showing", hit.vis);
-    say("  and clear of the title, tagline and counts", !hit.title && !hit.tag && !hit.meta);
+    say("no control floats over the map's top-left corner",
+      await q.evaluate(()=>!document.getElementById("navpills") && !document.getElementById("mapHome")));
     await q.close(); }
   // the app icon left the header and moved into About, so check both ends of that:
   // a bare .appicon count would now find the one inside the collapsed details

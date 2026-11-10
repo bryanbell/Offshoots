@@ -121,8 +121,8 @@ const openCx=async q=>{ await q.$eval(".sect-connections",e=>{ if(!e.open) e.ope
   note("that last step says", await label(p));
   // back lives in the panel now, so it is a plain arrow with the destination in its title
   say("it still says where it goes", (await label(p))==="Back to the map");
-  // the map pill now shows wherever a style is selected, so a deep link offers both
-  say("home is offered here too, beside the step back", (await p.$eval("#mapHome",e=>!e.hidden))===true);
+  // Home only shows when Back would not get you home in one press; here it would
+  say("home is not offered when back is already the way home", (await p.$eval("#panelHome",e=>e.hidden))===true);
   await p.click("#panelBack"); await at(p,"");
   say("and lands on the unselected map", (await hash(p))==="" && (await p.$eval(".ovcard .mn",e=>e.textContent))==="Music Atlas");
   say("hidden once the trail runs out", (await shown(p))===false);
@@ -178,7 +178,8 @@ const openCx=async q=>{ await q.$eval(".sect-connections",e=>{ if(!e.open) e.ope
       // shows once you scroll past it: that one is a div, and it is centred rather than
       // between these two
       titles:document.querySelectorAll(".navrow button.navttl, .navrow .navttl[aria-haspopup]").length,
-      backPos:getComputedStyle(document.querySelector("#panelBack")).position,
+      // Back sits in the left group with Home now; the group is what is pinned
+      backPos:getComputedStyle(document.querySelector("#panelBack").closest(".navleft")||document.querySelector("#panelBack")).position,
       xPos:getComputedStyle(document.querySelector(".pmin")).position,
       pad:Math.round(parseFloat(getComputedStyle(document.querySelector(".pcard .navrow")).paddingRight)),
       width:Math.round(r.width)};});
@@ -217,30 +218,27 @@ const openCx=async q=>{ await q.$eval(".sect-connections",e=>{ if(!e.open) e.ope
   say("  and back opens Explore at the top ("+land+", left at "+deep+")", land===0);
   say("no page errors", p._errs.length===0 ? true : p._errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
 
-  // the home pill: shown whenever you are not on the unselected root
-  // it no longer disappears at the root: it stays in place and goes disabled, so "home"
-  // here means live, not merely present
-  const home=q=>q.$eval("#mapHome",e=>!e.hidden&&getComputedStyle(e).display!=="none"&&!e.disabled);
-  const parked=q=>q.evaluate(()=>{ const e=document.getElementById("mapHome");
-    const s=document.getElementById("mapSearch");
-    const a=e.getBoundingClientRect(), b=s.getBoundingClientRect();
-    return {shown:!e.hidden&&getComputedStyle(e).display!=="none", off:e.disabled,
-      dim:parseFloat(getComputedStyle(e).opacity)<.6, says:e.title,
-      size:Math.round(a.width)===Math.round(b.width)&&Math.round(a.height)===Math.round(b.height),
-      top:Math.round(a.top)===Math.round(b.top),
-      mirrored:Math.abs(Math.round(a.left)-Math.round((s.offsetParent?s.offsetParent.clientWidth:innerWidth)-b.right))<=1}; });
+  // ---------- Home, in the panel header to the left of Back ----------
+  // It shows only when Back would not get you home in one press, and takes you there.
+  // It used to float over the map's top-left corner; that corner has no button now.
+  const home=q=>q.evaluate(()=>{ const e=document.getElementById("panelHome");
+    return !!e && !e.hidden && getComputedStyle(e).display!=="none"; });
   p=await fresh(b,M);
-  say("home is not live on the map itself", (await home(p))===false);
-  // it was parked there, disabled and dimmed, which left a dead control sitting over the
-  // lane strip in the one corner the map has. It goes instead.
-  { const k=await parked(p);
-    say("  and not there at all", k.shown===false);
-    say("  so nothing covers the strip when there is nowhere to go", k.shown===false); }
+  say("home is not offered on the root", (await home(p))===false);
+  say("  and the map's corner has no button of its own any more",
+    await p.evaluate(()=>!document.getElementById("mapHome") && !document.getElementById("navpills")));
   await raise(p); await opened(p);
   await p.click('[data-mode="winddown"]'); await onPage(p,"mode:winddown");
+  say("one page in, Back is the way home, so Home stays out", (await home(p))===false);
   const pick1=await p.$eval(".picks .pick",e=>e.dataset.go);
   await p.click(".picks .pick"); await at(p,"#"+pick1);
-  say("home shown one step out", await home(p));
+  say("two in (a collection, then one of its styles), Home is offered", await home(p));
+  { const g=await p.evaluate(()=>{ const h=document.getElementById("panelHome").getBoundingClientRect(),
+      k=document.getElementById("panelBack").getBoundingClientRect();
+      return {w:Math.round(h.width),h:Math.round(h.height),left:h.right<=k.left+1,
+        row:Math.abs((h.top+h.bottom)/2-(k.top+k.bottom)/2)<2, says:document.getElementById("panelHome").title}; });
+    say("  to the left of Back, on its line, a full tap ("+g.w+"x"+g.h+")", g.left && g.row && g.w>=40 && g.h>=40);
+    say("  saying where it goes", g.says==="Back to Music Atlas"); }
   const hwalk=["hardcore","thrash"];
   p=await fresh(b,M,"#punk");
   await ensureOpen(p);
@@ -248,45 +246,12 @@ const openCx=async q=>{ await q.$eval(".sect-connections",e=>{ if(!e.open) e.ope
   await p.$eval(`.sect-connections [data-go="${hwalk[0]}"]`,e=>e.scrollIntoView({block:"center"}));
   await settle(p);
   await p.click(`.sect-connections [data-go="${hwalk[0]}"]`); await at(p,"#"+hwalk[0]);
-  say("home still there two styles deep", await home(p));
+  say("home there two styles deep", await home(p));
   say("and back names the style it returns to", /^Back to /.test(await label(p)));
-  note("it says", await p.$eval("#mapHome",e=>e.getAttribute("title")));
-  const hb=await p.evaluate(()=>{const h=document.getElementById("mapHome").getBoundingClientRect(),
-    s=document.getElementById("mapSearch").getBoundingClientRect();
-    return [Math.round(h.width),Math.round(h.height),Math.round(h.right),Math.round(s.left)];});
-  say("tap target "+hb[0]+"x"+hb[1], hb[0]>=40&&hb[1]>=40);
-  { const k=await parked(p);
-    say("  the same size as the search button, on the same line", k.size && k.top);
-    say("  and inset from its edge by the same amount", k.mirrored); }
-  say("clear of the search button ("+hb[2]+" vs "+hb[3]+")", hb[2]<hb[3]);
 
   // ---------- what it does, not only where it sits ----------
-  // It clears the selection and brings the panel up with it. Clearing alone rebuilt the
-  // card as Explore and then left it behind a handle, so the button read as though it had
-  // only emptied the map. Checked from a pushed page too, since that is the deepest place
-  // the button is offered from and the one with the most to unwind.
-  // fresh() takes the viewport flat and nests it itself, which is the spelling this file
-  // uses; newContext wants it nested and silently hands back a desktop if it is not
-  { const q=await fresh(b,M,"#dub"); await settle(q);
-    say("on a style the sheet is down and home is offered",
-      (await q.evaluate(()=>document.body.classList.contains("open")))===false && await home(q));
-    await q.click("#mapHome");
-    await until(q,()=>document.body.classList.contains("open") && location.hash==="");
-    await settle(q);
-    const back=await q.evaluate(()=>({
-      open:document.body.classList.contains("open"), hash:location.hash,
-      title:(document.querySelector(".ovcard .bigttl .mn")||{}).textContent,
-      pages:[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden).map(x=>x.dataset.p),
-      cur:!!document.querySelector("#chart .n.cur"), home:!document.getElementById("mapHome").hidden}));
-    say("the map button opens Explore and clears the style",
-      back.open && back.hash==="" && back.title==="Music Atlas"
-      && back.pages.join()==="root" && back.cur===false);
-    say("  and takes its own button away, there being nowhere left to go", back.home===false);
-
-    await q.close(); }
-
-  // again from two levels in: a style with a page pushed on top of it, which is the
-  // deepest the button is offered from and the most there is to unwind
+  // It clears the selection and brings the panel up with it, from a pushed page too,
+  // since that is the deepest place it is offered from and the one with most to unwind.
   { const q=await fresh(b,M,"#gospel"); await settle(q);
     await raise(q);
     await until(q,()=>document.body.classList.contains("open"));
@@ -298,32 +263,21 @@ const openCx=async q=>{ await q.$eval(".sect-connections",e=>{ if(!e.open) e.ope
       await settle(q); }
     const deep=await q.evaluate(()=>[...document.querySelectorAll(".ppage")]
       .filter(x=>!x.hidden).map(x=>x.dataset.p).join(","));
-    await q.click("#mapHome");
+    say("a page over a style: Home is offered ("+deep+")", await home(q));
+    await q.click("#panelHome");
     await until(q,()=>location.hash==="");
     await settle(q);
-    say("  and unwinds a pushed page on the way (was "+deep+")",
+    say("  and unwinds the page and the style on the way",
       await q.evaluate(()=>{
         const up=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden);
         return up.length===1 && up[0].dataset.p==="root"
           && document.body.classList.contains("open")
           && !document.querySelector("#chart .n.cur");}));
+    say("  and takes itself away, there being nowhere left to go", (await home(q))===false);
     await q.close(); }
-  // it used to sit right of the lane strip to keep off the family labels. Mirroring the
-  // search button put it back over the strip, which is the price of that symmetry: at the
-  // top of the map it covers only the blank filler, but scrolled down it crosses whichever
-  // family label is passing under it. Pinned here so the trade is deliberate, not forgotten.
-  const strip=await p.evaluate(()=>{
-    const pill=document.getElementById("mapHome").getBoundingClientRect(),
-      lane=document.querySelector(".lane.fill")||document.querySelector(".lane[data-fam]");
-    const r=lane.getBoundingClientRect();
-    return {over:Math.round(Math.min(pill.right,r.right)-Math.max(pill.left,r.left)),
-      stripw:Math.round(r.width)};});
-  say("it overlaps the "+strip.stripw+"px lane strip by "+strip.over+"px, which mirroring cost",
-    strip.over>0 && strip.over<=strip.stripw);
-  await p.click("#mapHome"); await at(p,"");
+  await p.click("#panelHome"); await at(p,"");
   say("one tap lands on the map", (await hash(p))==="" && (await p.$eval(".ovcard .mn",e=>e.textContent))==="Music Atlas");
   say("and goes again rather than sitting there dead", (await home(p))===false);
-  { const k=await parked(p); say("  gone from the corner", k.shown===false); }
   // home is a reset: the walk that led here is gone, so back goes too
   say("back is cleared away with it", (await shown(p))===false);
   // and the trail really is empty, not merely hidden: the next move starts from the map
@@ -497,22 +451,22 @@ const openCx=async q=>{ await q.$eval(".sect-connections",e=>{ if(!e.open) e.ope
     await r.goBack().catch(()=>{});
     say("a shared link's first browser back leaves the site", !r.url().startsWith("file:"));
     await c.close(); }
-  // Put away with its close button, the root sheet is dismissed (sheetgone), and the map
-  // button then shows. Tapping it set the sheet open but left it dismissed, off screen
-  // behind the bottom pill, so the tap looked like it did nothing.
+  // Put away with its close button, the root sheet is dismissed (sheetgone). The map
+  // button used to be how it came back; it is gone from the map, and the pull tab at the
+  // bottom of the screen is the way back.
   { const c=await b.newContext({viewport:{width:M.width,height:M.height},isMobile:true,hasTouch:true});
     const q=await c.newPage();
     await q.goto(URL); await ready(q); await settle(q);
     await q.tap(".ppage[data-p=root] ~ * .pmin, .pcard .pmin"); await settle(q);
-    const shut=await q.evaluate(()=>({home:!document.getElementById("mapHome").hidden,
-      gone:document.body.classList.contains("sheetgone")}));
-    say("root sheet closed: the map button shows", shut.home && shut.gone);
-    await q.tap("#mapHome"); await settle(q);
+    const shut=await q.evaluate(()=>({gone:document.body.classList.contains("sheetgone"),
+      pull:(e=>!!e && getComputedStyle(e).display!=="none")(document.getElementById("sheetpull"))}));
+    say("root sheet closed: the pull tab is there to bring it back", shut.gone && shut.pull);
+    await q.tap("#sheetpull"); await settle(q);
     const up=await q.evaluate(()=>({gone:document.body.classList.contains("sheetgone"),
       open:document.body.classList.contains("open"),
       top:document.getElementById("panel").getBoundingClientRect().top, h:innerHeight}));
     say("  and tapping it brings the sheet back on screen ("+Math.round(up.top)+" of "+up.h+")",
-      !up.gone && up.open && up.top < up.h*0.5);
+      !up.gone && up.top < up.h*0.95);
     await c.close(); }
   await b.close();
 })();
