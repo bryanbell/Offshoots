@@ -75,6 +75,11 @@ const spell=n=>n<=20?WORDS[n]
   say("no picks before a tap", (await p.$$(".picks .pick")).length===0);
   say("every circle carries an icon and a label", await p.$$eval(".mcirc",
     e=>e.every(x=>x.querySelector(".mco svg") && x.querySelector(".mclbl").textContent.trim().length>0)));
+  // and the name is on screen, not just in the markup: a stray .mclbl{display:none} from
+  // the map's search button once hid every one of them on phones
+  { const hid=await p.$$eval(".ppage[data-p=root] .mcirc .mclbl",e=>e.filter(x=>{const r=x.getBoundingClientRect();
+      return getComputedStyle(x).display==="none" || r.width<1 || r.height<1;}).map(x=>x.textContent));
+    say("  and every name is visible under its circle", hid.length===0 ? true : hid.slice(0,3).join(", ")); }
 
   const lay=await p.evaluate(()=>{
     const r=[...document.querySelectorAll(".mcirc")], row=document.querySelector(".mrow");
