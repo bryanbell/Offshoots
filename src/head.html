@@ -150,6 +150,9 @@ button{font-family:inherit}
 /* a style's mark is the family colour as a dot, which is the one case that IS a disc:
    there is no glyph to carry the colour, so the shape has to */
 .rico.rdot{width:11px;height:11px;margin:0 7px;border-radius:50%}
+/* a style result: its art at the Connections rows' size, the row grown to fit */
+.rico.sart{width:34px;height:34px;margin:-4px 0}
+.rico.sart img{display:block;width:100%;height:100%;object-fit:cover}
 .rtx{display:flex;gap:8px;align-items:baseline;min-width:0;flex:1 1 auto}
 /* the name does not give way; the line beside it does. Both shrinking meant a result
    could truncate the one word you typed while keeping the year beside it. The cap is
@@ -2553,13 +2556,13 @@ span.xcov b{font:700 19px var(--f-body);color:#fff;opacity:.92}
    Deeper has its glyph, the name, the year, and an arrow where the chevron was. The
    rows are a little shorter than Go Deeper's six, since a column can run to twenty-five. */
 .cxlist .cxgo{min-height:50px}
-.cxgo .cxart{flex:none;width:34px;height:34px;border-radius:50%;overflow:hidden;background:var(--fill)}
-.cxgo .cxart img{display:block;width:100%;height:100%;object-fit:cover}
+.cxgo .cxart,.sart{flex:none;width:34px;height:34px;border-radius:50%;overflow:hidden;background:var(--fill)}
+.cxgo .cxart img,.sart img{display:block;width:100%;height:100%;object-fit:cover}
 /* a style with no art at all: the error handler swaps in the family-colour tile, which
    needs telling its size here like everywhere else it can land */
-.cxgo .cxart .pcovph{display:grid;place-items:center;width:100%;height:100%;
+.cxgo .cxart .pcovph,.sart .pcovph{display:grid;place-items:center;width:100%;height:100%;
   background:linear-gradient(145deg,color-mix(in srgb,var(--c) 70%,#000) 0%,color-mix(in srgb,var(--c) 32%,#000) 100%)}
-.cxgo .cxart .pcovph b{font:700 12px var(--f-body);letter-spacing:.02em;color:#fff;opacity:.92}
+.cxgo .cxart .pcovph b,.sart .pcovph b{font:700 12px var(--f-body);letter-spacing:.02em;color:#fff;opacity:.92}
 .cxgo .lrct{font:500 var(--t-foot)/1 var(--f-mono);font-variant-numeric:tabular-nums}
 /* the arrow sits after the year, closer to it than the year is to the name, so the two
    read as one trailing group; on hover it moves the way it points */
@@ -2640,7 +2643,9 @@ button,[role="button"]{-webkit-user-select:none; user-select:none}
   background:none;color:inherit;font:500 var(--t-sub)/1.2 var(--f-body);text-align:left;cursor:pointer}
 .stepit.on{background:var(--accent);color:#fff}
 .stepit.on .stepyr{color:rgb(255 255 255 / .82)}
-.stepdot{flex:none;width:8px;height:8px;border-radius:50%}
+/* the art sits in the row; the row grows from 36 to fit it */
+.stepit{min-height:44px}
+.stepit .sart{width:30px;height:30px}
 .stepnm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .stepyr{flex:none;font:400 var(--t-foot)/1 var(--f-mono);color:var(--muted)}
 .stepnone{margin:2px 10px 8px;font:400 var(--t-sub)/1.35 var(--f-body);color:var(--muted)}

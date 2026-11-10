@@ -2161,7 +2161,7 @@ function stepOpen(side){
   el.innerHTML=`<div class="stephd">${side==="before"?"← Came Before":"Came After →"}</div>`
     + (ids.length ? ids.map((id,k)=>{ const x=byId[id];
         return `<button type="button" class="stepit" role="option" data-step="${k}" tabindex="-1">`
-          + `<i class="stepdot" style="background:${esc(FAM[x.fam].c)}"></i>`
+          + `<i class="sart">${cover(id,x,true)}</i>`
           + `<span class="stepnm">${esc(x.name)}</span><span class="stepyr">${esc(x.disp||String(x.year))}</span></button>`; }).join("")
       : `<p class="stepnone">${side==="before"?"Nothing earlier on the atlas":"Nothing has come out of it yet"}</p>`);
   document.body.appendChild(el);
@@ -3537,7 +3537,9 @@ function srcLine(x){
 // wear the glyph their own rows already wear elsewhere, so a thing found by search looks
 // like the same thing when you get there.
 function hitMark(h){
-  if(h.k==="style") return `<i class="rico rdot" style="background:${FAM[h.n.fam].c}"></i>`;
+  // a style wears its title-free art in a circle, the way the Connections rows show it;
+  // a style with no art falls back to its family-colour tile
+  if(h.k==="style") return `<i class="rico sart">${cover(h.n.id,h.n,true)}</i>`;
   // a crossing wears the playlist glyph the listen rows already wear
   if(h.k==="cross") return `<i class="rico rm-listen">${ROWICON.pl||""}</i>`;
   // a collection wears its own glyph, in the colour of how loud it is
@@ -3611,7 +3613,9 @@ function go(id){ clearQ(); select(id);
 // a cover that isn't there just disappears; error doesn't bubble, so listen on the capture phase
 // a cover that fails once is usually a hiccup; only a second failure means there is no file,
 // and then a tile keeps the row the same shape instead of collapsing it
-$("panelBody").addEventListener("error",e=>{
+// on the document, so art in search results and the arrow-key menu, which live outside
+// the panel, falls back the same way
+document.addEventListener("error",e=>{
   const t=e.target; if(!t||t.tagName!=="IMG"||!t.classList.contains("pcov")) return;
   // a cover the image CDN would not serve: ask for the file itself before giving up
   if(t.dataset.raw){ const raw=t.dataset.raw; delete t.dataset.raw; t.src=raw; return; }

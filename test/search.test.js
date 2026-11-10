@@ -36,7 +36,7 @@ async function ask(p,t){
     return {kind:x.className.split(" ").find(c=>/^res-/.test(c)),
       name:(x.querySelector(".rnm")||{}).textContent||"",
       line:(x.querySelector("small")||{}).textContent||"",
-      mark:!!ico, dot:!!(ico&&ico.classList.contains("rdot")),
+      mark:!!ico, dot:!!(ico&&ico.classList.contains("sart")&&ico.querySelector("img.pcov, .pcovph")),
       glyph:!!(ico&&ico.querySelector("svg")),
       ext:!!x.querySelector(".rext svg"),
       lbl:x.getAttribute("aria-label")||"",
@@ -153,7 +153,7 @@ async function ask(p,t){
   // already wear where they live.
   const mix=await ask(p,"bebop");
   say("every result carries a mark", mix.every(h=>h.mark));
-  say("  a style's is its family colour, not a glyph",
+  say("  a style's is its art in a circle, not a glyph",
     mix.filter(h=>h.kind==="res-style").every(h=>h.dot && !h.glyph));
   say("  a source's is its medium's glyph",
     mix.filter(h=>h.kind==="res-src").every(h=>h.glyph && !h.dot));

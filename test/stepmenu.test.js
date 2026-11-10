@@ -26,6 +26,7 @@ const say=(k,v)=>console.log((v===true?"PASS ":"FAIL ")+k+(typeof v!=="boolean"?
     return m && {side:m.classList.contains("after"), n:m.querySelectorAll(".stepit").length,
       lit:(document.querySelector("#chart .n.pv")||{dataset:{}}).dataset.id, hash:location.hash}; });
   say("right arrow opens what came after ("+(r1&&r1.n)+" of "+kids.length+")", !!r1 && r1.side && r1.n===kids.length);
+  say("  each row carrying the style's art", await p.$$eval(".stepmenu .stepit",e=>e.length>0 && e.every(x=>!!x.querySelector(".sart img.pcov, .sart .pcovph"))));
   say("  previewing the first on the map without selecting it", !!r1 && kids.includes(r1.lit) && r1.hash==="#emopop");
   const first=r1.lit;
   await p.keyboard.press("ArrowDown");
