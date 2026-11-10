@@ -262,8 +262,8 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
       deep:rd?[...rd.querySelectorAll(".deepfold")].map(d=>d.open):[]};});
   // open is the only honest reading of a shut <details>: it collapses with
   // content-visibility, so its children still report a size
-  say("the connections start folded, with the count on the heading (\""
-    + starts.cxAside+"\")", starts.cxFold && starts.cxOpen===false
+  say("the connections start open, still a fold, with the count on the heading (\""
+    + starts.cxAside+"\")", starts.cxFold && starts.cxOpen===true
     && /^\d+ styles?$/.test(starts.cxAside));
   say("  its control clearing the tap floor ("+starts.cxTap+"px)", starts.cxTap>=44);
   // on a style that actually has sources: this one may have none, and a panel with no

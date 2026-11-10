@@ -2549,21 +2549,25 @@ span.xcov b{font:700 19px var(--f-body);color:#fff;opacity:.92}
 .cxh{margin:0 0 8px;font:600 var(--t-sub)/1.3 var(--f-body);color:var(--muted);
   letter-spacing:0;text-transform:none;display:flex;align-items:center;gap:6px}
 .cxh .cxar{flex:none;width:14px;height:14px;opacity:.8}
-.cxlist{display:flex;flex-direction:column;gap:2px}
-.cxgo{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:9px;width:100%;
-  cursor:pointer;min-height:var(--tap);padding:0 10px;border-radius:10px;color:var(--fg);
-  font:400 var(--t-body)/var(--t-body-lh) var(--f-body);transition:background .15s}
-@media (hover:hover){.cxgo:hover{background:var(--fill2)}}
-.cxgo .dot{flex:none;width:9px;height:9px;border-radius:50%}
-.cxgo .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cxgo small{flex:none;font:500 var(--t-foot) var(--f-mono);color:var(--muted);
-  font-variant-numeric:tabular-nums}
-/* the go-to mark sits after the year, closer to it than the gap between name and year, so
-   the two read as one trailing group rather than as a third column */
-.cxgo .lrcv{flex:none;width:14px;height:14px;margin-left:-3px;color:var(--muted);opacity:.5;
-  transition:transform .15s,opacity .15s}
-@media (hover:hover){.cxgo:hover .lrcv{opacity:.9;transform:translateX(2px)}}
-@media (prefers-reduced-motion:reduce){ .cxgo .lrcv{transition:none} }
+/* Each column is a card like Go Deeper's (.listgrp .sep, .listrow): the art where Go
+   Deeper has its glyph, the name, the year, and an arrow where the chevron was. The
+   rows are a little shorter than Go Deeper's six, since a column can run to twenty-five. */
+.cxlist .cxgo{min-height:50px}
+.cxgo .cxart{flex:none;width:34px;height:34px;border-radius:50%;overflow:hidden;background:var(--fill)}
+.cxgo .cxart img{display:block;width:100%;height:100%;object-fit:cover}
+/* a style with no art at all: the error handler swaps in the family-colour tile, which
+   needs telling its size here like everywhere else it can land */
+.cxgo .cxart .pcovph{display:grid;place-items:center;width:100%;height:100%;
+  background:linear-gradient(145deg,color-mix(in srgb,var(--c) 70%,#000) 0%,color-mix(in srgb,var(--c) 32%,#000) 100%)}
+.cxgo .cxart .pcovph b{font:700 12px var(--f-body);letter-spacing:.02em;color:#fff;opacity:.92}
+.cxgo .lrct{font:500 var(--t-foot)/1 var(--f-mono);font-variant-numeric:tabular-nums}
+/* the arrow sits after the year, closer to it than the year is to the name, so the two
+   read as one trailing group; on hover it moves the way it points */
+.cxgo .cxrar{margin-left:-4px;transition:transform .15s,opacity .15s}
+@media (hover:hover){
+  .cxgo.cxled:hover .cxrar{opacity:.9;transform:translateX(2px)}
+  .cxgo.cxfrom:hover .cxrar{opacity:.9;transform:translateX(-2px)} }
+@media (prefers-reduced-motion:reduce){ .cxgo .cxrar{transition:none} }
 .cxwrap + .tally{margin:14px 0 0}
 .cxnone{margin:0;padding:0 10px;font:400 var(--t-sub)/var(--t-sub-lh) var(--f-body);color:var(--muted)}
 

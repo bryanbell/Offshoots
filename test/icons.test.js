@@ -31,7 +31,9 @@ const CHV=/M181\.66,133\.66l-80,80a8,8,0,0,1-11\.32-11\.32L164\.69,128/;
         d:d(g), open:s.parentElement.open,
         rot:getComputedStyle(g).transform});
     }
-    for(const r of document.querySelectorAll(".listrow .lrcv, .secthead.sectgo .sectcv svg")){
+    // the connection rows carry arrows instead, pointing the way each row goes on the map;
+    // connections.test checks those
+    for(const r of document.querySelectorAll(".listrow:not(.cxgo) .lrcv, .secthead.sectgo .sectcv svg")){
       const g=r.tagName==="svg"?r:r.querySelector("svg")||r;
       const row=g.closest(".listrow,.secthead");
       out.rows.push({label:(row.textContent||"").replace(/\s+/g," ").trim().slice(0,40), d:d(g)});
