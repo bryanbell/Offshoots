@@ -54,7 +54,12 @@ function initials(name){
 // bare:true asks for the version of the artwork with no lettering on it, for the places
 // where the row already prints the name an inch away. Falls back to the titled art, and
 // that falls back to the family-colour tile, so a style with neither still has a square.
-const cover = (id,n,bare) => {
+// small:true is for the 34px circles (search results, the Connections rows). Those ask
+// the CDN for 96px rather than 480, decode in step with the paint and load at once. As
+// async-decoded 480px images, Safari drew every circle in the results blank for a frame
+// each time a hover repainted the list, which read as the whole list blinking.
+const SMALL_W = 96;
+const cover = (id,n,bare,small) => {
   const f = (typeof COVER!=="undefined" && COVER[id]) || id;   // COVER maps a style to its file name; otherwise the id is the file name
   const s = bare && typeof STYLEART!=="undefined" && STYLEART[id];
   const node = n || byId[id];
@@ -62,8 +67,9 @@ const cover = (id,n,bare) => {
   const ini = initials(node?node.name:id);
   const raw = s ? `${STYLE_DIR}${encodeURIComponent(s)}${ART_EXT}`
                 : `${ART_DIR}${encodeURIComponent(f)}${ART_EXT}`;
-  const src = artURL(raw);
-  return `<img class="pcov" src="${src}" alt="" loading="lazy" decoding="async"${CDN?` data-raw="${raw}"`:""} data-c="${esc(c)}" data-ini="${esc(ini)}">`;
+  const src = artURL(raw, small?SMALL_W:0);
+  const how = small ? `loading="eager" decoding="sync"` : `loading="lazy" decoding="async"`;
+  return `<img class="pcov" src="${src}" alt="" ${how}${CDN?` data-raw="${raw}"`:""} data-c="${esc(c)}" data-ini="${esc(ini)}">`;
 };
 // cover plus a playlist title say what the section is; a heading on top of that is noise
 function playLabel(n){
@@ -1614,7 +1620,7 @@ function linksSect(n,anc,desc){
       // each row: the style's art without its title (the name is beside it), the name,
       // the year under it, and an arrow pointing back for before and on for after
       ? `<div class="listgrp sep cxlist">${ids.map(i=>`<button type="button" class="listrow cxgo ${cls}" data-go="${esc(i)}">`
-          + `<span class="cxart">${cover(i,byId[i],true)}</span>`
+          + `<span class="cxart">${cover(i,byId[i],true,true)}</span>`
           + `<span class="lrtx"><span class="lrlbl nm">${esc(byId[i].name)}</span>`
           + `<small class="lrsub cxyr">${byId[i].year<1950?esc(byId[i].disp):byId[i].year}</small></span>`
           + (arrow==="from"?CXROWL:CXROWR) + `</button>`).join("")}</div>`
@@ -3538,7 +3544,7 @@ function srcLine(x){
 function hitMark(h){
   // a style wears its title-free art in a circle, the way the Connections rows show it;
   // a style with no art falls back to its family-colour tile
-  if(h.k==="style") return `<i class="rico sart">${cover(h.n.id,h.n,true)}</i>`;
+  if(h.k==="style") return `<i class="rico sart">${cover(h.n.id,h.n,true,true)}</i>`;
   // a crossing wears the playlist glyph the listen rows already wear
   if(h.k==="cross") return `<i class="rico rm-listen">${ROWICON.pl||""}</i>`;
   // a collection wears its own glyph, in the colour of how loud it is
