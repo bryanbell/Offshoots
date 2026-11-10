@@ -63,12 +63,22 @@ const look=p=>p.evaluate(()=>{
   await until(p,id=>{const g=document.querySelector("#chart .n.pv"); return !!g&&g.dataset.id===id;},id2);
   say("a second row moves the preview", (await p.$$eval("#chart .n.pv",g=>g.length))===1);
 
-  // off the list: the map's highlighting goes back as it was
-  await p.mouse.move(200,400);
+  // off the list the map keeps the preview, so the eye can follow it there
+  await p.mouse.move(200,400); await new Promise(r=>setTimeout(r,500));
+  const stay=await look(p);
+  say("moving off the list keeps the preview on the map", stay.peek && stay.pv===id2 && stay.lines>0);
+  say("  and still nothing was selected", stay.sel===before.sel && stay.hash===before.hash);
+  // Escape puts the map back as it was
+  await p.keyboard.press("Escape");
   await until(p,()=>!document.getElementById("chart").classList.contains("peek"));
   const off=await look(p);
-  say("moving off the list ends the preview", !off.peek && off.pv===null && off.lines===0);
-  say("  and still nothing was selected", off.sel===before.sel && off.hash===before.hash);
+  say("Escape ends the preview", !off.peek && off.pv===null && off.lines===0);
+  // and so does clicking the map
+  await p.hover(`.picks .pk .pick[data-go="${id2}"]`);
+  await until(p,id=>!!document.querySelector(`#chart .n.pv[data-id="${id}"]`),id2);
+  await p.mouse.move(200,400); await p.mouse.down(); await p.mouse.up();
+  await until(p,()=>!document.getElementById("chart").classList.contains("peek"));
+  say("clicking the map ends it too", !(await look(p)).peek);
 
   // clicking the row still opens the style, with no preview left over
   await p.hover(`.picks .pk .pick[data-go="${id}"]`);
@@ -100,9 +110,11 @@ const look=p=>p.evaluate(()=>{
     const ton=await look(t);
     say("hovering a Most Influential row lights that style and its lines", !!lit && ton.peek && ton.near>0 && ton.lines>0);
     say("  without selecting it", ton.sel===tb.sel && ton.hash===tb.hash);
-    await t.mouse.move(200,400);
+    await t.mouse.move(200,400); await new Promise(r=>setTimeout(r,500));
+    say("  and moving off keeps it", (await look(t)).peek);
+    await t.click("#panelBack");
     await until(t,()=>!document.getElementById("chart").classList.contains("peek"));
-    say("  and moving off ends it", !(await look(t)).peek);
+    say("  leaving the page ends it", !(await look(t)).peek);
     await t.close(); }
 
   say("no page errors", errs.length===0 || errs.join(" | "));

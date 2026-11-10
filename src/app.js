@@ -924,6 +924,7 @@ function pageTitleOf(key){
 // back presses needed to reach the overview. The map may not be in the trail at all,
 // which happens on a shared link, and that is exactly when the shortcut earns its place.
 function goHome(){
+  peekEnd();
   TRAIL.length=0;                    // home is a reset, not another step: back goes with it
   if(typeof MODE!=="undefined") MODE=null;
   if(state.sel){ GOINGBACK=true; try{ clearSel(); } finally { GOINGBACK=false; } }
@@ -1873,6 +1874,7 @@ $("chart").addEventListener("click",e=>{
   if(state.sel) clearSel();
 });
 function clearSel(){
+  peekEnd();
   closeNav();
   if(state.sel && !GOINGBACK) pushTrail();
   state.sel=null;
@@ -2095,7 +2097,8 @@ function modePicks(m){
 // Hovering a collection row, or a Most Influential row, previews the style on the map: it lights the style and the
 // lines straight to and from it, and the map slides to it. A preview only. It is its own
 // layer of classes (peek, pv, pvn, pve), so state.sel, the trail and the address are
-// untouched, and moving off the list puts the map's highlighting back as it was. Desktop
+// untouched. Moving off the list leaves it showing; leaving the page, opening a style,
+// clicking the map or Escape puts the map's highlighting back as it was. Desktop
 // with a mouse only: on a phone the sheet covers the map and there is no hover.
 const PEEKOK=()=>!OVERLAY && matchMedia("(hover:hover) and (pointer:fine)").matches;
 let PEEKID=null, PEEKT=0;
@@ -2119,12 +2122,20 @@ function peekStyle(id){
 document.addEventListener("pointerover",e=>{
   if(e.pointerType!=="mouse" || !PEEKOK()) return;
   const b=e.target.closest && e.target.closest(".picks .pk .pick[data-go], .toplist .toprow[data-go]");
-  const id=b ? b.dataset.go : null;
+  // off a row the map keeps showing the last style hovered, so the eye can travel from
+  // the list to the map without the highlight vanishing on the way
+  if(!b){ clearTimeout(PEEKT); return; }
+  const id=b.dataset.go;
   if(id===PEEKID) { clearTimeout(PEEKT); return; }
   clearTimeout(PEEKT);
-  PEEKT=setTimeout(()=>peekStyle(id), id?140:60);
+  PEEKT=setTimeout(()=>peekStyle(id), 140);
 });
-document.documentElement.addEventListener("mouseleave",()=>{ clearTimeout(PEEKT); if(PEEKID) peekStyle(null); });
+// It ends when the list it came from does: a page pushed or popped, a style opened, the
+// map clicked, or Escape.
+function peekEnd(){ clearTimeout(PEEKT); if(PEEKID && !STEP) peekStyle(null); }
+// the first Escape only clears the preview; the next one goes back as usual
+document.addEventListener("keydown",e=>{ if(e.key==="Escape" && PEEKID && !STEP){ e.stopPropagation(); e.preventDefault(); peekEnd(); } },true);
+{ const sc=$("scroller"); if(sc) sc.addEventListener("pointerdown",peekEnd); }
 // opening a style, or any repaint of the panel, ends the preview
 document.addEventListener("click",e=>{ if(PEEKID && e.target.closest && e.target.closest("[data-go]")){ clearTimeout(PEEKT); peekStyle(null); } },true);
 // Arrow keys step along the lineage from the selected style. Left opens a menu of what it
@@ -2932,6 +2943,7 @@ function pageExists(key){
   return !!PAGES_DEF[key];
 }
 function pushPage(key){
+  peekEnd();
   if(key.indexOf("mode:")===0) bumpMode(key.slice(5));
   const def = key.indexOf("mode:")===0 ? (()=>modePage(key.slice(5)))
     : key.indexOf("med:")===0 ? (()=>mediaPage(key.slice(4)))
@@ -2981,6 +2993,7 @@ function pushPage(key){
   return true;
 }
 function popPage(){
+  peekEnd();
   if(!PSTACK.length) return false;
   const card=panelCard(), stack=card&&card.querySelector(":scope > .pstack");
   if(!stack){ PSTACK=[]; syncBack(); return false; }
