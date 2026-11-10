@@ -2445,16 +2445,11 @@ function clockGroups(h){
   return {now:now.sort(by).map(x=>x.m), any:any.map(x=>x.m), later:later.sort(by).map(x=>x.m)};
 }
 function clockOrder(h){ const g=clockGroups(h==null?clockHour():h); return g.now.concat(g.any,g.later); }
-function modeOrder(adaptive){
-  // a first visit sees what suits the hour; once things are opened here, those lead
-  const base=clockOrder();
-  if(!adaptive) return base;
-  const use=modeUse();
-  return base.map((m,i)=>[m,i]).sort((a,b)=>{
-    const ua=+use[a[0][0]]||0, ub=+use[b[0][0]]||0;
-    return ub-ua || a[1]-b[1];
-  }).map(x=>x[0]);
-}
+// The root's row follows the clock and nothing else: what suits the hour leads every time
+// it is built. It used to float the most-opened collections to the front once a browser
+// had a tally, which froze the row on last week's habits whatever the time; that order is
+// still one choice away as Most used on the Collections page.
+function modeOrder(){ return clockOrder(); }
 
 // ---------- the sort on the list ----------
 // The row learns on its own and the list did not, which is the right split for the row but
@@ -2551,7 +2546,7 @@ function modeSect(){
   // whole set one tap away behind the heading. Twenty-six modes suit that exactly: a
   // few are in reach, the heading opens the lot, and nothing is buried under a scroll
   // of its own.
-  const circles=modeOrder(true).map(m=>modeTile(m)).join("");
+  const circles=modeOrder().map(m=>modeTile(m)).join("");
   // The lede is the welcome card's line, word for word. Not a caption for the pictures
   // ("By mood, place or task" was that, and the pictures said it better): it says why
   // this section is a different way in from the Atlas below it, in the words the

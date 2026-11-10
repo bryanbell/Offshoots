@@ -255,43 +255,19 @@ const spell=n=>n<=20?WORDS[n]
   // down), not quiet to loud, so here it only has to carry every level.
   const order=lv.map(c=>+c.lv);
   say("all five levels are in the row ["+order.join("")+"]", [1,2,3,4,5].every(v=>order.includes(v)));
-  // and then it learns. Opening a mode is tallied in this browser alone, and the ones
-  // you open float to the front of the row the next time the overview is built, so what
-  // you actually use is in reach without a swipe. The full list behind the heading does
-  // not move, which is what keeps one stable place to find anything.
+  // The row follows the clock, not a tally: a browser that has opened Road Trip five
+  // times still gets what suits the hour first. Most used lives on the Collections page.
   const before=await p.$$eval(".mcirc .mclbl",e=>e.map(x=>x.textContent));
-  // The tally is seeded into a fresh page rather than written and reloaded. Chromium's
-  // localStorage under file:// does not reliably survive a reload, so write-then-reload
-  // turned a real behaviour into a coin toss; an init script runs before the page's own
-  // scripts on every navigation, so the row always sees the tally it is being tested on.
-  const seeded=async use=>{
-    const q=await b.newPage({viewport:M});
-    await q.addInitScript(u=>{ try{ u ? localStorage.setItem("musicatlas.modeuse",JSON.stringify(u))
-      : localStorage.removeItem("musicatlas.modeuse"); }catch(e){} }, use);
-    await q.goto(URL); await ready(q);
-    await raise(q);
+  // seeded through an init script: localStorage under file:// does not reliably survive
+  // a reload, and an init script runs before the page's own scripts on every navigation
+  { const q=await b.newPage({viewport:M});
+    await q.addInitScript(()=>{ try{ localStorage.setItem("musicatlas.modeuse",JSON.stringify({road:5,party:2})); }catch(e){} });
+    await q.goto(URL); await ready(q); await raise(q);
     await q.waitForSelector(".mcirc",{state:"attached",timeout:8000}).catch(()=>{});
     await opened(q);
-    return q; };
-
-  { const q=await seeded({road:5,party:2});
     const after=await q.$$eval(".mcirc .mclbl",e=>e.map(x=>x.textContent));
-    say("a tally puts the most-opened first ("+after.slice(0,2).join(", ")+")",
-      after[0]==="Road Trip" && after[1]==="Dance Floor");
-    say("  without losing any of the "+after.length,
-      after.length===nModes && new Set(after).size===nModes);
-    say("  and the rest keep their order",
-      after.slice(2).join("/")===before.filter(x=>x!=="Road Trip"&&x!=="Dance Floor").join("/"));
-    // the list behind the heading is the stable reference, so it must not reorder
-    await q.click(".sect-modes .secthead"); await onPage(q,"modes");
-    const page=await q.$$eval(".ppage:not([hidden]) .modelist .mrlbl",e=>e.map(x=>x.textContent));
-    say("  while the full list stays put ("+page.slice(0,2).join(", ")+")",
-      page.join("/")===before.join("/"));
-    await q.close(); }
-
-  { const q=await seeded(null);
-    say("  and clearing the tally puts it back",
-      (await q.$$eval(".mcirc .mclbl",e=>e.map(x=>x.textContent))).join("/")===before.join("/"));
+    say("a tally does not reorder the row; it stays in time order ("+after.slice(0,2).join(", ")+")",
+      after.join("/")===before.join("/") && after.length===nModes);
     await q.close(); }
 
   // ---------- a tap pushes a page ----------
