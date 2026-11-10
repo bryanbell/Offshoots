@@ -2405,8 +2405,47 @@ function bumpMode(k){
     localStorage.setItem(MODEUSE_KEY,JSON.stringify(o));
   }catch(e){}
 }
+// ---------- the hours each collection suits ----------
+// A first visit in the afternoon used to open on Sleep and Wind Down, because the only order
+// was quiet to loud. Each collection now says when it fits, in local hours: [start, end] or
+// [start, end, peak], with an end past 24 running on into the small hours ([22,30] is 10pm
+// to 6am). The peak is the middle unless given. A collection with no entry is not tied to
+// the clock (a mood, a speaker, a person).
+const MODEHOURS={
+  morning:[[5,10,8]], coffee:[[7,16,10]], commute:[[6,9.5,8],[16,19,17.5]],
+  workout:[[5,10,7],[16,19,17.5]], miles:[[5,11,7],[15,19,17]],
+  focus:[[9,17,11]], coding:[[9,18,14],[20,25,23]], restless:[[9,17,14]], chores:[[9,18,11]],
+  garage:[[9,18,14]], road:[[8,18,12]], wander:[[10,19,15.5]], showkid:[[8,20,16]], family:[[11,21,15]],
+  gaming:[[15,26,21]], cooking:[[16,20,17.5]], camping:[[16,23,21]], cocktails:[[17,23,20]],
+  dinner:[[17.5,21.5,19.5]], together:[[19,24]], deep:[[19,24]], houseparty:[[19,25,22.5]],
+  lonely:[[19,27,23]], winddown:[[20.5,23.5,22]], party:[[21,27,24.5]], nightcap:[[21,26,23.5]],
+  onmind:[[21,27,24]], cosmic:[[21,28,25]], nightdrive:[[21,28,25]], sleep:[[22,30,27]]};
+function clockHour(){ const d=new Date(); return d.getHours()+d.getMinutes()/60; }
+// in the window at hour h, allowing for a window that runs past midnight
+const inHours=(h,[s,e])=>{ const x=h<s?h+24:h; return x>=s && x<e; };
+const hoursUntil=(h,[s])=>((s-h)%24+24)%24;
+// how far from its best hour, as a share of half the window: 0 at the peak, 1 at the edge
+const offPeak=(h,[s,e,p])=>{ const x=h<s?h+24:h, c=p==null?(s+e)/2:p;
+  return Math.abs(x-c)/Math.max(x<c?c-s:e-c, .5); };
+// what to call the part of the day, for the first section's heading
+function dayPart(h){
+  return h<5?"Late night":h<12?"This morning":h<17?"This afternoon":h<21?"This evening":"Tonight"; }
+// Three groups: suits the hour, not tied to the clock, and the rest by how soon their hours
+// come round. Inside "now" whatever is nearest its best hour leads (Morning at 8, Dinner at
+// half seven); ties keep the order MODES is written in.
+function clockGroups(h){
+  const now=[], any=[], later=[];
+  MODES.forEach((m,i)=>{ const w=MODEHOURS[m[0]];
+    if(!w) any.push({m,i});
+    else if(w.some(x=>inHours(h,x))) now.push({m,i,k:Math.min(...w.filter(x=>inHours(h,x)).map(x=>offPeak(h,x)))});
+    else later.push({m,i,k:Math.min(...w.map(x=>hoursUntil(h,x)))}); });
+  const by=(a,b)=>a.k-b.k||a.i-b.i;
+  return {now:now.sort(by).map(x=>x.m), any:any.map(x=>x.m), later:later.sort(by).map(x=>x.m)};
+}
+function clockOrder(h){ const g=clockGroups(h==null?clockHour():h); return g.now.concat(g.any,g.later); }
 function modeOrder(adaptive){
-  const base=MODES.slice().sort((a,b)=>(a[5]||3)-(b[5]||3));
+  // a first visit sees what suits the hour; once things are opened here, those lead
+  const base=clockOrder();
   if(!adaptive) return base;
   const use=modeUse();
   return base.map((m,i)=>[m,i]).sort((a,b)=>{
@@ -2419,21 +2458,22 @@ function modeOrder(adaptive){
 // The row learns on its own and the list did not, which is the right split for the row but
 // leaves the list with one order whether you are reading down it to pick a feeling or
 // hunting a name you already know. So the list gets the choice stated out loud: quiet to
-// loud, what this browser opens most, or plain A to Z. Quietest stays the default, so
-// nothing moves until it is asked to.
+// loud, what this browser opens most, or plain A to Z. The default is Right now: what suits
+// the local hour first, so a first visit in the afternoon does not open on Sleep.
 // Loudest-first is back now that the control is a word rather than an icon: as a glyph it
 // was the same speaker with one more wave on it, which is not a difference you can see at
 // 18px, but "Loudest" reads fine and a list that opens on Workout is a different list.
 const MODESORT_KEY="musicatlas.modesort";
 const MODESORTS=[
+  ["now","Right now","What suits the time of day"],
   ["quiet","Quietest","Quietest first"],
   ["loud","Loudest","Loudest first"],
   ["used","Most used","What this browser opens most"],
   ["az","A–Z","By name, A to Z"]];
 function modeSort(){
   try{ const v=localStorage.getItem(MODESORT_KEY);
-    return MODESORTS.some(s=>s[0]===v) ? v : "quiet";
-  }catch(e){ return "quiet"; }
+    return MODESORTS.some(s=>s[0]===v) ? v : "now";
+  }catch(e){ return "now"; }
 }
 function setModeSort(v){ try{ localStorage.setItem(MODESORT_KEY,v); }catch(e){} }
 function modeOrderBy(how){
@@ -2441,14 +2481,16 @@ function modeOrderBy(how){
   if(how==="az")   return MODES.slice().sort((a,b)=>a[1].localeCompare(b[1]));
   // the same bands read from the other end, each band in its written order
   if(how==="loud") return MODES.slice().sort((a,b)=>lv(b)-lv(a));
+  if(how==="quiet") return quiet;
+  const clock=clockOrder();
   if(how==="used"){
-    // ties fall back to the quiet order, so an untouched browser still reads quiet to loud
-    // rather than scrambling into whatever order MODES happens to be declared in
+    // ties fall back to the clock order, so an untouched browser reads the same as the
+    // default rather than scrambling into whatever order MODES happens to be declared in
     const use=modeUse();
-    return quiet.map((m,i)=>[m,i]).sort((a,b)=>
+    return clock.map((m,i)=>[m,i]).sort((a,b)=>
       ((+use[b[0][0]]||0)-(+use[a[0][0]]||0)) || a[1]-b[1]).map(x=>x[0]);
   }
-  return quiet;
+  return clock;
 }
 // ---------- an inline picker ----------
 // The sorts were a segmented track of unlabelled glyphs. Four little drawings, one of
@@ -2545,6 +2587,12 @@ function modeRow(m){
 const LVNAME={1:["Still","Low lights, nothing to do"],2:["Quiet","Company, a table, a window seat"],
   3:["Steady","A job to do, a room to fill"],4:["Lively","On your feet"],5:["Loud","As loud as it goes"]};
 function modeSections(how){
+  if(how==="now"){
+    const h=clockHour(), g=clockGroups(h), out=[];
+    if(g.now.length) out.push({key:"now",title:dayPart(h),sub:"Suits the hour",rows:g.now});
+    if(g.any.length) out.push({key:"any",title:"Any Time",sub:"Not tied to the clock",rows:g.any});
+    if(g.later.length) out.push({key:"later",title:"Later",sub:"Soonest first",rows:g.later});
+    return out; }
   const list=modeOrderBy(how);
   if(how==="az"){
     const out=[]; list.forEach(m=>{ const k=m[1][0].toUpperCase();

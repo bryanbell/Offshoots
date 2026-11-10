@@ -394,6 +394,13 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
     const secs=async()=>p.evaluate(()=>[...document.querySelectorAll(".ppage:not([hidden]) .modesec")]
       .map(x=>({t:x.querySelector(".msecttl").textContent, n:x.querySelectorAll(".moderow").length,
         said:+x.querySelector(".sectaside").textContent})));
+    // the default is the clock order; quietest is one choice away
+    const dflt=await secs();
+    say("by default the list is cut by the clock: "+dflt.map(x=>x.t).join(", "),
+      /^(Late night|This morning|This afternoon|This evening|Tonight),Any Time,Later$/.test(dflt.map(x=>x.t).join())
+      && dflt.every(x=>x.n===x.said) && dflt.reduce((a,x)=>a+x.n,0)===D.MODES.length);
+    await p.selectOption(".msortsel","quiet");
+    await until(p,()=>document.querySelector(".msortsel").value==="quiet"); await settle(p);
     const quiet=await secs();
     say("sorted quietest, the list is "+quiet.length+" bands: "+quiet.map(x=>x.t).join(", "),
       quiet.map(x=>x.t).join()==="Still,Quiet,Steady,Lively,Loud" && quiet.every(x=>x.n===x.said)
