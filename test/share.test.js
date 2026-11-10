@@ -236,13 +236,13 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
     if(!s) return null;
     const cols=[...s.querySelectorAll(".cxcol")];
     const cb=cols.map(c=>c.getBoundingClientRect());
-    return {heads:cols.map(c=>c.querySelector(".cxh").textContent.trim()),
+    return {heads:cols.map(c=>c.getAttribute("aria-label")||""),
       counts:cols.map(c=>c.querySelectorAll("[data-go]").length),
       title:(s.querySelector(".secttl")||{}).textContent||"",
       inFlow:getComputedStyle(s).position==="static",
       menus:document.querySelectorAll("button.navttl, .navttl[aria-haspopup]").length};});
   say("both directions are on the panel (\""+seg.title+"\": "+seg.heads.join(" | ")+")",
-    !!seg && /^Before This Style/.test(seg.heads[0]) && /^After This Style/.test(seg.heads[1]));
+    !!seg && /^Before this style/.test(seg.heads[0]) && /^After this style/.test(seg.heads[1]));
   say("  listing "+seg.counts.join(" and ")+" styles by name",
     seg.counts[0]+seg.counts[1] > 0);
   say("  in the flow, with no menu left on a title", seg.inFlow && seg.menus===0);
@@ -256,16 +256,14 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
   const starts=await p.evaluate(()=>{
     const cx=document.querySelector(".sect-connections");
     const rd=document.querySelector(".sect-read");
-    return {cxFold:!!cx && cx.tagName==="DETAILS", cxOpen:!!cx && cx.open,
+    return {cxFold:!!cx && (cx.tagName==="DETAILS"||!!cx.querySelector("summary")),
       cxAside:cx?(cx.querySelector(".sectaside")||{}).textContent||"":"",
-      cxTap:cx?Math.round(cx.querySelector("summary").getBoundingClientRect().height):0,
       deep:rd?[...rd.querySelectorAll(".deepfold")].map(d=>d.open):[]};});
   // open is the only honest reading of a shut <details>: it collapses with
   // content-visibility, so its children still report a size
-  say("the connections start open, still a fold, with the count on the heading (\""
-    + starts.cxAside+"\")", starts.cxFold && starts.cxOpen===true
-    && /^\d+ styles?$/.test(starts.cxAside));
-  say("  its control clearing the tap floor ("+starts.cxTap+"px)", starts.cxTap>=44);
+  // not a fold at all now: always there, with the count on its heading
+  say("the connections are always shown, not a fold, with the count on the heading (\""
+    + starts.cxAside+"\")", !starts.cxFold && /^\d+ styles?$/.test(starts.cxAside));
   // on a style that actually has sources: this one may have none, and a panel with no
   // Go deeper section is not a panel with a shut one
   { const dq=await b.newPage({viewport:{width:1440,height:900}});
@@ -490,11 +488,9 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
     say("  with no chevron over it, and its bottom edge still tappable", clear.chev==="none" && clear.edge);
     await raise(w); await opened(w);
     const r=await w.evaluate(()=>{ const s=document.querySelector(".sthead .stintro");
-      const tl=document.querySelector(".sect-connections .tally");
-      return {tally:!!tl, wk:!!s.querySelector("a.stwk"),
+      return {wk:!!s.querySelector("a.stwk"),
         beforeShare:!!(s.compareDocumentPosition(document.querySelector("[data-share]"))&4)}; });
     say("carrying the Wikipedia link", r.wk);
-    say("with the tally moved in with the links it counts", r.tally);
     say("and still above the share button", r.beforeShare);
     await w.close(); }
 

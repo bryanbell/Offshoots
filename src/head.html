@@ -2554,9 +2554,6 @@ span.xcov b{font:700 19px var(--f-body);color:#fff;opacity:.92}
    single column running down. Stacked only on the narrowest phone. */
 .cxwrap{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:start}
 @media (max-width:359px){ .cxwrap{grid-template-columns:minmax(0,1fr);gap:16px} }
-.cxh{margin:0 0 8px;font:600 var(--t-sub)/1.3 var(--f-body);color:var(--muted);
-  letter-spacing:0;text-transform:none;display:flex;align-items:center;gap:6px}
-.cxh .cxar{flex:none;width:14px;height:14px;opacity:.8}
 /* Each column is a card like Go Deeper's (.listgrp .sep, .listrow): the art where Go
    Deeper has its glyph, the name, the year, and an arrow where the chevron was. The
    rows are a little shorter than Go Deeper's six, since a column can run to twenty-five. */
@@ -2583,8 +2580,7 @@ span.xcov b{font:700 19px var(--f-body);color:#fff;opacity:.92}
   .cxgo.cxled:hover .cxrar{opacity:.9;transform:translateX(2px)}
   .cxgo.cxfrom:hover .cxrar{opacity:.9;transform:translateX(-2px)} }
 @media (prefers-reduced-motion:reduce){ .cxgo .cxrar{transition:none} }
-.cxwrap + .tally{margin:14px 0 0}
-.cxnone{margin:0;padding:0 10px;font:400 var(--t-sub)/var(--t-sub-lh) var(--f-body);color:var(--muted)}
+.cxnone{margin:0;padding:14px 10px;font:400 var(--t-sub)/var(--t-sub-lh) var(--f-body);color:var(--muted)}
 
 /* Go deeper, by format */
 .deepfold{margin-top:0;border-top:.5px solid var(--sep)}
