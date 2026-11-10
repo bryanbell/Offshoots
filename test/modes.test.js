@@ -251,11 +251,10 @@ const spell=n=>n<=20?WORDS[n]
       glyph:getComputedStyle(c.querySelector(".mco")).color,
       lbl:getComputedStyle(c.querySelector(".mclbl")).color};}));
   say("every circle is rated 1 to 5", lv.length>0 && lv.every(c=>/^[1-5]$/.test(c.lv)));
-  // quietest first, which is where most listening starts. A browser with a tally in it
-  // puts the modes you open at the front instead, so this is the order a fresh one gets.
+  // A fresh browser's row follows the local clock now (checked with a frozen clock further
+  // down), not quiet to loud, so here it only has to carry every level.
   const order=lv.map(c=>+c.lv);
-  say("they run quietest first ["+order.join("")+"]", order.every((v,i)=>i===0||v>=order[i-1]));
-  say("the first is a 1 and the last a 5", order[0]===1 && order[order.length-1]===5);
+  say("all five levels are in the row ["+order.join("")+"]", [1,2,3,4,5].every(v=>order.includes(v)));
   // and then it learns. Opening a mode is tallied in this browser alone, and the ones
   // you open float to the front of the row the next time the overview is built, so what
   // you actually use is in reach without a swipe. The full list behind the heading does
@@ -496,15 +495,15 @@ const spell=n=>n<=20?WORDS[n]
       say("the page counts the collections correctly ("+spell(DATA.MODES.length)+")",
       new RegExp("\\b"+spell(DATA.MODES.length)+"\\b","i")
         .test(await s.$eval(".pglede",e=>e.textContent)));
-  say("the collections page has a sort, defaulting to quietest",
-      start.on.length===1 && start.on[0]==="Quietest");
+  say("the collections page has a sort, defaulting to right now",
+      start.on.length===1 && start.on[0]==="Right now");
 
-    const seen={quiet:start.labels.join("|")};
+    const seen={now:start.labels.join("|")};
     const total=start.labels.length;
     // the real count, not a number typed here: a mode added later must not read as a bug
     const want=await s.evaluate(()=>MODES.length);
     let kept=total===want, named=true;
-    for(const [k,lbl] of [["used","Most used"],["az","A–Z"]]){
+    for(const [k,lbl] of [["quiet","Quietest"],["used","Most used"],["az","A–Z"]]){
       // wait on the control actually flipping rather than on a stopwatch: under a loaded
       // machine a fixed pause is a coin toss, and a half-rendered list reads as a bug
       await s.selectOption(".msortsel",k);
@@ -528,8 +527,8 @@ const spell=n=>n<=20?WORDS[n]
     say("  A–Z really is alphabetical", seen.az===seen.az.split("|").slice()
       .sort((x,y)=>x.localeCompare(y)).join("|"));
     // nothing has been opened in this browser, so "most used" has no tally to go on and
-    // must fall back to the quiet order rather than to however MODES is declared
-    say("  most used falls back to quietest when nothing has been opened", seen.used===seen.quiet);
+    // must fall back to the default order rather than to however MODES is declared
+    say("  most used falls back to right now when nothing has been opened", seen.used===seen.now);
     say("  no page errors from sorting", serrs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
     await s.close(); }
 
@@ -553,9 +552,29 @@ const spell=n=>n<=20?WORDS[n]
       const ps=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden), u=ps[ps.length-1];
       return {on:(u.querySelector(".sortx")||{}).textContent,
         rows:u.querySelectorAll(".moderows .moderow").length};});
-    say("a nonsense stored sort falls back to quietest, with every mode still there",
-      r.on==="Quietest" && r.rows===(await s3.evaluate(()=>MODES.length)));
+    say("a nonsense stored sort falls back to right now, with every mode still there",
+      r.on==="Right now" && r.rows===(await s3.evaluate(()=>MODES.length)));
     await s3.close(); }
+
+  // The default follows the local clock. Freeze it at four hours and check what leads, both
+  // on the Collections page and in the row on the root, which starts from the same order.
+  for(const [t,part,lead,notFirst] of [["08:00","This morning","morning","sleep"],
+      ["14:30","This afternoon","coding","sleep"],["19:30","This evening","dinner","winddown"],
+      ["03:00","Late night","sleep","morning"]]){
+    const c=await b.newContext({viewport:M}); const s=await c.newPage();
+    await s.addInitScript(t=>{const [H,Mi]=t.split(":").map(Number), R=Date, fix=new R(2026,10,9,H,Mi).getTime();
+      window.Date=class extends R{constructor(...a){super(...(a.length?a:[fix]))} static now(){return fix}};},t);
+    await s.goto(URL+"#modes"); await ready(s); await landed(s,"modes");
+    const r=await s.evaluate(()=>{const sec=document.querySelector(".ppage:not([hidden]) .modesec");
+      return {title:sec.querySelector(".msecttl").textContent,
+        modes:[...sec.querySelectorAll(".moderow")].map(x=>x.dataset.mode)};});
+    await s.goto(URL); await ready(s);
+    const row=await s.evaluate(()=>[...document.querySelectorAll(".ppage[data-p=root] [data-mode]")].map(x=>x.dataset.mode));
+    say("at "+t+" the list opens on "+r.title+" ("+r.modes.slice(0,3).join(", ")+")",
+      r.title===part && r.modes.includes(lead) && !r.modes.includes(notFirst));
+    say("  and the root's row starts there too ("+row.slice(0,3).join(", ")+")",
+      row.slice(0,r.modes.length).join()===r.modes.slice(0,row.length).join() && row[0]===r.modes[0]);
+    await c.close(); }
 
   // the control has to survive the narrowest phone without clipping a label
   { const s4=await b.newPage({viewport:{width:320,height:700,isMobile:true,hasTouch:true}});
