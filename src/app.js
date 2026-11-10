@@ -88,11 +88,11 @@ const OPENGO="<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"t
 function plist(n){
   const ap=(typeof PLAY!=="undefined"&&PLAY[n.id])||"";
   const sp=(typeof SPLAY!=="undefined"&&SPLAY[n.id])||"";
-  const qb=qbOf(n.id);
-  if(!ap && !sp && !qb) return "";
+  const qb=qbOf(n.id), yt=ytOf(n.id);
+  if(!ap && !sp && !qb && !yt) return "";
   const t=(typeof PTITLE!=="undefined"&&PTITLE[n.id])||n.name;
   return `<a class="plrow pl" target="_blank" rel="noopener"`
-    + ` data-ap="${ap?esc("https://music.apple.com"+ap):""}" data-spid="${esc(sp)}" data-qb="${esc(qb)}" data-style="${esc(n.name)}">`
+    + ` data-ap="${ap?esc("https://music.apple.com"+ap):""}" data-spid="${esc(sp)}" data-qb="${esc(qb)}" data-yt="${esc(yt)}" data-style="${esc(n.name)}">`
     + cover(n.id,n)
     // the arrow used to be a disc at the right-hand end, taking width the long playlist
     // titles needed. It sits at the end of the service line instead, where it still says
@@ -126,7 +126,7 @@ function xrow(x,id){
     : `<span class="pcov pcovph" aria-hidden="true"${x.c?` style="--c:${esc(x.c)}"`:""}>`
       + `<b>${esc(ini)}</b></span>`;
   return `<a class="plrow pl xplay" target="_blank" rel="noopener"`
-    + ` data-ap="${x.ap?esc("https://music.apple.com"+x.ap):""}" data-spid="${esc(x.sp||"")}" data-qb="${esc(qbPlay(x.qb||""))}"`
+    + ` data-ap="${x.ap?esc("https://music.apple.com"+x.ap):""}" data-spid="${esc(x.sp||"")}" data-qb="${esc(qbPlay(x.qb||""))}" data-yt="${esc(ytPlay(x.yt||""))}"`
     + ` data-style="${esc(x.title)}">`
     + art
     + `<span class="pltx"><b class="plttl">${esc(x.title)}</b>`
@@ -136,11 +136,12 @@ function xrow(x,id){
 }
 function paintPlay(){
   document.querySelectorAll("#panelBody a.plrow, #panelBody a.plbtn, #panelBody a.xopen, #panelBody a.trkbtn, #panelBody a.pklis").forEach(a=>{
-    const ap=a.dataset.ap||"", sp=a.dataset.spid||"", qb=a.dataset.qb||"", nm=a.dataset.style||"";
+    const ap=a.dataset.ap||"", sp=a.dataset.spid||"", qb=a.dataset.qb||"", yt=a.dataset.yt||"", nm=a.dataset.style||"";
     const lbl=a.querySelector(".plsvc"); if(!lbl) return;
     const track=a.classList.contains("trkbtn");
     const url = SVC==="spotify" ? (sp?(track?sp:"https://open.spotify.com/playlist/"+sp):"")
       : SVC==="qobuz" ? qb
+      : SVC==="youtube" ? yt
       : SVC==="apple" ? ap : "";
     if(url){
       a.classList.remove("off"); a.removeAttribute("aria-disabled");
@@ -154,7 +155,8 @@ function paintPlay(){
         : "plrow"+(a.classList.contains("xplay")?" xplay":"");
       // "pl" is Apple's, which the Mac link handler rewrites to music:; a Qobuz playlist
       // gets its own class so it opens on the web, the way Qobuz artist links already do
-      a.className=base+" "+(SVC==="spotify"?"sp":SVC==="qobuz"?"qb":"pl");
+      // YouTube Music likewise: no app scheme to hand it to, so it gets its own class too
+      a.className=base+" "+(SVC==="spotify"?"sp":SVC==="qobuz"?"qb":SVC==="youtube"?"yt":"pl");
       a.href=url; if(SVC==="spotify") a.dataset.sp=sp; else delete a.dataset.sp;
       a.hidden=false;
       // the button says where it is going; a row says what it is; a short one says only
@@ -184,7 +186,7 @@ function paintPlay(){
   });
 }
 const SPK=`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.2H2.2v3.6H4L7.2 12V4z"/><path d="M9.8 6a2.6 2.6 0 0 1 0 4"/><path d="M11.8 4.2a5 5 0 0 1 0 7.6"/></svg>`;
-const BRAND={apple:"#fa233b",spotify:"#1db954",qobuz:"#0070ef"};
+const BRAND={apple:"#fa233b",spotify:"#1db954",qobuz:"#0070ef",youtube:"#ff0033"};
 let SVC="apple"; try{ SVC=localStorage.getItem("svc")||"apple" }catch(e){}
 const spHref = name=>`https://open.spotify.com/search/${encodeURIComponent(name)}`;
 const qbHref = name=>`https://www.qobuz.com/us-en/search?q=${encodeURIComponent(name)}`;
@@ -195,8 +197,14 @@ const qbHref = name=>`https://www.qobuz.com/us-en/search?q=${encodeURIComponent(
 const qbPlay = v=> !v ? "" : /^https?:\/\//.test(v) ? v : "https://open.qobuz.com/playlist/"+v;
 const qbOf = id=> qbPlay((typeof QPLAY!=="undefined"&&QPLAY[id])||"");
 const QOBUZ_PLAYLISTS = typeof QPLAY!=="undefined" && Object.keys(QPLAY).length>0;
-const svcHref = name=> SVC==="spotify" ? spHref(name) : SVC==="qobuz" ? qbHref(name) : amHref(name);
-const svcName = ()=> SVC==="spotify" ? "Spotify" : SVC==="qobuz" ? "Qobuz" : "Apple Music";
+// YouTube Music, the same way: YPLAY holds a playlist id (the list= value, PL… or OLAK5uy_…)
+// or a full https URL per style. Empty until the playlists exist; the picker says so.
+const ytHref = name=>`https://music.youtube.com/search?q=${encodeURIComponent(name)}`;
+const ytPlay = v=> !v ? "" : /^https?:\/\//.test(v) ? v : "https://music.youtube.com/playlist?list="+encodeURIComponent(v);
+const ytOf = id=> ytPlay((typeof YPLAY!=="undefined"&&YPLAY[id])||"");
+const YT_PLAYLISTS = typeof YPLAY!=="undefined" && Object.keys(YPLAY).length>0;
+const svcHref = name=> SVC==="spotify" ? spHref(name) : SVC==="qobuz" ? qbHref(name) : SVC==="youtube" ? ytHref(name) : amHref(name);
+const svcName = ()=> SVC==="spotify" ? "Spotify" : SVC==="qobuz" ? "Qobuz" : SVC==="youtube" ? "YouTube Music" : "Apple Music";
 // Phosphor, MIT, like every other icon here. One symbol per kind of act, so a row of artists reads at a glance:
 // who sings, who plays, who is a whole band, who makes it in a room on their own.
 const ROLEICON={"band":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M244.8,150.4a8,8,0,0,1-11.2-1.6A51.6,51.6,0,0,0,192,128a8,8,0,0,1-7.37-4.89,8,8,0,0,1,0-6.22A8,8,0,0,1,192,112a24,24,0,1,0-23.24-30,8,8,0,1,1-15.5-4A40,40,0,1,1,219,117.51a67.94,67.94,0,0,1,27.43,21.68A8,8,0,0,1,244.8,150.4ZM190.92,212a8,8,0,1,1-13.84,8,57,57,0,0,0-98.16,0,8,8,0,1,1-13.84-8,72.06,72.06,0,0,1,33.74-29.92,48,48,0,1,1,58.36,0A72.06,72.06,0,0,1,190.92,212ZM128,176a32,32,0,1,0-32-32A32,32,0,0,0,128,176ZM72,120a8,8,0,0,0-8-8A24,24,0,1,1,87.24,82a8,8,0,1,0,15.5-4A40,40,0,1,0,37,117.51,67.94,67.94,0,0,0,9.6,139.19a8,8,0,1,0,12.8,9.61A51.6,51.6,0,0,1,64,128,8,8,0,0,0,72,120Z\"/></svg>","voice":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M168,16A72.07,72.07,0,0,0,96,88a73.29,73.29,0,0,0,.63,9.42L27.12,192.22A15.93,15.93,0,0,0,28.71,213L43,227.29a15.93,15.93,0,0,0,20.78,1.59l94.81-69.53A73.29,73.29,0,0,0,168,160a72,72,0,1,0,0-144Zm56,72a55.72,55.72,0,0,1-11.16,33.52L134.49,43.16A56,56,0,0,1,224,88ZM54.32,216,40,201.68,102.14,117A72.37,72.37,0,0,0,139,153.86ZM112,88a55.67,55.67,0,0,1,11.16-33.51l78.34,78.34A56,56,0,0,1,112,88Zm-2.35,58.34a8,8,0,0,1,0,11.31l-8,8a8,8,0,1,1-11.31-11.31l8-8A8,8,0,0,1,109.67,146.33Z\"/></svg>","mc":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M128,176a48.05,48.05,0,0,0,48-48V64a48,48,0,0,0-96,0v64A48.05,48.05,0,0,0,128,176ZM96,64a32,32,0,0,1,64,0v64a32,32,0,0,1-64,0Zm40,143.6V240a8,8,0,0,1-16,0V207.6A80.11,80.11,0,0,1,48,128a8,8,0,0,1,16,0,64,64,0,0,0,128,0,8,8,0,0,1,16,0A80.11,80.11,0,0,1,136,207.6Z\"/></svg>","guitar":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M249.66,46.34l-40-40a8,8,0,0,0-11.31,11.32L200.69,20,140.52,80.16C117.73,68.3,92.21,69.29,76.75,84.74a42.27,42.27,0,0,0-9.39,14.37A8.24,8.24,0,0,1,59.81,104c-14.59.49-27.26,5.72-36.65,15.11C11.08,131.22,6,148.6,8.74,168.07,11.4,186.7,21.07,205.15,36,220s33.34,24.56,52,27.22A71.13,71.13,0,0,0,98.1,248c15.32,0,28.83-5.23,38.76-15.16,9.39-9.39,14.62-22.06,15.11-36.65a8.24,8.24,0,0,1,4.92-7.55,42.12,42.12,0,0,0,14.37-9.39c15.45-15.46,16.44-41,4.58-63.77L236,55.31l2.34,2.34a8,8,0,1,0,11.32-11.31ZM160,167.93a26.12,26.12,0,0,1-8.95,5.83,24.24,24.24,0,0,0-15,21.89c-.36,10.46-4,19.41-10.43,25.88-8.44,8.43-21,11.95-35.36,9.89C75,229.25,59.73,221.19,47.27,208.73S26.75,181,24.58,165.81c-2-14.37,1.46-26.92,9.89-35.36C40.94,124,49.89,120.37,60.35,120h0a24.22,24.22,0,0,0,21.89-15,26.12,26.12,0,0,1,5.83-9c5.49-5.49,13-8.13,21.38-8.13a49.38,49.38,0,0,1,19.13,4.19L108.5,112.19a32,32,0,1,0,35.31,35.31l20.08-20.08C170.41,142.71,169.47,158.41,160,167.93Zm-10.4-61.48a72.9,72.9,0,0,1,5.93,6.75l-15.42,15.42a32.22,32.22,0,0,0-12.68-12.68l15.42-15.43A73,73,0,0,1,149.55,106.45ZM112,128a16,16,0,0,1,16,16h0a16,16,0,1,1-16-16Zm48.85-32.85a86.94,86.94,0,0,0-6.68-6L176,67.31,188.69,80l-21.83,21.82A86.94,86.94,0,0,0,160.86,95.14ZM200,68.68,187.32,56,212,31.31,224.69,44ZM93.66,194.33a8,8,0,0,1-11.31,11.32l-32-32a8,8,0,0,1,11.32-11.31Z\"/></svg>","keys":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM80,48h24v88H80Zm32,104a8,8,0,0,0,8-8V48h16v96a8,8,0,0,0,8,8h8v56H104V152Zm40-16V48h24v88ZM48,48H64v96a8,8,0,0,0,8,8H88v56H48ZM208,208H168V152h16a8,8,0,0,0,8-8V48h16V208Z\"/></svg>","player":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M212.92,17.69a8,8,0,0,0-6.86-1.45l-128,32A8,8,0,0,0,72,56V166.08A36,36,0,1,0,88,196V110.25l112-28v51.83A36,36,0,1,0,216,164V24A8,8,0,0,0,212.92,17.69ZM52,216a20,20,0,1,1,20-20A20,20,0,0,1,52,216ZM88,93.75V62.25l112-28v31.5ZM180,184a20,20,0,1,1,20-20A20,20,0,0,1,180,184Z\"/></svg>","dj":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm0-144a56.06,56.06,0,0,0-56,56,8,8,0,0,1-16,0,72.08,72.08,0,0,1,72-72,8,8,0,0,1,0,16Zm72,56a72.08,72.08,0,0,1-72,72,8,8,0,0,1,0-16,56.06,56.06,0,0,0,56-56,8,8,0,0,1,16,0Zm-40,0a32,32,0,1,0-32,32A32,32,0,0,0,160,128Zm-48,0a16,16,0,1,1,16,16A16,16,0,0,1,112,128Z\"/></svg>","studio":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M136,120v96a8,8,0,0,1-16,0V120a8,8,0,0,1,16,0Zm64,72a8,8,0,0,0-8,8v16a8,8,0,0,0,16,0V200A8,8,0,0,0,200,192Zm24-32H208V40a8,8,0,0,0-16,0V160H176a8,8,0,0,0,0,16h48a8,8,0,0,0,0-16ZM56,160a8,8,0,0,0-8,8v48a8,8,0,0,0,16,0V168A8,8,0,0,0,56,160Zm24-32H64V40a8,8,0,0,0-16,0v88H32a8,8,0,0,0,0,16H80a8,8,0,0,0,0-16Zm72-48H136V40a8,8,0,0,0-16,0V80H104a8,8,0,0,0,0,16h48a8,8,0,0,0,0-16Z\"/></svg>","none":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M210.3,56.34l-80-24A8,8,0,0,0,120,40V148.26A48,48,0,1,0,136,184V98.75l69.7,20.91A8,8,0,0,0,216,112V64A8,8,0,0,0,210.3,56.34ZM88,216a32,32,0,1,1,32-32A32,32,0,0,1,88,216ZM200,101.25l-64-19.2V50.75L200,70Z\"/></svg>"};
@@ -364,14 +372,14 @@ function amResolve(name){
 const MACOS=/Mac/.test(navigator.platform||"")&&!/iPhone|iPad|iPod/.test(navigator.userAgent||"")&&navigator.maxTouchPoints<2;
 const APPLEOS=/Mac|iPhone|iPad|iPod/.test(navigator.platform||"")||/Mac|iPhone|iPad/.test(navigator.userAgent||"");
 function deepFor(a){
-  if(SVC==="qobuz") return a.href;                 // Qobuz has no documented URL scheme; stay on the web
+  if(SVC==="qobuz"||SVC==="youtube") return a.href; // no documented URL scheme for either; stay on the web
   if(SVC==="spotify") return "spotify:search:"+encodeURIComponent(a.dataset.name||"");
   return a.href.replace(/^https:/,"music:");
 }
 function openArtist(name){
   const url=svcHref(name);
   const deep = SVC==="spotify" ? "spotify:search:"+encodeURIComponent(name) : url.replace(/^https:/,"music:");
-  if(SVC==="qobuz" || !(MACOS||COARSE) || (SVC==="apple" && !APPLEOS)){ window.open(url,"_blank","noopener"); return; }
+  if(SVC==="qobuz" || SVC==="youtube" || !(MACOS||COARSE) || (SVC==="apple" && !APPLEOS)){ window.open(url,"_blank","noopener"); return; }
   let taken=false; const mark=()=>{taken=true};
   window.addEventListener("blur",mark); document.addEventListener("visibilitychange",mark);
   const f=document.createElement("iframe"); f.style.display="none"; f.src=deep; document.body.appendChild(f);
@@ -381,7 +389,7 @@ const COARSE=matchMedia("(hover:none) and (pointer:coarse)").matches;
 if(MACOS) document.addEventListener("click",e=>{
   const a=e.target.closest("a.am, a.pl, a.sp"); if(!a||e.metaKey||e.ctrlKey||e.shiftKey) return;
   const isPl=a.classList.contains("pl"), isSp=a.classList.contains("sp");
-  if(!isPl && !isSp && SVC==="qobuz") return;               // no app scheme for Qobuz, let the link open normally
+  if(!isPl && !isSp && (SVC==="qobuz"||SVC==="youtube")) return; // no app scheme for either, let the link open normally
   if(!isPl && !isSp && SVC==="apple" && !APPLEOS) return;   // only Apple platforms have the Music app
   e.preventDefault();
   const url=a.href, deep=isPl ? a.href.replace(/^https:/,"music:") : isSp ? "spotify:playlist:"+a.dataset.sp : deepFor(a);
@@ -1380,6 +1388,7 @@ function svcPicker(kind){ return `<span class="svc${kind==="inline"?" svcinline"
   // Qobuz has artist links but no playlists anywhere on the map yet, so its option says
   // so before you choose it rather than after every playlist button goes grey
   + `<option value="qobuz"${SVC==="qobuz"?" selected":""}>Qobuz${QOBUZ_PLAYLISTS?"":" (no playlists yet)"}</option>`
+  + `<option value="youtube"${SVC==="youtube"?" selected":""}>YouTube Music${YT_PLAYLISTS?"":" (no playlists yet)"}</option>`
   + `</select></span>`; }
 // one control at the top right of every panel: it puts the card away and leaves the map
 // whole. The pull tab at the bottom of the screen brings it back.
@@ -1531,13 +1540,13 @@ function introLine(n){
 function startSect(n){
   const ap=(typeof PLAY!=="undefined"&&PLAY[n.id])||"";
   const sp=(typeof SPLAY!=="undefined"&&SPLAY[n.id])||"";
-  const qb=qbOf(n.id);
-  if(!ap && !sp && !qb) return "";
+  const qb=qbOf(n.id), yt=ytOf(n.id);
+  if(!ap && !sp && !qb && !yt) return "";
   // "Listen", the word the collection rows' pill uses for the same act: one verb for
   // opening a playlist wherever it is (it read "Open playlist in" here, "Open in" on the
   // cross-style playlists and "Listen" on the rows)
   const open=`<a class="plbtn pl" target="_blank" rel="noopener" data-lbl="Listen in"`
-    + ` data-ap="${ap?esc("https://music.apple.com"+ap):""}" data-spid="${esc(sp)}" data-qb="${esc(qb)}"`
+    + ` data-ap="${ap?esc("https://music.apple.com"+ap):""}" data-spid="${esc(sp)}" data-qb="${esc(qb)}" data-yt="${esc(yt)}"`
     + ` data-style="${esc(n.name)}">`
     + `<i class="plbgo" aria-hidden="true">${OPENGO}</i><span class="plsvc"></span></a>`;
   // The cover and the playlist's name, then the button that says where it opens. A
@@ -1596,7 +1605,7 @@ function acrossSect(n){
       + (x.note?`<span class="xnote">${esc(x.note)}</span>`:"")
       + (links?`<span class="xalso">Also featured in</span><span class="xlinks">${links}</span>`:"")
       + `<a class="xopen pl" target="_blank" rel="noopener" data-lbl="Listen in"`
-      + ` data-ap="${x.ap?esc("https://music.apple.com"+x.ap):""}" data-spid="${esc(x.sp||"")}" data-qb="${esc(qbPlay(x.qb||""))}"`
+      + ` data-ap="${x.ap?esc("https://music.apple.com"+x.ap):""}" data-spid="${esc(x.sp||"")}" data-qb="${esc(qbPlay(x.qb||""))}" data-yt="${esc(ytPlay(x.yt||""))}"`
       + ` data-style="${esc(x.title)}"><span class="plsvc"></span>`
       + `<i class="xgoi" aria-hidden="true">${OPENGO}</i></a>`
       + `</div></div>`;
@@ -2065,10 +2074,10 @@ function modePicks(m){
     // the shortest path to hearing anything was two taps and a guess.
     const ap=(typeof PLAY!=="undefined"&&PLAY[id])||"";
     const sp=(typeof SPLAY!=="undefined"&&SPLAY[id])||"";
-    const qb=qbOf(id);
-    const listen = (ap||sp||qb)
+    const qb=qbOf(id), yt=ytOf(id);
+    const listen = (ap||sp||qb||yt)
       ? `<a class="pklis pl" target="_blank" rel="noopener" data-lbl="Listen" data-short`
-        + ` data-ap="${ap?esc("https://music.apple.com"+ap):""}" data-spid="${esc(sp)}" data-qb="${esc(qb)}"`
+        + ` data-ap="${ap?esc("https://music.apple.com"+ap):""}" data-spid="${esc(sp)}" data-qb="${esc(qb)}" data-yt="${esc(yt)}"`
         + ` data-style="${esc(n.name)}">${HEADPH}<span class="plsvc"></span>${UPRIGHT}</a>`
       : "";
     return `<div class="pk">`
@@ -2891,7 +2900,7 @@ function headTrack(k){
     + `<span class="trktx"><b class="trkttl">${esc(h.title)}</b>`
     + `<span class="trkby">${esc(h.artist)} \u00b7 ${h.year}</span></span>`
     + `<a class="trkbtn" target="_blank" rel="noopener"`
-    + ` data-ap="${esc(h.ap||"")}" data-spid="${esc(h.sp||"")}" data-qb="${esc(qbPlay(h.qb||""))}"`
+    + ` data-ap="${esc(h.ap||"")}" data-spid="${esc(h.sp||"")}" data-qb="${esc(qbPlay(h.qb||""))}" data-yt="${esc(ytPlay(h.yt||""))}"`
     + ` data-style="${esc(h.title)}" data-lbl="Listen on">`
     + `${HEADPH}<span class="plsvc"></span>${UPRIGHT}</a></div>`
     + (h.why?`<p class="trkwhy">${esc(h.why)}</p>`:"")
@@ -3606,6 +3615,7 @@ function open_(h){
   // a crossing opens on the chosen service, like the row it came from
   if(h.k==="cross"){ const x=h.x.x;
     const url = SVC==="spotify" ? (x.sp?"https://open.spotify.com/playlist/"+x.sp:"")
+      : SVC==="qobuz" ? qbPlay(x.qb||"") : SVC==="youtube" ? ytPlay(x.yt||"")
       : SVC==="apple" ? (x.ap?"https://music.apple.com"+x.ap:"") : "";
     if(url) window.open(url,"_blank","noopener,noreferrer");
     return; }

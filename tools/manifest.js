@@ -1,7 +1,7 @@
 // Reads a School of Listening update manifest and says what it would change.
 //
 // The manifest is the spreadsheet's own account of a batch of classes: the Music Atlas node
-// id, the public playlist URLs (Apple Music, Spotify and, once they exist, Qobuz), the playlist title, the artists and the ordered songs.
+// id, the public playlist URLs (Apple Music, Spotify and, once they exist, Qobuz and YouTube Music), the playlist title, the artists and the ordered songs.
 // It is written for a person, so this parses it rather than trusting a shape, and it
 // reports before it writes: a manifest is often a re-issue of one already applied, and the
 // interesting part is the handful of lines that differ, not the 40 that do not.
@@ -22,6 +22,9 @@ function parse(txt){
     // Qobuz, once the playlists are there: open.qobuz.com/playlist/<id>, play.qobuz.com
     // or www.qobuz.com/<locale>/playlists/<slug>/<id>; the id is the last run of digits
     const qb=(block.match(/^Qobuz URL:\s*(\S+)/m)||[])[1]||"";
+    // YouTube Music: music.youtube.com/playlist?list=<id>, the same on www.youtube.com, or
+    // music.youtube.com/browse/VL<id>; the id is the list= value, without the VL
+    const yt=(block.match(/^YouTube Music URL:\s*(\S+)/m)||[])[1]||"";
     const artists=((block.match(/^Artists:\s*(.+)$/m)||[])[1]||"")
       .split(";").map(s=>s.trim()).filter(Boolean);
     const songs=[];
@@ -35,6 +38,7 @@ function parse(txt){
       ap:(ap.match(/\/playlist\/(pl\.[A-Za-z0-9-]+)/)||[])[1],
       sp:(sp.match(/playlist\/([A-Za-z0-9]+)/)||[])[1],
       qb:(qb.match(/playlists?\/(?:[^\s\/]+\/)?(\d+)/)||[])[1],
+      yt:(yt.match(/[?&]list=([A-Za-z0-9_-]+)/)||yt.match(/\/browse\/VL([A-Za-z0-9_-]+)/)||[])[1],
       artists,songs});
   }
   return out;
@@ -56,6 +60,7 @@ if(require.main===module){
     if(c.ap && D.PLAY[c.id]!=="/playlist/"+c.ap) why.push("apple");
     if(c.sp && (D.SPLAY||{})[c.id]!==c.sp) why.push("spotify");
     if(c.qb && (D.QPLAY||{})[c.id]!==c.qb) why.push("qobuz");
+    if(c.yt && (D.YPLAY||{})[c.id]!==c.yt) why.push("youtube");
     if(c.title && D.PTITLE[c.id]!==c.title) why.push("title");
     if(c.artists.length && !same(D.ROSTER[c.id],c.artists)) why.push("artists");
     const songs=c.songs.map(s=>s[1]);
@@ -66,12 +71,15 @@ if(require.main===module){
   if(!apply){ console.log("\n"+changes.length+" would change. Re-run with --apply."); return; }
 
   let s=fs.readFileSync(SRC,"utf8");
+  // Every table is one entry per line, "key":value, with the key quoted (CLAUDE.md). An
+  // existing entry is found quoted or not and rewritten quoted; a new one goes in right
+  // after the table opens. Matching only the bare key missed the quoted entries, added a
+  // second one at the top, and the old one further down was the one JavaScript kept.
   const put=(table,id,val)=>{
-    const key=/^[A-Za-z_$][\w$]*$/.test(id)?id:JSON.stringify(id);
+    const key=JSON.stringify(id), bare=id.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
     const re=new RegExp("(\\b"+table+"\\s*=\\s*\\{)","");
     const line="\n  "+key+":"+JSON.stringify(val)+",";
-    // replace an existing entry, or add one right after the table opens
-    const ex=new RegExp("(\\b"+table+"\\s*=\\s*\\{[\\s\\S]*?\\n\\s*)"+key.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\s*:\\s*(?:\"(?:[^\"\\\\]|\\\\.)*\"|\\[[\\s\\S]*?\\])\\s*,","");
+    const ex=new RegExp("(\\b"+table+"\\s*=\\s*\\{(?:\\n(?!\\};)[^\\n]*)*?\\n\\s*)(?:\""+bare+"\"|"+bare+")\\s*:\\s*(?:\"(?:[^\"\\\\]|\\\\.)*\"|\\[[^\\n]*?\\])\\s*,","");
     if(ex.test(s)) s=s.replace(ex,(m,head)=>head+key+":"+JSON.stringify(val)+",");
     else s=s.replace(re,(m,head)=>head+line);
   };
@@ -79,6 +87,7 @@ if(require.main===module){
     if(why.includes("apple")) put("PLAY",c.id,"/playlist/"+c.ap);
     if(why.includes("spotify")) put("SPLAY",c.id,c.sp);
     if(why.includes("qobuz")) put("QPLAY",c.id,c.qb);
+    if(why.includes("youtube")) put("YPLAY",c.id,c.yt);
     if(why.includes("title")) put("PTITLE",c.id,c.title);
     if(why.includes("artists")) put("ROSTER",c.id,c.artists);
     if(why.includes("songs")) put("SONGS",c.id,c.songs.map(x=>x[1]));

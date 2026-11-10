@@ -43,7 +43,7 @@ const roots=D.DATA.filter(r=>!parents(r).length);
 say("the roots are all pre-1950 ("+roots.length+" of them)", few(roots.filter(r=>r[2]>=1950).map(r=>r[0])));
 
 // ---------- side tables keyed by style id ----------
-for(const t of ["ART","PLAY","SPLAY","QPLAY","DESC","COVER","PTITLE","STYLEART","ROSTER","SONGS","READ"])
+for(const t of ["ART","PLAY","SPLAY","QPLAY","YPLAY","DESC","COVER","PTITLE","STYLEART","ROSTER","SONGS","READ"])
   say(t+" is keyed by style ids that exist", few(Object.keys(D[t]||{}).filter(k=>!set.has(k))));
 say("DONE lists style ids that exist", few(D.DONE.filter(k=>!set.has(k))));
 say("every ART entry is a list of names", few(Object.entries(D.ART).filter(([k,v])=>!Array.isArray(v)||v.some(a=>typeof a!=="string"||!a.trim())).map(([k])=>k)));
@@ -59,6 +59,17 @@ say("every QPLAY entry is a Qobuz playlist id or URL", few(Object.entries(D.QPLA
     +"==========\nMusic Atlas node ID: dub\nQobuz URL: https://www.qobuz.com/us-en/playlists/the-essential-dub/24681357\n");
   say("the manifest tool reads both Qobuz playlist link shapes",
     m.length===2 && m[0].qb==="12345678" && m[1].qb==="24681357" ? true : JSON.stringify(m.map(x=>x.qb))); }
+say("YPLAY exists ("+Object.keys(D.YPLAY||{}).length+" YouTube Music playlists so far)", !!D.YPLAY && typeof D.YPLAY==="object");
+say("every YPLAY entry is a YouTube playlist id or URL", few(Object.entries(D.YPLAY||{}).filter(([k,v])=>
+  !/^([A-Za-z0-9_-]{10,}|https:\/\/(music|www)\.youtube\.com\/\S*(list=|browse\/VL)\S+)$/.test(String(v))).map(([k])=>k)));
+// and the manifest tool reads a YouTube Music link in each shape YouTube hands out
+{ const {parse}=require("../tools/manifest.js");
+  const m=parse("==========\nMusic Atlas node ID: ambient\nYouTube Music URL: https://music.youtube.com/playlist?list=PLa1b2c3d4e5f6g7h8&si=xyz\n"
+    +"==========\nMusic Atlas node ID: dub\nYouTube Music URL: https://www.youtube.com/playlist?list=OLAK5uy_k3Y-abc_123\n"
+    +"==========\nMusic Atlas node ID: funk\nYouTube Music URL: https://music.youtube.com/browse/VLPLzz99yy88xx77\n");
+  say("the manifest tool reads the YouTube Music playlist link shapes",
+    m.length===3 && m[0].yt==="PLa1b2c3d4e5f6g7h8" && m[1].yt==="OLAK5uy_k3Y-abc_123" && m[2].yt==="PLzz99yy88xx77"
+      ? true : JSON.stringify(m.map(x=>x.yt))); }
 say("every DESC is one sentence that ends", few(Object.entries(D.DESC).filter(([k,v])=>typeof v!=="string"||v.length<20).map(([k])=>k)));
 
 // ---------- families ----------
@@ -100,6 +111,17 @@ say("the export tail names every table", (()=>{
   const listed=new Set(m[1].split(",").map(s=>s.trim()));
   const declared=[...src.matchAll(/^const ([A-Z_]+)\s*=/gm)].map(x=>x[1]);
   return few(declared.filter(d=>!listed.has(d)));
+})());
+// one entry per line, "key":value, with the key quoted (CLAUDE.md): the manifest tool used
+// to write bare keys, and then could not find its own entries again to update them
+say("every playlist and title table keeps its keys quoted", (()=>{
+  const bad=[];
+  for(const t of ["PLAY","SPLAY","QPLAY","YPLAY","PTITLE","ROSTER","SONGS","COVER","STYLEART"]){
+    const a=src.indexOf("const "+t+" = {"); if(a<0) continue;
+    const b=src.indexOf("\n};",a);
+    for(const l of src.slice(a,b).split("\n").slice(1)) if(/^\s*[A-Za-z_$][\w$]*\s*:/.test(l)) bad.push(t+": "+l.trim().slice(0,30));
+  }
+  return few(bad);
 })());
 
 // ---------- the stylesheet: hover only where something hovers ----------
