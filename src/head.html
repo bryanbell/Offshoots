@@ -2547,32 +2547,24 @@ span.xcov b{font:700 19px var(--f-body);color:#fff;opacity:.92}
    phone's width and the second one ran 30px past the panel's own edge. 1fr was the other
    half of that, since its min is min-content and a long name will not shrink past its
    own longest word; minmax(0,1fr) lets the ellipsis do its job. */
-/* Not side by side any more: each card is a two-column grid of its own, and two of those
-   abreast would be four columns of half-names. */
+/* Side by side: Before on the left, After on the right, as on the map, each card a
+   single column running down. Stacked only on the narrowest phone. */
+.cxwrap{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:start}
+@media (max-width:359px){ .cxwrap{grid-template-columns:minmax(0,1fr);gap:16px} }
 .cxh{margin:0 0 8px;font:600 var(--t-sub)/1.3 var(--f-body);color:var(--muted);
   letter-spacing:0;text-transform:none;display:flex;align-items:center;gap:6px}
 .cxh .cxar{flex:none;width:14px;height:14px;opacity:.8}
 /* Each column is a card like Go Deeper's (.listgrp .sep, .listrow): the art where Go
    Deeper has its glyph, the name, the year, and an arrow where the chevron was. The
    rows are a little shorter than Go Deeper's six, since a column can run to twenty-five. */
-/* Two to a row, drawn like Go Deeper's grid (.medgrp): a hairline over every row after
-   the first, a divider down the middle, one column on the narrowest phone. */
-.cxlist .cxgo{min-height:56px;padding:0 9px 0 10px;gap:8px}
-.cxlist .cxart{width:30px;height:30px}
-.cxlist > *{position:relative}
-.cxlist > :nth-child(n+3)::before{content:"";position:absolute;left:12px;right:12px;top:0;
-  height:.5px;background:var(--sep)}
-.cxlist > :nth-child(2n)::after{content:"";position:absolute;left:0;top:9px;bottom:9px;
-  width:.5px;background:var(--sep)}
+/* One column per card, a hairline between rows (.listgrp.sep), inset past the art. */
+.cxlist .cxgo{min-height:56px;padding:0 8px 0 10px;gap:8px}
+.cxlist.sep > *{--seplead:48px}
 .cxgo .lrtx{gap:1px}
 .cxgo .lrlbl{white-space:normal;line-height:1.2;font-size:15px;-webkit-line-clamp:2;display:-webkit-box;
   -webkit-box-orient:vertical;overflow:hidden}
 .cxgo .cxyr{font:500 var(--t-foot)/1.2 var(--f-mono);color:var(--muted);font-variant-numeric:tabular-nums}
-@media (max-width:359px){
-  .listgrp.two.cxlist{grid-template-columns:minmax(0,1fr)}
-  .cxlist > :nth-child(2n)::after{display:none}
-  .cxlist > :nth-child(n+2)::before{content:"";position:absolute;left:12px;right:12px;
-    top:0;height:.5px;background:var(--sep)} }
+
 .cxgo .cxart,.sart{flex:none;width:34px;height:34px;border-radius:50%;overflow:hidden;background:var(--fill)}
 .cxgo .cxart img,.sart img{display:block;width:100%;height:100%;object-fit:cover}
 /* a style with no art at all: the error handler swaps in the family-colour tile, which

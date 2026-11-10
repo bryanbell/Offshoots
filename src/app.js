@@ -1624,9 +1624,10 @@ function linksSect(n,anc,desc){
       // name is printed beside it), the name, the year, and an arrow where the chevron was.
       // The arrow points the way the row goes on the map, back for what came before and
       // on for what came after, the same two arrows as the headings over them.
-      // Two to a row, like Go Deeper's grid. Half a panel has no room for the year beside
-      // the name, so it goes under it.
-      ? `<div class="listgrp two cxlist">${ids.map(i=>`<button type="button" class="listrow cxgo ${cls}" data-go="${esc(i)}">`
+      // Before on the left, After on the right, each a column running down, the way the
+      // map reads. Half a panel has no room for the year beside the name, so it goes
+      // under it.
+      ? `<div class="listgrp sep cxlist">${ids.map(i=>`<button type="button" class="listrow cxgo ${cls}" data-go="${esc(i)}">`
           + `<span class="cxart">${cover(i,byId[i],true)}</span>`
           + `<span class="lrtx"><span class="lrlbl nm">${esc(byId[i].name)}</span>`
           + `<small class="lrsub cxyr">${byId[i].year<1950?esc(byId[i].disp):byId[i].year}</small></span>`
