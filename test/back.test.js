@@ -342,7 +342,10 @@ const openCx=async q=>{ await q.$eval(".sect-connections",e=>{ if(!e.open) e.ope
   // the three pieces of map chrome sit on one line, and the search surfaces are light
   const D={width:1440,height:900};
   for(const [name,vp] of [["phone",M],["desktop",D]]){
-    p=await fresh(b,vp);
+    // a real touch phone here, not a narrow window: the zoom pill is drawn for touch only
+    if(name==="phone"){ p=await b.newPage({viewport:{width:M.width,height:M.height},isMobile:true,hasTouch:true,deviceScaleFactor:2});
+      const errs=[]; p.on("pageerror",e=>errs.push(String(e))); await p.goto(URL); await ready(p); p._errs=errs; }
+    else p=await fresh(b,vp);
     // the sheet covers the zoom control on a phone, so press it directly
     await p.$eval("#zin",e=>e.click()); await settle(p);
     const btnTop=await p.$eval("#mapSearch",e=>Math.round(e.getBoundingClientRect().top));
@@ -368,6 +371,11 @@ const openCx=async q=>{ await q.$eval(".sect-connections",e=>{ if(!e.open) e.ope
         hits:document.querySelectorAll("#bottomSearch .results li").length,
         vw:innerWidth, sidew:sw};
     });
+    // with a mouse the pill is not drawn at all: the corner zoom control does its job
+    if(name==="desktop"){
+      say("desktop has no zoom pill, the corner control covers it", !m.zoom || m.zoom.h===0);
+      say(name+" no page errors", p._errs.length===0 ? true : p._errs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
+      continue; }
     const tops=[m.zoom.t,m.search.t,btnTop];
     say(name+" zoom pill, search field and search button share a top "+tops.join("/"),
       Math.max(...tops)-Math.min(...tops)<=2);

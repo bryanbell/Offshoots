@@ -1546,6 +1546,9 @@ a.wk.pl svg{opacity:.95}
 @media (min-width:900px){ #zreset2{left:calc((100vw - var(--sidew)) / 2)} }
 @media (max-width:899px){ #zreset2{top:var(--chromet,10px)} }
 #zreset2[hidden]{display:none}
+/* the pill is the way back from a pinch on a touch screen; with a mouse the corner zoom
+   control already shows the level and resets it, so the pill would only repeat it */
+@media (hover:hover), (pointer:fine){ #zreset2{display:none} }
 #zreset2 svg{width:15px;height:15px}
 @media (hover:hover){#zreset2:hover{background:color-mix(in srgb,var(--lite) 90%,var(--lite-fg))}}
 #expand svg{width:16px;height:16px;transition:transform .25s}
