@@ -216,6 +216,9 @@ body.panning{user-select:none;-webkit-user-select:none}
 #maphead .mmeta{margin:0;font:400 var(--t-foot)/1.3 var(--f-mono);
   color:color-mix(in srgb,var(--muted) 78%,transparent)}
 @media (max-width:699px){ #maphead{padding:11px 64px 13px 64px} }
+/* on desktop the map pill carries its word ("Map"), so it is twice the round button's
+   width and the row starts clear of that instead */
+@media (min-width:900px){ #maphead{padding-left:112px} }
 
 /* The family column is in the map's own ink, not the family colours: the same neutral as
    the bands it sits beside, a step stronger so it reads as a column, alternating with
@@ -1601,6 +1604,15 @@ body.searching #navpills{display:none}
 }
 @media (hover:hover){#mapSearch:hover{background:color-mix(in srgb,var(--fg) 6%,var(--glass))}}
 body.searching #mapSearch{display:none}
+/* On desktop the two map controls say what they are: a pill with the icon and a word.
+   On a phone they stay round icons, where the corners are tight and the thumb knows them. */
+.mclbl{display:none}
+@media (min-width:900px){
+  #mapSearch,#mapHome{width:auto;padding:0 16px 0 13px;border-radius:999px;
+    display:flex;align-items:center;gap:7px}
+  #mapHome[hidden]{display:none}
+  .mclbl{display:inline;font:500 var(--t-sub)/1 var(--f-body);color:var(--fg)}
+}
 @media (max-width:899px){ #mapSearch{top:var(--chromet,10px);right:12px;width:40px;height:40px} }
 #bottomSearch{position:fixed;z-index:60;left:50%;right:auto;transform:translateX(-50%);width:min(520px,calc(100vw - 2*var(--gutter)));top:var(--chromet,10px);bottom:auto;display:none}
 @media (max-width:899px){ #bottomSearch{top:var(--chromet,10px)} }
@@ -2674,9 +2686,9 @@ button,[role="button"]{-webkit-user-select:none; user-select:none}
         </div>
       </div>
       <div id="navpills">
-        <button id="mapHome" class="glass" type="button" hidden aria-label="Back to the map" title="Back to the map"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.6 7.4 3.6v10.8l-4.6 2z"/><path d="M7.4 3.6 12.6 5.6v10.8L7.4 14.4z"/><path d="M12.6 5.6 17.2 3.6v10.8l-4.6 2z"/></svg></button>
+        <button id="mapHome" class="glass" type="button" hidden aria-label="Back to the map" title="Back to the map"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.6 7.4 3.6v10.8l-4.6 2z"/><path d="M7.4 3.6 12.6 5.6v10.8L7.4 14.4z"/><path d="M12.6 5.6 17.2 3.6v10.8l-4.6 2z"/></svg><span class="mclbl" aria-hidden="true">Map</span></button>
       </div>
-      <button id="mapSearch" class="glass" type="button" aria-label="Search styles and artists" title="Search styles and artists"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4 4"/></svg></button>
+      <button id="mapSearch" class="glass" type="button" aria-label="Search styles and artists" title="Search styles and artists"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4 4"/></svg><span class="mclbl" aria-hidden="true">Search</span></button>
       <div id="bottomSearch">
           <div class="search" id="searchBox">
             <form role="search" autocomplete="off" onsubmit="return false"><input id="q" name="site-search" type="search" placeholder="Search styles, artists and sources" role="combobox" aria-expanded="false" aria-autocomplete="list" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="search" enterkeyhint="search" data-1p-ignore data-lpignore="true" data-form-type="other" data-bwignore aria-label="Search styles, artists and sources" aria-controls="res"></form>
