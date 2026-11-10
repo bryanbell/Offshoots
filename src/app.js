@@ -2427,42 +2427,39 @@ function bumpMode(k){
     localStorage.setItem(MODEUSE_KEY,JSON.stringify(o));
   }catch(e){}
 }
-// ---------- the hours each collection suits ----------
+// ---------- the part of the day each collection suits ----------
 // A first visit in the afternoon used to open on Sleep and Wind Down, because the only order
-// was quiet to loud. Each collection now says when it fits, in local hours: [start, end] or
-// [start, end, peak], with an end past 24 running on into the small hours ([22,30] is 10pm
-// to 6am). The peak is the middle unless given. A collection with no entry is not tied to
-// the clock (a mood, a speaker, a person).
-const MODEHOURS={
-  morning:[[5,10,8]], coffee:[[7,16,10]], commute:[[6,9.5,8],[16,19,17.5]],
-  workout:[[5,10,7],[16,19,17.5]], miles:[[5,11,7],[15,19,17]],
-  focus:[[9,17,11]], coding:[[9,18,14],[20,25,23]], restless:[[9,17,14]], chores:[[9,18,11]],
-  garage:[[9,18,14]], road:[[8,18,12]], wander:[[10,19,15.5]], showkid:[[8,20,16]], family:[[11,21,15]],
-  gaming:[[15,26,21]], cooking:[[16,20,17.5]], camping:[[16,23,21]], cocktails:[[17,23,20]],
-  dinner:[[17.5,21.5,19.5]], together:[[19,24]], deep:[[19,24]], houseparty:[[19,25,22.5]],
-  lonely:[[19,27,23]], winddown:[[20.5,23.5,22]], party:[[21,27,24.5]], nightcap:[[21,26,23.5]],
-  onmind:[[21,27,24]], cosmic:[[21,28,25]], nightdrive:[[21,28,25]], sleep:[[22,30,27]]};
+// was quiet to loud. The Right now sort cuts the day into five parts (local time) and each
+// part lists the collections that suit it, best first. A collection in no part is not tied
+// to the clock (a mood, a speaker, a person). Edited by hand in the Collection Hours tool.
+const DAYPARTS=[["late",0,5,"Late night"],["morning",5,12,"This morning"],
+  ["afternoon",12,17,"This afternoon"],["evening",17,21,"This evening"],["tonight",21,24,"Tonight"]];
+const MODEPARTS={
+  late:["sleep", "nightdrive", "nightcap", "lonely", "cosmic", "party", "onmind", "gaming"],
+  morning:["miles", "workout", "morning", "coffee", "commute", "focus", "chores", "garage", "phone", "restless", "showkid"],
+  afternoon:["coding", "restless", "coffee", "focus", "garage", "chores", "showkid", "miles", "wander", "family", "gaming"],
+  evening:["commute", "cooking", "dinner", "cocktails", "together", "family", "gaming", "workout", "miles", "lonely", "deep", "wander", "houseparty"],
+  tonight:["coding", "houseparty", "gaming", "nightcap", "together", "deep", "lonely", "onmind", "winddown", "party", "nightdrive", "cosmic", "camping", "cocktails", "sleep"]};
 function clockHour(){ const d=new Date(); return d.getHours()+d.getMinutes()/60; }
-// in the window at hour h, allowing for a window that runs past midnight
-const inHours=(h,[s,e])=>{ const x=h<s?h+24:h; return x>=s && x<e; };
-const hoursUntil=(h,[s])=>((s-h)%24+24)%24;
-// how far from its best hour, as a share of half the window: 0 at the peak, 1 at the edge
-const offPeak=(h,[s,e,p])=>{ const x=h<s?h+24:h, c=p==null?(s+e)/2:p;
-  return Math.abs(x-c)/Math.max(x<c?c-s:e-c, .5); };
+const partAt=h=>DAYPARTS.find(([,a,b])=>h>=a && h<b) || DAYPARTS[0];
 // what to call the part of the day, for the first section's heading
-function dayPart(h){
-  return h<5?"Late night":h<12?"This morning":h<17?"This afternoon":h<21?"This evening":"Tonight"; }
-// Three groups: suits the hour, not tied to the clock, and the rest by how soon their hours
-// come round. Inside "now" whatever is nearest its best hour leads (Morning at 8, Dinner at
-// half seven); ties keep the order MODES is written in.
+function dayPart(h){ return partAt(h)[3]; }
+// Three groups: the current part's list in its own order, the collections in no part, and
+// the rest by how soon a part that lists them comes round (then their place in that part).
 function clockGroups(h){
-  const now=[], any=[], later=[];
-  MODES.forEach((m,i)=>{ const w=MODEHOURS[m[0]];
-    if(!w) any.push({m,i});
-    else if(w.some(x=>inHours(h,x))) now.push({m,i,k:Math.min(...w.filter(x=>inHours(h,x)).map(x=>offPeak(h,x)))});
-    else later.push({m,i,k:Math.min(...w.map(x=>hoursUntil(h,x)))}); });
-  const by=(a,b)=>a.k-b.k||a.i-b.i;
-  return {now:now.sort(by).map(x=>x.m), any:any.map(x=>x.m), later:later.sort(by).map(x=>x.m)};
+  const byId=Object.fromEntries(MODES.map(m=>[m[0],m])), cur=partAt(h);
+  const now=(MODEPARTS[cur[0]]||[]).filter(id=>byId[id]).map(id=>byId[id]);
+  const inNow=new Set(now.map(m=>m[0]));
+  const timed=new Set(Object.values(MODEPARTS).flat());
+  const any=MODES.filter(m=>!timed.has(m[0]));
+  const later=[];
+  MODES.forEach((m,i)=>{ if(inNow.has(m[0]) || !timed.has(m[0])) return;
+    let k=Infinity;
+    DAYPARTS.forEach(([key,a])=>{ const at=(MODEPARTS[key]||[]).indexOf(m[0]);
+      if(at>=0) k=Math.min(k, ((a-h)%24+24)%24*100 + at); });
+    later.push({m,i,k}); });
+  later.sort((a,b)=>a.k-b.k||a.i-b.i);
+  return {now, any, later:later.map(x=>x.m)};
 }
 function clockOrder(h){ const g=clockGroups(h==null?clockHour():h); return g.now.concat(g.any,g.later); }
 // The root's row follows the clock and nothing else: what suits the hour leads every time
