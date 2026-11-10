@@ -77,6 +77,11 @@ const look=p=>p.evaluate(()=>{
     say("  and inside the row, not spilling past it ("+v.spill+")", v.spill===0);
     say("  with the name still the thing with the room", v.names===0);
     note("  headings", v.heads.map(h=>h.text).join(" / "));
+    // Before on the left and After on the right, side by side, the way the map reads
+    const sides=await p.evaluate(()=>{ const c=[...document.querySelectorAll(".sect-connections .cxcol")].map(x=>x.getBoundingClientRect());
+      return c.length===2 ? {l:c[0].left,r:c[1].left,t0:c[0].top,t1:c[1].top,w:innerWidth} : null; });
+    if(sides && sides.w>=360) say("  before on the left, after on the right, side by side",
+      sides.l<sides.r && Math.abs(sides.t0-sides.t1)<2);
     say("  both columns say which way they point",
       v.heads.length===2 && v.heads.every(h=>h.arrow));
     say("    earlier to the left, later to the right, as on the map",
