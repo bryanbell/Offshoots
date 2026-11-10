@@ -112,7 +112,7 @@ const lum=rgb=>{ const c=(rgb.match(/[\d.]+/g)||[]).slice(0,3).map(Number)
     await settle(p); await new Promise(r=>setTimeout(r,250));
     const got=await p.evaluate(()=>{
       const out={};
-      for(const sel of [".pmin",".navback","#mapSearch","#mapHome"]){
+      for(const sel of [".pmin",".navback","#mapSearch"]){
         const e=document.querySelector(sel);
         if(!e){ out[sel]="missing"; continue; }
         const s=getComputedStyle(e);

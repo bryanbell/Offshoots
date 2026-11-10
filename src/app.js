@@ -962,11 +962,18 @@ function syncBack(){
   // It shows wherever the root panel is not in front of you: a style, a page pushed over
   // the root, or the root itself with the sheet put away. It only hides when the root is
   // what you are looking at. A desktop sidebar is never put away.
-  const hm=$("mapHome");
-  // (OPEN and OVERLAY are lets further down; read before boot reaches them, they throw)
-  let shown=true; try{ shown = !OVERLAY || OPEN; }catch(e){}
-  if(hm){ const rootUp = !state.sel && !PSTACK.length && shown;
-    hm.hidden = rootUp; hm.disabled = false; }
+  // Home shows only when the root is not in front of you and Back would not take you
+  // straight to it: Back from a page pushed over the bare root, or from a style whose
+  // crumb is the root, is already the way home.
+  const hm=$("panelHome");
+  if(hm){
+    const rootUp = !state.sel && !PSTACK.length;
+    const v=TRAIL[TRAIL.length-1];
+    const backIsHome = PSTACK.length ? (PSTACK.length===1 && !state.sel)
+      : !!v && !v.page && !(v.sel&&byId[v.sel]);
+    hm.hidden = rootUp || backIsHome;
+    const nl=hm.closest(".navrow"); if(nl) nl.classList.toggle("hashome",!hm.hidden);
+  }
   // back itself lives in the panel now, where it is not sitting beside a From button
   const b=$("panelBack"); if(!b) return;
   // a pushed page owns the back button while it is up: it is the nearer thing to leave
@@ -1048,11 +1055,11 @@ function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   // back on the left, the two lineage menus paired on the right. Back used to float over
   // the map beside the root pill, where it sat next to a From button that also pointed
   // left and meant something else entirely.
-  PHEAD = `<div class="pcard"><div class="navrow">`
+  PHEAD = `<div class="pcard"><div class="navrow"><div class="navleft">${HOMEBTN}`
     + `<button id="panelBack" class="navback" type="button" hidden aria-label="Back" title="Back">`
     + `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg>`
     + `<span class="bklbl"></span>`
-    + `<svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.6 7.4 3.6v10.8l-4.6 2z"/><path d="M7.4 3.6 12.6 5.6v10.8L7.4 14.4z"/><path d="M12.6 5.6 17.2 3.6v10.8l-4.6 2z"/></svg></button>`
+    + `<svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.6 7.4 3.6v10.8l-4.6 2z"/><path d="M7.4 3.6 12.6 5.6v10.8L7.4 14.4z"/><path d="M12.6 5.6 17.2 3.6v10.8l-4.6 2z"/></svg></button></div>`
     + `<div class="navttl navgap ovttl"><span class="mn"></span></div>`
     + CLOSEBTN
     + `</div>`;                       // .pcard stays open: .more goes inside it, so the
@@ -1392,6 +1399,12 @@ function svcPicker(kind){ return `<span class="svc${kind==="inline"?" svcinline"
   + `</select></span>`; }
 // one control at the top right of every panel: it puts the card away and leaves the map
 // whole. The pull tab at the bottom of the screen brings it back.
+// Home, in the panel header to the left of Back: one tap to the Music Atlas panel. It only
+// shows when Back would not get you there in one press (two or more steps in, or a link
+// that opened straight onto a style with nothing behind it); when Back already leads
+// home, a second button to the same place is noise. It used to float over the map's
+// corner, where it was a control for the panel parked on top of the picture.
+const HOMEBTN=`<button id="panelHome" class="navhome" type="button" hidden aria-label="Back to Music Atlas" title="Back to Music Atlas"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.6 7.4 3.6v10.8l-4.6 2z"/><path d="M7.4 3.6 12.6 5.6v10.8L7.4 14.4z"/><path d="M12.6 5.6 17.2 3.6v10.8l-4.6 2z"/></svg></button>`;
 const CLOSEBTN=`<button type="button" class="pmin" data-dismiss aria-label="Close this panel" title="Close this panel"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5.5 5.5l9 9"/><path d="M14.5 5.5l-9 9"/></svg></button>`;
 
 // From and Led to were a segmented pill in the header, which gave the two directions of
@@ -2011,7 +2024,8 @@ function shareSel(btn0){
 }
 { const sp=$("sheetpull"); if(sp) sp.addEventListener("click",()=>{ restoreSheet(); }); }
 { const pn=$("panel"); if(pn) pn.addEventListener("click",e=>{ if(e.target.closest("#panelBack")){ e.preventDefault(); e.stopPropagation(); backPressed(); } },true); }
-{ const hb=$("mapHome"); if(hb) hb.addEventListener("click",e=>{ e.preventDefault(); goHome(); }); }
+// the header's home button is rebuilt with every panel, so it is caught here once
+document.addEventListener("click",e=>{ const h=e.target.closest&&e.target.closest("#panelHome"); if(h){ e.preventDefault(); goHome(); } });
 // the hardware/browser back gesture should feel the same as the button
 addEventListener("keydown",e=>{
   if(e.key==="Backspace" && !/^(INPUT|TEXTAREA)$/.test((e.target.tagName||""))){ e.preventDefault(); goBack(); }
@@ -3352,7 +3366,7 @@ function emptyPanel(){
   const np=playable().length;
   const withSrc=DATA.filter(r=>Array.isArray(r[7])&&r[7].length).length;
   resetPages();
-  $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="navrow"><div class="navleft"><button id="panelBack" class="navback" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg><span class="bklbl"></span><svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.4L7.4 3.4v11.2L2.8 16.6z"/><path d="M7.4 3.4l5.2 2v11.2l-5.2-2z"/><path d="M12.6 5.4l4.6-2v11.2l-4.6 2z"/></svg></button></div><div class="navttl navgap ovttl"><span class="mn">Music Atlas</span></div>${CLOSEBTN}</div><h1 class="bigttl"><span class="mn">Music Atlas</span></h1><div class="more">
+  $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="navrow"><div class="navleft">${HOMEBTN}<button id="panelBack" class="navback" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg><span class="bklbl"></span><svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.4L7.4 3.4v11.2L2.8 16.6z"/><path d="M7.4 3.4l5.2 2v11.2l-5.2-2z"/><path d="M12.6 5.4l4.6-2v11.2l-4.6 2z"/></svg></button></div><div class="navttl navgap ovttl"><span class="mn">Music Atlas</span></div>${CLOSEBTN}</div><h1 class="bigttl"><span class="mn">Music Atlas</span></h1><div class="more">
     ${modeSect()}
     ${onMapSect()}
     ${deeperSect()}
