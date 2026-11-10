@@ -3494,7 +3494,16 @@ function find(t){
       : (t.length>=4 && (x.note.includes(t)||x.kind.includes(t))) ? 6 : 9;
     if(sc<9) out.push({k:"src",sc,x,ord:x.row[3]||9999});
   }
-  return out.sort((a,b)=>a.sc-b.sc||a.ord-b.ord).slice(0,8);
+  // Eight rows, unless more than eight things are named for what was typed: "metal" names
+  // 26 styles, and cutting that at eight hid most of them behind the first few. Every hit
+  // in a name (a style, a collection, a crossing) stays, up to 60; the list scrolls. A weak
+  // query like "the" still stops at eight, since nothing it matches is named for it.
+  out.sort((a,b)=>a.sc-b.sc||a.ord-b.ord);
+  // "named" means a word in the name starts with it: Heavy Metal and Metalcore, not
+  // Southern Soul for "the"
+  const named=out.filter(x=>x.k==="style"?x.sc<=1 : x.k==="page"?(x.sc<=1.3||x.sc===2.5)
+    : x.k==="cross"?x.sc<=2.2 : false).length;
+  return out.slice(0,Math.min(60,Math.max(8,named)));
 }
 function hitLine(n){ const t=q.value.trim().toLowerCase(), has=x=>x.toLowerCase().includes(t);
   // name the artist that matched, whether it is one of the three on the panel or
