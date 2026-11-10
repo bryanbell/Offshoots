@@ -1620,25 +1620,26 @@ function linksSect(n,anc,desc){
     + (arrow==="from"?CXARL:"") + `<span>${esc(label)}</span>` + (arrow==="led"?CXARR:"")
     + `</h4>`
     + (ids.length
-      // Rows that go somewhere now look like it. They were a dot, a name and a year with
-      // nothing to say they were buttons, which on a phone is indistinguishable from a
-      // list. Same chevron as every other go-to row, so the idiom holds across the panel.
-      ? `<div class="cxlist">${ids.map(i=>`<button type="button" class="cxgo ${cls}" data-go="${esc(i)}">`
-          + `<i class="dot" style="background:${FAM[byId[i].fam].c}"></i>`
-          + `<span class="nm">${esc(byId[i].name)}</span>`
-          + `<small>${byId[i].year<1950?esc(byId[i].disp):byId[i].year}</small>`
-          + GOCHEV + `</button>`).join("")}</div>`
+      // Each column is a card in Go Deeper's style: the style's art without its title (the
+      // name is printed beside it), the name, the year, and an arrow where the chevron was.
+      // The arrow points the way the row goes on the map, back for what came before and
+      // on for what came after, the same two arrows as the headings over them.
+      ? `<div class="listgrp sep cxlist">${ids.map(i=>`<button type="button" class="listrow cxgo ${cls}" data-go="${esc(i)}">`
+          + `<span class="cxart">${cover(i,byId[i],true)}</span>`
+          + `<span class="lrlbl nm">${esc(byId[i].name)}</span>`
+          + `<small class="lrct">${byId[i].year<1950?esc(byId[i].disp):byId[i].year}</small>`
+          + (arrow==="from"?CXROWL:CXROWR) + `</button>`).join("")}</div>`
       : `<p class="cxnone">Nothing in the atlas yet.</p>`)
     + `</div>`;
-  // Shut. It is the longest thing on a style panel, two columns of up to twenty-five
-  // names each, and it is a place to go next rather than something to read on the way
-  // through. The count beside the heading says how much is behind it.
+  // Open. It was shut as the longest thing on a style panel, and that hid the map's own
+  // relationships behind a heading most people never opened. The count beside the
+  // heading still says how much is there, and the heading still folds it away.
   const n2=from.length+led.length;
   return sect("connections","Explore the Connections",
     `<div class="cxwrap">${col("cxfrom","Before This Style","from",from)}`
     + `${col("cxled","After This Style","led",led)}</div>${tally}`,
     `<span class="sectaside">${n2} ${n2===1?"style":"styles"}</span>`,
-    "", "", false, "shut");
+    "", "", false, "open");
 }
 // ---------- Go deeper, grouped by what it is ----------
 // One list of mixed media made you read every row to find the podcast. Grouped and
@@ -2299,6 +2300,9 @@ const FOLDTRI="<svg class=\"lrcv lrgov\" viewBox=\"0 0 256 256\" fill=\"currentC
 // a row that takes you somewhere points that way; the triangle unfolds what is already here
 const GOCHEV="<svg class=\"lrcv lrgov\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z\"/></svg>";
 const CXARL="<svg class=\"cxar\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z\"/></svg>";
+// the same two arrows at row size, in the chevron's place and colour
+const CXROWL="<svg class=\"lrcv lrgov cxrar\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z\"/></svg>";
+const CXROWR="<svg class=\"lrcv lrgov cxrar\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z\"/></svg>";
 const CXARR="<svg class=\"cxar\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z\"/></svg>";
 const LRCHEV="<svg class=\"lrcv\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z\"/></svg>";
 // every way of browsing the map is a collection you open, so they are one grouped list:

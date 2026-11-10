@@ -58,10 +58,21 @@ const look=p=>p.evaluate(()=>{
     const v=await look(p);
     note(tag, v.n+" rows, "+v.chev+" marked");
     say(tag+": every row carries the go-to mark", v.n>0 && v.chev===v.n);
-    say("  the same chevron the other go-to rows use", await p.evaluate(()=>{
-      const a=document.querySelector(".cxgo .lrcv");
-      const bq=document.querySelector(".listrow .lrcv, .secthead.sectgo .sectcv svg");
-      return !!a && !!bq && a.innerHTML===bq.innerHTML; }));
+    // an arrow where the chevron was, pointing the way the row goes: back for what came
+    // before, on for what came after, the same two arrows as the headings over them
+    say("  an arrow pointing the way the row goes, matching its heading", await p.evaluate(()=>{
+      const hd=[...document.querySelectorAll(".sect-connections .cxh .cxar")].map(g=>g.innerHTML);
+      const f=[...document.querySelectorAll(".cxgo.cxfrom .lrcv")], l=[...document.querySelectorAll(".cxgo.cxled .lrcv")];
+      return hd.length===2 && hd[0]!==hd[1] && (f.length+l.length)>0
+        && f.every(g=>g.innerHTML===hd[0]) && l.every(g=>g.innerHTML===hd[1]); }));
+    // a picture of the style, the version without its name on it, since the name is
+    // printed beside it
+    const bare=Object.keys(require("../src/data.js").STYLEART||{});
+    say("  and each row the style's art without its title", await p.evaluate(bare=>
+      [...document.querySelectorAll(".cxgo")].every(r=>{ const i=r.querySelector(".cxart img, .cxart .pcovph");
+        if(!i) return false; if(i.tagName!=="IMG") return true;
+        const src=i.getAttribute("src")||"";
+        return bare.includes(r.dataset.go) ? /style-previews\//.test(src) : true; }),bare));
     say("  clear of the year rather than against it ("+v.minGap+"px)", v.minGap>=4);
     say("  and inside the row, not spilling past it ("+v.spill+")", v.spill===0);
     say("  with the name still the thing with the room", v.names===0);
