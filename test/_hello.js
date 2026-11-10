@@ -7,6 +7,10 @@ module.exports = function seen(browser){
     if(target && target.addInitScript)
       await target.addInitScript(() => {
         try{ localStorage.setItem("musicatlas.seen","1"); }catch(e){}
+        // The root's Collections row shows only what suits the hour, so which collections
+        // are on it depends on when the suite runs. Suites click named ones from the root,
+        // so they get the whole row back; modes.test turns this off to check the real row.
+        window.__MA_ROWALL = true;
       });
     return target;
   };

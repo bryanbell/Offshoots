@@ -2455,7 +2455,6 @@ function clockOrder(h){ const g=clockGroups(h==null?clockHour():h); return g.now
 // it is built. It used to float the most-opened collections to the front once a browser
 // had a tally, which froze the row on last week's habits whatever the time; that order is
 // still one choice away as Most used on the Collections page.
-function modeOrder(){ return clockOrder(); }
 
 // ---------- the sort on the list ----------
 // The row learns on its own and the list did not, which is the right split for the row but
@@ -2552,7 +2551,23 @@ function modeSect(){
   // whole set one tap away behind the heading. Twenty-six modes suit that exactly: a
   // few are in reach, the heading opens the lot, and nothing is buried under a scroll
   // of its own.
-  const circles=modeOrder().map(m=>modeTile(m)).join("");
+  // Only what suits the hour (the first group of the Right now sort), then a last circle
+  // that opens every collection. A row of all thirty-four put Sleep a swipe from Coffee
+  // Shop at ten in the morning; the page behind the heading and the last circle is where
+  // the rest live. Should no collection suit the hour, the any-time ones stand in.
+  // (The test suites set __MA_ROWALL before the page loads to get every collection in the
+  // row in clock order, as it was: they click a given collection from the root at whatever
+  // hour they run. Nothing else sets it.)
+  if(window.__MA_ROWALL) return sect("modes","Collections",
+    `<div class="mrow" role="list">${clockOrder().map(m=>modeTile(m)).join("")}</div>`,
+    "", "modes", "Find music for the moment.", true);
+  const g=clockGroups(clockHour()), first=g.now.length?g.now:g.any;
+  const circles=first.map(m=>modeTile(m)).join("")
+    + `<button type="button" class="mcirc mcall" data-page="modes"`
+    + ` aria-label="All ${MODES.length} collections" title="All ${MODES.length} collections">`
+    + `<i class="mco mcallco"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">`
+    + `<path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></i>`
+    + `<span class="mclbl">All ${MODES.length}</span></button>`;
   // The lede is the welcome card's line, word for word. Not a caption for the pictures
   // ("By mood, place or task" was that, and the pictures said it better): it says why
   // this section is a different way in from the Atlas below it, in the words the
