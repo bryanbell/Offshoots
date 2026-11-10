@@ -283,7 +283,7 @@ svg{display:block}
 #chart.peek .n.pv text.halo{font-weight:700}
 #chart.peek .n.pv circle{stroke:var(--accent);stroke-width:2.5}
 #chart.peek .e,#chart.peek.sel .e.on{opacity:0}
-#chart.peek .e.pve{opacity:1;stroke-width:2}
+#chart.peek .e.pve,#chart.peek.sel .e.on.pve{opacity:1;stroke-width:2}
 /* zoom */
 .zoom{position:absolute;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:12;display:flex;flex-direction:column;border-radius:999px;overflow:hidden}
 .zoom button{width:44px;height:44px;border:0;background:transparent;color:var(--fg);font:400 22px/1 var(--f-body);cursor:pointer;touch-action:manipulation}
@@ -2624,6 +2624,22 @@ button.navttl,
 /* and a baseline for the controls that never reset themselves */
 button,[role="button"]{-webkit-user-select:none; user-select:none}
 
+/* the lineage step menu the arrow keys open beside a selected style */
+.stepmenu{position:fixed;z-index:60;min-width:200px;max-width:280px;max-height:min(60vh,420px);overflow:auto;
+  padding:6px;border-radius:14px;background:var(--panel);color:var(--fg);
+  box-shadow:0 0 0 1px var(--cardline,rgb(0 0 0 / .06)),0 12px 32px -10px rgb(0 0 0 / .28);
+  animation:stepin .14s ease-out}
+@keyframes stepin{from{opacity:0;transform:translateY(4px)}}
+@media (prefers-reduced-motion:reduce){.stepmenu{animation:none}}
+.stephd{font:600 var(--t-foot)/1.3 var(--f-body);color:var(--muted);padding:6px 10px 6px}
+.stepit{display:flex;align-items:center;gap:9px;width:100%;min-height:36px;padding:0 10px;border:0;border-radius:9px;
+  background:none;color:inherit;font:500 var(--t-sub)/1.2 var(--f-body);text-align:left;cursor:pointer}
+.stepit.on{background:var(--accent);color:#fff}
+.stepit.on .stepyr{color:rgb(255 255 255 / .82)}
+.stepdot{flex:none;width:8px;height:8px;border-radius:50%}
+.stepnm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stepyr{flex:none;font:400 var(--t-foot)/1 var(--f-mono);color:var(--muted)}
+.stepnone{margin:2px 10px 8px;font:400 var(--t-sub)/1.35 var(--f-body);color:var(--muted)}
 </style>
 <div id="app">
   <div id="treeView">

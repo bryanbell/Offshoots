@@ -979,7 +979,7 @@ function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   if(!byId[id]) return;
   const switched = state.sel!==id;
   if(switched && !GOINGBACK){ pushTrail(); bumpStyle(id); }
-  state.sel=id; closeNav();
+  state.sel=id; closeNav(); if(typeof stepClose==="function"&&STEP) stepClose();
   // only a real change of style brings a dismissed sheet back; re-selects from
   // resize, zoom and setOpen must leave it where the user put it
   if(switched) restoreSheet();
@@ -2123,6 +2123,101 @@ document.addEventListener("pointerover",e=>{
 document.documentElement.addEventListener("mouseleave",()=>{ clearTimeout(PEEKT); if(PEEKID) peekStyle(null); });
 // opening a style, or any repaint of the panel, ends the preview
 document.addEventListener("click",e=>{ if(PEEKID && e.target.closest && e.target.closest("[data-go]")){ clearTimeout(PEEKT); peekStyle(null); } },true);
+// Arrow keys step along the lineage from the selected style. Left opens a menu of what it
+// came from, right a menu of what it led to, beside the style on the map; up and down
+// move through it, Enter (or the same arrow again) goes there, Escape or the other arrow
+// closes it. The row that is lit is previewed on the map the way a hovered row is, but
+// without moving the map, so the menu stays put under the eye.
+let STEP=null;   // {side, ids, i, el}
+function stepClose(){
+  if(!STEP) return;
+  STEP.el.remove(); STEP=null;
+  const svg=$("chart"); if(svg){ svg.classList.remove("peek");
+    svg.querySelectorAll(".pv,.pvn,.pve").forEach(g=>g.classList.remove("pv","pvn","pve")); }
+  PEEKID=null;
+}
+function stepLight(){
+  const svg=$("chart"); if(!svg||!STEP) return;
+  svg.querySelectorAll(".pv,.pvn,.pve").forEach(g=>g.classList.remove("pv","pvn","pve"));
+  STEP.el.querySelectorAll(".stepit").forEach((b,k)=>{ const on=k===STEP.i;
+    b.classList.toggle("on",on); b.setAttribute("aria-selected",on?"true":"false");
+    if(on) b.scrollIntoView({block:"nearest"}); });
+  const id=STEP.ids[STEP.i]; if(!id) { svg.classList.remove("peek"); return; }
+  svg.classList.add("peek");
+  const g=svg.querySelector(`.n[data-id="${CSS.escape(id)}"]`), me=svg.querySelector(`.n[data-id="${CSS.escape(state.sel)}"]`);
+  if(g) g.classList.add("pv"); if(me) me.classList.add("pvn");
+  svg.querySelectorAll(".e").forEach(e=>{ if((e.dataset.p===id&&e.dataset.c===state.sel)||(e.dataset.c===id&&e.dataset.p===state.sel)) e.classList.add("pve"); });
+}
+function stepOpen(side){
+  stepClose();
+  const n=byId[state.sel]; if(!n) return;
+  const ids=(side==="before"?n.parents:n.children).filter(id=>byId[id])
+    .sort((a,b)=>byId[a].year-byId[b].year || byId[a].name.localeCompare(byId[b].name));
+  const g=document.querySelector(`#chart .n[data-id="${CSS.escape(n.id)}"]`);
+  const el=document.createElement("div");
+  el.className="stepmenu "+side; el.setAttribute("role","listbox");
+  el.setAttribute("aria-label",(side==="before"?"Came before ":"Came after ")+n.name);
+  el.innerHTML=`<div class="stephd">${side==="before"?"← Came Before":"Came After →"}</div>`
+    + (ids.length ? ids.map((id,k)=>{ const x=byId[id];
+        return `<button type="button" class="stepit" role="option" data-step="${k}" tabindex="-1">`
+          + `<i class="stepdot" style="background:${esc(FAM[x.fam].c)}"></i>`
+          + `<span class="stepnm">${esc(x.name)}</span><span class="stepyr">${esc(x.disp||String(x.year))}</span></button>`; }).join("")
+      : `<p class="stepnone">${side==="before"?"Nothing earlier on the atlas":"Nothing has come out of it yet"}</p>`);
+  document.body.appendChild(el);
+  // just under the style, so it covers neither the style nor the row its lines run along:
+  // hanging left from it for what came before, right from it for what came after, and
+  // flipped above or back inside the screen when there is no room
+  const r=g ? g.getBoundingClientRect() : {left:innerWidth/2,right:innerWidth/2,top:innerHeight/2,bottom:innerHeight/2};
+  const w=el.offsetWidth, h=el.offsetHeight, pad=10;
+  let x = side==="before" ? r.right-w : r.left;
+  x=Math.max(pad, Math.min(x, innerWidth-w-pad));
+  let y=r.bottom+8; if(y+h>innerHeight-pad) y=Math.max(pad, r.top-h-8);
+  el.style.left=x+"px"; el.style.top=y+"px";
+  STEP={side, ids, i:0, el};
+  stepLight();
+}
+function stepGo(){
+  if(!STEP) return;
+  const id=STEP.ids[STEP.i]; stepClose();
+  if(id) select(id);
+}
+document.addEventListener("keydown",e=>{
+  if(e.metaKey||e.ctrlKey||e.altKey) return;
+  const t=e.target, typing=t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName||"") || t.isContentEditable);
+  if(typing) return;
+  if(STEP){
+    const k=e.key, n=STEP.ids.length;
+    if(k==="ArrowDown"){ if(n){ STEP.i=(STEP.i+1)%n; stepLight(); } }
+    else if(k==="ArrowUp"){ if(n){ STEP.i=(STEP.i-1+n)%n; stepLight(); } }
+    else if(k==="Enter"||k===" "){ stepGo(); }
+    else if(k==="ArrowRight"){ STEP.side==="after" ? stepGo() : stepClose(); }
+    else if(k==="ArrowLeft"){ STEP.side==="before" ? stepGo() : stepClose(); }
+    else if(k==="Escape"){ stepClose(); }
+    else if(k==="Home"){ STEP.i=0; stepLight(); }
+    else if(k==="End"){ if(n){ STEP.i=n-1; stepLight(); } }
+    else { stepClose(); return; }
+    e.preventDefault(); e.stopPropagation(); return;
+  }
+  if((e.key==="ArrowLeft"||e.key==="ArrowRight") && state.sel && !document.querySelector(".pgin")){
+    // only when the map is what you are looking at: no open overlay, wiki or search
+    const w=$("wikiwrap"); if(w && !w.hidden) return;
+    if(OVERLAY && OPEN) return;
+    e.preventDefault(); e.stopPropagation();
+    stepOpen(e.key==="ArrowLeft"?"before":"after");
+  }
+},true);
+document.addEventListener("pointerdown",e=>{
+  if(!STEP) return;
+  const it=e.target.closest && e.target.closest(".stepmenu .stepit");
+  if(it && STEP.el.contains(it)){ e.preventDefault(); STEP.i=+it.dataset.step; stepGo(); return; }
+  if(!(e.target.closest && e.target.closest(".stepmenu"))) stepClose();
+},true);
+document.addEventListener("pointermove",e=>{
+  if(!STEP) return; const it=e.target.closest && e.target.closest(".stepmenu .stepit");
+  if(it && +it.dataset.step!==STEP.i){ STEP.i=+it.dataset.step; stepLight(); }
+});
+addEventListener("resize",()=>stepClose());
+{ const sc=$("scroller"); if(sc) sc.addEventListener("scroll",()=>stepClose(),{passive:true}); }
 // twelve chips fill a phone screen, so the picks can open out of sight below them
 // Bring the chosen mode's list to the top of the sheet. #panel is overflow:hidden and
 // never scrolled, which is why the earlier version of this moved nothing at all: the
