@@ -60,11 +60,14 @@ const look=p=>p.evaluate(()=>{
     say(tag+": every row carries the go-to mark", v.n>0 && v.chev===v.n);
     // an arrow where the chevron was, pointing the way the row goes: back for what came
     // before, on for what came after, the same two arrows as the headings over them
-    say("  an arrow pointing the way the row goes, matching its heading", await p.evaluate(()=>{
-      const hd=[...document.querySelectorAll(".sect-connections .cxh .cxar")].map(g=>g.innerHTML);
-      const f=[...document.querySelectorAll(".cxgo.cxfrom .lrcv")], l=[...document.querySelectorAll(".cxgo.cxled .lrcv")];
-      return hd.length===2 && hd[0]!==hd[1] && (f.length+l.length)>0
-        && f.every(g=>g.innerHTML===hd[0]) && l.every(g=>g.innerHTML===hd[1]); }));
+    // With no headings over the columns, the arrows are what say which way each list
+    // goes: the same glyph down a column, pointing left before and right after.
+    say("  an arrow pointing the way the row goes, left before and right after", await p.evaluate(()=>{
+      // the two glyphs differ by their first move: the left arrow starts at x=224, the right at 221.66
+      const tip=g=>{ const d=g.querySelector("path").getAttribute("d");
+        return /^M224/.test(d)?"left":/^M221/.test(d)?"right":"?"; };
+      const f=[...document.querySelectorAll(".cxgo.cxfrom .lrcv")].map(tip), l=[...document.querySelectorAll(".cxgo.cxled .lrcv")].map(tip);
+      return (f.length+l.length)>0 && f.every(x=>x==="left") && l.every(x=>x==="right"); }));
     // a picture of the style, the version without its name on it, since the name is
     // printed beside it
     const bare=Object.keys(require("../src/data.js").STYLEART||{});
@@ -76,21 +79,22 @@ const look=p=>p.evaluate(()=>{
     say("  clear of the year rather than against it ("+v.minGap+"px)", v.minGap>=4);
     say("  and inside the row, not spilling past it ("+v.spill+")", v.spill===0);
     say("  with the name still the thing with the room", v.names===0);
-    note("  headings", v.heads.map(h=>h.text).join(" / "));
     // Before on the left and After on the right, side by side, the way the map reads
     const sides=await p.evaluate(()=>{ const c=[...document.querySelectorAll(".sect-connections .cxcol")].map(x=>x.getBoundingClientRect());
       return c.length===2 ? {l:c[0].left,r:c[1].left,t0:c[0].top,t1:c[1].top,w:innerWidth} : null; });
     if(sides && sides.w>=360) say("  before on the left, after on the right, side by side",
       sides.l<sides.r && Math.abs(sides.t0-sides.t1)<2);
-    say("  both columns say which way they point",
-      v.heads.length===2 && v.heads.every(h=>h.arrow));
-    say("    earlier to the left, later to the right, as on the map",
-      v.heads[0].before===true && v.heads[1].before===false);
-    say("    drawn in the heading's own ink, so they take the family tint",
-      v.heads.every(h=>h.sameInk));
-    say("    and left out of the reading, the words being the label",
-      v.heads.every(h=>h.hidden)
-      && v.heads[0].text==="Before This Style" && v.heads[1].text==="After This Style");
+    // just the two cards: no headings over them, no "In all" line under them, no fold,
+    // and each column still named for a screen reader
+    const bare2=await p.evaluate(()=>{ const s=document.querySelector(".sect-connections");
+      return {heads:s.querySelectorAll(".cxh").length, tally:s.querySelectorAll(".tally").length,
+        fold:s.tagName==="DETAILS"||!!s.querySelector("summary"),
+        labels:[...s.querySelectorAll(".cxcol")].map(c=>c.getAttribute("aria-label")),
+        arrowsHidden:[...s.querySelectorAll(".cxgo .lrcv")].every(g=>g.getAttribute("aria-hidden")==="true")}; });
+    say("  just the two cards: no column headings, no tally, no fold",
+      bare2.heads===0 && bare2.tally===0 && !bare2.fold);
+    say("    each column named for a screen reader ("+bare2.labels.join(" / ")+"), the arrows left out of the reading",
+      bare2.labels.join()==="Before this style,After this style" && bare2.arrowsHidden);
     // the mark is a claim that the row goes somewhere; it has to be true
     const went=await p.evaluate(async()=>{
       const was=location.hash; document.querySelector(".cxgo").click();

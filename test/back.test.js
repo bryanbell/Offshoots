@@ -440,10 +440,10 @@ const openCx=async q=>{ await q.$eval(".sect-connections",e=>{ if(!e.open) e.ope
     say("the pill names \""+clip.t+"\" in full", clip.t==="Minimalism" && !clip.clipped);
     for(const id of ["minimalism","ambient"]){
       await q.click("#panelBack"); await at(q,"#"+id); await settle(q);
-      const r=await q.evaluate(()=>({open:document.querySelector("#panelBody .sect-connections").open,
-        sc:document.getElementById("panelBody").scrollTop}));
-      say("back to "+id+" reopens its Connections at "+r.sc+"px (left at "+left[id]+")",
-        r.open && Math.abs(r.sc-left[id])<=2);
+      // the connections are always shown now, so what Back owes is the same scroll
+      const r=await q.evaluate(()=>({sc:document.getElementById("panelBody").scrollTop}));
+      say("back to "+id+" returns to its Connections at "+r.sc+"px (left at "+left[id]+")",
+        Math.abs(r.sc-left[id])<=2);
     }
     await c.close(); }
 
