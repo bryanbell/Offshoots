@@ -122,9 +122,21 @@ async function ask(p,t){
   await pop.close();
   say("  leaving the map where it was", (await p.evaluate(()=>location.hash))===before);
 
-  // --- the list stays a list: eight at most, whatever matches
+  // --- the list stays short for a loose query, eight at most
   const many=await ask(p,"the");
-  say("never more than eight results ("+many.length+")", many.length<=8);
+  say("a loose query stops at eight results ("+many.length+")", many.length<=8);
+  // --- but everything named for the query is listed, and the list scrolls to reach it
+  { const metal=await ask(p,"metal");
+    const want=D.DATA.filter(r=>/metal/i.test(r[1])).map(r=>r[1]);
+    const got=metal.filter(x=>x.kind==="res-style").map(x=>x.name);
+    say("every style named for \"metal\" is listed ("+got.length+" of "+want.length+")",
+      want.every(n=>got.includes(n)));
+    // measured with the field open, the way someone typing sees it
+    if(!(await p.evaluate(()=>document.getElementById("res").getBoundingClientRect().height))){
+      await p.click("#mapSearch").catch(()=>{}); await ask(p,"metal"); }
+    const sc=await p.evaluate(()=>{const r=document.getElementById("res"), cs=getComputedStyle(r), b=r.getBoundingClientRect();
+      return {scroll:/auto|scroll/.test(cs.overflowY), fits:b.height>0 && b.bottom<=innerHeight+1, more:r.scrollHeight>r.clientHeight};});
+    say("  the list stays on screen and scrolls for the rest", sc.scroll && sc.fits && sc.more); }
 
   // --- nothing matches, nothing shows
   await ask(p,"zzzzqqqq");

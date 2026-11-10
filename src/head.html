@@ -157,8 +157,10 @@ button{font-family:inherit}
 /* the name does not give way; the line beside it does. Both shrinking meant a result
    could truncate the one word you typed while keeping the year beside it. The cap is
    there so a very long title still leaves the line something to say. */
-.rnm{white-space:nowrap;flex:0 0 auto;max-width:62%;
-  overflow:hidden;text-overflow:ellipsis}
+/* A name too long for the cap wraps onto a second line rather than losing its end
+   ("Pete Seeger: The Power of Song" on a phone); two lines at most. */
+.rnm{flex:0 0 auto;max-width:62%;white-space:normal;line-height:1.2;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
 .results small{flex:1 1 auto;min-width:0}
 /* the one mark people already read as "this leaves the app" */
 .rext{flex:none;display:grid;place-items:center;width:15px;height:15px;opacity:.5;
@@ -1818,7 +1820,8 @@ body:not(.open) aside#panel{width:var(--sidew);cursor:pointer}
 
 #bottomSearch .search input{height:40px;font-size:15px;padding:0 14px 0 38px;background-color:var(--lite);color:var(--lite-fg);-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:0 0 0 .5px rgb(0 0 0 / .14),0 6px 20px rgb(0 0 0 / .3);background-position:13px center;background-size:16px}
 #bottomSearch .search input:focus-visible{box-shadow:0 0 0 .5px rgb(0 0 0 / .14),0 0 0 4px color-mix(in srgb,var(--accent) 35%,transparent)}
-#bottomSearch .results{top:calc(100% + 6px);bottom:auto;max-height:min(46vh,340px);overflow:auto;overscroll-behavior:contain}
+/* tall enough for a query like "metal" that names two dozen styles; the rest scroll */
+#bottomSearch .results{top:calc(100% + 6px);bottom:auto;max-height:min(calc(100vh - 140px),720px);overflow:auto;overscroll-behavior:contain}
 
 
 /* ---- mobile: drag handle instead of a chevron ---- */
