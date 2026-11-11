@@ -1159,7 +1159,28 @@ function setOpen(v){
   setOpenNow(v);
   if(glide) glideSheet(from);
 }
-function setOpenNow(v){ closeNav(); if(v) syncSheetH(); OPEN=v; syncBack(); setTimeout(sizeCard,0); setTimeout(syncMapPad,0); setTimeout(syncMapPad,380); if(OVERLAY && state.sel) setTimeout(()=>{ if(state.sel) select(state.sel,{scroll:true,smooth:!reduce,repaint:false}) },260); $("panel").classList.toggle("open",v); document.body.classList.toggle("open",v); $("expand").setAttribute("aria-expanded",v); $("expand").setAttribute("aria-label",v?"Hide details":"Show details"); $("pclose").setAttribute("aria-label",v?"Collapse details":"Expand details"); { const g=$("grab"); if(g){ g.setAttribute("aria-expanded",String(v)); g.setAttribute("aria-label",v?"Collapse details":"Expand details"); } } paintExpand(); if(v) $("panel").scrollTop=0; }
+// The band behind the Dynamic Island / status bar sits outside the page in the home-screen
+// app, so iOS paints it from theme-color (or the page's own background). While the sheet is
+// up on a phone, the map behind it is dimmed by #treeView::after (--fg at 10%); the band
+// stayed light above the dimmed map. It now takes the same dimmed map colour while the dim
+// shows, worked out from the live tokens so it follows light and dark, and goes back after.
+const THEMEMETAS=[...document.querySelectorAll('meta[name="theme-color"]')].map(m=>[m,m.content]);
+let tintProbe=null;
+function syncStatusTint(){
+  let on=false; try{ on = OPEN && innerWidth<900; }catch(e){}
+  const root=document.documentElement;
+  if(!on){ THEMEMETAS.forEach(([m,c])=>m.content=c); root.style.removeProperty("background-color"); return; }
+  if(!tintProbe){ tintProbe=document.createElement("i"); tintProbe.style.cssText="position:absolute;width:0;height:0;visibility:hidden;"
+      + "background:color-mix(in srgb,var(--fg) 10%,var(--mapbg))"; document.body.appendChild(tintProbe); }
+  // color-mix() comes back as color(srgb r g b) or rgb(); theme-color wants a plain hex
+  const n=(getComputedStyle(tintProbe).backgroundColor.match(/[\d.]+/g)||[]).map(Number);
+  const unit=/color\(/.test(getComputedStyle(tintProbe).backgroundColor);
+  const c="#"+n.slice(0,3).map(v=>Math.round(unit?v*255:v).toString(16).padStart(2,"0")).join("");
+  THEMEMETAS.forEach(([m])=>m.content=c); root.style.backgroundColor=c;
+}
+addEventListener("resize",()=>syncStatusTint());
+try{ matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>syncStatusTint()); }catch(e){}
+function setOpenNow(v){ closeNav(); if(v) syncSheetH(); OPEN=v; syncBack(); syncStatusTint(); setTimeout(sizeCard,0); setTimeout(syncMapPad,0); setTimeout(syncMapPad,380); if(OVERLAY && state.sel) setTimeout(()=>{ if(state.sel) select(state.sel,{scroll:true,smooth:!reduce,repaint:false}) },260); $("panel").classList.toggle("open",v); document.body.classList.toggle("open",v); $("expand").setAttribute("aria-expanded",v); $("expand").setAttribute("aria-label",v?"Hide details":"Show details"); $("pclose").setAttribute("aria-label",v?"Collapse details":"Expand details"); { const g=$("grab"); if(g){ g.setAttribute("aria-expanded",String(v)); g.setAttribute("aria-label",v?"Collapse details":"Expand details"); } } paintExpand(); if(v) $("panel").scrollTop=0; }
 function openPanel(){ setOpen(true); }
 function closePanel(){ setOpen(false); }
 function syncPeek(){}
