@@ -2,7 +2,8 @@
 // year, the description if there is one, and its key artists. It is a
 // preview: it takes no clicks, selects nothing, waits a beat before the first one so a
 // pointer crossing the map does not flash cards, and goes when the pointer leaves, the map
-// moves or a key is pressed. Never on touch, and never for the style already open.
+// moves or a key is pressed. Never on touch, and never for the style already open. The style
+// itself, its neighbours and its lines lift at once, through any dimming.
 const {chromium}=require("playwright");
 const skipWelcome=require("./_hello");
 const {settle,until,arm}=require("./_wait");
@@ -57,6 +58,30 @@ const card=p=>p.evaluate(()=>{ const c=document.querySelector(".hovcard"); if(!c
   if(bare){ const q=await at(p,bare); await p.waitForTimeout(200); await p.mouse.move(q.x,q.y-80); await p.mouse.move(q.x,q.y);
     await until(p,()=>!!document.querySelector(".hovcard"));
     say("a style without a description still gets a card", !!(await card(p)) && await p.evaluate(()=>!document.querySelector(".hovcard .hcdesc"))); }
+  // over a selection: the hovered style, its neighbours and its lines come up at once,
+  // through the dimming, before the card's wait
+  await p.goto(URL+"#girl_group"); await ready(p);
+  const cp=await at(p,"countrypolitan"); await p.waitForTimeout(200);
+  await p.mouse.move(cp.x,cp.y-80); await p.mouse.move(cp.x,cp.y); await p.waitForTimeout(220);   // past the .15s fade, before the card
+  const lit=await p.evaluate(()=>{ const op=id=>+getComputedStyle(document.querySelector(`#chart .n[data-id="${id}"]`)).opacity;
+    const n=["nashville","easylistening","countrypop"].filter(id=>document.querySelector(`#chart .n[data-id="${id}"]`));
+    const es=[...document.querySelectorAll('#chart .e')].filter(e=>e.dataset.p==="countrypolitan"||e.dataset.c==="countrypolitan");
+    return {self:op("countrypolitan"), near:[...document.querySelectorAll("#chart .n.hvn")].map(g=>+getComputedStyle(g).opacity),
+      lines:es.map(e=>+getComputedStyle(e).opacity), card:!!document.querySelector(".hovcard"), other:op("bluegrass")}; });
+  say("over a selection, the hovered style comes to full strength at once ("+lit.self+")", lit.self===1 && !lit.card);
+  say("  with the styles it came from and led to ("+lit.near.length+")", lit.near.length>=2 && lit.near.every(o=>o===1));
+  say("  and the lines between them", lit.lines.length===lit.near.length && lit.lines.every(o=>o>0.8));
+  say("  while the rest stays dimmed", lit.other<0.5);
+  await p.mouse.move(cp.x,cp.y-200); await p.waitForTimeout(250);
+  say("  and it all goes back when the pointer leaves", await p.evaluate(()=>!document.querySelector("#chart .hv,#chart .hvn,#chart .hve")
+    && +getComputedStyle(document.querySelector('#chart .n[data-id="countrypolitan"]')).opacity<0.5));
+  // the card waits, but when it comes the lift stays
+  await p.mouse.move(cp.x,cp.y); await until(p,()=>!!document.querySelector(".hovcard"));
+  say("  the card coming up keeps the lift", await p.evaluate(()=>!!document.querySelector("#chart .n.hv")));
+  // and the card sits clear of the lines it is describing where it can
+  say("  with the card off the hovered style's lines", await p.evaluate(()=>{ const c=document.querySelector(".hovcard").getBoundingClientRect();
+    const g=document.querySelector('#chart .n[data-id="countrypolitan"]').getBoundingClientRect();
+    return !(c.left<g.left && c.right>g.left-40 && c.top<g.bottom && c.bottom>g.top); }));
   await p.close();
 
   const m=await b.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true}); m.on("pageerror",e=>errs.push(String(e)));

@@ -1955,9 +1955,22 @@ function noteWho(n){
 (function(){
   const sc=$("scroller"), fine=matchMedia("(hover:hover) and (pointer:fine)");
   let el=null, cur=null, t=0;
-  function hide(){ clearTimeout(t); cur=null; if(el){ el.remove(); el=null; } }
+  function hide(){ clearTimeout(t); cur=null; if(el){ el.remove(); el=null; } lift(null); }
+  // The style under the pointer, and the styles it came from and led to, come up to full
+  // strength with the lines between them, at once and over whatever the map is dimming
+  // for a selection or a collection preview. The card is the slower, fuller answer.
+  let lit=null;
+  function lift(id){
+    if(id===lit) return; const svg=$("chart");
+    svg.querySelectorAll(".hv,.hvn,.hve").forEach(x=>x.classList.remove("hv","hvn","hve"));
+    svg.classList.toggle("hov",!!id); lit=id; if(!id || !byId[id]) return;
+    const n=byId[id], near=new Set([...n.parents,...n.children]);
+    svg.querySelectorAll(".n").forEach(g=>{ const k=g.dataset.id;
+      if(k===id) g.classList.add("hv"); else if(near.has(k)) g.classList.add("hvn"); });
+    svg.querySelectorAll(".e").forEach(e=>{ if(e.dataset.p===id||e.dataset.c===id) e.classList.add("hve"); });
+  }
   function show(id,g){
-    const n=byId[id]; if(!n) return; hide(); cur=id;
+    const n=byId[id]; if(!n) return; clearTimeout(t); if(el){ el.remove(); el=null; } cur=id;   // the card only: the lift stays
     const d=(typeof DESC!=="undefined"&&DESC[id])||"";
     // who to listen for, rather than the lineage the map already draws
     const who=noteWho(n).slice(0,5);
@@ -1968,18 +1981,25 @@ function noteWho(n){
       +(d?`<p class="hcdesc">${esc(d)}</p>`:"")
       +(who.length?`<div class="hcrel"><b>Key artists</b><span>${who.map(esc).join(", ")}</span></div>`:"");
     document.body.appendChild(el);
-    // beside the name, on whichever side has room, kept inside the map
+    // to the right of the name if it fits. Otherwise below it, or above: lines come in from
+    // the left and leave to the right, so over or under the name covers the fewest of them.
+    // The left side is the last resort.
     const r=g.getBoundingClientRect(), m=sc.getBoundingClientRect(), w=el.offsetWidth, h=el.offsetHeight, gap=12;
-    let x=r.right+gap; if(x+w>m.right-8) x=r.left-gap-w; if(x<m.left+8) x=Math.min(m.right-8-w,Math.max(m.left+8,r.left));
-    let y=r.top+r.height/2-h/2; y=Math.max(m.top+8,Math.min(y,m.bottom-8-h));
-    if(x<r.right && x+w>r.left && y<r.bottom && y+h>r.top) y = r.bottom+gap+h<m.bottom ? r.bottom+gap : r.top-gap-h;
+    const clampX=v=>Math.max(m.left+8,Math.min(v,m.right-8-w)), clampY=v=>Math.max(m.top+8,Math.min(v,m.bottom-8-h));
+    let x, y;
+    if(r.right+gap+w<=m.right-8){ x=r.right+gap; y=clampY(r.top+r.height/2-h/2); }
+    else if(r.bottom+gap+h<=m.bottom-8){ x=clampX(r.left-16); y=r.bottom+gap; }
+    else if(r.top-gap-h>=m.top+8){ x=clampX(r.left-16); y=r.top-gap-h; }
+    else { x=clampX(r.left-gap-w); y=clampY(r.top+r.height/2-h/2); }
     el.style.left=Math.round(x)+"px"; el.style.top=Math.round(y)+"px";
   }
   sc.addEventListener("pointerover",e=>{
     if(e.pointerType!=="mouse" || !fine.matches || OVERLAY) return;
     const g=e.target.closest && e.target.closest("#chart .n"); if(!g) return;
     const id=g.dataset.id; if(id===cur) { clearTimeout(t); return; }
-    if(id===state.sel || STEP || document.body.classList.contains("panning")){ hide(); return; }
+    if(STEP || document.body.classList.contains("panning")){ hide(); return; }
+    lift(id===state.sel?null:id);
+    if(id===state.sel){ clearTimeout(t); if(el){ el.remove(); el=null; } cur=null; return; }
     clearTimeout(t);
     // moving from one style straight to the next swaps at once; the first one waits a beat,
     // so a pointer just crossing the map does not flash cards on the way
@@ -1987,7 +2007,7 @@ function noteWho(n){
   });
   sc.addEventListener("pointerout",e=>{ const g=e.target.closest && e.target.closest("#chart .n"); if(!g) return;
     const to=e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest("#chart .n");
-    if(to!==g){ clearTimeout(t); if(el) t=setTimeout(hide,80); else cur=null; } });
+    if(to!==g){ clearTimeout(t); if(el) t=setTimeout(hide,80); else { cur=null; if(!to) lift(null); } } });
   sc.addEventListener("pointerleave",hide);
   sc.addEventListener("pointerdown",hide);
   sc.addEventListener("scroll",hide,{passive:true});
