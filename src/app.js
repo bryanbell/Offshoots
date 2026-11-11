@@ -1084,24 +1084,7 @@ function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   const fams=new Set([...on].map(k=>byId[k].fam));
   // [data-fam], so the filler above the first family is never dimmed along with them
   $("lanes").querySelectorAll(".lane[data-fam]").forEach(l=>l.classList.toggle("dim",!fams.has(l.dataset.fam)));
-  const fromNote=n.note.replace(/^[^:]{0,40}:\s*/,"").split(/;|\s·\s/)[0].replace(/\s*\([^)]*\)/g,"").replace(/'[^']*'/g,"").replace(/\s+,/g,",").replace(/,\s*,/g,",").replace(/\s{2,}/g," ").trim().replace(/^,|,$/g,"");
-  // a note that is just a list of names becomes the artist list; prose stays a note
-  const JOIN=new Set(["in","the","of","and","a","an","on","at","for","to","de","la","le","du","des","el","y"]);
-  const titleish = s=>{ const w=s.split(/\s+/); return w.length<=6 && w.every(x=> x==="&" || x==="+" || /^[("\u2018\u201c]*[A-Z0-9]/.test(x) || JOIN.has(x.toLowerCase().replace(/[^a-z]/g,""))); };
-  const items = fromNote ? fromNote.split(",").map(s=>s.trim()).filter(Boolean) : [];
-  const prose = /(?:^|\s)[a-z]+ed\b.*\bin\b/.test(fromNote||"")            // lowercase verb: prose, not a name
-    || /\bvia\b|\bfrom\b|\bscene\b|\bera\b|\bstyle\b|\bmusic\b/i.test(fromNote||"");
-  const looksLikeArtists = items.length>=1 && !prose && items.every(titleish);
-  // Notes often open with where a style came from: "UK; named by Whistla 2009" or
-  // "Johannesburg; three kicks per bar". The head before the semicolon is usually the
-  // artist list, so that is what this reads, and a place at the front was being drawn as
-  // a key artist. A single-word rule would have been wrong: Nirvana, Prince, Chic, Burial
-  // and 240 others are one word. So the places are named instead.
-  const PLACE=/^(UK|US|USA|US\/UK|Japan|Ghana|Trinidad|Jamaica|Dominican|Rotterdam|Durban|Johannesburg|Lagos|Medellín|Berlin\/Milan|Goa|India|South Africa|1080p)$|-led$/i;
-  n.noteNames = looksLikeArtists ? fromNote.split(",").map(s=>s.trim()).filter(x=>x&&!PLACE.test(x)) : [];
-  n.prose = looksLikeArtists ? "" : (n.note||"");
-  const whoList = [...new Set([...n.noteNames,...n.artists])];
-  n.whoList = whoList;
+  const whoList = noteWho(n);
   // back on the left, the two lineage menus paired on the right. Back used to float over
   // the map beside the root pill, where it sat next to a From button that also pointed
   // left and meant something else entirely.
@@ -1941,27 +1924,48 @@ $("lanes").addEventListener("click",e=>{ const l=e.target.closest(".lane"); if(!
     if(!raf) raf=requestAnimationFrame(show); },{passive:true});
   sc.addEventListener("pointerleave",()=>{ lx=null; if(!raf) raf=requestAnimationFrame(show); });
 })();
+// The names a style is known by: the artists its note leads with, then its other key
+// artists. Worked out once; the panel and the hover card both read it.
+function noteWho(n){
+  if(n.whoList) return n.whoList;
+  const fromNote=n.note.replace(/^[^:]{0,40}:\s*/,"").split(/;|\s·\s/)[0].replace(/\s*\([^)]*\)/g,"").replace(/'[^']*'/g,"").replace(/\s+,/g,",").replace(/,\s*,/g,",").replace(/\s{2,}/g," ").trim().replace(/^,|,$/g,"");
+  // a note that is just a list of names becomes the artist list; prose stays a note
+  const JOIN=new Set(["in","the","of","and","a","an","on","at","for","to","de","la","le","du","des","el","y"]);
+  const titleish = s=>{ const w=s.split(/\s+/); return w.length<=6 && w.every(x=> x==="&" || x==="+" || /^[("\u2018\u201c]*[A-Z0-9]/.test(x) || JOIN.has(x.toLowerCase().replace(/[^a-z]/g,""))); };
+  const items = fromNote ? fromNote.split(",").map(s=>s.trim()).filter(Boolean) : [];
+  const prose = /(?:^|\s)[a-z]+ed\b.*\bin\b/.test(fromNote||"")            // lowercase verb: prose, not a name
+    || /\bvia\b|\bfrom\b|\bscene\b|\bera\b|\bstyle\b|\bmusic\b/i.test(fromNote||"");
+  const looksLikeArtists = items.length>=1 && !prose && items.every(titleish);
+  // Notes often open with where a style came from: "UK; named by Whistla 2009" or
+  // "Johannesburg; three kicks per bar". The head before the semicolon is usually the
+  // artist list, so that is what this reads, and a place at the front was being drawn as
+  // a key artist. A single-word rule would have been wrong: Nirvana, Prince, Chic, Burial
+  // and 240 others are one word. So the places are named instead.
+  const PLACE=/^(UK|US|USA|US\/UK|Japan|Ghana|Trinidad|Jamaica|Dominican|Rotterdam|Durban|Johannesburg|Lagos|Medellín|Berlin\/Milan|Goa|India|South Africa|1080p)$|-led$|^(UK|US|USA) \S+$/i;   // and "UK 90s", "US SoundCloud": a place and a time or a site, not a name
+  n.noteNames = looksLikeArtists ? fromNote.split(",").map(s=>s.trim().replace(/\s+in the (US|UK)$/,"")).filter(x=>x&&!PLACE.test(x)) : [];
+  n.prose = looksLikeArtists ? "" : (n.note||"");
+  n.whoList = [...new Set([...n.noteNames,...n.artists])];
+  return n.whoList;
+}
 // Desktop: resting the pointer on a style shows a small card beside it: its art, family and
-// year, the one-line description if it has one, and where it came from and led to. A preview
+// year, the one-line description if it has one, and its key artists. A preview
 // only: it takes no clicks, selects nothing and goes the moment the pointer leaves, the map
 // moves, or anything is pressed. Not for the open style, whose panel already says all this.
 (function(){
   const sc=$("scroller"), fine=matchMedia("(hover:hover) and (pointer:fine)");
   let el=null, cur=null, t=0;
-  const names=ids=>{ const a=ids.map(i=>byId[i]).filter(Boolean);   // the data lists the main parent first
-    return a.slice(0,2).map(x=>esc(x.name)).join(", ")+(a.length>2?` +${a.length-2}`:""); };
   function hide(){ clearTimeout(t); cur=null; if(el){ el.remove(); el=null; } }
   function show(id,g){
     const n=byId[id]; if(!n) return; hide(); cur=id;
     const d=(typeof DESC!=="undefined"&&DESC[id])||"";
-    const from=n.parents.length?`<span><b>From</b> ${names(n.parents)}</span>`:"";
-    const led=n.children.length?`<span><b>Led to</b> ${n.children.length===1?esc(byId[n.children[0]].name):n.children.length+" styles"}</span>`:"";
+    // who to listen for, rather than the lineage the map already draws
+    const who=noteWho(n).slice(0,5);
     el=document.createElement("div"); el.className="hovcard"; el.setAttribute("aria-hidden","true");
     el.style.setProperty("--c",FAM[n.fam].c);
     el.innerHTML=`<div class="hchead">${cover(id,n,true,true)}<div><div class="hcname">${esc(n.name)}</div>`
       +`<div class="hcmeta">${esc(FAM[n.fam].short)} · ${esc(n.year<1950?n.disp:String(n.year))}${hasPlay(id)?` · <span class="hcplay">Playlist</span>`:""}</div></div></div>`
       +(d?`<p class="hcdesc">${esc(d)}</p>`:"")
-      +((from||led)?`<div class="hcrel">${from}${led}</div>`:"");
+      +(who.length?`<div class="hcrel"><b>Key artists</b><span>${who.map(esc).join(", ")}</span></div>`:"");
     document.body.appendChild(el);
     // beside the name, on whichever side has room, kept inside the map
     const r=g.getBoundingClientRect(), m=sc.getBoundingClientRect(), w=el.offsetWidth, h=el.offsetHeight, gap=12;
