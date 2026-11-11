@@ -517,9 +517,19 @@ const DATA = [
 ["lowend","Milwaukee Lowend",2021,"hiphop","detroit bounce ratchet hyphy","Milwaukee's hyper-fast bass-heavy dance rap: Certified Trapper and AyooLii pioneered it, J.P. 'Bad Bitty' took it to TikTok; Chicken P","",["https://en.wikipedia.org/wiki/Lowend"]],
 ["sigilkore","Sigilkore",2021,"hiphop","digicore cloudrap phonk nightcore","Occult-themed SoundCloud/TikTok mixing style coined by Luci4 and the Jewelxxet collective; Odetari, 9lives, Lumi Athena","",["https://en.wikipedia.org/wiki/Sigilkore"]],
 ["dariacore","Dariacore / Hyperflip",2021,"elec","hyperpop jerseyclub nightcore futurebass","US SoundCloud; Jane Remover's 'Leroy' trilogy; pop mashups over Jersey club kicks; 'hyperflip' tag after Jane disowned the name","",["https://en.wikipedia.org/wiki/Dariacore"]],
-["threestep","3-Step",2023,"global","amapiano afrohouse gqom deephouse","Johannesburg; three kicks per bar; Thakzin 'The Magnificent Dance', Dlala Thukzin 'iPlan', Mörda & Oscar Mbo 'Yes God'","",["https://thenativemag.com/how-3-step-became-the-definitive-sound-of-the-moment/","https://en.wikipedia.org/wiki/Gqom"]]
+["threestep","3-Step",2023,"global","amapiano afrohouse gqom deephouse","Johannesburg; three kicks per bar; Thakzin 'The Magnificent Dance', Dlala Thukzin 'iPlan', Mörda & Oscar Mbo 'Yes God'","",["https://thenativemag.com/how-3-step-became-the-definitive-sound-of-the-moment/","https://en.wikipedia.org/wiki/Gqom"]],
+// ---------- African music curriculum, first six (sourced; teaching order) ----------
+["congolese_rumba","Congolese Rumba",1950,"global","son","Kinshasa and Brazzaville: Wendo Kolosoy, Grand Kallé & African Jazz, Franco & TPOK Jazz; also rumba congolaise; built on Cuban son records heard on radio and the GV series; Wendo’s ‘Marie-Louise’ (1948)","late 1940s–50s",["https://en.wikipedia.org/wiki/Congolese_rumba","https://ich.unesco.org/en/RL/congolese-rumba-01711","https://daily.redbullmusicacademy.com/2018/12/the-roots-of-soukous"]],
+["rai","Raï",1975,"global","","Oran: Cheikha Rimitti, Messaoud Bellemou, Khaled; also Rai; western Algerian vernacular song sung since the 1920s, amplified with trumpet and electric instruments in the 1970s and synthesizers in the 1980s","1970s–80s",["https://en.wikipedia.org/wiki/Ra%C3%AF","https://ich.unesco.org/en/Decisions/17.COM/7.b.38","https://merip.org/1991/03/rai-ride-rising/"]],
+["taarab","Taarab",1928,"global","","Zanzibar: Siti binti Saad, Bi Kidude, Ikhwani Safaa; also tarab, twarab; Swahili coast sung poetry, performed before records and first recorded by Siti binti Saad in 1928","recorded from 1928",["https://en.wikipedia.org/wiki/Taarab","https://www.musicinafrica.net/node/13671"]],
+["mbaqanga","Mbaqanga",1965,"global","","Johannesburg: Makgona Tsohle Band, Mahlathini & the Mahotella Queens; South African township jive, grown from marabi and kwela","1960s",["https://en.wikipedia.org/wiki/Mbaqanga","https://www.sahistory.org.za/article/development-music-south-africa-timeline-1600-2004"]],
+["mbalax","Mbalax",1980,"global","son","Dakar: Super Diamono, Youssou N’Dour & Étoile de Dakar; Wolof sabar drumming brought to the front of dance bands that had played Cuban music","late 1970s–80s",["https://en.wikipedia.org/wiki/Mbalax","https://www.musicinafrica.net/magazine/historical-overview-senegalese-music"]],
+["ethiojazz","Ethio-Jazz",1970,"jazz","afrocuban_jazz","Addis Ababa: Mulatu Astatke; also Ethiopian jazz; Ethiopian modes by way of Berklee and New York’s Latin jazz; ‘Afro-Latin Soul’ (1966), Éthiopiques Vol. 4 (1969–74)","late 1960s–70s",["https://en.wikipedia.org/wiki/Ethio-jazz","https://en.wikipedia.org/wiki/Mulatu_Astatke","https://daily.bandcamp.com/features/mulatu-astatke-feature"]]
 ];
 const ART = {
+  "congolese_rumba":["Les Bantous de la Capitale","M'Bilia Bel"],
+  "rai":["Chaba Fadela","Cheb Sahraoui"],
+  "mbalax":["Super Étoile de Dakar","Kiné Lam"],
   "nujazz":["Bugge Wesseltoft","Jazzanova","Nicola Conte"],
   "synthpunk":["Suicide","The Screamers","Units"],
   "techhouse":["Green Velvet","Chris Lake","Jamie Jones"],
@@ -2047,7 +2057,13 @@ const DESC = {"nujazz":"Jazz played over programmed beats rather than swing, mos
 "corridostumbados":"Requinto runs, acoustic bass and corrido storytelling meet relaxed, rap-shaped phrasing. The voice can brag, drift or confess while the strings keep the rhythm moving.",
 "sadsierreno":"Close, vulnerable voices lean into ringing guitar lines and spare acoustic bass. Requinto answers the singer as pauses, imperfect edges and lingering syllables make heartbreak feel immediate.",
 "corridosbelicos":"Sharp requinto runs, blunt bass and bright brass propel terse stories of power, loyalty and risk. The voice stays conversational as the ensemble makes every entrance feel emphatic.",
-"dariacore":"Familiar pop fragments collide with rushing synth drops, chopped breaks and lurching club kicks. Abrupt cuts turn recognition into a new dance structure."};
+"dariacore":"Familiar pop fragments collide with rushing synth drops, chopped breaks and lurching club kicks. Abrupt cuts turn recognition into a new dance structure.",
+"congolese_rumba":"Singers trade lines over interlocking electric guitars, and partway through the song the band opens into a faster, guitar-led dance section.",
+"rai":"A blunt, plain-spoken voice over hand-drum rhythms, carried from reed flute and percussion through trumpets and accordion to synthesizers and drum machines.",
+"taarab":"A singer delivers Swahili poetry while violins, oud and qanun answer each line with short phrases that give the words room to land.",
+"mbaqanga":"Electric guitar and a bouncing bass lock into a fast township groove while a deep-voiced lead trades lines with a bright female vocal group.",
+"mbalax":"Sabar and tama drums lead the dance band from the front, cueing the singer, guitars and keyboards over fast, shifting Wolof rhythms.",
+"ethiojazz":"Horns and vibraphone play melodies in Ethiopian pentatonic modes over jazz harmony and Latin-tinged percussion."};
 const COVER = {
   "threestep":"3-step",
   "acidhouse":"acid-house",

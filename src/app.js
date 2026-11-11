@@ -1930,8 +1930,9 @@ function noteWho(n){
   if(n.whoList) return n.whoList;
   const fromNote=n.note.replace(/^[^:]{0,40}:\s*/,"").split(/;|\s·\s/)[0].replace(/\s*\([^)]*\)/g,"").replace(/'[^']*'/g,"").replace(/\s+,/g,",").replace(/,\s*,/g,",").replace(/\s{2,}/g," ").trim().replace(/^,|,$/g,"");
   // a note that is just a list of names becomes the artist list; prose stays a note
-  const JOIN=new Set(["in","the","of","and","a","an","on","at","for","to","de","la","le","du","des","el","y"]);
-  const titleish = s=>{ const w=s.split(/\s+/); return w.length<=6 && w.every(x=> x==="&" || x==="+" || /^[("\u2018\u201c]*[A-Z0-9]/.test(x) || JOIN.has(x.toLowerCase().replace(/[^a-z]/g,""))); };
+  // "binti" for Swahili names (Siti binti Saad); a capital with an accent (Étoile) counts
+  const JOIN=new Set(["in","the","of","and","a","an","on","at","for","to","de","la","le","du","des","el","y","binti"]);
+  const titleish = s=>{ const w=s.split(/\s+/); return w.length<=6 && w.every(x=> x==="&" || x==="+" || /^[("\u2018\u201c]*[\p{Lu}0-9]/u.test(x) || JOIN.has(x.toLowerCase().replace(/[^a-z]/g,""))); };
   const items = fromNote ? fromNote.split(",").map(s=>s.trim()).filter(Boolean) : [];
   const prose = /(?:^|\s)[a-z]+ed\b.*\bin\b/.test(fromNote||"")            // lowercase verb: prose, not a name
     || /\bvia\b|\bfrom\b|\bscene\b|\bera\b|\bstyle\b|\bmusic\b/i.test(fromNote||"");
@@ -3609,14 +3610,17 @@ function wordHit(blob,t){
 // the same match, ranked by whether it began a word: MID is what a hit inside one costs
 const MID=0.9;
 const rank=(blob,t,sc)=>wordHit(blob,t) ? sc : sc+MID;
+// accents fold away on both sides, so "rai" finds Raï and "alte" finds Alté
+const fold=v=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"");
 function find(t){
-  t=t.trim().toLowerCase(); if(!t) return [];
+  t=fold(t.trim().toLowerCase()); if(!t) return [];
   const out=[];
   // a title match is worth less than a name, a note or an artist, and is not tried at all
   // on a short query, where a word like "you" would match most of the playlists at once
-  const score=n=>{ const nm=n.name.toLowerCase(); if(nm.startsWith(t)) return 0;
+  const score=n=>{ const nm=fold(n.name.toLowerCase()); if(nm.startsWith(t)) return 0;
     if(nm.includes(t)) return rank(nm,t,1);
-    if(n.search.includes(t)) return rank(n.search,t,2);
+    const sr=fold(n.search);
+    if(sr.includes(t)) return rank(sr,t,2);
     if(t.length>=4 && n.songsearch.includes(t)) return rank(n.songsearch,t,3); return 9; };
   for(const n of nodes){ const sc=score(n); if(sc<9) out.push({k:"style",sc,n,ord:n.year}); }
   const tu=unq(t);
