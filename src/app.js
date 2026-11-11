@@ -1941,6 +1941,55 @@ $("lanes").addEventListener("click",e=>{ const l=e.target.closest(".lane"); if(!
     if(!raf) raf=requestAnimationFrame(show); },{passive:true});
   sc.addEventListener("pointerleave",()=>{ lx=null; if(!raf) raf=requestAnimationFrame(show); });
 })();
+// Desktop: resting the pointer on a style shows a small card beside it: its art, family and
+// year, the one-line description if it has one, and where it came from and led to. A preview
+// only: it takes no clicks, selects nothing and goes the moment the pointer leaves, the map
+// moves, or anything is pressed. Not for the open style, whose panel already says all this.
+(function(){
+  const sc=$("scroller"), fine=matchMedia("(hover:hover) and (pointer:fine)");
+  let el=null, cur=null, t=0;
+  const names=ids=>{ const a=ids.map(i=>byId[i]).filter(Boolean);   // the data lists the main parent first
+    return a.slice(0,2).map(x=>esc(x.name)).join(", ")+(a.length>2?` +${a.length-2}`:""); };
+  function hide(){ clearTimeout(t); cur=null; if(el){ el.remove(); el=null; } }
+  function show(id,g){
+    const n=byId[id]; if(!n) return; hide(); cur=id;
+    const d=(typeof DESC!=="undefined"&&DESC[id])||"";
+    const from=n.parents.length?`<span><b>From</b> ${names(n.parents)}</span>`:"";
+    const led=n.children.length?`<span><b>Led to</b> ${n.children.length===1?esc(byId[n.children[0]].name):n.children.length+" styles"}</span>`:"";
+    el=document.createElement("div"); el.className="hovcard"; el.setAttribute("aria-hidden","true");
+    el.style.setProperty("--c",FAM[n.fam].c);
+    el.innerHTML=`<div class="hchead">${cover(id,n,true,true)}<div><div class="hcname">${esc(n.name)}</div>`
+      +`<div class="hcmeta">${esc(FAM[n.fam].short)} · ${esc(n.year<1950?n.disp:String(n.year))}${hasPlay(id)?` · <span class="hcplay">Playlist</span>`:""}</div></div></div>`
+      +(d?`<p class="hcdesc">${esc(d)}</p>`:"")
+      +((from||led)?`<div class="hcrel">${from}${led}</div>`:"");
+    document.body.appendChild(el);
+    // beside the name, on whichever side has room, kept inside the map
+    const r=g.getBoundingClientRect(), m=sc.getBoundingClientRect(), w=el.offsetWidth, h=el.offsetHeight, gap=12;
+    let x=r.right+gap; if(x+w>m.right-8) x=r.left-gap-w; if(x<m.left+8) x=Math.min(m.right-8-w,Math.max(m.left+8,r.left));
+    let y=r.top+r.height/2-h/2; y=Math.max(m.top+8,Math.min(y,m.bottom-8-h));
+    if(x<r.right && x+w>r.left && y<r.bottom && y+h>r.top) y = r.bottom+gap+h<m.bottom ? r.bottom+gap : r.top-gap-h;
+    el.style.left=Math.round(x)+"px"; el.style.top=Math.round(y)+"px";
+  }
+  sc.addEventListener("pointerover",e=>{
+    if(e.pointerType!=="mouse" || !fine.matches || OVERLAY) return;
+    const g=e.target.closest && e.target.closest("#chart .n"); if(!g) return;
+    const id=g.dataset.id; if(id===cur) { clearTimeout(t); return; }
+    if(id===state.sel || STEP || document.body.classList.contains("panning")){ hide(); return; }
+    clearTimeout(t);
+    // moving from one style straight to the next swaps at once; the first one waits a beat,
+    // so a pointer just crossing the map does not flash cards on the way
+    if(el) show(id,g); else t=setTimeout(()=>show(id,g),320);
+  });
+  sc.addEventListener("pointerout",e=>{ const g=e.target.closest && e.target.closest("#chart .n"); if(!g) return;
+    const to=e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest("#chart .n");
+    if(to!==g){ clearTimeout(t); if(el) t=setTimeout(hide,80); else cur=null; } });
+  sc.addEventListener("pointerleave",hide);
+  sc.addEventListener("pointerdown",hide);
+  sc.addEventListener("scroll",hide,{passive:true});
+  sc.addEventListener("wheel",hide,{passive:true});
+  document.addEventListener("keydown",hide,true);
+  addEventListener("resize",hide);
+})();
 // picking another style keeps the card as it is; empty space collapses it, then clears the selection
 $("chart").addEventListener("click",e=>{
   const g=e.target.closest(".n");

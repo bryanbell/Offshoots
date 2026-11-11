@@ -2677,6 +2677,24 @@ button.navttl,
 /* and a baseline for the controls that never reset themselves */
 button,[role="button"]{-webkit-user-select:none; user-select:none}
 
+/* the card a resting mouse shows beside a style on the map; a preview, so it takes no clicks */
+.hovcard{position:fixed;z-index:55;width:272px;padding:12px 14px 12px;border-radius:14px;pointer-events:none;
+  background:var(--panel);color:var(--fg);
+  box-shadow:0 0 0 1px var(--cardline,rgb(0 0 0 / .06)),0 12px 32px -10px rgb(0 0 0 / .28);
+  animation:stepin .14s ease-out}
+.hovcard .hchead{display:flex;align-items:center;gap:11px}
+.hovcard img.pcov{width:48px;height:48px;flex:none;margin:0;border-radius:50%;aspect-ratio:1;object-fit:cover;
+  max-width:none;box-shadow:0 0 0 .5px var(--line)}
+.hcname{font:700 var(--t-sub)/1.2 var(--f-body)}
+.hcmeta{margin-top:2px;font:500 var(--t-foot)/1.3 var(--f-body);color:var(--muted)}
+.hcmeta::before{content:"";display:inline-block;width:7px;height:7px;margin-right:6px;border-radius:50%;background:var(--c);vertical-align:1px}
+.hcdesc{margin:10px 0 0;font:400 var(--t-foot)/1.4 var(--f-body);color:var(--fg);
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.hcrel{display:flex;flex-direction:column;gap:2px;margin-top:9px;padding-top:9px;border-top:1px solid var(--line);
+  font:400 var(--t-foot)/1.35 var(--f-body);color:var(--muted)}
+.hcrel b{font-weight:600;color:var(--fg)}
+@media (prefers-reduced-motion:reduce){.hovcard{animation:none}}
+
 /* the lineage step menu the arrow keys open beside a selected style */
 .stepmenu{position:fixed;z-index:60;min-width:200px;max-width:280px;max-height:min(60vh,420px);overflow:auto;
   padding:6px;border-radius:14px;background:var(--panel);color:var(--fg);
