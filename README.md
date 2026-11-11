@@ -7,7 +7,7 @@ the music does not stay put. Built for the School of Listening class.
 
 Live: https://musicatlas.us/
 
-467 styles across 18 families, 1,136 parent-to-child connections, 315 written
+467 styles across 19 families, 1,136 parent-to-child connections, 315 written
 descriptions, and 368 styles with a playlist on Apple Music and Spotify.
 
 ## What's in here

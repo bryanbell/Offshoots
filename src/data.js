@@ -15,6 +15,7 @@ const FAMS = [
   ["hiphop","Hip Hop",0,"Hip Hop"],
   ["carib","Caribbean",118,"Caribbean"],
   ["latin","Latin",168,"Latin"],
+  ["africa","African",24,"African"],
   ["global","Global imports",200,"Global"],
   ["exp","Western art music & experimental",265,"Art music"]
 ];
@@ -65,7 +66,7 @@ const DATA = [
 ["calypso","Calypso",1930,"carib","","Trinidad; Lord Kitchener, Lord Invader","1930s"],
 ["mento","Mento",1940,"carib","","Jamaican folk-pop","1940s"],
 ["samba","Samba",1920,"global","","Rio de Janeiro","1920s"],
-["highlife","Highlife",1930,"global","","Ghana; E.T. Mensah","1920s–50s"],
+["highlife","Highlife",1930,"africa","","Ghana; E.T. Mensah","1920s–50s"],
 ["raga","Hindustani Classical",1905,"global","","Reached US listeners via Ravi Shankar from 1956","centuries old"],
 ["artmusic","Western Art Music",1900,"exp","","Classical and modernist concert music","pre-1950"],
 ["concrete","Musique Concrète",1948,"exp","artmusic","Pierre Schaeffer; tape collage","1948"],
@@ -458,15 +459,15 @@ const DATA = [
 // ---------- global imports ----------
 ["bossa","Bossa Nova",1959,"global","samba cool","João Gilberto; US craze with 'Getz/Gilberto' (1964)"],
 ["tropicalia","Tropicália",1968,"global","bossa psych_rock","Os Mutantes, Caetano Veloso, Gilberto Gil"],
-["afrobeat","Afrobeat",1969,"global","highlife funk hardbop","Fela Kuti, Tony Allen"],
+["afrobeat","Afrobeat",1969,"africa","highlife funk hardbop","Fela Kuti, Tony Allen"],
 ["citypop","City Pop",1977,"global","softrock yacht jazzfunk","Japan: Tatsuro Yamashita, Mariya Takeuchi; US revival c. 2017"],
 ["worldbeat","Worldbeat",1986,"global","afrobeat highlife artrock","Paul Simon 'Graceland', King Sunny Adé in the US"],
 ["bailefunk","Baile Funk",1989,"global","miamibass","Rio favelas; funk carioca"],
-["kwaito","Kwaito",1993,"global","house","South Africa: Boom Shaka, Mandoza"],
+["kwaito","Kwaito",1993,"africa","house","South Africa: Boom Shaka, Mandoza"],
 ["kpop","K-pop",1996,"global","dancepop newschool njs","H.O.T. onward; BTS, Blackpink on US charts"],
-["afrobeats","Afrobeats",2010,"global","afrobeat highlife dancehall contemp_rnb house","Wizkid, Davido, Burna Boy"],
+["afrobeats","Afrobeats",2010,"africa","afrobeat highlife dancehall contemp_rnb house","Wizkid, Davido, Burna Boy"],
 ["ukdrill","UK Drill",2014,"global","drill grime","London: 67, Headie One"],
-["amapiano","Amapiano",2016,"global","kwaito deephouse jazzfunk","South Africa; Tyla 'Water' (2023)"],
+["amapiano","Amapiano",2016,"africa","kwaito deephouse jazzfunk","South Africa; Tyla 'Water' (2023)"],
 
 // ---------- 2020s additions ----------
 ["driftphonk","Drift Phonk",2020,"hiphop","phonk memphis","Kordhell, DVRST; car-edit videos on TikTok and YouTube"],
@@ -493,10 +494,10 @@ const DATA = [
 ["easycore","Easycore",2008,"punk","poppunk metalcore melmetalcore emopop","Pop punk with metalcore breakdowns: A Day to Remember, Four Year Strong, New Found Glory; named after the 2008 Easycore Tour","",["https://en.wikipedia.org/wiki/Pop-punk"]],
 ["futuregarage","Future Garage",2009,"elec","ukgarage dubstep ambient triphop","UK; named by Whistla 2009; Burial-style 2-step swing with ambient haze; Hyperdub","",["https://en.wikipedia.org/wiki/Future_garage"]],
 ["electroswing","Electro Swing",2005,"jazz","swing house bigbeat neoswing","European sampled-swing dance music; Parov Stelar, Caravan Palace; 'We No Speak Americano' hit the US Hot 100 (2010)","",["https://en.wikipedia.org/wiki/Electro_swing"]],
-["afrohouse","Afro House",2010,"global","kwaito deephouse house","South Africa (Black Coffee, Culoe De Song, Black Motion); Beatport category 2017; US via Keinemusik, 'Jerusalema', MSG 2023","",["https://en.wikipedia.org/wiki/Afro_house"]],
+["afrohouse","Afro House",2010,"africa","kwaito deephouse house","South Africa (Black Coffee, Culoe De Song, Black Motion); Beatport category 2017; US via Keinemusik, 'Jerusalema', MSG 2023","",["https://en.wikipedia.org/wiki/Afro_house"]],
 ["tribalguarachero","Tribal Guarachero",2010,"latin","cumbia electrohouse technobanda","Mexico City pre-Hispanic-sample club music that broke out of Monterrey; 3Ball MTY 'Inténtalo', pointy-boot dance craze in Texas/Mexico","",["https://en.wikipedia.org/wiki/Tribal_guarachero"]],
 ["dungeon_synth","Dungeon Synth",1992,"metal","blackmetal ambient berlin_school","Lo-fi medieval-fantasy keyboard music from black metal (Mortiis, Burzum); named 2011 on The Dungeon Synth Blog; Bandcamp boom: Old Tower, Erang, Fief","",["https://en.wikipedia.org/wiki/Dungeon_synth","https://v13.net/2018/03/a-noob-s-intro-todungeon-synth-and-irregular-genre-evolution/"]],
-["gqom","Gqom",2012,"global","kwaito house techno","Durban; DJ Lag, Rudeboyz, Distruction Boyz; Gqom Oh! label; DJ Lag on Beyoncé's 'My Power' (2019)","",["https://en.wikipedia.org/wiki/Gqom"]],
+["gqom","Gqom",2012,"africa","kwaito house techno","Durban; DJ Lag, Rudeboyz, Distruction Boyz; Gqom Oh! label; DJ Lag on Beyoncé's 'My Power' (2019)","",["https://en.wikipedia.org/wiki/Gqom"]],
 ["bop","Chicago Bop",2013,"hiphop","drill footwork snap","Bright, Auto-Tuned Chicago dance-rap counterpart to drill: Sicko Mobb 'Fiesta', Dlow 'Dlow Shuffle', Lil Kemo","",["https://daily.redbullmusicacademy.com/2014/05/sicko-mobb-feature","https://factmag.com/2014/01/27/check-out-dj-moondawgs-we-invented-the-bop-a-killer-primer-to-chicagos-new-obsession","https://en.wikipedia.org/wiki/DLow"]],
 ["futurehouse","Future House",2013,"elec","deephouse ukgarage electrohouse garagehouse","Term coined by Tchami (2013); Oliver Heldens 'Gecko', Don Diablo; Spinnin'/Hexagon; US radio via Martin Solveig","",["https://en.wikipedia.org/wiki/Future_house"]],
 ["grungegaze","Grungegaze",2013,"alt","shoegaze grunge emo_revival posthc","Soft grunge + shoegaze out of the hardcore scene: Narrow Head, Cloakroom, Title Fight's Hyperview; 2020s breakout Fleshwater","",["https://en.wikipedia.org/wiki/Shoegaze"]],
@@ -507,7 +508,7 @@ const DATA = [
 ["melodictechno","Melodic Techno",2015,"elec","techno progressive_house trance minimal","Berlin/Milan; Tale of Us' Afterlife (2016), Stephan Bodzin, ARTBAT; US arena scale via Anyma Sphere residency","",["https://en.wikipedia.org/wiki/Melodic_techno"]],
 ["lofihouse","Lo-fi / Outsider House",2015,"elec","deephouse techno house","NYC L.I.E.S. (Anthony Naples), 1080p, Lobster Theremin; YouTube wave of DJ Boring, DJ Seinfeld, Ross From Friends","",["https://en.wikipedia.org/wiki/Lo-fi_house"]],
 ["guaracha","Guaracha / Aleteo",2015,"global","tribalguarachero cumbia electrohouse","Medellín; Víctor Cárdenas, DJ Pereira; cumbia brass over tech-house kicks; Latino club staple in US","",["https://en.wikipedia.org/wiki/Guaracha_(Colombia)","https://en.wikipedia.org/wiki/Tribal_guarachero"]],
-["alte","Alté",2016,"global","afrobeats altrnb dancehall","Lagos; DRB LasGidi coined term; Cruel Santino, Odunsi (The Engine), Lady Donli; feeder for Tems, Amaarae","",["https://en.wikipedia.org/wiki/Alt%C3%A9"]],
+["alte","Alté",2016,"africa","afrobeats altrnb dancehall","Lagos; DRB LasGidi coined term; Cruel Santino, Odunsi (The Engine), Lady Donli; feeder for Tems, Amaarae","",["https://en.wikipedia.org/wiki/Alt%C3%A9"]],
 ["trap_metal","Trap Metal",2016,"hiphop","scrap numetal horrorcore","Screamed vocals and distorted 808s over trap beats: Scarlxrd, Ghostemane, City Morgue/ZillaKami; also 'ragecore', 'death rap'","",["https://en.wikipedia.org/wiki/Trap_metal"]],
 ["neoperreo","Neoperreo",2016,"latin","reggaeton witchhouse moombahton trap","Internet-born, queer/femme DIY reggaeton; Tomasa del Real and Ms Nina coined the hashtag; LA–Santiago–Buenos Aires axis","",["https://en.wikipedia.org/wiki/Neoperreo"]],
 ["egg_punk","Egg Punk",2017,"punk","hardcore newwave lofi postpunk synthpunk","Devo-damaged lo-fi synth-punk from the Midwest: The Coneheads (Indiana), Lumpy and the Dumpers (St. Louis), Uranium Club; named in 2017 memes","",["https://en.wikipedia.org/wiki/Egg_punk"]],
@@ -517,14 +518,14 @@ const DATA = [
 ["lowend","Milwaukee Lowend",2021,"hiphop","detroit bounce ratchet hyphy","Milwaukee's hyper-fast bass-heavy dance rap: Certified Trapper and AyooLii pioneered it, J.P. 'Bad Bitty' took it to TikTok; Chicken P","",["https://en.wikipedia.org/wiki/Lowend"]],
 ["sigilkore","Sigilkore",2021,"hiphop","digicore cloudrap phonk nightcore","Occult-themed SoundCloud/TikTok mixing style coined by Luci4 and the Jewelxxet collective; Odetari, 9lives, Lumi Athena","",["https://en.wikipedia.org/wiki/Sigilkore"]],
 ["dariacore","Dariacore / Hyperflip",2021,"elec","hyperpop jerseyclub nightcore futurebass","US SoundCloud; Jane Remover's 'Leroy' trilogy; pop mashups over Jersey club kicks; 'hyperflip' tag after Jane disowned the name","",["https://en.wikipedia.org/wiki/Dariacore"]],
-["threestep","3-Step",2023,"global","amapiano afrohouse gqom deephouse","Johannesburg; three kicks per bar; Thakzin 'The Magnificent Dance', Dlala Thukzin 'iPlan', Mörda & Oscar Mbo 'Yes God'","",["https://thenativemag.com/how-3-step-became-the-definitive-sound-of-the-moment/","https://en.wikipedia.org/wiki/Gqom"]],
+["threestep","3-Step",2023,"africa","amapiano afrohouse gqom deephouse","Johannesburg; three kicks per bar; Thakzin 'The Magnificent Dance', Dlala Thukzin 'iPlan', Mörda & Oscar Mbo 'Yes God'","",["https://thenativemag.com/how-3-step-became-the-definitive-sound-of-the-moment/","https://en.wikipedia.org/wiki/Gqom"]],
 // ---------- African music curriculum, first six (sourced; teaching order) ----------
-["congolese_rumba","Congolese Rumba",1950,"global","son","Kinshasa and Brazzaville: Wendo Kolosoy, Grand Kallé & African Jazz, Franco & TPOK Jazz; also rumba congolaise; built on Cuban son records heard on radio and the GV series; Wendo’s ‘Marie-Louise’ (1948)","late 1940s–50s",["https://en.wikipedia.org/wiki/Congolese_rumba","https://ich.unesco.org/en/RL/congolese-rumba-01711","https://daily.redbullmusicacademy.com/2018/12/the-roots-of-soukous"]],
-["rai","Raï",1975,"global","","Oran: Cheikha Rimitti, Messaoud Bellemou, Khaled; also Rai; western Algerian vernacular song sung since the 1920s, amplified with trumpet and electric instruments in the 1970s and synthesizers in the 1980s","1970s–80s",["https://en.wikipedia.org/wiki/Ra%C3%AF","https://ich.unesco.org/en/Decisions/17.COM/7.b.38","https://merip.org/1991/03/rai-ride-rising/"]],
-["taarab","Taarab",1928,"global","","Zanzibar: Siti binti Saad, Bi Kidude, Ikhwani Safaa; also tarab, twarab; Swahili coast sung poetry, performed before records and first recorded by Siti binti Saad in 1928","recorded from 1928",["https://en.wikipedia.org/wiki/Taarab","https://www.musicinafrica.net/node/13671"]],
-["mbaqanga","Mbaqanga",1965,"global","","Johannesburg: Makgona Tsohle Band, Mahlathini & the Mahotella Queens; South African township jive, grown from marabi and kwela","1960s",["https://en.wikipedia.org/wiki/Mbaqanga","https://www.sahistory.org.za/article/development-music-south-africa-timeline-1600-2004"]],
-["mbalax","Mbalax",1980,"global","son","Dakar: Super Diamono, Youssou N’Dour & Étoile de Dakar; Wolof sabar drumming brought to the front of dance bands that had played Cuban music","late 1970s–80s",["https://en.wikipedia.org/wiki/Mbalax","https://www.musicinafrica.net/magazine/historical-overview-senegalese-music"]],
-["ethiojazz","Ethio-Jazz",1970,"jazz","afrocuban_jazz","Addis Ababa: Mulatu Astatke; also Ethiopian jazz; Ethiopian modes by way of Berklee and New York’s Latin jazz; ‘Afro-Latin Soul’ (1966), Éthiopiques Vol. 4 (1969–74)","late 1960s–70s",["https://en.wikipedia.org/wiki/Ethio-jazz","https://en.wikipedia.org/wiki/Mulatu_Astatke","https://daily.bandcamp.com/features/mulatu-astatke-feature"]]
+["congolese_rumba","Congolese Rumba",1950,"africa","son","Kinshasa and Brazzaville: Wendo Kolosoy, Grand Kallé & African Jazz, Franco & TPOK Jazz; also rumba congolaise; built on Cuban son records heard on radio and the GV series; Wendo’s ‘Marie-Louise’ (1948)","late 1940s–50s",["https://en.wikipedia.org/wiki/Congolese_rumba","https://ich.unesco.org/en/RL/congolese-rumba-01711","https://daily.redbullmusicacademy.com/2018/12/the-roots-of-soukous"]],
+["rai","Raï",1975,"africa","","Oran: Cheikha Rimitti, Messaoud Bellemou, Khaled; also Rai; western Algerian vernacular song sung since the 1920s, amplified with trumpet and electric instruments in the 1970s and synthesizers in the 1980s","1970s–80s",["https://en.wikipedia.org/wiki/Ra%C3%AF","https://ich.unesco.org/en/Decisions/17.COM/7.b.38","https://merip.org/1991/03/rai-ride-rising/"]],
+["taarab","Taarab",1928,"africa","","Zanzibar: Siti binti Saad, Bi Kidude, Ikhwani Safaa; also tarab, twarab; Swahili coast sung poetry, performed before records and first recorded by Siti binti Saad in 1928","recorded from 1928",["https://en.wikipedia.org/wiki/Taarab","https://www.musicinafrica.net/node/13671"]],
+["mbaqanga","Mbaqanga",1965,"africa","","Johannesburg: Makgona Tsohle Band, Mahlathini & the Mahotella Queens; South African township jive, grown from marabi and kwela","1960s",["https://en.wikipedia.org/wiki/Mbaqanga","https://www.sahistory.org.za/article/development-music-south-africa-timeline-1600-2004"]],
+["mbalax","Mbalax",1980,"africa","son","Dakar: Super Diamono, Youssou N’Dour & Étoile de Dakar; Wolof sabar drumming brought to the front of dance bands that had played Cuban music","late 1970s–80s",["https://en.wikipedia.org/wiki/Mbalax","https://www.musicinafrica.net/magazine/historical-overview-senegalese-music"]],
+["ethiojazz","Ethio-Jazz",1970,"africa","afrocuban_jazz","Addis Ababa: Mulatu Astatke; also Ethiopian jazz; Ethiopian modes by way of Berklee and New York’s Latin jazz; ‘Afro-Latin Soul’ (1966), Éthiopiques Vol. 4 (1969–74)","late 1960s–70s",["https://en.wikipedia.org/wiki/Ethio-jazz","https://en.wikipedia.org/wiki/Mulatu_Astatke","https://daily.bandcamp.com/features/mulatu-astatke-feature"]]
 ];
 const ART = {
   "congolese_rumba":["Les Bantous de la Capitale","M'Bilia Bel"],
@@ -2562,8 +2563,8 @@ const PTITLE = {
   "corridosbelicos":"72.31.2 CORRIDOS BÉLICOS · The Story Arrives with Force",
   "dariacore":"80.12 DARIACORE / HYPERFLIP · The Sample Changes the Channel",
 };
-const FAMSKIN = {"exp":["#45484C","#EDE4D1","#EDE4D1","#eff3f7","#2a2e34","#2a2e34"],"latin":["#1A5038","#EDE4D1","#EDE4D1","#e7f7ee","#0e3625","#0e3625"],"gospel":["#373c1c","#ede4d1","#ede4d1","#f1f4e5","#2c310d","#2c310d"],"folk":["#483716","#ede4d1","#ede4d1","#f9f1e4","#3b2b07","#3b2b07"],"jazz":["#4c2f63","#ede4d1","#ede4d1","#f6effd","#362643","#362643"],"pop":["#711e1f","#ede4d1","#ede4d1","#ffeeec","#462220","#462220"],"global":["#17413e","#ede4d1","#ede4d1","#e4f7f5","#003633","#003633"],"blues":["#1f3a6e","#ede4d1","#ede4d1","#ebf3ff","#1e2d49","#1e2d49"],"rnb":["#6b2430","#f3e2c4","#f3e2c4","#ffedee","#452126","#452126"],"country":["#45382b","#ede4d1","#ede4d1","#fcf0e5","#3d2913","#3d2913"],"carib":["#1b422e","#ede4d1","#ede4d1","#e8f7ee","#103623","#103623"],"rock":["#1e1c1a","#ede4d1","#ede4d1","#f5f2ef","#312d29","#312d29"],"soul":["#68233e","#ede4d1","#ede4d1","#ffedf2","#44212d","#44212d"],"punk":["#1e1c1a","#ede4d1","#c9c24a","#f4f4e4","#322f09","#736c00"],"alt":["#1e1c1a","#ede4d1","#9aa7e8","#eef2ff","#262b49","#5863a5"],"hiphop":["#1e1c1a","#ede4d1","#e8b84a","#f9f2e4","#3a2b07","#886200"],"metal":["#0e0d0c","#ede4d1","#dc4d42","#ffeeeb","#46221e","#a34a40"],"elec":["#124A57","#EDE4D1","#EDE4D1","#e4f6fb","#003440","#003440"]};
-const FAMMAP = {"exp":"#bac5d5","latin":"#2fa984","gospel":"#879c5d","folk":"#cf9944","jazz":"#c797fd","pop":"#ff9ea7","global":"#6cbda9","blues":"#79a1fc","rnb":"#cf6b86","country":"#bb7b56","carib":"#7ad689","rock":"#bdae9e","soul":"#e77ab5","punk":"#bac03d","alt":"#9aa7e8","hiphop":"#f3c443","metal":"#dc604a","elec":"#19c4ec"};
+const FAMSKIN = {"africa":["#6b3214","#ede4d1","#ede4d1","#fff1e6","#45210c","#45210c"],"exp":["#45484C","#EDE4D1","#EDE4D1","#eff3f7","#2a2e34","#2a2e34"],"latin":["#1A5038","#EDE4D1","#EDE4D1","#e7f7ee","#0e3625","#0e3625"],"gospel":["#373c1c","#ede4d1","#ede4d1","#f1f4e5","#2c310d","#2c310d"],"folk":["#483716","#ede4d1","#ede4d1","#f9f1e4","#3b2b07","#3b2b07"],"jazz":["#4c2f63","#ede4d1","#ede4d1","#f6effd","#362643","#362643"],"pop":["#711e1f","#ede4d1","#ede4d1","#ffeeec","#462220","#462220"],"global":["#17413e","#ede4d1","#ede4d1","#e4f7f5","#003633","#003633"],"blues":["#1f3a6e","#ede4d1","#ede4d1","#ebf3ff","#1e2d49","#1e2d49"],"rnb":["#6b2430","#f3e2c4","#f3e2c4","#ffedee","#452126","#452126"],"country":["#45382b","#ede4d1","#ede4d1","#fcf0e5","#3d2913","#3d2913"],"carib":["#1b422e","#ede4d1","#ede4d1","#e8f7ee","#103623","#103623"],"rock":["#1e1c1a","#ede4d1","#ede4d1","#f5f2ef","#312d29","#312d29"],"soul":["#68233e","#ede4d1","#ede4d1","#ffedf2","#44212d","#44212d"],"punk":["#1e1c1a","#ede4d1","#c9c24a","#f4f4e4","#322f09","#736c00"],"alt":["#1e1c1a","#ede4d1","#9aa7e8","#eef2ff","#262b49","#5863a5"],"hiphop":["#1e1c1a","#ede4d1","#e8b84a","#f9f2e4","#3a2b07","#886200"],"metal":["#0e0d0c","#ede4d1","#dc4d42","#ffeeeb","#46221e","#a34a40"],"elec":["#124A57","#EDE4D1","#EDE4D1","#e4f6fb","#003440","#003440"]};
+const FAMMAP = {"africa":"#ef8239","exp":"#bac5d5","latin":"#2fa984","gospel":"#879c5d","folk":"#cf9944","jazz":"#c797fd","pop":"#ff9ea7","global":"#6cbda9","blues":"#79a1fc","rnb":"#cf6b86","country":"#bb7b56","carib":"#7ad689","rock":"#bdae9e","soul":"#e77ab5","punk":"#bac03d","alt":"#9aa7e8","hiphop":"#f3c443","metal":"#dc604a","elec":"#19c4ec"};
 // Listening modes. Each: [key, chip label, heading, why it works, [[styleId, one-line reason], ...]]
 // Shape follows the contexts the services actually sort by (Spotify: focus, study, workout,
 // party, chill, cooking, dinner, travel, gaming; Apple: workout, work & study, chill, angry,
