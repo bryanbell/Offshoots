@@ -66,7 +66,7 @@ const DATA = [
 ["calypso","Calypso",1930,"carib","","Trinidad; Lord Kitchener, Lord Invader","1930s"],
 ["mento","Mento",1940,"carib","","Jamaican folk-pop","1940s"],
 ["samba","Samba",1920,"global","","Rio de Janeiro","1920s"],
-["highlife","Highlife",1930,"africa","","Ghana; E.T. Mensah","1920s–50s"],
+["highlife","Highlife",1930,"africa","palmwine","Ghana; E.T. Mensah","1920s–50s"],
 ["raga","Hindustani Classical",1905,"global","","Reached US listeners via Ravi Shankar from 1956","centuries old"],
 ["artmusic","Western Art Music",1900,"exp","","Classical and modernist concert music","pre-1950"],
 ["concrete","Musique Concrète",1948,"exp","artmusic","Pierre Schaeffer; tape collage","1948"],
@@ -461,9 +461,9 @@ const DATA = [
 ["tropicalia","Tropicália",1968,"global","bossa psych_rock","Os Mutantes, Caetano Veloso, Gilberto Gil"],
 ["afrobeat","Afrobeat",1969,"africa","highlife funk hardbop","Fela Kuti, Tony Allen"],
 ["citypop","City Pop",1977,"global","softrock yacht jazzfunk","Japan: Tatsuro Yamashita, Mariya Takeuchi; US revival c. 2017"],
-["worldbeat","Worldbeat",1986,"global","afrobeat highlife artrock","Paul Simon 'Graceland', King Sunny Adé in the US"],
+["worldbeat","Worldbeat",1986,"global","afrobeat highlife artrock mbaqanga","Paul Simon 'Graceland', King Sunny Adé in the US"],
 ["bailefunk","Baile Funk",1989,"global","miamibass","Rio favelas; funk carioca"],
-["kwaito","Kwaito",1993,"africa","house","South Africa: Boom Shaka, Mandoza"],
+["kwaito","Kwaito",1993,"africa","house sa_bubblegum","South Africa: Boom Shaka, Mandoza"],
 ["kpop","K-pop",1996,"global","dancepop newschool njs","H.O.T. onward; BTS, Blackpink on US charts"],
 ["afrobeats","Afrobeats",2010,"africa","afrobeat highlife dancehall contemp_rnb house","Wizkid, Davido, Burna Boy"],
 ["ukdrill","UK Drill",2014,"global","drill grime","London: 67, Headie One"],
@@ -521,11 +521,20 @@ const DATA = [
 ["threestep","3-Step",2023,"africa","amapiano afrohouse gqom deephouse","Johannesburg; three kicks per bar; Thakzin 'The Magnificent Dance', Dlala Thukzin 'iPlan', Mörda & Oscar Mbo 'Yes God'","",["https://thenativemag.com/how-3-step-became-the-definitive-sound-of-the-moment/","https://en.wikipedia.org/wiki/Gqom"]],
 // ---------- African music curriculum, first six (sourced; teaching order) ----------
 ["congolese_rumba","Congolese Rumba",1950,"africa","son","Kinshasa and Brazzaville: Wendo Kolosoy, Grand Kallé & African Jazz, Franco & TPOK Jazz; also rumba congolaise; built on Cuban son records heard on radio and the GV series; Wendo’s ‘Marie-Louise’ (1948)","late 1940s–50s",["https://en.wikipedia.org/wiki/Congolese_rumba","https://ich.unesco.org/en/RL/congolese-rumba-01711","https://daily.redbullmusicacademy.com/2018/12/the-roots-of-soukous"]],
-["rai","Raï",1975,"africa","","Oran: Cheikha Rimitti, Messaoud Bellemou, Khaled; also Rai; western Algerian vernacular song sung since the 1920s, amplified with trumpet and electric instruments in the 1970s and synthesizers in the 1980s","1970s–80s",["https://en.wikipedia.org/wiki/Ra%C3%AF","https://ich.unesco.org/en/Decisions/17.COM/7.b.38","https://merip.org/1991/03/rai-ride-rising/"]],
-["taarab","Taarab",1928,"africa","","Zanzibar: Siti binti Saad, Bi Kidude, Ikhwani Safaa; also tarab, twarab; Swahili coast sung poetry, performed before records and first recorded by Siti binti Saad in 1928","recorded from 1928",["https://en.wikipedia.org/wiki/Taarab","https://www.musicinafrica.net/node/13671"]],
-["mbaqanga","Mbaqanga",1965,"africa","","Johannesburg: Makgona Tsohle Band, Mahlathini & the Mahotella Queens; South African township jive, grown from marabi and kwela","1960s",["https://en.wikipedia.org/wiki/Mbaqanga","https://www.sahistory.org.za/article/development-music-south-africa-timeline-1600-2004"]],
+["rai","Raï",1975,"africa","wahrani","Oran: Cheikha Rimitti, Messaoud Bellemou, Khaled; also Rai; western Algerian vernacular song sung since the 1920s, amplified with trumpet and electric instruments in the 1970s and synthesizers in the 1980s","1970s–80s",["https://en.wikipedia.org/wiki/Ra%C3%AF","https://ich.unesco.org/en/Decisions/17.COM/7.b.38","https://merip.org/1991/03/rai-ride-rising/"]],
+["taarab","Taarab",1928,"africa","egyptiansong","Zanzibar: Siti binti Saad, Bi Kidude, Ikhwani Safaa; also tarab, twarab; Swahili coast sung poetry, performed before records and first recorded by Siti binti Saad in 1928","recorded from 1928",["https://en.wikipedia.org/wiki/Taarab","https://www.musicinafrica.net/node/13671"]],
+["mbaqanga","Mbaqanga",1965,"africa","marabi kwela","Johannesburg: Makgona Tsohle Band, Mahlathini & the Mahotella Queens; South African township jive, grown from marabi and kwela","1960s",["https://en.wikipedia.org/wiki/Mbaqanga","https://www.sahistory.org.za/article/development-music-south-africa-timeline-1600-2004"]],
 ["mbalax","Mbalax",1980,"africa","son","Dakar: Super Diamono, Youssou N’Dour & Étoile de Dakar; Wolof sabar drumming brought to the front of dance bands that had played Cuban music","late 1970s–80s",["https://en.wikipedia.org/wiki/Mbalax","https://www.musicinafrica.net/magazine/historical-overview-senegalese-music"]],
-["ethiojazz","Ethio-Jazz",1970,"africa","afrocuban_jazz","Addis Ababa: Mulatu Astatke; also Ethiopian jazz; Ethiopian modes by way of Berklee and New York’s Latin jazz; ‘Afro-Latin Soul’ (1966), Éthiopiques Vol. 4 (1969–74)","late 1960s–70s",["https://en.wikipedia.org/wiki/Ethio-jazz","https://en.wikipedia.org/wiki/Mulatu_Astatke","https://daily.bandcamp.com/features/mulatu-astatke-feature"]]
+["ethiojazz","Ethio-Jazz",1970,"africa","afrocuban_jazz","Addis Ababa: Mulatu Astatke; also Ethiopian jazz; Ethiopian modes by way of Berklee and New York’s Latin jazz; ‘Afro-Latin Soul’ (1966), Éthiopiques Vol. 4 (1969–74)","late 1960s–70s",["https://en.wikipedia.org/wiki/Ethio-jazz","https://en.wikipedia.org/wiki/Mulatu_Astatke","https://daily.bandcamp.com/features/mulatu-astatke-feature"]],
+// ---------- African lineage: parents and children for the curriculum styles (sourced) ----------
+["palmwine","Palm-Wine",1900,"africa","","West African coast: Kwame Asare, Ebenezer Calendar; Kru sailors’ guitar music mixed with local melody and calypso, played in palm-wine bars from Ghana to Sierra Leone","late 1800s–1950s",["https://en.wikipedia.org/wiki/Palm-wine_music"]],
+["egyptiansong","Egyptian Concert Song",1910,"africa","","Cairo: Umm Kulthum, Mohammed Abdel Wahab, Sayed Darwish; also tarab; small takht ensembles grew into the big firqa orchestras of 1930s–40s film","1900s–60s",["https://en.wikipedia.org/wiki/Umm_Kulthum","https://www.aramcoworld.com/articles/2025/the-heart-moving-sound-of-zanzibar"]],
+["marabi","Marabi",1920,"africa","","Johannesburg: keyboard dance music of the Witwatersrand shebeens and slumyards, often on cheap pedal organs","1890s–1930s",["https://en.wikipedia.org/wiki/Marabi","https://www.sahistory.org.za/article/development-music-south-africa-timeline-1600-2004"]],
+["wahrani","Wahrani",1945,"africa","","Oran: Blaoui Houari, Ahmed Wahby; also El Asri; Arab song set to Bedouin rhythm and Oranian dialect, the precursor of raï","1940s–50s",["https://en.wikipedia.org/wiki/Blaoui_Houari"]],
+["kwela","Kwela",1955,"africa","marabi","Johannesburg: Spokes Mashiyane, Lemmy Mabaso; pennywhistle street music grown from marabi","1950s",["https://en.wikipedia.org/wiki/Kwela"]],
+["soukous","Soukous",1966,"africa","congolese_rumba","Kinshasa, Brazzaville, Paris: Docteur Nico, Franco, Tabu Ley Rochereau, Papa Wemba, Kanda Bongo Man; Congolese rumba sped up, with the guitar sebene moved to the center","1960s–80s",["https://en.wikipedia.org/wiki/Soukous"]],
+["sa_bubblegum","Township Bubblegum",1984,"africa","mbaqanga disco","Johannesburg: Brenda Fassie, Chicco, Yvonne Chaka Chaka; synthesizer and drum-machine township pop, called a high-technology mbaqanga","1980s",["https://www.dailymaverick.co.za/article/2023-03-14-the-digital-tool-that-ushered-in-the-bubblegum-music-era"]],
+["ndombolo","Ndombolo",1997,"africa","soukous","Kinshasa: Koffi Olomidé, Wenge Musica; soukous reshaped into a frenetic, hip-swinging dance style","late 1990s",["https://en.wikipedia.org/wiki/Ndombolo","https://en.wikipedia.org/wiki/Soukous"]]
 ];
 const ART = {
   "congolese_rumba":["Les Bantous de la Capitale","M'Bilia Bel"],
@@ -2064,7 +2073,15 @@ const DESC = {"nujazz":"Jazz played over programmed beats rather than swing, mos
 "taarab":"A singer delivers Swahili poetry while violins, oud and qanun answer each line with short phrases that give the words room to land.",
 "mbaqanga":"Electric guitar and a bouncing bass lock into a fast township groove while a deep-voiced lead trades lines with a bright female vocal group.",
 "mbalax":"Sabar and tama drums lead the dance band from the front, cueing the singer, guitars and keyboards over fast, shifting Wolof rhythms.",
-"ethiojazz":"Horns and vibraphone play melodies in Ethiopian pentatonic modes over jazz harmony and Latin-tinged percussion."};
+"ethiojazz":"Horns and vibraphone play melodies in Ethiopian pentatonic modes over jazz harmony and Latin-tinged percussion.",
+"palmwine":"Light, lilting fingerpicked acoustic guitar and an easy, calypso-tinged lilt, sung for the drinkers at the bar.",
+"egyptiansong":"A singer stretches each line through long, ornamented improvisations while oud, qanun, violins and frame drum answer and the audience calls back.",
+"marabi":"A few simple chords cycle over and over on a pedal organ or piano, vamped long enough for a room to dance without knowing the song.",
+"wahrani":"An Oran singer sets Bedouin rhythms and local dialect to the ornate melodies and string section of Arab orchestral song.",
+"kwela":"A tin pennywhistle plays bright, looping melodies over a bouncing guitar and bass beat.",
+"soukous":"Congolese rumba sped up, with high, ringing lead guitars spinning long improvised dance sections over a fast, rolling beat.",
+"sa_bubblegum":"Synthesizers and drum machines carry bright, chantable pop hooks over a township bounce.",
+"ndombolo":"Frenetic drums and chopped guitar riffs drive hip-swinging dance sections while an animator shouts out the steps."};
 const COVER = {
   "threestep":"3-step",
   "acidhouse":"acid-house",
