@@ -2721,6 +2721,24 @@ button,[role="button"]{-webkit-user-select:none; user-select:none}
 .stepnm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .stepyr{flex:none;font:400 var(--t-foot)/1 var(--f-mono);color:var(--muted)}
 .stepnone{margin:2px 10px 8px;font:400 var(--t-sub)/1.35 var(--f-body);color:var(--muted)}
+/* the mini timeline: the whole span from the first roots to now, with a window for
+   the part of the map on screen and a dot for the selected style */
+#minitime{position:absolute;left:calc(var(--stripw,32px) + 24px);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:12;
+  padding:6px 14px 4px;border-radius:14px;cursor:pointer;touch-action:none;user-select:none}
+#mtsvg{display:block;width:300px;height:30px;overflow:visible}
+#mtsvg .mttrack{stroke:var(--muted);stroke-width:1.5;opacity:.35;stroke-linecap:round}
+#mtsvg .mttick{stroke:var(--muted);stroke-width:1;opacity:.45}
+#mtsvg .mtlbl{fill:var(--muted);font:500 10px var(--f-mono)}
+#mtsvg .mtwin{fill:color-mix(in srgb,var(--accent) 16%,transparent);stroke:var(--accent);stroke-width:1.5}
+#mtsvg .mtsel{fill:var(--accent);stroke:var(--panel,#fff);stroke-width:2}
+#mtsvg .mtnow{fill:var(--accent);font-weight:700}
+@media (max-width:699px){
+  /* folded into the year bar: a line along its bottom edge, no card of its own; the
+     padding is a taller target for a thumb than the 8px it draws */
+  #minitime{left:calc(var(--stripw,28px) + 14px);right:76px;bottom:auto;top:calc(var(--bar,0px) + 42px - 12px + env(safe-area-inset-top,0px));
+    padding:8px 0;background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;border-radius:0}
+  #mtsvg{width:100%;height:8px}
+}
 </style>
 <div id="app">
   <div id="treeView">
@@ -2741,6 +2759,7 @@ button,[role="button"]{-webkit-user-select:none; user-select:none}
             <button id="qclear" type="button" aria-label="Clear search" hidden><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></button><ul class="results" id="res" role="listbox" hidden></ul>
           </div>
         </div>
+      <div id="minitime" class="glass" aria-hidden="true"><svg id="mtsvg"></svg></div>
       <div class="zoom glass" role="group" aria-label="Zoom">
         <button id="zin" aria-label="Zoom in">+</button>
         <button id="zreset" aria-label="Reset zoom">100%</button>

@@ -557,6 +557,7 @@ function hideUnder(){
 }
 const yrText = n => n.year<1950 ? n.disp : String(n.year);
 function paintYear(){
+  requestAnimationFrame(miniTime);   // the dot moves with the selection
   const n=state.sel && byId[state.sel], ln=document.getElementById("yrguide");
   if(!n){ axisPill("axsel",null); if(ln) ln.setAttribute("visibility","hidden"); return; }
   axisPill("axsel",n.x,yrText(n),"axsel");
@@ -587,6 +588,7 @@ function draw(){
   // the selected style's year, and on desktop the year under the pointer, painted here
   ax += `<g id="axhov"></g><g id="axsel"></g>`;
   document.documentElement.style.setProperty("--stripw",(LABELW-8)+"px");
+  requestAnimationFrame(miniTime);   // a redraw (zoom, resize) rescales the strip
   $("axis").innerHTML = ax+`</svg><div id="corner" style="width:${LABELW-8}px;transform:translateX(${scroller.scrollLeft}px)"></div>`;
   let s="";
   // The lanes alternate in one neutral ink, not in eighteen family colours.
@@ -630,6 +632,44 @@ function draw(){
   paintYear();
   L.innerHTML = `<div class="lane fill" style="top:0;height:${HEADH}px;left:0;width:${LABELW-8}px"></div>` + lanes.map((l,i)=>`<div class="lane c${i%2?"":" b2"}" data-fam="${l.k}" style="--c:${FAM[l.k].c};top:${l.y0}px;height:${l.h}px;left:0;width:${LABELW-8}px" title="${esc(FAM[l.k].name)} · ${l.count} styles"><span class="vt">${esc(FAM[l.k].short)}</span></div>`).join("");
   L.style.transform=`translateX(${scroller.scrollLeft}px)`;
+}
+
+// ---- mini timeline: where the screen sits in the whole span ----
+function miniTime(){
+  const box=$("minitime"), svg=$("mtsvg"); if(!box||!svg||!W) return;
+  // on a phone it is folded into the year bar: a thin line along its bottom edge, the
+  // window and the dot only, since the bar above already prints the years
+  const thin=NARROW;
+  const w=svg.getBoundingClientRect().width||300, h=thin?8:30, ty=thin?4:9;
+  const f=x=>Math.max(0,Math.min(w, x/W*w));
+  let g=`<line class="mttrack" x1="0" x2="${w}" y1="${ty}" y2="${ty}"/>`;
+  for(let yr=1900; yr<=2020; yr+=10){ const x=f(xOf(yr)); g+=`<line class="mttick" x1="${x}" x2="${x}" y1="${ty-(yr%50?2:4)}" y2="${ty+(yr%50?2:4)}"/>`; }
+  if(thin) g=`<line class="mttrack" x1="0" x2="${w}" y1="${ty}" y2="${ty}"/>`;   // no ticks at this size
+  if(!thin){
+    // the roots before 1950 are squeezed on the map, so they are one word here, not crowded years
+    g+=`<text class="mtlbl" x="0" y="${h-1}">Roots</text>`;
+    for(const yr of [1975,2000]) g+=`<text class="mtlbl" x="${f(xOf(yr))}" y="${h-1}" text-anchor="middle">${yr}</text>`;
+    g+=`<text class="mtlbl" x="${f(xOf(1950))}" y="${h-1}" text-anchor="start">1950</text>`;
+    g+=`<text class="mtlbl mtnow" x="${w}" y="${h-1}" text-anchor="end">${END}</text>`;
+  }
+  const a=f(scroller.scrollLeft), b=f(scroller.scrollLeft+scroller.clientWidth);
+  const wh=thin?6:12;
+  g+=`<rect class="mtwin" x="${a}" y="${ty-wh/2}" width="${Math.max(6,b-a)}" height="${wh}" rx="${thin?3:4}"/>`;
+  const n=state.sel&&byId[state.sel]; if(n) g+=`<circle class="mtsel" cx="${f(n.x)}" cy="${ty}" r="${thin?3:4}"/>`;
+  svg.setAttribute("viewBox",`0 0 ${w} ${h}`); svg.innerHTML=g;
+}
+{ const box=$("minitime");
+  if(box){
+    // press or drag anywhere on it to bring that part of the map to the middle of the screen
+    let drag=false;
+    const go=e=>{ const r=$("mtsvg").getBoundingClientRect(); const fr=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));
+      scroller.scrollLeft=fr*W-scroller.clientWidth/2; };
+    box.addEventListener("pointerdown",e=>{ drag=true; box.setPointerCapture(e.pointerId); go(e); e.preventDefault(); });
+    box.addEventListener("pointermove",e=>{ if(drag) go(e); });
+    box.addEventListener("pointerup",()=>{ drag=false; });
+    scroller.addEventListener("scroll",()=>requestAnimationFrame(miniTime),{passive:true});
+    addEventListener("resize",()=>requestAnimationFrame(miniTime));
+  }
 }
 scroller.addEventListener("scroll",()=>{ const t=`translateX(${scroller.scrollLeft}px)`; $("lanes").style.transform=t;
   const c=$("corner"); if(c) c.style.transform=t; },{passive:true});
