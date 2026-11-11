@@ -9,6 +9,8 @@
 // goes, picking a style from a list still selects it, Escape unwinds, and a fresh panel
 // starts from a clean stack rather than remembering where you were.
 const {chromium}=require("playwright");
+// how many styles have no parents, from the data, so adding a root does not break the count
+const ROOTCOUNT=require("../src/data.js").DATA.filter(r=>!(r[4]||"").trim()).length;
 const skipWelcome=require("./_hello");
 const {settle,until,shown,arm,raise}=require("./_wait");
 const URL="file://"+__dirname+"/../index.html";
@@ -208,7 +210,7 @@ const state=p=>p.evaluate(()=>{
   // #roots and #top are in this list because the panel no longer carries a row to either:
   // the map took that job back, and the address is the only way left in.
   for(const [hash,key,rows] of [["#install","install",0],["#about","about",0],
-      ["#modes","modes",MODECOUNT],["#roots","roots",17],["#top","top",24]]){
+      ["#modes","modes",MODECOUNT],["#roots","roots",ROOTCOUNT],["#top","top",24]]){
     const dl=await fresh(b,M,hash);
     const d=await state(dl);
     say(hash+" lands on its own page", d.key===key);

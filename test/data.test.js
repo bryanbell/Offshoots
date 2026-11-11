@@ -40,7 +40,16 @@ say("lineage has no cycles", few(cyc));
 say("a child is never older than every one of its parents",
   few(D.DATA.filter(r=>parents(r).length && parents(r).every(p=>byId[p][2]>r[2]+20)).map(r=>r[0])));
 const roots=D.DATA.filter(r=>!parents(r).length);
-say("the roots are all pre-1950 ("+roots.length+" of them)", few(roots.filter(r=>r[2]>=1950).map(r=>r[0])));
+// A post-1950 style is a root only when the music it grew from is not on the map and no
+// style that is has a documented direct line into it. Each one is named here, with why,
+// so a missing parent is a reviewed decision rather than a slip.
+const LATE_ROOTS={
+  rai:"grew from Oran's vernacular song (wahrani, bedoui), which is not on the map; pop raï's borrowings from disco, reggae and rock are influences, not a documented parent",
+  mbaqanga:"grew from marabi and kwela, which are not on the map yet; the big-band swing it drew on reached it through them",
+};
+say("the roots are all pre-1950 ("+roots.length+" of them), or a reviewed late root",
+  few(roots.filter(r=>r[2]>=1950 && !LATE_ROOTS[r[0]]).map(r=>r[0])));
+say("every reviewed late root is still a root", few(Object.keys(LATE_ROOTS).filter(k=>!set.has(k)||parents(byId[k]).length)));
 
 // ---------- side tables keyed by style id ----------
 for(const t of ["ART","PLAY","SPLAY","QPLAY","YPLAY","DESC","COVER","PTITLE","STYLEART","ROSTER","SONGS","READ"])

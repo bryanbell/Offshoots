@@ -1,4 +1,6 @@
 const {chromium}=require("playwright");
+// how many styles have no parents, from the data, so adding a root does not break the count
+const ROOTCOUNT=require("../src/data.js").DATA.filter(r=>!(r[4]||"").trim()).length;
 const skipWelcome=require("./_hello");
 const {settle,until,shown,arm,raise,lower}=require("./_wait");
 const URL="file://"+__dirname+"/../index.html";
@@ -381,7 +383,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
         lede:!!page.querySelector(".pglede"),
         allRoots:items.every(id=>{ const row=DATA.find(d=>d[0]===id); return !!row && !(row[4]||"").trim(); })}; });
     say("#roots still opens a page titled "+(r&&r.title), !!r && r.title==="Roots");
-    say("  listing "+(r&&r.n)+" styles, every one of them a root", !!r && r.allRoots && r.n===17);
+    say("  listing "+(r&&r.n)+" styles, every one of them a root ("+ROOTCOUNT+" on the map)", !!r && r.allRoots && r.n===ROOTCOUNT);
     say("  with a line saying what they are", !!r && r.lede);
     await rp.close(); }
 
