@@ -279,7 +279,8 @@ svg{display:block}
 #chart.lod.sel .n.leaf.on text{display:block}
 @media (hover:hover){#chart.lod .n.leaf:hover text{display:block}}
 #chart.lod .n.leaf circle{opacity:.7}
-#chart.sel .n{opacity:.18}
+/* unselected styles stay readable: dim enough to set the lineage apart, not so dim they vanish */
+#chart.sel .n{opacity:.4}
 #chart.sel .n.on{opacity:1}
 #chart.sel .n.cur text:not(.halo){font-weight:700;fill:var(--accent)}
 #chart.sel .n.cur text.halo{font-weight:700}
@@ -302,7 +303,7 @@ svg{display:block}
 #chart.hov .n.hv text:not(.halo){fill:var(--accent)}
 #chart.lod .n.hv text,#chart.lod .n.hvn text{display:block}
 /* hover preview from a collection row, over whatever the map was showing */
-#chart.peek .n,#chart.peek.sel .n.on{opacity:.18}
+#chart.peek .n,#chart.peek.sel .n.on{opacity:.4}
 #chart.peek .n.pvn{opacity:1}
 #chart.peek .n.pv{opacity:1}
 #chart.peek .n.pv text:not(.halo){font-weight:700;fill:var(--accent)}
