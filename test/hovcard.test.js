@@ -1,5 +1,5 @@
 // Resting the mouse on a style on the map shows a small card beside it: art, family and
-// year, the description if there is one, and where it came from and led to. It is a
+// year, the description if there is one, and its key artists. It is a
 // preview: it takes no clicks, selects nothing, waits a beat before the first one so a
 // pointer crossing the map does not flash cards, and goes when the pointer leaves, the map
 // moves or a key is pressed. Never on touch, and never for the style already open.
@@ -31,7 +31,8 @@ const card=p=>p.evaluate(()=>{ const c=document.querySelector(".hovcard"); if(!c
   const c=await card(p);
   say("resting on a style shows its card", !!c && /Jazz Fusion/.test(c.txt) && /Jazz · 1969/.test(c.txt) && c.img);
   say("  with the description", /electric bass/.test(c.txt));
-  say("  and where it came from, main parent first, and what it led to", /From Post-Bop/.test(c.txt) && /Led to/.test(c.txt));
+  // who to listen for, not the lineage the map already draws
+  say("  and its key artists, not its lineage", /Key artists\s*Weather Report, Mahavishnu Orchestra/.test(c.txt) && !/From|Led to/.test(c.txt));
   say("  inside the map, off the name, taking no clicks", c.inside && c.pe==="none" &&
     !(c.r[0]<f.x && c.r[2]>f.x && c.r[1]<f.y && c.r[3]>f.y));
   say("  without selecting anything", await p.evaluate(()=>!document.querySelector("#chart .n.cur") && !/fusion/.test(location.hash)));
