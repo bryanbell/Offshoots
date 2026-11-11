@@ -295,6 +295,12 @@ svg{display:block}
 #chart.sel .e.on.d3{opacity:.3;stroke-width:1}
 #chart.sel .n.on.d2{opacity:.8}
 #chart.sel .n.on.d3{opacity:.55}
+/* the style under a resting mouse, its neighbours and the lines between them; above any
+   dimming a selection or a preview has applied, so !important rather than a selector race */
+#chart.hov .n.hv,#chart.hov .n.hvn{opacity:1!important}
+#chart.hov .e.hve{opacity:.9!important;stroke-width:1.8}
+#chart.hov .n.hv text:not(.halo){fill:var(--accent)}
+#chart.lod .n.hv text,#chart.lod .n.hvn text{display:block}
 /* hover preview from a collection row, over whatever the map was showing */
 #chart.peek .n,#chart.peek.sel .n.on{opacity:.18}
 #chart.peek .n.pvn{opacity:1}
