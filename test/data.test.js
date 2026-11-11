@@ -44,8 +44,7 @@ const roots=D.DATA.filter(r=>!parents(r).length);
 // style that is has a documented direct line into it. Each one is named here, with why,
 // so a missing parent is a reviewed decision rather than a slip.
 const LATE_ROOTS={
-  rai:"grew from Oran's vernacular song (wahrani, bedoui), which is not on the map; pop raï's borrowings from disco, reggae and rock are influences, not a documented parent",
-  mbaqanga:"grew from marabi and kwela, which are not on the map yet; the big-band swing it drew on reached it through them",
+  // none at present: Raï and Mbaqanga gained parents (Wahrani; Marabi and Kwela)
 };
 say("the roots are all pre-1950 ("+roots.length+" of them), or a reviewed late root",
   few(roots.filter(r=>r[2]>=1950 && !LATE_ROOTS[r[0]]).map(r=>r[0])));

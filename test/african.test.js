@@ -16,6 +16,15 @@ const SIX=[
   ["mbaqanga",["mbaqanga","township","mahlathini"]],
   ["mbalax",["mbalax","sabar","youssou"]],
   ["ethiojazz",["ethio-jazz","ethiopian jazz","mulatu"]],
+  // the styles added to give them parents and children
+  ["palmwine",["palm-wine","kwame asare"]],
+  ["egyptiansong",["egyptian concert song","umm kulthum"]],
+  ["marabi",["marabi"]],
+  ["wahrani",["wahrani","blaoui houari"]],
+  ["kwela",["kwela","pennywhistle"]],
+  ["soukous",["soukous","papa wemba"]],
+  ["sa_bubblegum",["township bubblegum","brenda fassie"]],
+  ["ndombolo",["ndombolo","koffi"]],
 ];
 
 (async()=>{
@@ -56,14 +65,18 @@ const SIX=[
       await q.goto(URL+"#"+id); await arm(q);
       const ok=await until(q,i=>!!document.querySelector(`#chart .n.cur[data-id="${i}"]`),id);
       await settle(q);
+      // a style with no art of its own asks for one and swaps in its family tile when that
+      // fails, so give a missing file its error event before calling anything broken
+      await until(q,()=>![...document.querySelectorAll("#panelBody img")].some(x=>x.complete&&x.naturalWidth===0&&!x.closest("[hidden]")));
       const v=await q.evaluate(i=>{
         const t=document.querySelector("#panelBody .pttl .ptnm");
         const body=document.getElementById("panelBody").textContent;
-        const broken=[...document.querySelectorAll("#panelBody img")].filter(x=>x.complete&&x.naturalWidth===0&&!x.closest("[hidden]")).length;
-        return {name:t?t.textContent:"", hash:location.hash, undef:/undefined|NaN/.test(body), broken};
+        const bad=[...document.querySelectorAll("#panelBody img")].filter(x=>x.complete&&x.naturalWidth===0&&!x.closest("[hidden]"));
+        const broken=bad.length, which=bad.map(x=>x.getAttribute("src")+" @"+(x.parentElement&&x.parentElement.className)).join(" , ");
+        return {name:t?t.textContent:"", hash:location.hash, undef:/undefined|NaN/.test(body), broken, which};
       },id);
       say(`${vpName} #${id} opens ${byId[id][1]}`, !!ok && v.name===byId[id][1] && v.hash==="#"+id);
-      say(`  with no blank or broken parts (${v.broken} broken images)`, !v.undef && v.broken===0);
+      say(`  with no blank or broken parts (${v.broken} broken images${v.which?": "+v.which:""})`, !v.undef && v.broken===0);
       await q.close();
     }
   }
