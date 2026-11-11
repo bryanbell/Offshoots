@@ -414,7 +414,9 @@ const $ = id=>document.getElementById(id);
 const statsEl=document.createElement("span"); statsEl.id="stats"; statsEl.hidden=true; document.body.appendChild(statsEl);
 $("stats").textContent = `${nodes.length} styles · ${nodes.filter(n=>n.year<1950).length} of them pre-1950 roots · ${nEdges} lineage links · ${FAMS.length} families`;
 
-const AXH=30, END=2026;
+// Two rows: what the axis measures over the roots, then the years. People did not read
+// left to right as time until it said so.
+const AXH=42, END=2026;
 const BAR=()=>$("spacer").offsetHeight;
 let Z=1; const BASE=.576, ZMIN=.7, ZMAX=3.3; let LOD=false; // Z is shown as %, 100% = BASE scale
 // What 100% means differs by screen. On a phone the map opened too close: the view people
@@ -534,14 +536,56 @@ function layout(avail){
   H=y;
 }
 
+// ---------- the year, on the axis ----------
+// A pill on the axis at a style's year, with a guide line down to it: position on the
+// map is time, and this is the one thing on screen that says so for the style you are on.
+function axisPill(gid,x,txt,cls){
+  const g=document.getElementById(gid); if(!g) return;
+  if(x==null){ g.innerHTML=""; hideUnder(); return; }
+  const w=Math.round(txt.length*7.3+14), y=AXH-11;
+  g.innerHTML=`<rect class="${cls}" x="${x-w/2}" y="${y-13}" width="${w}" height="18" rx="9"/>`
+    + `<text class="${cls}t" x="${x}" y="${y}" text-anchor="middle">${esc(txt)}</text>`;
+  hideUnder();
+}
+// a year label a pill sits on is hidden rather than left half showing beside it
+function hideUnder(){
+  const ax=document.getElementById("axis"); if(!ax) return;
+  const pills=[...ax.querySelectorAll("#axsel rect,#axhov rect")].map(r=>{
+    const x=+r.getAttribute("x"), w=+r.getAttribute("width"); return [x-4,x+w+4]; });
+  ax.querySelectorAll("text.yl").forEach(t=>{ const x=+t.getAttribute("x"), hw=t.textContent.length*3.8;
+    t.classList.toggle("under", pills.some(([a,b])=>x+hw>a && x-hw<b)); });
+}
+const yrText = n => n.year<1950 ? n.disp : String(n.year);
+function paintYear(){
+  const n=state.sel && byId[state.sel], ln=document.getElementById("yrguide");
+  if(!n){ axisPill("axsel",null); if(ln) ln.setAttribute("visibility","hidden"); return; }
+  axisPill("axsel",n.x,yrText(n),"axsel");
+  if(ln){ ln.setAttribute("x1",n.x); ln.setAttribute("x2",n.x); ln.setAttribute("y2",n.y);
+    ln.removeAttribute("visibility"); }
+}
+// the inverse of xOf: which year a point on the map sits at
+const yearAt = x => x<X0 ? null : x<X0+ROOTW ? 1895+(x-X0)/ROOTW*55 : 1950+(x-X0-ROOTW)/PX;
 function draw(){
   // Read the toolbar height before writing anything. It was read after the 461-node SVG
   // had been replaced, which forced a full synchronous layout of the fresh map just to
   // learn a number that had not changed since the last frame: about a third of boot.
   const bar=BAR();
-  let ax=`<svg width="${W}" height="${AXH}"><text class="rt" x="${X0}" y="19">Roots, before 1950</text>`;
-  ax += `<text x="${xOf(END)}" y="19" text-anchor="middle" class="now">${END}</text>`;
-  for(let yr=1950; yr<=2025; yr+=5){ const x=xOf(yr); if(yr===2025) continue; ax += yr%10===0 ? `<text x="${x}" y="19" text-anchor="middle">${yr}</text>` : `<text x="${x}" y="19" text-anchor="middle" opacity=".55">’${String(yr).slice(2)}</text>`; }
+  // The axis says what it is: a caption over the roots ("Year each style emerged →"),
+  // then the years in full, decades labelled and every five years ticked. Before 1950
+  // the scale is compressed, so the roots say so, their decade ticks crowd together, and
+  // a break mark sits on the divider. ('55-style shorthand was misread; years are whole.)
+  const AY=AXH-11, TB=AXH;   // the label row's baseline, and the axis's bottom edge
+  let ax=`<svg width="${W}" height="${AXH}">`
+    + `<text class="axcap" x="${X0}" y="13">Year each style emerged →</text>`
+    + `<text class="rt" x="${X0}" y="${AY}">${NARROW?"Roots (compressed)":"Roots, before 1950 (compressed)"}</text>`
+    + `<text x="${xOf(END)}" y="${AY}" text-anchor="middle" class="now yl">${END}</text>`;
+  for(let yr=1950; yr<=2020; yr+=10) ax += `<text class="yl" x="${xOf(yr)}" y="${AY}" text-anchor="middle">${yr}</text>`;
+  for(let yr=1900; yr<END; yr+=yr<1950?10:5){ const x=xOf(yr);
+    ax += `<line class="axtick${yr%10?"":" ten"}" x1="${x}" x2="${x}" y1="${TB-(yr%10?4:7)}" y2="${TB}"/>`; }
+  { const x=xOf(1950);
+    ax += `<path class="axbreak" d="M${x-7},${TB-1} L${x-3},${TB-10} M${x-2},${TB-1} L${x+2},${TB-10}"/>`; }
+  // the selected style's year, and on desktop the year under the pointer, painted here
+  ax += `<g id="axhov"></g><g id="axsel"></g>`;
   document.documentElement.style.setProperty("--stripw",(LABELW-8)+"px");
   $("axis").innerHTML = ax+`</svg><div id="corner" style="width:${LABELW-8}px;transform:translateX(${scroller.scrollLeft}px)"></div>`;
   let s="";
@@ -563,7 +607,10 @@ function draw(){
     if(i) s+=`<line class="lanedge" x1="0" x2="${W}" y1="${l.y0}" y2="${l.y0}"/>`;
   });
   s+=`<line class="nowline" x1="${xOf(END)}" x2="${xOf(END)}" y1="0" y2="${H}"/>`;
-  for(let yr=1950; yr<=2025; yr+=5){ const x=xOf(yr); s+=`<line class="${yr%10?'g5':'g10'}" x1="${x}" x2="${x}" y1="0" y2="${H}"/>`; }
+  for(let yr=1950; yr<=2025; yr+=5){ const x=xOf(yr); s+=`<line class="${yr%10?'g5':'g10'}${yr===1950?' rootdiv':''}" x1="${x}" x2="${x}" y1="0" y2="${H}"/>`; }
+  // a guide from the axis down to the selected style, and one that follows the pointer
+  s+=`<line id="yrhov" class="yrhov" x1="0" x2="0" y1="0" y2="${H}" visibility="hidden"/>`
+    + `<line id="yrguide" class="yrguide" x1="0" x2="0" y1="0" y2="0" visibility="hidden"/>`;
   s+=`<g id="edges">`;
   nodes.forEach(c=>c.parents.forEach(pid=>{
     const p=byId[pid], x1=p.x, y1=p.y, x2=c.x, y2=c.y, dx=Math.max(28,(x2-x1)*.5);
@@ -571,13 +618,16 @@ function draw(){
   }));
   s+=`</g><g id="nodes">`;
   nodes.forEach(n=>{
-    s+=`<g class="n${n.year<1950?' root':''}${n.lod?' leaf':''}${n.done?' has':''}" data-id="${n.id}" style="--c:${FAM[n.fam].c}" transform="translate(${n.x},${n.y})"><title>${esc(n.name)} (${esc(n.disp)})</title><rect class="hit" x="${-n.r-4}" y="${-n.rh/2}" width="${n.w+n.r*2+14}" height="${n.rh}"/><circle r="${(n.done?n.r*1.95:n.r).toFixed(2)}"/>${n.done
+    // named with aria-label, not an SVG <title>: a <title> is also the browser's tooltip,
+    // which macOS drew over the search field the moment search opened under the pointer
+    s+=`<g class="n${n.year<1950?' root':''}${n.lod?' leaf':''}${n.done?' has':''}" data-id="${n.id}" style="--c:${FAM[n.fam].c}" transform="translate(${n.x},${n.y})" role="button" aria-label="${esc(n.name)} (${esc(n.disp)})"><rect class="hit" x="${-n.r-4}" y="${-n.rh/2}" width="${n.w+n.r*2+14}" height="${n.rh}"/><circle r="${(n.done?n.r*1.95:n.r).toFixed(2)}"/>${n.done
       ? `<path class="ply" d="M${(-n.r*.85).toFixed(2)} ${(-n.r*1.1).toFixed(2)}L${(n.r*1.15).toFixed(2)} 0L${(-n.r*.85).toFixed(2)} ${(n.r*1.1).toFixed(2)}Z"/>`:""}<text class="halo" aria-hidden="true" x="${n.r+5}" y="${n.fs*.36}" style="font-size:${n.fs.toFixed(1)}px;font-weight:${n.fw}">${esc(n.name)}</text><text x="${n.r+5}" y="${n.fs*.36}" style="font-size:${n.fs.toFixed(1)}px;font-weight:${n.fw}">${esc(n.name)}</text></g>`;
   });
   s+=`</g>`;
   const svg=$("chart"); svg.setAttribute("width",W); svg.setAttribute("height",H); svg.setAttribute("viewBox",`0 0 ${W} ${H}`); svg.style.setProperty("--fs",FS+"px"); svg.innerHTML=s;
   $("inner").style.width=W+"px";
   const L=$("lanes"); L.style.top=(bar+AXH)+"px"; L.style.setProperty("--lz",1);
+  paintYear();
   L.innerHTML = `<div class="lane fill" style="top:0;height:${HEADH}px;left:0;width:${LABELW-8}px"></div>` + lanes.map((l,i)=>`<div class="lane c${i%2?"":" b2"}" data-fam="${l.k}" style="--c:${FAM[l.k].c};top:${l.y0}px;height:${l.h}px;left:0;width:${LABELW-8}px" title="${esc(FAM[l.k].name)} · ${l.count} styles"><span class="vt">${esc(FAM[l.k].short)}</span></div>`).join("");
   L.style.transform=`translateX(${scroller.scrollLeft}px)`;
 }
@@ -1001,7 +1051,7 @@ function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   if(!byId[id]) return;
   const switched = state.sel!==id;
   if(switched && !GOINGBACK){ pushTrail(); bumpStyle(id); }
-  state.sel=id; closeNav(); if(typeof stepClose==="function"&&STEP) stepClose();
+  state.sel=id; paintYear(); closeNav(); if(typeof stepClose==="function"&&STEP) stepClose();
   // only a real change of style brings a dismissed sheet back; re-selects from
   // resize, zoom and setOpen must leave it where the user put it
   if(switched) restoreSheet();
@@ -1875,6 +1925,22 @@ $("panel").addEventListener("click",e=>{
   const m=e.target.closest("[data-mode]"); if(m){ state.mode=m.dataset.mode; select(state.sel,{scroll:false}); }
 });
 $("lanes").addEventListener("click",e=>{ const l=e.target.closest(".lane"); if(!l) return; const lane=lanes.find(x=>x.k===l.dataset.fam); if(lane) scroller.scrollTo({top:Math.max(0,lane.y0-8),behavior:reduce?"auto":"smooth"}); });
+// Desktop: a faint line and the year follow the pointer across the map, so the scale can
+// be read anywhere, not only at the top. A mouse only; on touch there is no hover.
+(function(){
+  const sc=$("scroller"), fine=matchMedia("(hover:hover) and (pointer:fine)");
+  let raf=0, lx=null;
+  const show=()=>{ raf=0; const ln=document.getElementById("yrhov");
+    if(lx==null || document.body.classList.contains("panning")){ axisPill("axhov",null); if(ln) ln.setAttribute("visibility","hidden"); return; }
+    const y=yearAt(lx); if(y==null || y>END){ axisPill("axhov",null); if(ln) ln.setAttribute("visibility","hidden"); return; }
+    const t = y<1950 ? Math.round(y/5)*5+"s" : String(Math.round(y));
+    axisPill("axhov",lx,t,"axhov");
+    if(ln){ ln.setAttribute("x1",lx); ln.setAttribute("x2",lx); ln.removeAttribute("visibility"); } };
+  sc.addEventListener("pointermove",e=>{ if(e.pointerType!=="mouse" || !fine.matches) return;
+    const r=sc.getBoundingClientRect(); lx=e.clientX-r.left+sc.scrollLeft;
+    if(!raf) raf=requestAnimationFrame(show); },{passive:true});
+  sc.addEventListener("pointerleave",()=>{ lx=null; if(!raf) raf=requestAnimationFrame(show); });
+})();
 // picking another style keeps the card as it is; empty space collapses it, then clears the selection
 $("chart").addEventListener("click",e=>{
   const g=e.target.closest(".n");
@@ -1886,7 +1952,7 @@ function clearSel(){
   peekEnd();
   closeNav();
   if(state.sel && !GOINGBACK) pushTrail();
-  state.sel=null;
+  state.sel=null; paintYear();
   const svg=$("chart"); svg.classList.remove("sel");
   svg.querySelectorAll(".n.on,.n.cur").forEach(g=>g.classList.remove("on","cur"));
   svg.querySelectorAll(".e.on,.e.dir").forEach(e=>e.classList.remove("on","dir"));
@@ -3739,6 +3805,12 @@ function openSearch(){
   // iOS only raises the keyboard if focus happens inside the tap itself, so do it first and synchronously
   document.body.classList.add("searching");
   q.focus({preventScroll:true});
+  // Make room for the field rather than lay it over the year axis: the map slides down by
+  // the band the field sits in, measured now because the field's height and the safe
+  // area differ by device.
+  const sb=$("bottomSearch"), mb=document.querySelector(".mapbox"), fi=sb&&sb.querySelector("input");
+  if(sb&&mb&&fi){ const band=Math.round(fi.getBoundingClientRect().bottom + 10 - mb.getBoundingClientRect().top);
+    document.documentElement.style.setProperty("--sband",Math.max(0,band)+"px"); }
 
   qsync();
 }
