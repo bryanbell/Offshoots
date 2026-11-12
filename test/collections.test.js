@@ -31,7 +31,10 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
   say("  with no style listed twice in one collection",
     dup.length===0 ? true : dup.join(" "));
   const used=new Set(D.MODES.flatMap(m=>m[4].map(x=>x[0])));
-  const orphan=[...play].filter(x=>!used.has(x));
+  // styles the owner has kept out of every collection on purpose; each must still exist
+  const KEPT_OUT={brphonk:"owner's call, 2026-11-11"};
+  say("  every style kept out of the collections is still on the map", Object.keys(KEPT_OUT).every(k=>play.has(k)));
+  const orphan=[...play].filter(x=>!used.has(x) && !KEPT_OUT[x]);
   say("every playlist on the map is in at least one collection ("+used.size+" of "+play.size+")",
     orphan.length===0 ? true : orphan.length+" left out: "+orphan.slice(0,6).join(" "));
   // one collection that is thirty kinds of the same thing is one idea repeated
