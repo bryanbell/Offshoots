@@ -4359,7 +4359,8 @@ const MODES = [
     ["moombahton","House slowed to reggaeton tempo by accident, then on purpose"],
     ["industrial_rock","The machine taught the riff"],
     ["grungegaze","Grunge's weight played through shoegaze's wash"],
-    ["funkmetal","Slap bass and metal riffs in the same band"]
+    ["funkmetal","Slap bass and metal riffs in the same band"],
+    ["brphonk","Brazilian funk drums pushed through phonk distortion, made for short videos"]
    ],3],
 ];
 

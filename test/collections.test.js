@@ -31,12 +31,11 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
   say("  with no style listed twice in one collection",
     dup.length===0 ? true : dup.join(" "));
   const used=new Set(D.MODES.flatMap(m=>m[4].map(x=>x[0])));
-  // styles the owner has kept out of every collection on purpose; each must still exist
-  const KEPT_OUT={brphonk:"owner's call, 2026-11-11"};
-  say("  every style kept out of the collections is still on the map", Object.keys(KEPT_OUT).every(k=>play.has(k)));
-  const orphan=[...play].filter(x=>!used.has(x) && !KEPT_OUT[x]);
+  // Every other collection is chosen by fit. A style that fits none of them belongs in
+  // Something New, the catch-all, rather than being pushed into a mood it does not suit.
+  const orphan=[...play].filter(x=>!used.has(x));
   say("every playlist on the map is in at least one collection ("+used.size+" of "+play.size+")",
-    orphan.length===0 ? true : orphan.length+" left out: "+orphan.slice(0,6).join(" "));
+    orphan.length===0 ? true : orphan.length+" left out (add each where it fits, or to Something New): "+orphan.slice(0,6).join(" "));
   // one collection that is thirty kinds of the same thing is one idea repeated
   const fam={}; D.DATA.forEach(r=>fam[r[0]]=r[3]);
   const thin=D.MODES.filter(m=>m[4].length>=20
