@@ -1295,6 +1295,25 @@ function setPbar(t,s){ PBAR={t:t||"",s:s||""}; const a1=$("pbarTitle"), a2=$("pb
     const slot=m.nav&&m.nav.querySelector(".navttl.ovttl .mn");
     if(slot&&m.big){ const t=(m.big.querySelector(".mn, .ptnm")||m.big).textContent.trim();
       if(slot.textContent!==t) slot.textContent=t; }
+    if(slot&&m.ttl) fitBarTitle(m.nav,slot.parentElement);
+  };
+  // The compact title is centred on the bar, between the buttons either side. When the
+  // back button carries a long label the two sides are uneven, and a name centred on the
+  // bar ran under the wider one. Centred on the bar while it fits there; once it does not,
+  // centred in the space the buttons actually leave.
+  const fitBarTitle=(nav,ttl)=>{
+    const mn=ttl.querySelector(".mn"); if(!mn) return;
+    const row=nav.getBoundingClientRect(), gap=8;
+    const left=[...nav.querySelectorAll(".navleft > :not([hidden]), :scope > #panelBack:not([hidden])")]
+      .reduce((x,e)=>{ const r=e.getBoundingClientRect(); return r.width ? Math.max(x,r.right-row.left) : x; },0);
+    const close=nav.querySelector(":scope > .pmin");
+    const cr=close&&close.getBoundingClientRect();
+    const right=cr&&cr.width ? row.right-cr.left : 0;
+    const L=Math.ceil(left+gap), R=Math.ceil(right+gap), S=Math.max(L,R);
+    const fits=mn.scrollWidth <= row.width-2*S;
+    const pl=(fits?S:L)+"px", pr=(fits?S:R)+"px";
+    if(ttl.style.paddingLeft!==pl) ttl.style.paddingLeft=pl;
+    if(ttl.style.paddingRight!==pr) ttl.style.paddingRight=pr;
   };
   const sync=()=>{ apply(measure()); };
   // One pass per frame. A scroll fires faster than the screen repaints, and every extra
