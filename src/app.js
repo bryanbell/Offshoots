@@ -3195,6 +3195,10 @@ function pushPage(key){
   if(!stack) return false;
   if(PSTACK.length && PSTACK[PSTACK.length-1].key===key) return true;
   const d=def(); if(!d) return false;
+  // A page popped in the last quarter second is still in the stack, sliding out. Pushing
+  // over it left the page under it showing too: back then a quick tap put the root above
+  // the new page, with a back pill and nothing to explain it. It goes now, not later.
+  while(stack.children.length>PSTACK.length+1) stack.lastElementChild.remove();
   const body=$("panelBody"), cur=stack.lastElementChild;
   const page=document.createElement("div");
   page.className="ppage pgin"; page.dataset.p=key;
@@ -3225,7 +3229,11 @@ function pushPage(key){
   else {
     cur.classList.add("pgout");
     requestAnimationFrame(()=>page.classList.remove("pgin"));
-    setTimeout(()=>{ cur.hidden=true; cur.classList.remove("pgout"); },240);
+    // and if it was popped again before this fires, the page under it is back in front:
+    // hiding it then emptied the panel
+    const depth=PSTACK.length;
+    setTimeout(()=>{ cur.classList.remove("pgout");
+      if(PSTACK.length>=depth && cur!==stack.lastElementChild) cur.hidden=true; },240);
   }
   body.scrollTop=0; setOpen(true); syncBack(); closeNav();
   body.dispatchEvent(new Event("scroll"));
@@ -3245,7 +3253,7 @@ function popPage(){
     requestAnimationFrame(()=>prev.classList.remove("pgout")); } }
   if(reduce) cur.remove();
   else { cur.classList.add("pgin");
-    setTimeout(()=>{ cur.remove(); if(prev) body.scrollTop=was.scroll||0;
+    setTimeout(()=>{ if(!cur.isConnected) return; cur.remove(); if(prev) body.scrollTop=was.scroll||0;
       body.dispatchEvent(new Event("scroll")); },240); }
   if(reduce && prev) body.scrollTop=was.scroll||0;
   syncBack();

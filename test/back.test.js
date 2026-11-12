@@ -468,5 +468,22 @@ const openCx=async q=>{ await q.$eval(".sect-connections",e=>{ if(!e.open) e.ope
     say("  and tapping it brings the sheet back on screen ("+Math.round(up.top)+" of "+up.h+")",
       !up.gone && up.top < up.h*0.95);
     await c.close(); }
+
+  // Back and then a quick tap, inside the quarter second the outgoing page takes to slide
+  // away. Pushing over a page still sliding out left the root showing above the new page;
+  // the other order hid the root after it had already come back, leaving the panel empty.
+  { const c=await b.newContext({viewport:{width:1300,height:850}}); const q=await c.newPage();
+    const shown=()=>q.evaluate(()=>[...document.querySelectorAll("#panelBody .ppage")].filter(x=>!x.hidden).map(x=>x.dataset.p).join(","));
+    await q.goto(URL+"#modes"); await ready(q);
+    await q.evaluate(()=>{ document.getElementById("panelBack").click();
+      setTimeout(()=>document.querySelector('.ppage[data-p="root"] [data-page="modes"]').click(),80); });
+    await q.waitForTimeout(700);
+    const a=await shown(); say("back then a quick push shows only the pushed page ("+a+")", a==="modes");
+    await q.goto(URL); await ready(q);
+    await q.evaluate(()=>{ document.querySelector('.ppage[data-p="root"] [data-page="modes"]').click();
+      setTimeout(()=>document.getElementById("panelBack").click(),80); });
+    await q.waitForTimeout(700);
+    const z=await shown(); say("a push then a quick back shows the root ("+z+")", z==="root");
+    await c.close(); }
   await b.close();
 })();
