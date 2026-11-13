@@ -394,6 +394,13 @@ aside h3,.pcard h3.sec{font:700 var(--t-head)/var(--t-head-lh) var(--f-body);let
    on the same row, and the pill is sized to a thumb rather than to its word. */
 .pk{position:relative;display:flex;align-items:center;gap:0}
 .pk>.pick{flex:1 1 auto;min-width:0}
+/* under a collection narrowed to What's Current: what is left out is one tap away */
+.pkfoot{padding:14px 16px 4px;display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.pkfoot .note{margin:0}
+.pkall{min-height:max(var(--tap),44px);padding:0 18px;border:0;border-radius:999px;cursor:pointer;
+  background:color-mix(in srgb,var(--acc,var(--blue)) 14%,transparent);color:var(--acc,var(--bluetx));
+  font:600 var(--t-sub)/1 var(--f-body)}
+.pkall:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--acc,var(--blue)) 40%,transparent)}
 .picks>.pk{background:transparent;border-radius:0}
 .picks>.pk+.pk::after{content:"";position:absolute;left:var(--seplead);right:16px;top:0;
   height:.5px;background:var(--sep);pointer-events:none}

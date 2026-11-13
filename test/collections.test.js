@@ -107,8 +107,8 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
     note("  sort", v.sorts.join(" "));
     // the written order is editorial, so it is called Best fit, not Relevance, which read
     // like a search score
-    say("  and the three orders, best fit first and selected",
-      JSON.stringify(v.sorts)===JSON.stringify(["Best fit*","A–Z","Most used"]));
+    say("  and the three orders and the one filter, best fit first and selected",
+      JSON.stringify(v.sorts)===JSON.stringify(["Best fit*","A–Z","Most used","What's Current"]));
     say("  with the sort inside the page ("+v.spill+"px)", v.spill<=0);
     // Three words were wider than the panel, so the control scrolled and the third order
     // sat off the edge. Then it was three glyphs you had to press to identify. It is one
@@ -154,6 +154,25 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
     say("    and puts what this browser opens most at the top (\""+un2[0]+"\")",
       un2[0]==="Tropicália" && un2.length===v.names.length);
     await p.selectOption('.psortsel','fit'); await settle(p);
+    // What's Current narrows rather than reorders: only CURRENT styles, in the collection's
+    // own order, with the count, Surprise Me and the menu's label following, and the rest
+    // one tap away
+    await p.selectOption('.psortsel','current'); await settle(p);
+    { const want=dinner[4].filter(([id])=>D.CURRENT[id]).map(([id])=>D.DATA.find(r=>r[0]===id)[1]);
+      const cv=await p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
+        return {names:[...u.querySelectorAll(".picks .pknm")].map(e=>e.textContent),
+          count:u.querySelector(".pkcount").textContent, sub:u.querySelector(".modetop .lrsub").textContent,
+          label:u.querySelector(".sortpick .sortx").textContent, all:(u.querySelector("[data-pickall]")||{}).textContent}; });
+      say("  What's Current keeps only what younger listeners play ("+cv.names.join(", ")+")",
+        JSON.stringify(cv.names)===JSON.stringify(want));
+      say("    and the count, Surprise Me and the menu say so",
+        cv.count===String(want.length) && cv.sub==="One of these "+want.length+", at random" && cv.label==="What's Current");
+      say("    with the rest one tap away ("+cv.all+")", cv.all==="Show All "+dinner[4].length);
+      await p.click(".ppage:not([hidden]) [data-pickall]"); await settle(p);
+      const back=await look();
+      say("    which puts back the whole collection in its own order",
+        JSON.stringify(back.names)===JSON.stringify(v.names)
+        && await p.evaluate(()=>document.querySelector(".ppage:not([hidden]) .sortpick .sortx").textContent==="Best fit")); }
     // changing the order used to rebuild the heading through a function that called
     // itself, so every change threw while the list still re-sorted
     say("    and changing the order raises no error", perr.length===0 ? true : perr[0]);

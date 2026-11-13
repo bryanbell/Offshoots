@@ -1856,9 +1856,26 @@ $("panel").addEventListener("change",e=>{
     // the heading is left as it is: its picker already shows the choice and the count does
     // not change with the order. It was rebuilt through pickSortHead(), which called itself
     // and threw on every change of sort.
-    if(list&&m){ list.innerHTML=modePicks(m); amUpgrade(); }
+    if(list&&m){ list.innerHTML=modePicks(m); amUpgrade(); syncPickTop(page,m); }
     return; }
 });
+// What's Current changes how many there are, so the count and Surprise Me's line are
+// rewritten in place. Only their text: rebuilding the heading would take the open select
+// out from under the person using it.
+function syncPickTop(page,m){
+  const n=(pickSort()==="current" && pickOrder(m,"current").length) || m[4].filter(([id])=>byId[id]).length;
+  // and the menu's own label, which the select under it does not redraw
+  const sel=page.querySelector(".psortsel"), x=sel&&sel.parentElement.querySelector(".sortx");
+  const o=PICKSORTS.find(p=>p[0]===pickSort());
+  if(x&&o) x.textContent=o[1];
+  if(sel) sel.setAttribute("aria-label",`Sort this collection. Currently ${o?o[1]:""}.`);
+  const c=page.querySelector(".pkcount");
+  if(c){ c.textContent=n; c.setAttribute("aria-label",n+" styles"); }
+  const s=page.querySelector(".modetop [data-pickany]");
+  if(s){ const sub=s.querySelector(".lrsub"); if(sub) sub.textContent=`One of these ${n}, at random`;
+    const lab=`Open one of these ${n} styles, chosen at random`;
+    s.setAttribute("aria-label",lab); s.setAttribute("title",lab); }
+}
 function clearNav(m){
   if(m._home){ m._home.appendChild(m); m._home=null; }
   m.style.cssText="";
@@ -1949,10 +1966,17 @@ $("panel").addEventListener("click",e=>{
     if(pg){ e.preventDefault(); pushPage(pg.dataset.page); return; } }
   // one of this collection, rather than one of the map: the point of standing in a
   // collection is that everything in it already fits
+  // Show All under a narrowed collection: back to Best fit, the menu saying so too
+  { const pa=e.target.closest("[data-pickall]");
+    if(pa){ e.preventDefault();
+      const page=pa.closest(".ppage"), sel=page&&page.querySelector(".psortsel");
+      if(sel){ sel.value="fit"; sel.dispatchEvent(new Event("change",{bubbles:true})); }
+      return; } }
   { const pa=e.target.closest("[data-pickany]");
     if(pa){ e.preventDefault();
       const m=typeof MODES!=="undefined" && MODES.find(x=>x[0]===pa.dataset.pickany);
-      const pool=m ? m[4].map(([id])=>id).filter(id=>byId[id] && id!==state.sel) : [];
+      const narrow=m && pickSort()==="current" ? pickOrder(m,"current").map(([id])=>id) : [];
+      const pool=m ? (narrow.length ? narrow : m[4].map(([id])=>id)).filter(id=>byId[id] && id!==state.sel) : [];
       const pick=pool[Math.floor(Math.random()*pool.length)];
       if(pick){ closeNav(); select(pick); panelTop(); } return; } }
   { const rr=e.target.closest("[data-random]");
@@ -2331,7 +2355,18 @@ function setTint(fam){
 // a way in for people who know what they want the music to DO but not what to call it
 let MODE=null;
 function modePicks(m){
-  return pickOrder(m,pickSort()).map(([id,why])=>{
+  const how=pickSort();
+  // Narrowed to what younger listeners play, the end of the list says so and offers the
+  // rest, so a collection that keeps only two never reads as a collection of two. With
+  // none left it says that plainly rather than showing an empty page.
+  let foot="";
+  if(how==="current"){
+    const all=m[4].filter(([id])=>byId[id]).length, n=pickOrder(m,how).length;
+    foot=`<div class="pkfoot">`
+      + (n ? "" : `<p class="note">Nothing here is what younger listeners are playing right now.</p>`)
+      + `<button type="button" class="pkall" data-pickall>Show All ${all}</button></div>`;
+  }
+  return pickOrder(m,how).map(([id,why])=>{
     const n=byId[id]; if(!n) return "";
     // Two acts on one row, said apart. The row is the style: it opens the style's own
     // panel and lands the map on it, which is where the "why" gets its answer. The pill
@@ -2355,7 +2390,7 @@ function modePicks(m){
       + `<span class="pkwhy">${esc(why)}</span>`
       + `<span class="pkfam">${esc(FAM[n.fam].short)} · ${n.year}</span></button>`
       + listen + `</div>`;
-  }).join("");
+  }).join("") + foot;
 }
 // Hovering a collection row, or a Most Influential row, previews the style on the map: it lights the style and the
 // lines straight to and from it, and the map slides to it. A preview only. It is its own
@@ -3119,15 +3154,20 @@ const PICKSORT_KEY="musicatlas.picksort";
 const PICKSORTS=[
   ["fit","Best fit","Best fit for this collection first"],
   ["az","A\u2013Z","By name, A to Z"],
-  ["used","Most used","What this browser opens most"]];
+  ["used","Most used","What this browser opens most"],
+  // a filter rather than an order, kept in the same menu because it is the same question
+  // ("which of these do I look at first") and a second control on the row was one too many
+  ["current","What's Current","Only what younger listeners play now"]];
 function pickSort(){
   try{ const v=localStorage.getItem(PICKSORT_KEY);
     return PICKSORTS.some(p=>p[0]===v) ? v : "fit";
   }catch(e){ return "fit"; }
 }
 function setPickSort(v){ try{ localStorage.setItem(PICKSORT_KEY,v); }catch(e){} }
+const isCurrent=id=>typeof CURRENT!=="undefined" && !!CURRENT[id];
 function pickOrder(m,how){
   const list=m[4].filter(([id])=>byId[id]);
+  if(how==="current") return list.filter(([id])=>isCurrent(id));
   if(how==="az") return list.slice().sort((a,b)=>
     byId[a[0]].name.localeCompare(byId[b[0]].name));
   if(how==="used"){
@@ -3147,7 +3187,10 @@ function pickSortHtml(){
 // from the collection rather than from the map, so what it lands on is something that
 // belongs here, and every one of them has a playlist to play.
 function modeTop(m){
-  const n=m[4].filter(([id])=>byId[id]).length;
+  // the count and Surprise Me follow What's Current when it is on, unless it leaves
+  // nothing, when they go back to the whole collection
+  const cur=pickSort()==="current" ? pickOrder(m,"current").length : 0;
+  const n=cur || m[4].filter(([id])=>byId[id]).length;
   // The same row as Surprise me on the Explore panel, because it is the same act: the
   // scope is the only difference, and the second line is where that gets said. Drawn as a
   // button in accent fill first, which made it the loudest thing on the page and read as
