@@ -1863,7 +1863,8 @@ $("panel").addEventListener("change",e=>{
 // rewritten in place. Only their text: rebuilding the heading would take the open select
 // out from under the person using it.
 function syncPickTop(page,m){
-  const n=(pickSort()==="current" && pickOrder(m,"current").length) || m[4].filter(([id])=>byId[id]).length;
+  const n=(pickFilt()==="current" && shownPicks(m).length) || m[4].filter(([id])=>byId[id]).length;
+  page.querySelectorAll("[data-pickfilt]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.pickfilt===pickFilt())));
   // and the menu's own label, which the select under it does not redraw
   const sel=page.querySelector(".psortsel"), x=sel&&sel.parentElement.querySelector(".sortx");
   const o=PICKSORTS.find(p=>p[0]===pickSort());
@@ -1966,16 +1967,21 @@ $("panel").addEventListener("click",e=>{
     if(pg){ e.preventDefault(); pushPage(pg.dataset.page); return; } }
   // one of this collection, rather than one of the map: the point of standing in a
   // collection is that everything in it already fits
-  // Show All under a narrowed collection: back to Best fit, the menu saying so too
-  { const pa=e.target.closest("[data-pickall]");
+  // the All / What's Current switch, and Show All under a narrowed list, which is the same
+  // switch reached from the bottom
+  { const pa=e.target.closest("[data-pickfilt],[data-pickall]");
     if(pa){ e.preventDefault();
-      const page=pa.closest(".ppage"), sel=page&&page.querySelector(".psortsel");
-      if(sel){ sel.value="fit"; sel.dispatchEvent(new Event("change",{bubbles:true})); }
+      const v=pa.dataset.pickfilt||"all";
+      const page=pa.closest(".ppage"), list=page&&page.querySelector(".picks");
+      const m=page && typeof MODES!=="undefined" && MODES.find(x=>"mode:"+x[0]===page.dataset.p);
+      if(v!==pickFilt()){ setPickFilt(v);
+        if(list&&m){ list.innerHTML=modePicks(m); amUpgrade(); syncPickTop(page,m); } }
+      if(pa.dataset.pickall){ const sw=page&&page.querySelector('[data-pickfilt="all"]'); if(sw) sw.focus({preventScroll:true}); }
       return; } }
   { const pa=e.target.closest("[data-pickany]");
     if(pa){ e.preventDefault();
       const m=typeof MODES!=="undefined" && MODES.find(x=>x[0]===pa.dataset.pickany);
-      const narrow=m && pickSort()==="current" ? pickOrder(m,"current").map(([id])=>id) : [];
+      const narrow=m && pickFilt()==="current" ? shownPicks(m).map(([id])=>id) : [];
       const pool=m ? (narrow.length ? narrow : m[4].map(([id])=>id)).filter(id=>byId[id] && id!==state.sel) : [];
       const pick=pool[Math.floor(Math.random()*pool.length)];
       if(pick){ closeNav(); select(pick); panelTop(); } return; } }
@@ -2355,18 +2361,17 @@ function setTint(fam){
 // a way in for people who know what they want the music to DO but not what to call it
 let MODE=null;
 function modePicks(m){
-  const how=pickSort();
   // Narrowed to what younger listeners play, the end of the list says so and offers the
   // rest, so a collection that keeps only two never reads as a collection of two. With
   // none left it says that plainly rather than showing an empty page.
   let foot="";
-  if(how==="current"){
-    const all=m[4].filter(([id])=>byId[id]).length, n=pickOrder(m,how).length;
+  if(pickFilt()==="current"){
+    const all=m[4].filter(([id])=>byId[id]).length, n=shownPicks(m).length;
     foot=`<div class="pkfoot">`
       + (n ? "" : `<p class="note">Nothing here is what younger listeners are playing right now.</p>`)
       + `<button type="button" class="pkall" data-pickall>Show All ${all}</button></div>`;
   }
-  return pickOrder(m,how).map(([id,why])=>{
+  return shownPicks(m).map(([id,why])=>{
     const n=byId[id]; if(!n) return "";
     // Two acts on one row, said apart. The row is the style: it opens the style's own
     // panel and lands the map on it, which is where the "why" gets its answer. The pill
@@ -3154,10 +3159,14 @@ const PICKSORT_KEY="musicatlas.picksort";
 const PICKSORTS=[
   ["fit","Best fit","Best fit for this collection first"],
   ["az","A\u2013Z","By name, A to Z"],
-  ["used","Most used","What this browser opens most"],
-  // a filter rather than an order, kept in the same menu because it is the same question
-  // ("which of these do I look at first") and a second control on the row was one too many
-  ["current","What's Current","Only what younger listeners play now"]];
+  ["used","Most used","What this browser opens most"]];
+// What's Current narrows a collection to what younger listeners play now. It is a switch of
+// its own, not a fourth entry in the sort menu, where nobody would find it: it changes what
+// is listed, the menu only changes the order. Kept on this device, so it is set once and
+// holds for every collection.
+const PICKFILT_KEY="musicatlas.pickfilter";
+function pickFilt(){ try{ return localStorage.getItem(PICKFILT_KEY)==="current" ? "current" : "all"; }catch(e){ return "all"; } }
+function setPickFilt(v){ try{ localStorage.setItem(PICKFILT_KEY,v); }catch(e){} }
 function pickSort(){
   try{ const v=localStorage.getItem(PICKSORT_KEY);
     return PICKSORTS.some(p=>p[0]===v) ? v : "fit";
@@ -3167,7 +3176,6 @@ function setPickSort(v){ try{ localStorage.setItem(PICKSORT_KEY,v); }catch(e){} 
 const isCurrent=id=>typeof CURRENT!=="undefined" && !!CURRENT[id];
 function pickOrder(m,how){
   const list=m[4].filter(([id])=>byId[id]);
-  if(how==="current") return list.filter(([id])=>isCurrent(id));
   if(how==="az") return list.slice().sort((a,b)=>
     byId[a[0]].name.localeCompare(byId[b[0]].name));
   if(how==="used"){
@@ -3179,6 +3187,21 @@ function pickOrder(m,how){
   }
   return list;
 }
+// the list as shown: in the chosen order, narrowed when the switch says so
+function shownPicks(m){
+  const l=pickOrder(m,pickSort());
+  return pickFilt()==="current" ? l.filter(([id])=>isCurrent(id)) : l;
+}
+function pickFiltHtml(m){
+  const all=m[4].filter(([id])=>byId[id]).length, cur=m[4].filter(([id])=>byId[id]&&isCurrent(id)).length;
+  const on=pickFilt();
+  const b=(k,lbl,n,sr)=>`<button type="button" class="pkfb" data-pickfilt="${k}" aria-pressed="${on===k}"`
+    + ` aria-label="${esc(sr)}">${esc(lbl)}<span class="pkfn">${n}</span></button>`;
+  return `<div class="pkfilt" role="group" aria-label="Which styles to list">`
+    + b("all","All",all,`All ${all} styles`)
+    + b("current","What's Current",cur,`What's Current: the ${cur} that younger listeners play now`)
+    + `</div>`;
+}
 function pickSortHtml(){
   return inlinePick('class="psortsel"',"Sort this collection.",PICKSORTS,pickSort());
 }
@@ -3189,7 +3212,7 @@ function pickSortHtml(){
 function modeTop(m){
   // the count and Surprise Me follow What's Current when it is on, unless it leaves
   // nothing, when they go back to the whole collection
-  const cur=pickSort()==="current" ? pickOrder(m,"current").length : 0;
+  const cur=pickFilt()==="current" ? shownPicks(m).length : 0;
   const n=cur || m[4].filter(([id])=>byId[id]).length;
   // The same row as Surprise me on the Explore panel, because it is the same act: the
   // scope is the only difference, and the second line is where that gets said. Drawn as a
@@ -3199,7 +3222,7 @@ function modeTop(m){
     + goRow("random","Surprise Me",`One of these ${n}, at random`,null,
         ` data-pickany="${esc(m[0])}"`,
         `Open one of these ${n} styles, chosen at random`)
-    + `</div>`
+    + `</div>` + pickFiltHtml(m)
     // the count beside the heading, so "these 31" above has its referent and the length
     // of the shelf is known before scrolling it
     + `<div class="secthead picksort"><h3 class="secttl">Styles That Fit`

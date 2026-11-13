@@ -394,6 +394,18 @@ aside h3,.pcard h3.sec{font:700 var(--t-head)/var(--t-head-lh) var(--f-body);let
    on the same row, and the pill is sized to a thumb rather than to its word. */
 .pk{position:relative;display:flex;align-items:center;gap:0}
 .pk>.pick{flex:1 1 auto;min-width:0}
+/* All / What's Current: two halves of one pill under Surprise Me, the one on in accent.
+   The count in each half says what tapping it will show. */
+.pkfilt{display:flex;gap:4px;margin:14px 0 8px;padding:4px;border-radius:999px;
+  background:color-mix(in srgb,var(--fg) 7%,transparent)}
+.pkfb{flex:1 1 0;display:flex;align-items:center;justify-content:center;gap:8px;min-width:0;
+  min-height:max(var(--tap),44px);padding:0 12px;border:0;border-radius:999px;cursor:pointer;
+  background:transparent;color:var(--fg);font:600 var(--t-sub)/1.1 var(--f-body);white-space:nowrap}
+.pkfb .pkfn{font:500 .85em/1 var(--f-mono);opacity:.6}
+.pkfb[aria-pressed="true"]{background:var(--acc,var(--bluebtn));color:var(--accfg,#fff)}
+.pkfb[aria-pressed="true"] .pkfn{opacity:.85}
+.pkfb:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--acc,var(--blue)) 40%,transparent)}
+@media (hover:hover){.pkfb[aria-pressed="false"]:hover{background:color-mix(in srgb,var(--fg) 8%,transparent)}}
 /* under a collection narrowed to What's Current: what is left out is one tap away */
 .pkfoot{padding:14px 16px 4px;display:flex;flex-direction:column;align-items:flex-start;gap:10px}
 .pkfoot .note{margin:0}
