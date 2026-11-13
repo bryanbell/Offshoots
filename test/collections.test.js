@@ -154,6 +154,34 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
     say("    and puts what this browser opens most at the top (\""+un2[0]+"\")",
       un2[0]==="Tropicália" && un2.length===v.names.length);
     await p.selectOption('.psortsel','fit'); await settle(p);
+    // What's Current narrows rather than reorders: a switch of its own under Surprise Me,
+    // each half carrying its count. On, only CURRENT styles, in the collection's own order,
+    // with the heading's count and Surprise Me following, and the rest one tap away
+    { const sw=await p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
+        const s=u.querySelector(".pkfilt"), top=u.querySelector(".modetop"), h=u.querySelector(".secthead.picksort");
+        return {txt:s?[...s.querySelectorAll("[data-pickfilt]")].map(b=>b.textContent+(b.getAttribute("aria-pressed")==="true"?"*":"")):[],
+          placed:!!s && s.getBoundingClientRect().bottom<=top.getBoundingClientRect().top && top.getBoundingClientRect().bottom<=h.getBoundingClientRect().top,
+          tap:s?Math.min(...[...s.querySelectorAll("button")].map(b=>b.getBoundingClientRect().height)):0}; });
+      const nc=dinner[4].filter(([id])=>D.CURRENT[id]).length;
+      say("  an All / What's Current switch with counts ("+sw.txt.join(" | ")+")",
+        JSON.stringify(sw.txt)===JSON.stringify(["All"+dinner[4].length+"*","What's Current"+nc]));
+      say("    above Surprise Me, which sits on the list it draws from, clearing the tap floor", sw.placed && sw.tap>=44); }
+    await p.click('.ppage:not([hidden]) [data-pickfilt="current"]'); await settle(p);
+    { const want=dinner[4].filter(([id])=>D.CURRENT[id]).map(([id])=>D.DATA.find(r=>r[0]===id)[1]);
+      const cv=await p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
+        return {names:[...u.querySelectorAll(".picks .pknm")].map(e=>e.textContent),
+          count:u.querySelector(".pkcount").textContent, sub:u.querySelector(".modetop .lrsub").textContent,
+          on:u.querySelector('[data-pickfilt="current"]').getAttribute("aria-pressed"), all:(u.querySelector("[data-pickall]")||{}).textContent}; });
+      say("  What's Current keeps only what younger listeners play ("+cv.names.join(", ")+")",
+        JSON.stringify(cv.names)===JSON.stringify(want));
+      say("    and the switch, the count and Surprise Me say so",
+        cv.on==="true" && cv.count===String(want.length) && cv.sub==="One of these "+want.length+", at random");
+      say("    with the rest one tap away ("+cv.all+")", cv.all==="Show All "+dinner[4].length);
+      await p.click(".ppage:not([hidden]) [data-pickall]"); await settle(p);
+      const back=await look();
+      say("    which puts back the whole collection in its own order",
+        JSON.stringify(back.names)===JSON.stringify(v.names)
+        && await p.evaluate(()=>document.querySelector('.ppage:not([hidden]) [data-pickfilt="all"]').getAttribute("aria-pressed")==="true")); }
     // changing the order used to rebuild the heading through a function that called
     // itself, so every change threw while the list still re-sorted
     say("    and changing the order raises no error", perr.length===0 ? true : perr[0]);

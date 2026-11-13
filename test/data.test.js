@@ -93,6 +93,10 @@ say("every mode points at styles that exist", few(D.MODES.flatMap(m=>m[4].filter
 say("every mode has at least one style", few(D.MODES.filter(m=>!m[4].length).map(m=>m[0])));
 say("every head track belongs to a mode and a style",
   few(Object.entries(D.HEADTRACK).filter(([k,h])=>!modeKeys.has(k)||!set.has(h.style)).map(([k])=>k)));
+say("every What's Current style exists and has a playlist",
+  few(Object.keys(D.CURRENT).filter(k=>!set.has(k)||!(D.PLAY[k]||D.SPLAY[k]))));
+say("every What's Current style says why it is there",
+  few(Object.entries(D.CURRENT).filter(([k,v])=>typeof v!=="string"||v.length<20||/\u2014/.test(v)).map(([k])=>k)));
 say("every collection keyword list belongs to a mode",
   few(Object.keys(D.MODEWORDS||{}).filter(k=>!modeKeys.has(k))));
 say("every cross-style playlist spans styles that exist",
