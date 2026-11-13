@@ -3218,11 +3218,13 @@ function modeTop(m){
   // scope is the only difference, and the second line is where that gets said. Drawn as a
   // button in accent fill first, which made it the loudest thing on the page and read as
   // the thing to do rather than the shortcut past the list.
-  return `<div class="listgrp modetop">`
+  // the switch first, so Surprise Me sits on the list it draws from, under the choice
+  // that decides what that list is
+  return pickFiltHtml(m) + `<div class="listgrp modetop">`
     + goRow("random","Surprise Me",`One of these ${n}, at random`,null,
         ` data-pickany="${esc(m[0])}"`,
         `Open one of these ${n} styles, chosen at random`)
-    + `</div>` + pickFiltHtml(m)
+    + `</div>`
     // the count beside the heading, so "these 31" above has its referent and the length
     // of the shelf is known before scrolling it
     + `<div class="secthead picksort"><h3 class="secttl">Styles That Fit`

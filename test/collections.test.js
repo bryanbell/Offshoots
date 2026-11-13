@@ -160,12 +160,12 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
     { const sw=await p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
         const s=u.querySelector(".pkfilt"), top=u.querySelector(".modetop"), h=u.querySelector(".secthead.picksort");
         return {txt:s?[...s.querySelectorAll("[data-pickfilt]")].map(b=>b.textContent+(b.getAttribute("aria-pressed")==="true"?"*":"")):[],
-          placed:!!s && top.getBoundingClientRect().bottom<=s.getBoundingClientRect().top && s.getBoundingClientRect().bottom<=h.getBoundingClientRect().top,
+          placed:!!s && s.getBoundingClientRect().bottom<=top.getBoundingClientRect().top && top.getBoundingClientRect().bottom<=h.getBoundingClientRect().top,
           tap:s?Math.min(...[...s.querySelectorAll("button")].map(b=>b.getBoundingClientRect().height)):0}; });
       const nc=dinner[4].filter(([id])=>D.CURRENT[id]).length;
       say("  an All / What's Current switch with counts ("+sw.txt.join(" | ")+")",
         JSON.stringify(sw.txt)===JSON.stringify(["All"+dinner[4].length+"*","What's Current"+nc]));
-      say("    between Surprise Me and the list, clearing the tap floor", sw.placed && sw.tap>=44); }
+      say("    above Surprise Me, which sits on the list it draws from, clearing the tap floor", sw.placed && sw.tap>=44); }
     await p.click('.ppage:not([hidden]) [data-pickfilt="current"]'); await settle(p);
     { const want=dinner[4].filter(([id])=>D.CURRENT[id]).map(([id])=>D.DATA.find(r=>r[0]===id)[1]);
       const cv=await p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
