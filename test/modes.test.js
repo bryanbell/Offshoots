@@ -552,16 +552,24 @@ const spell=n=>n<=20?WORDS[n]
     // the real row, without the suite-wide full row
     await s.addInitScript(()=>{ window.__MA_ROWALL=false; });
     await s.goto(URL); await ready(s);
-    const row=await s.evaluate(()=>{const r=document.querySelector(".ppage[data-p=root] .mrow");
+    const row=await s.evaluate(()=>{const r=document.querySelector(".ppage[data-p=root] .mdial");
       const c=[...r.querySelectorAll(".mcirc")], last=c[c.length-1];
       return {modes:c.filter(x=>x.dataset.mode).map(x=>x.dataset.mode),
         allPage:last&&last.dataset.page, allLbl:last&&last.textContent.trim(), lastIsAll:!!last&&!last.dataset.mode};});
     say("at "+t+" the list opens on "+r.title+" ("+r.modes.slice(0,3).join(", ")+")",
       r.title===part && r.modes.includes(lead) && !r.modes.includes(notFirst));
-    say("  and the root's row is just that group ("+row.modes.length+": "+row.modes.slice(0,3).join(", ")+")",
-      row.modes.join()===r.modes.join());
-    say("  ending in a circle that opens every collection ("+row.allLbl+")",
-      row.lastIsAll && row.allPage==="modes" && /^All \d+$/.test(row.allLbl));
+    // the root's speed dial: eight in the same order, that group first, then Show All
+    say("  and the root's dial leads with that group ("+row.modes.length+": "+row.modes.slice(0,3).join(", ")+")",
+      row.modes.length===8 && row.modes.slice(0,Math.min(8,r.modes.length)).join()===r.modes.slice(0,8).join());
+    say("  ending in a cell that opens every collection ("+row.allLbl+")",
+      row.lastIsAll && row.allPage==="modes" && row.allLbl==="Show All");
+    { const g=await s.evaluate(()=>{ const d=document.querySelector(".ppage[data-p=root] .mdial");
+        const c=[...d.children].map(x=>x.getBoundingClientRect());
+        const cols=new Set(c.map(r=>Math.round(r.left))).size, rows=new Set(c.map(r=>Math.round(r.top))).size;
+        const lbl=[...d.querySelectorAll(".mclbl")].filter(l=>l.scrollHeight>l.clientHeight+1||l.scrollWidth>l.clientWidth+1).map(l=>l.textContent);
+        return {cols,rows,sideways:d.scrollWidth>d.clientWidth+1,lbl,tap:Math.min(...c.map(r=>Math.min(r.width,r.height)))}; });
+      say("  three by three, nothing to swipe, every name whole, every cell a fair tap",
+        g.cols===3 && g.rows===3 && !g.sideways && g.lbl.length===0 && g.tap>=44 || JSON.stringify(g)); }
     if(t==="03:00"){ await s.click(".ppage[data-p=root] .mcall");
       await s.waitForFunction(()=>{const p=[...document.querySelectorAll(".ppage")].pop(); return p&&p.dataset.p==="modes";},{timeout:5000}).catch(()=>{});
       say("  which opens the Collections page", await s.evaluate(()=>[...document.querySelectorAll(".ppage")].pop().dataset.p==="modes")); }
