@@ -2111,6 +2111,7 @@ function noteWho(n){
     hx=e.clientX; hy=e.clientY;
     hold=setTimeout(()=>{ hold=0; held=true;
       const id=g.dataset.id; lift(id); show(id,g,true);
+      try{ const s=getSelection(); if(s && s.rangeCount) s.removeAllRanges(); }catch(x){}
       if(navigator.vibrate) try{ navigator.vibrate(8); }catch(x){} },420);
   });
   sc.addEventListener("pointermove",e=>{

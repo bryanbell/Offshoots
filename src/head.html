@@ -181,6 +181,10 @@ button:focus-visible,.chip:focus-visible,.link:focus-visible{outline:0;box-shado
 /* map */
 .mapbox{position:absolute;inset:0;background:var(--mapbg)}
 #scroller{position:absolute;inset:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y}
+/* The map is something you press, not text you copy: a held finger anywhere on it, the
+   lane names and the years included, started an iOS selection whose handles ran out into
+   the panel. */
+#scroller,#lanes,#axis{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 /* the map is draggable with a mouse, so the background says so. Only where there is a
    real pointer: a touch screen pans with a finger and would just get an odd cursor. */
 @media (hover:hover) and (pointer:fine){ #scroller{cursor:grab} }
