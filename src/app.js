@@ -2049,7 +2049,7 @@ function noteWho(n){
       if(k===id) g.classList.add("hv"); else if(near.has(k)) g.classList.add("hvn"); });
     svg.querySelectorAll(".e").forEach(e=>{ if(e.dataset.p===id||e.dataset.c===id) e.classList.add("hve"); });
   }
-  function show(id,g){
+  function show(id,g,touch){
     const n=byId[id]; if(!n) return; clearTimeout(t); if(el){ el.remove(); el=null; } cur=id;   // the card only: the lift stays
     const d=(typeof DESC!=="undefined"&&DESC[id])||"";
     // who to listen for, rather than the lineage the map already draws
@@ -2064,10 +2064,17 @@ function noteWho(n){
     // to the right of the name if it fits. Otherwise below it, or above: lines come in from
     // the left and leave to the right, so over or under the name covers the fewest of them.
     // The left side is the last resort.
-    const r=g.getBoundingClientRect(), m=sc.getBoundingClientRect(), w=el.offsetWidth, h=el.offsetHeight, gap=12;
+    const r=g.getBoundingClientRect(), m0=sc.getBoundingClientRect(), w=el.offsetWidth, h=el.offsetHeight, gap=12;
+    // on a phone the sheet covers the bottom of the map, so the card stays above it
+    const pn=$("panel"), pt=touch&&pn ? pn.getBoundingClientRect().top : Infinity;
+    const m={left:m0.left,right:m0.right,top:m0.top,bottom:Math.min(m0.bottom,pt)};
     const clampX=v=>Math.max(m.left+8,Math.min(v,m.right-8-w)), clampY=v=>Math.max(m.top+8,Math.min(v,m.bottom-8-h));
     let x, y;
-    if(r.right+gap+w<=m.right-8){ x=r.right+gap; y=clampY(r.top+r.height/2-h/2); }
+    // A finger covers the name and everything under it, so on touch the card goes above,
+    // then below, and only then beside
+    if(touch && r.top-gap-h>=m.top+8){ x=clampX(r.left+r.width/2-w/2); y=r.top-gap-h; }
+    else if(touch && r.bottom+gap+h<=m.bottom-8){ x=clampX(r.left+r.width/2-w/2); y=r.bottom+gap; }
+    else if(r.right+gap+w<=m.right-8){ x=r.right+gap; y=clampY(r.top+r.height/2-h/2); }
     else if(r.bottom+gap+h<=m.bottom-8){ x=clampX(r.left-16); y=r.bottom+gap; }
     else if(r.top-gap-h>=m.top+8){ x=clampX(r.left-16); y=r.top-gap-h; }
     else { x=clampX(r.left-gap-w); y=clampY(r.top+r.height/2-h/2); }
@@ -2088,8 +2095,33 @@ function noteWho(n){
   sc.addEventListener("pointerout",e=>{ const g=e.target.closest && e.target.closest("#chart .n"); if(!g) return;
     const to=e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest("#chart .n");
     if(to!==g){ clearTimeout(t); if(el) t=setTimeout(hide,80); else { cur=null; if(!to) lift(null); } } });
-  sc.addEventListener("pointerleave",hide);
+  sc.addEventListener("pointerleave",e=>{ if(e.pointerType==="mouse") hide(); });
   sc.addEventListener("pointerdown",hide);
+  // Touch: there is no hover, so pressing and holding a style is the preview. The card and
+  // the lift show while the finger stays down and go when it lifts, and lifting does not
+  // open the style: a held press was a look, not a tap. Moving the finger is a pan, which
+  // cancels it before it starts.
+  let hold=0, held=false, hx=0, hy=0;
+  const unhold=()=>{ clearTimeout(hold); hold=0; if(held){ hide(); } };
+  sc.addEventListener("pointerdown",e=>{
+    if(e.pointerType!=="touch") return;
+    held=false; clearTimeout(hold);   // a held press with no click after it must not eat the next tap
+    if(STEP) return;
+    const g=e.target.closest && e.target.closest("#chart .n"); if(!g) return;
+    hx=e.clientX; hy=e.clientY;
+    hold=setTimeout(()=>{ hold=0; held=true;
+      const id=g.dataset.id; lift(id); show(id,g,true);
+      if(navigator.vibrate) try{ navigator.vibrate(8); }catch(x){} },420);
+  });
+  sc.addEventListener("pointermove",e=>{
+    if(e.pointerType!=="touch") return;
+    if(hold && Math.hypot(e.clientX-hx,e.clientY-hy)>8){ clearTimeout(hold); hold=0; }
+  });
+  ["pointerup","pointercancel"].forEach(k=>sc.addEventListener(k,e=>{ if(e.pointerType==="touch") unhold(); }));
+  // the click that follows a held press is swallowed, before the map's own click handler
+  sc.addEventListener("click",e=>{ if(held){ held=false; e.stopPropagation(); e.preventDefault(); } },true);
+  // Android opens a context menu on a long press, iOS a callout; neither belongs on a node
+  sc.addEventListener("contextmenu",e=>{ if(e.target.closest && e.target.closest("#chart .n")) e.preventDefault(); });
   sc.addEventListener("scroll",hide,{passive:true});
   sc.addEventListener("wheel",hide,{passive:true});
   document.addEventListener("keydown",hide,true);

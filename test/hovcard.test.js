@@ -88,8 +88,36 @@ const card=p=>p.evaluate(()=>{ const c=document.querySelector(".hovcard"); if(!c
   await m.goto(URL); await ready(m);
   await m.dispatchEvent('#chart .n[data-id="fusion"]',"pointerover",{pointerType:"touch",bubbles:true});
   await m.waitForTimeout(600);
-  say("never on a phone", !(await card(m)));
+  say("a touch passing over a style shows nothing", !(await card(m)));
   await m.close();
+
+  // On a phone the card is a press and hold: up while the finger stays down, above the
+  // finger and clear of the sheet, gone when it lifts, and the lift does not open the style.
+  // A plain tap after it still does.
+  const hp=await b.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true}); hp.on("pageerror",e=>errs.push(String(e)));
+  await hp.goto(URL+"#detroit"); await ready(hp);
+  const tid=await hp.evaluate(()=>{ const ps=document.getElementById("panel").getBoundingClientRect().top;
+    const g=[...document.querySelectorAll("#chart .n")].find(g=>{ const r=g.getBoundingClientRect();
+      return r.top>200 && r.bottom<ps-20 && r.left>40 && r.right<360 && !g.classList.contains("cur"); });
+    return g && g.dataset.id; });
+  const tc=await hp.evaluate(i=>{ const r=document.querySelector(`#chart .n[data-id="${i}"]`).getBoundingClientRect();
+    return {x:r.left+Math.min(30,r.width/2), y:r.top+r.height/2}; },tid);
+  const cdp=await hp.context().newCDPSession(hp);
+  const touch=(type,pts)=>cdp.send("Input.dispatchTouchEvent",{type,touchPoints:pts});
+  await touch("touchStart",[tc]); await hp.waitForTimeout(700);
+  const up=await hp.evaluate(()=>{ const c=document.querySelector(".hovcard"); if(!c) return null;
+    const r=c.getBoundingClientRect(); return {name:c.querySelector(".hcname").textContent, bottom:r.bottom,
+      sheet:document.getElementById("panel").getBoundingClientRect().top, lit:!!document.querySelector("#chart .n.hv")}; });
+  say(`holding ${tid} shows its card`, !!up && up.name===(await hp.evaluate(i=>document.querySelector(`#chart .n[data-id="${i}"]`).getAttribute("aria-label"),tid)).split(" (")[0]);
+  say("  lights it on the map", !!up && up.lit);
+  say("  above the sheet", !!up && up.bottom<=up.sheet);
+  await touch("touchEnd",[]); await hp.waitForTimeout(500);
+  say("  and lifting the finger takes it away without opening the style",
+    await hp.evaluate(()=>!document.querySelector(".hovcard") && location.hash==="#detroit"));
+  await touch("touchStart",[tc]); await touch("touchEnd",[]);
+  await until(hp,i=>location.hash==="#"+i,tid);
+  say("a tap after it still opens the style", await hp.evaluate(i=>location.hash==="#"+i,tid));
+  await hp.close();
 
   say("no page errors", errs.length===0 || errs.join(" | "));
   await b.close();
