@@ -1901,8 +1901,11 @@ $("panel").addEventListener("change",e=>{
 // rewritten in place. Only their text: rebuilding the heading would take the open select
 // out from under the person using it.
 function syncPickTop(page,m){
-  const n=(pickFilt()==="current" && shownPicks(m).length) || m[4].filter(([id])=>byId[id]).length;
-  page.querySelectorAll("[data-pickfilt]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.pickfilt===pickFilt())));
+  const n=(pickFilt()!=="all" && shownPicks(m).length) || m[4].filter(([id])=>byId[id]).length;
+  page.querySelectorAll("[data-pickfilt]").forEach(b=>{ const on=String(b.dataset.pickfilt===pickFilt());
+    b.setAttribute("aria-pressed",on); b.setAttribute("aria-checked",on); });
+  const tr=page.querySelector(".pkfilt.gens");
+  if(tr) tr.style.setProperty("--gi",GENSTOPS.findIndex(g=>g[0]===pickFilt()));
   // and the menu's own label, which the select under it does not redraw
   const sel=page.querySelector(".psortsel"), x=sel&&sel.parentElement.querySelector(".sortx");
   const o=PICKSORTS.find(p=>p[0]===pickSort());
@@ -2021,7 +2024,7 @@ $("panel").addEventListener("click",e=>{
     if(yb){ e.preventDefault(); openYear(+yb.dataset.year); return; } }
   // one of this collection, rather than one of the map: the point of standing in a
   // collection is that everything in it already fits
-  // the All / What's Current switch, and Show All under a narrowed list, which is the same
+  // the generation switch, and Show All under a narrowed list, which is the same
   // switch reached from the bottom
   { const pa=e.target.closest("[data-pickfilt],[data-pickall]");
     if(pa){ e.preventDefault();
@@ -2035,7 +2038,7 @@ $("panel").addEventListener("click",e=>{
   { const pa=e.target.closest("[data-pickany]");
     if(pa){ e.preventDefault();
       const m=typeof MODES!=="undefined" && MODES.find(x=>x[0]===pa.dataset.pickany);
-      const narrow=m && pickFilt()==="current" ? shownPicks(m).map(([id])=>id) : [];
+      const narrow=m && pickFilt()!=="all" ? shownPicks(m).map(([id])=>id) : [];
       const pool=m ? (narrow.length ? narrow : m[4].map(([id])=>id)).filter(id=>byId[id] && id!==state.sel) : [];
       const pick=pool[Math.floor(Math.random()*pool.length)];
       if(pick){ closeNav(); surpriseFrom(pool,pick); select(pick); panelTop(); } return; } }
@@ -2431,10 +2434,11 @@ function modePicks(m){
   // rest, so a collection that keeps only two never reads as a collection of two. With
   // none left it says that plainly rather than showing an empty page.
   let foot="";
-  if(pickFilt()==="current"){
+  if(pickFilt()!=="all"){
     const all=m[4].filter(([id])=>byId[id]).length, n=shownPicks(m).length;
+    const who=(GENSTOPS.find(g=>g[0]===pickFilt())||[])[1];
     foot=`<div class="pkfoot">`
-      + (n ? "" : `<p class="note">Nothing here is what younger listeners are playing right now.</p>`)
+      + (n ? "" : `<p class="note">Nothing here is from what ${esc(who)} grew up on.</p>`)
       + `<button type="button" class="pkall" data-pickall>Show All ${all}</button></div>`;
   }
   return shownPicks(m).map(([id,why])=>{
@@ -3357,12 +3361,22 @@ const PICKSORTS=[
   ["fit","Best fit","Best fit for this collection first"],
   ["az","A\u2013Z","By name, A to Z"],
   ["used","Most used","What this browser opens most"]];
-// What's Current narrows a collection to what younger listeners play now. It is a switch of
-// its own, not a fourth entry in the sort menu, where nobody would find it: it changes what
-// is listed, the menu only changes the order. Kept on this device, so it is set once and
-// holds for every collection.
+// The generation switch narrows a collection to the styles one generation grew up on: All,
+// then oldest to youngest. A control of its own, not entries in the sort menu, where nobody
+// would find it: it changes what is listed, the menu only changes the order. Kept on this
+// device, so it is set once and holds for every collection. Gen Z keeps the key the first
+// version of this switch ("What's Current") saved, so nobody's setting is lost.
 const PICKFILT_KEY="musicatlas.pickfilter";
-function pickFilt(){ try{ return localStorage.getItem(PICKFILT_KEY)==="current" ? "current" : "all"; }catch(e){ return "all"; } }
+const GENSTOPS=[
+  ["all","All","All {n} styles"],
+  ["B","Boomer","{n} styles Boomers grew up on"],
+  ["X","Gen X","{n} styles Gen X grew up on"],
+  ["M","Millennial","{n} styles Millennials grew up on"],
+  ["current","Gen Z","{n} styles Gen Z plays now"]];
+function pickFilt(){ try{ const v=localStorage.getItem(PICKFILT_KEY);
+  return GENSTOPS.some(g=>g[0]===v) ? v : "all"; }catch(e){ return "all"; } }
+const genHas=(id,g)=> g==="all" ? true : g==="current" ? isCurrent(id)
+  : typeof GENS!=="undefined" && !!GENS[id] && GENS[id].includes(g);
 function setPickFilt(v){ try{ localStorage.setItem(PICKFILT_KEY,v); }catch(e){} }
 function pickSort(){
   try{ const v=localStorage.getItem(PICKSORT_KEY);
@@ -3387,16 +3401,27 @@ function pickOrder(m,how){
 // the list as shown: in the chosen order, narrowed when the switch says so
 function shownPicks(m){
   const l=pickOrder(m,pickSort());
-  return pickFilt()==="current" ? l.filter(([id])=>isCurrent(id)) : l;
+  const g=pickFilt();
+  return g==="all" ? l : l.filter(([id])=>genHas(id,g));
 }
+// left and right step along the generation switch, as a radio group does
+document.addEventListener("keydown",e=>{
+  const b=e.target.closest && e.target.closest(".pkfilt.gens [data-pickfilt]");
+  if(!b || (e.key!=="ArrowLeft" && e.key!=="ArrowRight")) return;
+  const all=[...b.parentElement.querySelectorAll("[data-pickfilt]")], i=all.indexOf(b)+(e.key==="ArrowRight"?1:-1);
+  const to=all[Math.max(0,Math.min(all.length-1,i))]; if(!to||to===b) return;
+  e.preventDefault(); to.focus(); to.click();
+});
+// Five stops in one track, the one chosen filled, its count under its name so you can see
+// what each would leave before you pick it
 function pickFiltHtml(m){
-  const all=m[4].filter(([id])=>byId[id]).length, cur=m[4].filter(([id])=>byId[id]&&isCurrent(id)).length;
-  const on=pickFilt();
-  const b=(k,lbl,n,sr)=>`<button type="button" class="pkfb" data-pickfilt="${k}" aria-pressed="${on===k}"`
-    + ` aria-label="${esc(sr)}">${esc(lbl)}<span class="pkfn">${n}</span></button>`;
-  return `<div class="pkfilt" role="group" aria-label="Which styles to list">`
-    + b("all","All",all,`All ${all} styles`)
-    + b("current","What's Current",cur,`What's Current: the ${cur} that younger listeners play now`)
+  const on=pickFilt(), have=m[4].filter(([id])=>byId[id]);
+  const i=GENSTOPS.findIndex(g=>g[0]===on);
+  return `<div class="pkfilt gens" role="radiogroup" aria-label="Which generation" style="--gi:${i};--gn:${GENSTOPS.length}">`
+    + `<span class="pkthumb" aria-hidden="true"></span>`
+    + GENSTOPS.map(([k,lbl,sr])=>{ const n=have.filter(([id])=>genHas(id,k)).length;
+        return `<button type="button" class="pkfb" role="radio" data-pickfilt="${k}" aria-checked="${on===k}" aria-pressed="${on===k}"`
+          + ` aria-label="${esc(sr.replace("{n}",n))}"><span class="pkfl">${esc(lbl)}</span><span class="pkfn">${n}</span></button>`; }).join("")
     + `</div>`;
 }
 function pickSortHtml(){
@@ -3409,7 +3434,7 @@ function pickSortHtml(){
 function modeTop(m){
   // the count and Surprise Me follow What's Current when it is on, unless it leaves
   // nothing, when they go back to the whole collection
-  const cur=pickFilt()==="current" ? shownPicks(m).length : 0;
+  const cur=pickFilt()!=="all" ? shownPicks(m).length : 0;
   const n=cur || m[4].filter(([id])=>byId[id]).length;
   // The same row as Surprise me on the Explore panel, because it is the same act: the
   // scope is the only difference, and the second line is where that gets said. Drawn as a

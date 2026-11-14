@@ -407,6 +407,19 @@ aside h3,.pcard h3.sec{font:700 var(--t-head)/var(--t-head-lh) var(--f-body);let
 .pkfb[aria-pressed="true"] .pkfn{opacity:.85}
 .pkfb:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--acc,var(--blue)) 40%,transparent)}
 @media (hover:hover){.pkfb[aria-pressed="false"]:hover{background:color-mix(in srgb,var(--fg) 8%,transparent)}}
+/* The generation switch: five stops in one track, a filled thumb that slides to the chosen
+   one, each stop's count under its name */
+.pkfilt.gens{position:relative;gap:0}
+.pkfilt.gens .pkfb{flex-direction:column;gap:3px;padding:6px 2px;min-height:52px;position:relative;z-index:1;
+  background:transparent;transition:color .2s}
+.pkfilt.gens .pkfb[aria-pressed="true"]{background:transparent}
+.pkfilt.gens .pkfl{font:600 var(--t-sub)/1.1 var(--f-body);white-space:nowrap}
+.pkfilt.gens .pkfn{font-size:.78em}
+.pkfilt.gens .pkthumb{position:absolute;top:4px;bottom:4px;left:4px;z-index:0;border-radius:999px;
+  width:calc((100% - 8px) / var(--gn));transform:translateX(calc(100% * var(--gi)));
+  background:var(--acc,var(--bluebtn));transition:transform .28s cubic-bezier(.3,.7,.2,1)}
+@media (prefers-reduced-motion:reduce){ .pkfilt.gens .pkthumb{transition:none} }
+@media (max-width:380px){ .pkfilt.gens .pkfl{font-size:13px} }
 /* under a collection narrowed to What's Current: what is left out is one tap away */
 .pkfoot{padding:14px 16px 4px;display:flex;flex-direction:column;align-items:flex-start;gap:10px}
 .pkfoot .note{margin:0}
