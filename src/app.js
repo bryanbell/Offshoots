@@ -3013,6 +3013,10 @@ function modeTile(m,deck){
     + (deck?`<span class="mcdeck">${esc(m[2])}</span>`:"")
     + `</button>`;
 }
+// The Collections page and its filter results in the home panel's speed-dial tiles: the
+// picture fills a rounded square and the name sits on it. Four across, as many rows as a
+// section needs. The one-line descriptor is in each tile's label for a screen reader.
+const modeGrid=rows=>`<div class="mdial mgrid" role="list">${rows.map(m=>modeTile(m)).join("")}</div>`;
 function modeSect(){
   if(typeof MODES==="undefined") return "";
   // Apple Maps puts its Places on a row of filled circles you swipe through, with the
@@ -3049,32 +3053,11 @@ function modeSect(){
     "", "modes", "Find music for the moment.", true);
 }
 const DIALN=8;   // four across, two down: seven collections and Show All
-// the same set as a page, which is what the row's heading opens. The same tiles too:
-// this was a two-column list of 28px thumbnails in a shaded card, so the one picture per
-// collection — the thing that tells you what a collection is before the label does — was
-// printed at a third of the size the row upstairs prints it at, and the card around it
-// made the page read as a different component from the row it came from. Same circle,
-// same label, laid out as a grid instead of a scroller, on the panel rather than in a box.
-// A list of rows, not a grid: a rounded square of the art, the name, the one line on
-// what it is for, and a chevron saying it opens. Thirty-four circles in a grid asked you
-// to read the pictures; a row gives each one its line in full and reads top to bottom the
-// way a list of choices does. The sort still applies. The same descriptor the circle
-// carried in its title and label; nothing on the row suggests playback.
-function modeRow(m){
-  return `<button type="button" class="moderow lv${m[5]||3}" data-mode="${esc(m[0])}"`
-    + ` title="${esc(m[2])}" aria-label="${esc(m[1])}. ${esc(m[2])} ${m[4].filter(([id])=>byId[id]).length} styles. Opens the collection.">`
-    + `<i class="mrart hasimg">${moodArt(m[0])}<b class="facefb">${MODEICON[m[0]]||""}</b></i>`
-    + `<span class="mrtx"><b class="mrlbl">${esc(m[1])}</b>`
-    + `<span class="mrdeck">${esc(m[2])}</span></span>`
-    // how many styles are in it, in the room before the chevron; the label says it too
-    + `<em class="mrct">${m[4].filter(([id])=>byId[id]).length}</em>`
-    + GOCHEV + `</button>`;
-}
 // The list in sections, cut where the sort cuts it, so the order is visible rather than
 // inferred. Quietest gives five bands of intensity, named for the room they suit; A to Z
 // gives letters; Most used splits what this browser has opened from what it has not.
-// Each band is its own card with a small heading over it, the way the root panel's
-// groups sit, so the list reads as a few shelves instead of thirty-four rows.
+// Each band is a grid of the home panel's tiles with a small heading over it, so the
+// page reads as a few shelves of the same dial.
 const LVNAME={1:["Still","Low lights, nothing to do"],2:["Quiet","Company, a table, a window seat"],
   3:["Steady","A job to do, a room to fill"],4:["Lively","On your feet"],5:["Loud","As loud as it goes"]};
 function modeSections(how){
@@ -3107,7 +3090,7 @@ function modeListHtml(){
     + `<h3 class="modesech" id="msec-${esc(String(g.key))}"><span class="msecttl">${esc(g.title)}</span>`
     + (g.sub?`<span class="msecsub">${esc(g.sub)}</span>`:"")
     + `<span class="sectaside">${g.rows.length}</span></h3>`
-    + `<div class="moderows listgrp" role="list">${g.rows.map(modeRow).join("")}</div></section>`).join("");
+    + modeGrid(g.rows) + `</section>`).join("");
   return `<div class="modelist">${secs}</div>`;
 }
 // ---------- finding a collection by what you type ----------
@@ -3200,12 +3183,12 @@ function modeFindOut(text){
       if(m){ seen.add(m.m[0]); alt.push(m.m); } }
     return `<section class="modesec mfres mfalt"><h3 class="modesech"><span class="msecttl">Nothing fits</span>`
       + `<span class="msecsub">“${esc(text.trim())}”. Start from one of these</span></h3>`
-      + `<div class="moderows listgrp" role="list">${alt.map(modeRow).join("")}</div></section>`;
+      + modeGrid(alt) + `</section>`;
   }
   return `<section class="modesec mfres"><h3 class="modesech"><span class="msecttl">`
     + `${r.length===1?"One fits":spellCount(r.length)+" fit"}</span>`
     + `<span class="msecsub">“${esc(text.trim())}”</span></h3>`
-    + `<div class="moderows listgrp" role="list">${r.map(x=>modeRow(x.m)).join("")}</div></section>`;
+    + modeGrid(r.map(x=>x.m)) + `</section>`;
 }
 function runModeFind(inp){
   const page=inp.closest(".ppage"); if(!page) return;

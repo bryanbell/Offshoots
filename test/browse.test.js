@@ -131,11 +131,11 @@ const state=p=>p.evaluate(()=>{
     const q=await fresh(b,M,hash);
     const v=await q.evaluate(()=>{
       const u=document.querySelector(".ppage:not([hidden])");
-      // the list is the same component on both: sections of rows
+      // both are sections under a heading: Most Influential's rows, Collections' tiles
       return {lede:!!u.querySelector(".pglede"),
         sortedBy:((u.querySelector(".secthead.picksort .secttl")||{}).textContent||"").trim().slice(0,9),
         picker:!!u.querySelector(".sortpick select"),
-        list:!!u.querySelector(".modelist .modesec .moderows .moderow"),
+        list:!!u.querySelector(".modelist .modesec .moderows .moderow, .modelist .modesec .mgrid .mcirc"),
         copy:!!u.querySelector(".shbtn.wide[data-share]")};});
     await q.close(); return v; };
   const a=await skel("#top"), c=await skel("#modes");
@@ -215,9 +215,9 @@ const state=p=>p.evaluate(()=>{
     const d=await state(dl);
     say(hash+" lands on its own page", d.key===key);
     say("  with a way back to the map ("+d.backLbl+")", d.back && d.backLbl==="Music Atlas");
-    // plain list rows, or the collection rows Collections and Most influential share
+    // plain list rows, Most Influential's rows, or the Collections tiles
     if(rows) say("  carrying all "+rows,
-      (await dl.$$eval('.ppage:not([hidden]) .listrow, .ppage:not([hidden]) .moderows .moderow',
+      (await dl.$$eval('.ppage:not([hidden]) .listrow, .ppage:not([hidden]) .moderows .moderow, .ppage:not([hidden]) .mgrid .mcirc',
         e=>e.length))===rows);
     await dl.close();
   }

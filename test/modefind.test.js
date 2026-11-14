@@ -21,7 +21,7 @@ const ready=async q=>{ await arm(q); await until(q,()=>!!document.querySelector(
   const state=()=>p.evaluate(()=>{
     const pg=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden).pop();
     const shown=e=>!!e && !!e.getClientRects().length;
-    return {hits:[...pg.querySelectorAll(".mfindout .mrlbl")].map(x=>x.textContent),
+    return {hits:[...pg.querySelectorAll(".mfindout .mclbl")].map(x=>x.textContent),
       none:(pg.querySelector(".mfnone")||{}).textContent||"",
       head:(pg.querySelector(".mfindout .msecttl")||{}).textContent||"",
       sections:shown(pg.querySelector(".modelist")), sort:shown(pg.querySelector(".secthead.picksort")),
@@ -104,7 +104,7 @@ const ready=async q=>{ await arm(q); await until(q,()=>!!document.querySelector(
 
   // a match opens its collection like any other row
   await type("camping");
-  await p.tap(".ppage:not([hidden]) .mfindout .moderow[data-mode='camping']");
+  await p.tap(".ppage:not([hidden]) .mfindout [data-mode='camping']");
   await until(p,()=>{const pg=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden).pop(); return pg && /camping/.test(pg.dataset.p||"");});
   await settle(p);
   say("tapping a match opens that collection", await p.evaluate(()=>/camping/.test([...document.querySelectorAll(".ppage")].filter(x=>!x.hidden).pop().dataset.p||"")));

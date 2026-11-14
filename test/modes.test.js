@@ -210,32 +210,23 @@ const spell=n=>n<=20?WORDS[n]
   const upDisc=await p.$eval(".sect-modes .mcirc .mco",
     e=>Math.round(e.getBoundingClientRect().width));
   await p.click(".sect-modes .secthead"); await onPage(p,"modes");
-  // The page is a list of rows: the art as a rounded square, the name, the one line on
-  // what the collection is for, and a chevron saying it opens. It was a grid of the
-  // row's circles, which asked you to read thirty-four pictures; a row gives each its
-  // line in full and reads top to bottom the way a list of choices does.
+  // The page is the home panel's speed dial at full length: four across, the picture
+  // filling a rounded square and the name on it, cut into the sort's sections.
   const all=await p.evaluate(()=>{
     const g=document.querySelector(".ppage:not([hidden]) .modelist");
-    const t=[...g.querySelectorAll(".moderow")];
+    const t=[...g.querySelectorAll(".mgrid .mcirc")];
     const gb=g.getBoundingClientRect(), bb=document.getElementById("panelBody").getBoundingClientRect();
-    const art=t[0].querySelector(".mrart").getBoundingClientRect();
-    return {n:t.length, art:Math.round(art.width), radius:getComputedStyle(t[0].querySelector(".mrart")).borderRadius,
-      cols:new Set(t.map(x=>Math.round(x.getBoundingClientRect().left))).size,
+    return {n:t.length, cols:new Set(t.map(x=>Math.round(x.getBoundingClientRect().left))).size,
       over:t.some(x=>x.getBoundingClientRect().right>gb.right+1 || x.getBoundingClientRect().left<gb.left-1),
       inside:gb.right<=bb.right+1,
-      labelled:t.every(x=>((x.querySelector(".mrlbl")||{}).textContent||"").trim().length>0),
-      decks:t.every(x=>((x.querySelector(".mrdeck")||{}).textContent||"").trim().length>12),
-      chev:t.every(x=>!!x.querySelector(".lrcv")),
+      labelled:t.every(x=>((x.querySelector(".mclbl")||{}).textContent||"").trim().length>0),
+      art:t.every(x=>!!x.querySelector("img")),
       opens:t.every(x=>/Opens the collection/.test(x.getAttribute("aria-label")||"")),
-      tall:t.every(x=>x.getBoundingClientRect().height>=64),
-      same:new Set(t.map(x=>Math.round(x.getBoundingClientRect().height))).size};});
-  say("listing all "+all.n+" as rows, one per line", all.n===nModes && all.cols===1 && !all.over && all.inside);
-  say("  each with its art as a "+all.art+"px circle", all.art>=56 && all.radius==="50%");
-  say("  its name and what it is for", all.labelled && all.decks);
-  say("  and a chevron saying it opens, which the label says too", all.chev && all.opens);
-  say("  all "+all.same+" height"+(all.same===1?"":"s")+", none under 64px", all.tall && all.same<=2);
-  say("  none spilling out of the grid", all.over===false);
-  say("  every one labelled and a real tap target", all.labelled && all.tall);
+      tall:t.every(x=>x.getBoundingClientRect().height>=64)};});
+  say("showing all "+all.n+" as tiles, four across", all.n===nModes && all.cols===4 && !all.over && all.inside);
+  say("  each its picture with its name on it", all.labelled && all.art);
+  say("  saying in its label that it opens", all.opens);
+  say("  every one a real tap target", all.tall);
   // the page ends with the share button every collection page has, not the bare
   // copy-link About and How to install carry (#28): this is a page to hand to someone
   const share=await p.evaluate(()=>{const c=document.querySelector(".ppage:not([hidden]) .shbtn.wide[data-share]");
@@ -436,11 +427,11 @@ const spell=n=>n<=20?WORDS[n]
   await d.click(".sect-modes .secthead"); await onPage(d,"modes");
   const dl=await d.evaluate(()=>{
     const g=document.querySelector(".ppage:not([hidden]) .modelist");
-    const t=[...g.querySelectorAll(".moderow")], gb=g.getBoundingClientRect();
+    const t=[...g.querySelectorAll(".mgrid .mcirc")], gb=g.getBoundingClientRect();
     return {cols:new Set(t.map(x=>Math.round(x.getBoundingClientRect().left))).size,
       clipped:t.filter(x=>x.getBoundingClientRect().right>gb.right+1)
-               .map(x=>x.querySelector(".mrlbl").textContent)};});
-  say("and its full set is rows there too", dl.cols===1);
+               .map(x=>x.querySelector(".mclbl").textContent)};});
+  say("and its full set is the same tiles there, four across", dl.cols===4);
   await d.click("#panelBack"); await onPage(d,"root");
   say("and clips nothing"+(dl.clipped.length?": "+dl.clipped.join(", "):""), dl.clipped.length===0);
   await d.click('[data-mode="sit"]'); await onPage(d,"mode:sit");
@@ -469,7 +460,7 @@ const spell=n=>n<=20?WORDS[n]
     const read=()=>s.evaluate(()=>{
       const ps=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden), u=ps[ps.length-1];
       return {on:[...u.querySelectorAll(".sortx")].map(x=>x.textContent),
-        labels:[...u.querySelectorAll(".moderows .mrlbl")].map(x=>x.textContent),
+        labels:[...u.querySelectorAll(".mgrid .mclbl")].map(x=>x.textContent),
         stored:(()=>{try{return localStorage.getItem("musicatlas.modesort")}catch(e){return null}})()};});
 
     const start=await read();
@@ -520,7 +511,7 @@ const spell=n=>n<=20?WORDS[n]
     const r=await s2.evaluate(()=>{
       const ps=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden), u=ps[ps.length-1];
       return {on:(u.querySelector(".sortx")||{}).textContent,
-        first:(u.querySelector(".moderows .mrlbl")||{}).textContent};});
+        first:(u.querySelector(".mgrid .mclbl")||{}).textContent};});
     say("a remembered sort is honoured next time the page opens",
       r.on==="A–Z" && r.first==="Back Then");
     await s2.close(); }
@@ -532,7 +523,7 @@ const spell=n=>n<=20?WORDS[n]
     const r=await s3.evaluate(()=>{
       const ps=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden), u=ps[ps.length-1];
       return {on:(u.querySelector(".sortx")||{}).textContent,
-        rows:u.querySelectorAll(".moderows .moderow").length};});
+        rows:u.querySelectorAll(".mgrid .mcirc").length};});
     say("a nonsense stored sort falls back to right now, with every mode still there",
       r.on==="Right now" && r.rows===(await s3.evaluate(()=>MODES.length)));
     await s3.close(); }
@@ -548,7 +539,7 @@ const spell=n=>n<=20?WORDS[n]
     await s.goto(URL+"#modes"); await ready(s); await landed(s,"modes");
     const r=await s.evaluate(()=>{const sec=document.querySelector(".ppage:not([hidden]) .modesec");
       return {title:sec.querySelector(".msecttl").textContent,
-        modes:[...sec.querySelectorAll(".moderow")].map(x=>x.dataset.mode)};});
+        modes:[...sec.querySelectorAll(".mcirc")].map(x=>x.dataset.mode)};});
     // the real row, without the suite-wide full row
     await s.addInitScript(()=>{ window.__MA_ROWALL=false; });
     await s.goto(URL); await ready(s);
