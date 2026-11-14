@@ -1091,6 +1091,7 @@ function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
   if(!byId[id]) return;
   const switched = state.sel!==id;
   if(switched && !GOINGBACK){ pushTrail(); bumpStyle(id); }
+  if(switched) markSeen(id);
   state.sel=id; paintYear(); closeNav(); if(typeof stepClose==="function"&&STEP) stepClose();
   // only a real change of style brings a dismissed sheet back; re-selects from
   // resize, zoom and setOpen must leave it where the user put it
@@ -1638,9 +1639,10 @@ function shareBtn(n){
 // The name carries the date beside it rather than under it, so the two read as one line
 // and the About fold sits directly beneath where a subtitle would have been.
 function styleHead(n){
-  return `<div class="sthead">`
+  return `<div class="sthead"><div class="sttop">`
     + `<h1 class="pttl"><span class="ptnm">${esc(n.name)}</span>`
     + `<span class="ptyr">${n.year<1950?esc(n.disp):"c. "+n.year}</span></h1>`
+    + saveBtn(n) + `</div>`
     + introLine(n) + `</div>`;
 }
 // What the style is, under its name, ending on where to read more, and nothing else
@@ -1963,6 +1965,14 @@ $("panel").addEventListener("click",e=>{
     return; }
   if(e.target.closest("#ptoggle")||e.target.closest("#grab")) return;   // the handle runs its own tap/drag logic
   const sv=e.target.closest("[data-svc]"); if(sv){ setSvc(sv.dataset.svc); return; }
+  { const sv=e.target.closest("[data-save]");
+    if(sv){ e.preventDefault(); e.stopPropagation(); paintSave(sv,toggleCrate(sv.dataset.save)); return; } }
+  { const cc=e.target.closest("[data-crateclear]");
+    if(cc){ e.preventDefault();
+      if(confirm("Clear your saved styles and everything you’ve opened? This can’t be undone.")){
+        crateWrite(CRATE_KEY,[]); crateWrite(SEEN_KEY,{});
+        const list=cc.closest(".cratelist"); if(list) list.outerHTML=cratePageHtml(); }
+      return; } }
   { const pg=e.target.closest("[data-page]");
     if(pg){ e.preventDefault(); pushPage(pg.dataset.page); return; } }
   // one of this collection, rather than one of the map: the point of standing in a
@@ -2247,7 +2257,7 @@ const ABOUT_HASH="about", INSTALL_HASH="install", MODES_HASH="modes", PICKS_HASH
 // job back, and a page nothing links to is a page nobody can reach. The values are the
 // selectors these were back when they were folds, and nothing reads them any more.
 const FOLDS={[ABOUT_HASH]:".aboutwrap", [INSTALL_HASH]:".installwrap", [MODES_HASH]:".modelist",
-  [PICKS_HASH]:".picklist", roots:".plist", top:".plist"};
+  [PICKS_HASH]:".picklist", roots:".plist", top:".plist", crate:".cratelist"};
 function foldURL(hash){ return SITE + "#" + hash; }
 function openAbout(scroll,hash){
   // these two used to be folds on the root panel; they are pages now, so the hash that
@@ -2705,6 +2715,114 @@ function bumpStyle(k){
     if(o[k]>=40) for(const i in o){ const v=Math.floor((+o[i]||0)/2); if(v) o[i]=v; else delete o[i]; }
     localStorage.setItem(STYLEUSE_KEY,JSON.stringify(o));
   }catch(e){}
+}
+// ---------- your crate ----------
+// What this browser has kept and where it has been. Two lists in localStorage, like the
+// tallies above, never sent anywhere: the styles saved with the bookmark beside a name,
+// newest first, and every style opened with when it was last opened. The tally above
+// halves itself to keep a sort fresh, so it cannot say what has ever been seen; this can.
+// Ids no longer on the map are dropped on read rather than shown as blanks.
+const CRATE_KEY="musicatlas.crate", SEEN_KEY="musicatlas.visited";
+function crateRead(k,arr){
+  try{ const r=localStorage.getItem(k), o=r?JSON.parse(r):null;
+    if(arr) return Array.isArray(o) ? o.filter(id=>typeof id==="string" && byId[id]) : [];
+    return (o && typeof o==="object" && !Array.isArray(o)) ? o : {};
+  }catch(e){ return arr?[]:{}; }
+}
+function crateWrite(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+function crateIds(){ return crateRead(CRATE_KEY,true); }
+function inCrate(id){ return crateIds().indexOf(id)>=0; }
+function toggleCrate(id){
+  const ids=crateIds().filter(x=>x!==id), had=ids.length!==crateIds().length;
+  if(!had) ids.unshift(id);
+  crateWrite(CRATE_KEY,ids);
+  return !had;
+}
+function seenMap(){ const o=crateRead(SEEN_KEY,false), out={};
+  for(const k in o) if(byId[k] && +o[k]>0) out[k]=+o[k];
+  return out; }
+function markSeen(id){ if(!byId[id]) return; const o=seenMap(); o[id]=Date.now(); crateWrite(SEEN_KEY,o); }
+function seenRecent(n){ const o=seenMap();
+  return Object.keys(o).sort((a,b)=>o[b]-o[a]).slice(0,n); }
+// "today", "yesterday", "3 days ago", then the date: a list of where you have been reads
+// better in days than in timestamps
+function agoText(t){
+  const d0=new Date(); d0.setHours(0,0,0,0);
+  const days=Math.round((d0-new Date(t).setHours(0,0,0,0))/864e5);
+  if(days<=0) return "Today";
+  if(days===1) return "Yesterday";
+  if(days<7) return days+" days ago";
+  return new Date(t).toLocaleDateString(undefined,{month:"short",day:"numeric"});
+}
+const BOOKMARK_OFF="<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M184,32H72A16,16,0,0,0,56,48V224a8,8,0,0,0,12.24,6.78L128,193.43l59.77,37.35A8,8,0,0,0,200,224V48A16,16,0,0,0,184,32Zm0,177.57-51.77-32.35a8,8,0,0,0-8.48,0L72,209.57V48H184Z\"/></svg>";
+const BOOKMARK_ON="<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M184,32H72A16,16,0,0,0,56,48V224a8,8,0,0,0,12.24,6.78L128,193.43l59.77,37.35A8,8,0,0,0,200,224V48A16,16,0,0,0,184,32Z\"/></svg>";
+ROWICON.crate=BOOKMARK_OFF;
+// the bookmark beside a style's name: the one control that puts it in the crate
+function saveBtn(n){
+  const on=inCrate(n.id);
+  return `<button type="button" class="savebtn${on?" on":""}" data-save="${esc(n.id)}" aria-pressed="${on}"`
+    + ` aria-label="${on?"Saved in your crate":"Save "+esc(n.name)+" to your crate"}"`
+    + ` title="${on?"Saved in your crate. Tap to remove":"Save to your crate"}">`
+    + `<i class="sboff">${BOOKMARK_OFF}</i><i class="sbon">${BOOKMARK_ON}</i></button>`;
+}
+function paintSave(btn,on){
+  const n=byId[btn.dataset.save]; if(!n) return;
+  btn.classList.toggle("on",on); btn.setAttribute("aria-pressed",String(on));
+  btn.setAttribute("aria-label",on?"Saved in your crate":"Save "+n.name+" to your crate");
+  btn.title=on?"Saved in your crate. Tap to remove":"Save to your crate";
+}
+// how much of each family this browser has opened
+function crateProgress(){
+  const seen=seenMap();
+  return FAMS.map(f=>{ const all=nodes.filter(x=>x.fam===f[0]);
+    return {k:f[0], name:FAM[f[0]].name, c:FAM[f[0]].c, total:all.length,
+      seen:all.filter(x=>seen[x.id]).length}; }).filter(f=>f.total);
+}
+function crateSummary(){
+  const saved=crateIds().length, seen=Object.keys(seenMap()).length;
+  return {saved, seen,
+    line:(saved?saved+" saved · ":"")+seen+" of "+nodes.length+" styles explored"};
+}
+// On the home panel only once there is something in it: a first visit has nothing to
+// show, and the bookmark on every style is where the crate gets introduced.
+function crateSect(){
+  const s=crateSummary(); if(!s.saved && !s.seen) return "";
+  return sect("crate","Your Crate",
+    `<div class="listgrp sep">`
+    + goRow("crate","Saved and Explored",s.line,s.saved||null,` data-page="crate"`,
+        "Your crate: "+s.line)
+    + `</div>`, "", "", "What you’ve kept and where you’ve been.");
+}
+function crateSec(key,title,sub,count,body){
+  return `<section class="modesec cratesec crate-${key}" aria-labelledby="csec-${key}">`
+    + `<h3 class="modesech" id="csec-${key}"><span class="msecttl">${esc(title)}</span>`
+    + (sub?`<span class="msecsub">${esc(sub)}</span>`:"")
+    + (count!=null?`<span class="sectaside">${count}</span>`:"") + `</h3>${body}</section>`;
+}
+function cratePageHtml(){
+  const saved=crateIds(), seen=seenMap(), recent=seenRecent(12), prog=crateProgress();
+  const nseen=Object.keys(seen).length;
+  const savedHtml = saved.length
+    ? `<div class="moderows listgrp" role="list">${saved.map(topRow).join("")}</div>`
+    : `<p class="note crateempty">Nothing saved yet. Tap the bookmark beside a style’s name to keep it here.</p>`;
+  const recentHtml = recent.length
+    ? styleRows(recent,x=>agoText(seen[x.id]))
+    : `<p class="note crateempty">Open a style on the map and it shows up here.</p>`;
+  const pct=Math.round(100*nseen/nodes.length);
+  const progHtml=`<div class="listgrp crateprog">` + prog.map(f=>
+      `<button type="button" class="listrow cprow" data-fam="${esc(f.k)}" style="--fc:${esc(f.c)}"`
+      + ` aria-label="${esc(f.name)}: ${f.seen} of ${f.total} explored. Shows the family on the map."`
+      + ` title="Show ${esc(f.name)} on the map">`
+      + `<i class="dot" style="background:${esc(f.c)}"></i>`
+      + `<span class="cptx"><span class="lrlbl">${esc(f.name)}</span>`
+      + `<span class="cpbar" aria-hidden="true"><i style="width:${(100*f.seen/f.total).toFixed(1)}%"></i></span></span>`
+      + `<em class="lrct">${f.seen}/${f.total}</em>${GOCHEV}</button>`).join("") + `</div>`;
+  return `<div class="modelist cratelist">`
+    + crateSec("saved","Saved","Newest first",saved.length||null,savedHtml)
+    + crateSec("recent","Recently Opened","",null,recentHtml)
+    + crateSec("prog","How Far You’ve Gone",nseen+" of "+nodes.length+" styles · "+pct+"%",null,progHtml)
+    + `<button type="button" class="crateclear" data-crateclear>Clear your crate and history</button>`
+    + `</div>`;
 }
 const MODEUSE_KEY="musicatlas.modeuse";
 function modeUse(){
@@ -3492,6 +3610,9 @@ const PAGES_DEF={
   roots:()=>({title:"Roots",
     lede:"Styles with nothing before them here. Everything else in the atlas descends from these.",
     html:styleRows(firstLevel(),x=>x.year<1950?x.disp:x.year)}),
+  crate:()=>({title:"Your Crate",
+    lede:"Kept on this device and nowhere else. Save a style with the bookmark beside its name.",
+    html:cratePageHtml()}),
   top:()=>({title:"Most Influential",
     lede:"The styles that led to the most, counted by what came directly out of them.",
     top:topSortHtml(),
@@ -3696,6 +3817,7 @@ function emptyPanel(){
   $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="navrow"><div class="navleft">${HOMEBTN}<button id="panelBack" class="navback" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg><span class="bklbl"></span><svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.4L7.4 3.4v11.2L2.8 16.6z"/><path d="M7.4 3.4l5.2 2v11.2l-5.2-2z"/><path d="M12.6 5.4l4.6-2v11.2l-4.6 2z"/></svg></button></div><div class="navttl navgap ovttl"><span class="mn">Music Atlas</span></div>${CLOSEBTN}</div><h1 class="bigttl"><span class="mn">Music Atlas</span></h1><div class="more">
     ${modeSect()}
     ${onMapSect()}
+    ${crateSect()}
     ${deeperSect()}
     ${aboutMapSect()}
     ${ovFooter()}

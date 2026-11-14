@@ -963,7 +963,7 @@ a.deepsug:focus-visible{outline:0;box-shadow:inset 0 0 0 2px color-mix(in srgb,v
 .pglede{margin:2px 0 14px;max-width:40em}
 /* a pushed list is the page's whole content, so it does not need a section's top margin */
 .pgbody > .listgrp:first-child{margin-top:2px}
-.plist .listrow .dot{flex:none;width:10px;height:10px;border-radius:50%;margin-left:4px}
+.plist .listrow .dot,.crateprog .listrow .dot{flex:none;width:10px;height:10px;border-radius:50%;margin-left:4px}
 .plist .listrow{min-height:50px}
 /* the colophon is about the map rather than part of it, so its rows carry no card */
 /* a plain one-column group draws a hairline between its rows, inset past the icon so the
@@ -2508,6 +2508,34 @@ a.am .amgo{display:none}
 .pttl{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;margin:0 0 2px;
   font:700 var(--t-title1)/var(--t-title1-lh) var(--f-body);letter-spacing:-.025em;color:var(--fg)}
 .pttl .ptyr{font:400 var(--t-sub)/1 var(--f-mono);color:var(--muted);letter-spacing:0}
+/* the name row: title on the left, the crate bookmark on the right, level with the name */
+.sttop{display:flex;align-items:flex-start;gap:10px}
+.sttop .pttl{flex:1;min-width:0}
+.savebtn{all:unset;box-sizing:border-box;flex:none;cursor:pointer;display:grid;place-items:center;
+  width:var(--tap,44px);height:var(--tap,44px);margin:-4px -8px 0 0;border-radius:50%;
+  color:var(--muted);-webkit-tap-highlight-color:transparent}
+.savebtn i{display:grid;place-items:center}
+.savebtn svg{width:24px;height:24px}
+.savebtn .sbon{display:none}
+.savebtn.on{color:var(--acc,var(--accent))}
+.savebtn.on .sbon{display:grid} .savebtn.on .sboff{display:none}
+@media (hover:hover){.savebtn:hover{color:var(--fg);background:color-mix(in srgb,var(--fg) 8%,transparent)}
+  .savebtn.on:hover{color:var(--acc,var(--accent))}}
+.savebtn:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+@media (prefers-reduced-motion:no-preference){.savebtn.on svg{animation:sbpop .28s ease-out}}
+@keyframes sbpop{0%{transform:scale(.7)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+/* your crate: per-family progress as a thin bar under each family's name */
+.lr-crate{--lrc:#c9a24a}
+.crateprog .cptx{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.crateprog .cptx .lrlbl{flex:none}
+.cpbar{display:block;height:4px;border-radius:2px;background:color-mix(in srgb,var(--fg) 12%,transparent);overflow:hidden}
+.cpbar i{display:block;height:100%;border-radius:2px;background:var(--fc,var(--accent))}
+.crateempty{margin:4px 0 8px}
+.cratelist .mrct{display:none}
+.crateclear{all:unset;box-sizing:border-box;cursor:pointer;display:block;margin:28px auto 8px;padding:10px 14px;
+  border-radius:10px;font:500 var(--t-sub)/1.2 var(--f-body);color:var(--muted);text-align:center}
+@media (hover:hover){.crateclear:hover{color:var(--fg);background:color-mix(in srgb,var(--fg) 8%,transparent)}}
+.crateclear:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
 /* the fold sits where a subtitle would, so it reads as part of the heading block */
 .aboutfold{margin-top:0}
 .aboutfold summary{min-height:var(--tap);gap:7px;
