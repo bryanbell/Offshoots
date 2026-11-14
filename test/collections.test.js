@@ -248,7 +248,7 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
     for(const k of ["focus","dinner","showkid"]){
       const want=await p.evaluate(key=>{
         const c=document.querySelector('.mcirc[data-mode="'+key+'"] img')
-          || document.querySelector('.moderow[data-mode="'+key+'"] img');
+          || document.querySelector('.mgrid [data-mode="'+key+'"] img');
         return c?c.getAttribute("src"):null; },k);
       await p.click('[data-mode="'+k+'"]');
       await until(p,()=>!!document.querySelector(".ppage:not([hidden]) .pghead .pgi"));
@@ -420,29 +420,27 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
       bare.wk && bare.text==="Wikipedia" && !bare.fold);
     await p.close(); }
 
-  // ---- the page says what each collection is for ----
+  // ---- the page is the home panel's dial, every collection on it ----
   { const p=await (await b.newContext({viewport:{width:390,height:844}})).newPage();
     await p.goto(URL+"#modes"); await arm(p); await shown(p,"#chart .n"); await settle(p);
-    await until(p,()=>!!document.querySelector('.ppage:not([hidden]) .moderows'));
+    await until(p,()=>!!document.querySelector('.ppage:not([hidden]) .mgrid'));
     const g=await p.evaluate(()=>{
-      const t=[...document.querySelectorAll(".ppage:not([hidden]) .moderows .moderow")];
+      const t=[...document.querySelectorAll(".ppage:not([hidden]) .mgrid .mcirc")];
+      const home=document.querySelector(".sect-modes .mdial .mcirc:not(.mcall)");
       return {n:t.length,
-        decks:t.filter(x=>(x.querySelector(".mrdeck")||{}).textContent).length,
-        clipped:t.filter(x=>{const d=x.querySelector(".mrdeck"); return d && d.scrollHeight>d.clientHeight+1;})
-          .map(x=>x.querySelector(".mrlbl").textContent),
+        named:t.filter(x=>((x.querySelector(".mclbl")||{}).textContent||"").trim()).length,
+        // the line on what it is for is not printed on a tile, so a screen reader is told it
+        told:t.every(x=>{ const m=MODES.find(y=>y[0]===x.dataset.mode); return (x.getAttribute("aria-label")||"").includes(m[2]); }),
         opens:t.every(x=>/Opens the collection/.test(x.getAttribute("aria-label")||"")),
-        rowPlain:document.querySelectorAll(".sect-modes .mrow .mcirc .mrdeck").length};});
-    say("the Collections page prints each one's line under its name ("+g.decks+" of "+g.n+")", g.decks===g.n);
-    say("  none cut off"+(g.clipped.length?": "+g.clipped.join(", "):""), g.clipped.length===0);
-    say("  and each row says it opens the collection", g.opens);
-    say("  with the count of styles in it on the right", await p.evaluate(()=>
-      [...document.querySelectorAll(".ppage:not([hidden]) .moderow")].every(r=>{
-        const c=r.querySelector(".mrct"), m=MODES.find(x=>x[0]===r.dataset.mode);
-        return c && +c.textContent===m[4].length && c.getBoundingClientRect().left>r.querySelector(".mrtx").getBoundingClientRect().right-1;})));
-    say("  while the row of circles upstairs stays name-only", g.rowPlain===0);
+        square:t.every(x=>{const r=x.getBoundingClientRect(); return Math.abs(r.width-r.height)<2;}),
+        same:!home || (getComputedStyle(home).borderRadius===getComputedStyle(t[0]).borderRadius
+          && Math.abs(home.getBoundingClientRect().width-t[0].getBoundingClientRect().width)<2)};});
+    say("the Collections page shows all "+g.n+" as the home panel's tiles", g.n===D.MODES.length && g.square && g.same);
+    say("  each named on its picture", g.named===g.n);
+    say("  with what it is for and that it opens in its label", g.told && g.opens);
     // the sort cuts the list into sections with a heading each
     const secs=async()=>p.evaluate(()=>[...document.querySelectorAll(".ppage:not([hidden]) .modesec")]
-      .map(x=>({t:x.querySelector(".msecttl").textContent, n:x.querySelectorAll(".moderow").length,
+      .map(x=>({t:x.querySelector(".msecttl").textContent, n:x.querySelectorAll(".mcirc").length,
         said:+x.querySelector(".sectaside").textContent})));
     // the default is the clock order; quietest is one choice away
     const dflt=await secs();

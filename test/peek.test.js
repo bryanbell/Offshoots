@@ -11,8 +11,8 @@ const ready=async q=>{ await arm(q); await until(q,()=>!!document.querySelector(
 
 async function openCoffee(p){
   await p.goto(URL+"#modes"); await ready(p);
-  await until(p,()=>!!document.querySelector('.moderow[data-mode="coffee"]'));
-  await p.click('.moderow[data-mode="coffee"]');
+  await until(p,()=>!!document.querySelector('.mgrid [data-mode="coffee"]'));
+  await p.click('.mgrid [data-mode="coffee"]');
   await until(p,()=>document.querySelectorAll(".picks .pk .pick[data-go]").length>3);
   await settle(p);
 }

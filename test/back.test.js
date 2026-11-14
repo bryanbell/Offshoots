@@ -356,10 +356,10 @@ const openCx=async q=>{ await q.$eval(".sect-connections",e=>{ if(!e.open) e.ope
     await q.goto(URL); await ready(q);
     await q.evaluate(()=>document.querySelector('[data-page="modes"]').click()); await onPage(q,"modes");
     // leave each page part way down, so landing at the top would show
-    const row=await q.evaluate(()=>{ const b=document.getElementById("panelBody"), r=document.querySelector('.moderow[data-mode="focus"]');
+    const row=await q.evaluate(()=>{ const b=document.getElementById("panelBody"), r=document.querySelector('.mgrid [data-mode="focus"]');
       b.scrollTop=Math.max(0,r.offsetTop-200); b.dispatchEvent(new Event("scroll")); return b.scrollTop; });
     await settle(q);
-    await q.click('.moderow[data-mode="focus"]'); await onPage(q,"mode:focus");
+    await q.click('.mgrid [data-mode="focus"]'); await onPage(q,"mode:focus");
     const pk=await q.evaluate(()=>{ const b=document.getElementById("panelBody");
       b.scrollTop=400; b.dispatchEvent(new Event("scroll")); return b.scrollTop; });
     await settle(q);
