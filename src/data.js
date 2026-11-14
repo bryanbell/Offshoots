@@ -1004,6 +1004,18 @@ const ART = {
 };
 const DONE = ["americana","countrytrap","ragtime","jazz_early","heavymetal","oldschool","tinpan","broadway","gospel","artmusic","bluegrass","newgrass","jamgrass","appalachian","oldtime","folkrevival","psychfolk","freakfolk","antifolk","singer_songwriter","indiefolk","stompclap","folk_topical","western_swing","honkytonk","nashville","countrypolitan","countrypop","urbancowboy","brocountry","bakersfield","outlaw","redirt","texascountry","neotrad","altcountry","newoutlaw","swing","bebop","afrocuban_jazz","hardbop","souljazz","neobop","cool","westcoast_jazz","neoswing","modal","freejazz","loft","fusion","thirdstream","postbop","jazzfunk","smoothjazz","acidjazz","jazz_new","blues","delta","chicago_blues","soul_blues","british_blues","bluesrock","swamp_blues","texas_blues","blues_revival","soul","motown","funk","pfunk","gogo","minneapolis","electrofunk","disco","house","southern_soul","philly","quiet_storm","chicago_soul","blueeyed","psych_soul","retro_soul","postdisco","modern_funk","folkrock","countryrock","southern_rock","jamband","invasion","psych_rock","prog","artrock","roots_rock","powerpop","yacht","garage","hardrock","nwobhm","thrash","progmetal","numetal","punk","hardcore","posthc","poppunk","emopop","crunkcore","nowave","postpunk","psychobilly","emo","midwestemo","riotgrrrl","newwave","altrock","indierock","dreampop","noiserock","postrock","mathrock","shoegaze","zoomergaze","noisepop","britpop","college","grunge","slowcore","alt_hh","underground","jazzrap","gangsta","southern_hh","trap","cloudrap","emorap","scrap","digicore","newjerk","altpop","indiepop","synthpop","baroquepop","chamberpop","mento","ska","rocksteady","reggae","dub","dancehall","twotone","skapunk","krautrock","ambient","idm","techno","electropop","hyperpop","hypnagogic","chillwave","worldbeat","cowpunk","oi","industrial_rock","garage_revival","postpunk_revival","dancepunk","easycore","neopsych","grungegaze","emo_revival","bedroompop","egg_punk","indietronica","paisley","darkwave","skatepunk","anarcho","softrock","glam","merseybeat","skiffle","rockabilly","surf","frat","heartland","arena"];
 const PLAY = {
+  "merengue":"/playlist/pl.u-LRVKrsx1yk7",
+  "ebm":"/playlist/pl.u-BpDoeu1Nrpk",
+  "swamp_pop":"/playlist/pl.u-6AdkKHBDJZz",
+  "minimal":"/playlist/pl.u-lxDv8TjDJxa",
+  "congolese_rumba":"/playlist/pl.u-Z6ENGu0mgzr",
+  "jesusmusic":"/playlist/pl.u-Z6Eqou0mgzr",
+  "zydeco":"/playlist/pl.u-LRVYgux1yk7",
+  "sf_sound":"/playlist/pl.u-LRVy5tx1yk7",
+  "poprap":"/playlist/pl.u-6Ad53SBDJZz",
+  "vocaloid":"/playlist/pl.u-YGYXgsPEVxr",
+  "guaracha":"/playlist/pl.u-PP7v6CLE8k0",
+  "jump":"/playlist/pl.u-Z6EBlu0mgzr",
   "blackmetal":"/playlist/pl.u-AZoGaF2ZP78",
   "melodeath":"/playlist/pl.u-b609Nsy84LJ",
   "melmetalcore":"/playlist/pl.u-vvV56CzpM1K",
@@ -1374,6 +1386,18 @@ const PLAY = {
   "dariacore":"/playlist/pl.u-lxJKRIjDJxa",
 };
 const SPLAY = {
+  "merengue":"4cfrDzmZNbk16xqe1tRDe7",
+  "ebm":"09rX7qKwvNym3DWHkq651U",
+  "swamp_pop":"1KRRHprufx5BACuydkApTz",
+  "minimal":"1tsEYsGdhiGt4IAZWGv1s4",
+  "congolese_rumba":"3rCE2RavochnFY1dNK1azH",
+  "jesusmusic":"5HqnuWzIsiGvWCnre7ZuYW",
+  "zydeco":"7h768TRuysJLTB3AS5VUaQ",
+  "sf_sound":"0KPgGqnAyqm1Og5hF8nqwX",
+  "poprap":"65YrHfocU8J5NVIACckB7v",
+  "vocaloid":"3DG421oi3cNRly9sMHv6cG",
+  "guaracha":"3MSTu6WpkLsn483KkPhoKZ",
+  "jump":"0d2Difihr2SbkD10Kghan7",
   "djent":"/playlist/pl.u-5Yz2oFOvRdQ",
   "blackgaze":"/playlist/pl.u-pDdEgh2pPrJ",
   "mathcore":"/playlist/pl.u-5Yz8BCOvRdQ",
@@ -2417,6 +2441,18 @@ const COVER = {
   "deathrock":"deathrock",
 };
 const PTITLE = {
+  "merengue":"72.33 MERENGUE · The Two-Step Opens Into a Band",
+  "ebm":"80.43.2 EBM · The Machine Moves the Body",
+  "swamp_pop":"41.09.1.1 SWAMP POP · The Ballad Learns a Louisiana Backbeat",
+  "minimal":"80.01.4.1 MINIMAL TECHNO · Small Changes Move the Whole Room",
+  "congolese_rumba":"72.02.1 CONGOLESE RUMBA · The Song Turns Into a Dance",
+  "jesusmusic":"60.05 JESUS MUSIC · The Folk Song Becomes a Testimony",
+  "zydeco":"72.34 ZYDECO · The Accordion Takes the Backbeat",
+  "sf_sound":"42.03.2 SAN FRANCISCO SOUND · The Song Opens Into a Room",
+  "poprap":"45.08.1.1 POP RAP · The Hook Gives the Verse a New Home",
+  "vocaloid":"80.01.2.1 VOCALOID / MIKU POP · The Written Voice Becomes a Performance",
+  "guaracha":"72.32 GUARACHA / ALETEO · The Horn Rides the Electronic Pulse",
+  "jump":"31.01.3 JUMP BLUES · The Small Band Makes a Bigger Beat",
   "djent":"43.02.1 DJENT · The Low Riff Disagrees with the Beat",
   "blackgaze":"43.01.1.2.1.1 BLACKGAZE · The Blast Beat Opens a Sky",
   "mathcore":"43.12.1 MATHCORE · The Riff Keeps Changing the Count",
@@ -2646,7 +2682,8 @@ const MODES = [
     ["surf","Reverb guitar instrumentals with nothing to read into"],
     ["post_metal","Heavy and wordless, with builds you can ignore"],
     ["wonky","Drums lurching forward, interesting only when you look"],
-    ["abstract","Sample loops doing the work of a drummer"]
+    ["abstract","Sample loops doing the work of a drummer"],
+    ["minimal","Tiny changes over a steady kick, never asking for attention"]
    ],3],
   ["restless","Can't Zone In","A task in front of you and a head that won't land on it.",
    "For an ADHD brain that knows what it has to do and can't get started. Quiet is often the problem: an empty room leaves the mind hunting for something to do. Fill the air instead. Dense, steady sound gives the restless part something to hold while the rest of you gets to work, and heavy repetition keeps novelty low so nothing new pulls you off. Studies adding steady noise find it helps people who are easily distracted and does nothing for people who are not.",
@@ -2725,7 +2762,9 @@ const MODES = [
     ["metalcore","Every riff builds to a breakdown"],
     ["djent","A low, chugging grid to lift against"],
     ["nyhc","Short, hard and over before you tire"],
-    ["rapmetal","Shouted verses over a wall of guitar"]
+    ["rapmetal","Shouted verses over a wall of guitar"],
+    ["guaracha","A relentless kick with a horn stab at every peak"],
+    ["ebm","Machine rhythm and barked commands, made for moving"]
    ],5],
   ["miles","Run or Ride","Going the distance at a pace you can hold.",
    "An hour at one effort, not ten sets. Cadence is the thing: runners land near 160–180 steps a minute, so 130–140 BPM meets every other footfall and 170ish meets each one. Long forms, few drops and little dynamic range, so nothing yanks you off your pace or asks to be listened to while you are also breathing.",
@@ -2757,7 +2796,8 @@ const MODES = [
     ["oldtime","Fiddle and banjo locked in with no solos to follow"],
     ["bluegrass","Breaks traded at speed over a pulse that never slips"],
     ["hill_country","One guitar figure repeating until the miles disappear"],
-    ["dancepop","A club pulse under choruses that need no attention"]
+    ["dancepop","A club pulse under choruses that need no attention"],
+    ["minimal","A steady 125 that holds for an hour without a drop"]
    ],4],
   ["winddown","Wind Down","For the hour between finishing and sleeping.",
    "Slow tempos, soft attacks and space between the notes. Getting under your own resting pulse is most of the trick.",
@@ -2856,7 +2896,9 @@ const MODES = [
     ["ballroom","Beats built for voguing in front of everyone"],
     ["kwaito","House slowed to a walk, with a Johannesburg drawl"],
     ["crunknb","A sung hook over a beat that shouts"],
-    ["snap","Space left in the beat for the room"]
+    ["snap","Space left in the beat for the room"],
+    ["guaracha","Colombian tribal beats with horns, built for a packed floor"],
+    ["merengue","Dominican two-step at full speed, every partner in motion"]
    ],5],
   ["houseparty","House Party","Shouting along with a drink in your hand.",
    "Party is a dance floor and a DJ. This is the other kind: a living room with the furniture pushed back, where recognition beats taste and the measure of a song is whether thirty people can yell the words at it. Ordered oldest to newest, so the back half is what currently gets played, and it carries two styles built around a drop for the point in the night when the room wants one.",
@@ -2906,7 +2948,8 @@ const MODES = [
     ["urbancowboy","Country with a dance floor already built in"],
     ["garage","Cheap, fuzzed and impossible to take too seriously"],
     ["cowpunk","Country at punk speed, which clears furniture"],
-    ["snap","Dance instructions, which solves the standing-around problem"]
+    ["snap","Dance instructions, which solves the standing-around problem"],
+    ["poprap","Ice Ice Baby and Bust a Move, made for a room to yell along"]
    ],5],
   ["road","Road Trip","Hours of open highway with the next town far off.",
    "The long drive, not the daily one: nothing here has to survive stopping. A mid-tempo groove that keeps going without needing you to follow it, and a chorus big enough to beat a windshield at seventy.",
@@ -3057,17 +3100,15 @@ const MODES = [
     ["amapiano","Log-drum bass at a slow strut, the weekend in sight"],
     ["dancehall","Riddims at a swagger, sun out or not"],
     ["highlife","Bright Ghanaian guitars, impossible to stay grumpy to"],
-    ["latintrap","Trap in Spanish with the bass turned up"],
-    ["corridostumbados","Twelve-string and swagger, for the drive to the party"],
     ["heartland","Springsteen's getting-out songs, made for this exact drive"],
     ["powerpop","Three-minute hooks to sing at the windshield"],
-    ["garage_revival","The Strokes and the Hives, out the door and gone"],
     ["britpop","Blur and Oasis, a chorus for the whole car"],
     ["sunshine","Harmonies and a blue sky, the evening opening up"],
     ["surfpop","The Beach Boys on the way to anywhere better"],
     ["stompclap","Hand-claps and a shout-along, plans already made"],
     ["brocountry","Tailgates and Friday nights, the cooler already packed"],
     ["dancepop","Madonna-era pop, the whole night ahead in a chorus"],
+    ["poprap","Will Smith and Young MC, bouncy hooks for the ride out"]
    ],4],
   ["nightdrive","Night Drive","The city after midnight, from behind the wheel.",
    "Not the highway, which is Road trip, and not the daily drive, which is Commuting. Empty avenues, lights changing for nobody, and the bass turned up because there is no one to bother. Mid-tempo and wide, with the melancholy kept in reserve: anything that belongs to daylight is out.",
@@ -3148,7 +3189,8 @@ const MODES = [
     ["balada","Spanish-language ballads, warm and slow"],
     ["blueeyed","Soul sung gently, for a table of mixed tastes"],
     ["altrnb","Low-lit and spacious, modern without being cold"],
-    ["tinpan","The songs everything else is a version of"]
+    ["tinpan","The songs everything else is a version of"],
+    ["congolese_rumba","Franco's guitars, sweet and unhurried under the talk"]
    ],2],
   ["cooking","Cooking","Standing at the stove, chopping, stirring, waiting.",
    "Rhythm you can work to without listening to it. Upbeat and even, nothing that stops you mid-task, and long enough that you are not choosing again every three minutes.",
@@ -3189,7 +3231,10 @@ const MODES = [
     ["modern_funk","Synth-funk, warm, and happy to loop"],
     ["neoswing","Horns with a bounce, for a kitchen with people in it"],
     ["bluegrass","Fast picking for fast hands"],
-    ["honkytonk","A shuffle and a steel guitar, cheerful about everything"]
+    ["honkytonk","A shuffle and a steel guitar, cheerful about everything"],
+    ["jump","Saxophone shuffles that keep a kitchen moving"],
+    ["zydeco","Accordion and rubboard on a two-step that never lets up"],
+    ["merengue","A quick two-step that stirs along with you"]
    ],3],
 
   ["cocktails","Cocktails","A room of people standing up, holding drinks, talking.",
@@ -3237,7 +3282,9 @@ const MODES = [
     ["chicano_soul","Ballads and R&B with a bar-room ease"],
     ["kwaito","Loose enough to talk over, insistent enough to move"],
     ["alte","Lagos art-school cool, bright and slightly off-centre"],
-    ["worldbeat","Bright, percussive and unbothered by being talked over"]
+    ["worldbeat","Bright, percussive and unbothered by being talked over"],
+    ["jump","Small-band swing for a room on its feet"],
+    ["congolese_rumba","Guitars that circle and shine under every conversation"]
    ],2],
   ["coffee","Coffee Shop","Working near strangers, half listening to the room.",
    "Playing to people who did not choose it, at a volume nobody asked about. It has to work for the person reading, the person on a laptop and the person in the queue, so nothing that demands attention and nothing anyone could object to. Agreeable, but not wallpaper, since the staff hear it all day.",
@@ -3325,7 +3372,8 @@ const MODES = [
     ["krautrock","Motorik drumming pushing forward with nowhere to go"],
     ["hauntology","Half-remembered library music, like a lost console"],
     ["abstract","Chopped loops and no rapper to follow"],
-    ["wonky","Loose at the edges, still gripping the pulse"]
+    ["wonky","Loose at the edges, still gripping the pulse"],
+    ["vocaloid","Synthesized voices from the same screens the games came from"]
    ],3],
   ["chores","Getting It Done","Chores, admin, and the things you have been avoiding.",
    "Nothing here has to be followed. It wants to be familiar, mid-tempo and forgiving of being half-ignored, so losing a minute to the washing machine costs nothing. A workout locks to a cadence and a party needs the room; this needs neither.",
@@ -3464,7 +3512,9 @@ const MODES = [
     ["western_swing","Fiddle and steel swinging for a dance hall"],
     ["indiepop","Jangle and sweetness offered without any irony"],
     ["gogo","One groove held while the crowd answers back"],
-    ["rnb","A dance band behind a voice that is sure"]
+    ["rnb","A dance band behind a voice that is sure"],
+    ["jump","Honking horns and a shuffle nobody can stay glum to"],
+    ["zydeco","A Louisiana dance party squeezed out of an accordion"]
    ],3],
   ["hype","Walk In Tall","The ten minutes before you walk in.",
    "Swagger rather than speed. Front-loaded, brash and certain of itself, for the three minutes before the thing rather than during it. Workout is led by tempo and Burn it off is anger; this is neither.",
@@ -3702,7 +3752,8 @@ const MODES = [
     ["tradpop","Standards nearly everyone can hum along with"],
     ["exotica","Vibraphone and bird calls making a room hospitable"],
     ["bossa","Whispered rhythm that leaves the talking space"],
-    ["reggae","Bass carrying the tune while nobody hurries"]
+    ["reggae","Bass carrying the tune while nobody hurries"],
+    ["swamp_pop","Slow Louisiana ballads for two"]
    ],2],
   ["showkid","Show the Kids","Music that shapes a listener, met while young.",
    "Not children's music, which is a genre a kid grows out of. The rule here is that the first question a kid asks, how is that sound being made, has an answer they can see: a washboard worn as a shirt, a games console with three channels, two turntables, hands moving faster than looks possible. That lands at four, where it is a body response, and at fifteen, where what gets through is that a person did this on purpose. Chosen so none of it needs skipping with someone small in the room.",
@@ -3741,7 +3792,8 @@ const MODES = [
     ["jungle","One drum break cut into a hundred pieces"],
     ["berlin_school","A sequencer visibly building for twenty minutes"],
     ["speedmetal","Precision at a speed that looks impossible"],
-    ["progmetal","Odd meters counted out with visible effort"]
+    ["progmetal","Odd meters counted out with visible effort"],
+    ["zydeco","A washboard worn like a vest and an accordion played like a drum"]
    ],3],
   ["family","Family's Over","Three generations in one room and one stereo.",
    "Weighted toward whoever is oldest, since they are the one least likely to meet the others halfway, and chosen so nobody younger has to sit through it politely. Songs with a shape people can sing along to even when they do not know the record.",
@@ -3789,7 +3841,9 @@ const MODES = [
     ["heartland","Working lives told straight, choruses built for crowds"],
     ["soul","A voice testifying, and nobody talks over it"],
     ["urbancowboy","The twang everyone recognises, at a night-out tempo"],
-    ["rnb","Postwar records that nobody present objects to"]
+    ["rnb","Postwar records that nobody present objects to"],
+    ["jump","Louis Jordan's jive, which the grandparents can still sing"],
+    ["swamp_pop","Louisiana ballads every grandparent slow-danced to"]
    ],3],
   ["cosmic","Third Eye","The long way out, with the lights off.",
    "Music for the part of the mind that wants out: the long form, the drone, the repetition that stops being repetition, the echo that becomes a room. Its lineage runs from the evening raga through Coltrane and Sun Ra, the acid scenes of 1966, the Krautrock and Berlin school that turned a synthesizer into a spaceship, Eno's ambient and the new age that followed, dub's echo chamber, the rave and its comedown rooms, out to Flying Lotus and the modern psych bands. Nothing here is in a hurry, and all of it is for lying on the floor with the lights off.",
@@ -3831,7 +3885,8 @@ const MODES = [
     ["vaporwave","A mall after closing, slowed to half speed"],
     ["witchhouse","Slowed, pitched and haunted"],
     ["hauntology","Half-remembered radio from a world gone to bed"],
-    ["cloudrap","A beat left to float"]
+    ["cloudrap","A beat left to float"],
+    ["sf_sound","The 1966 ballrooms where the songs opened into jams"]
    ],1],
   ["meditate","Meditation","Sitting still, awake, with something steady to come back to.",
    "Not Sleep, which wants you under, and not Third Eye, which wants you out. This is for staying here and awake, so what works has no words to follow, no beat to count against and nothing that arrives without warning: a held tone, a slow scale, a pattern that changes too gradually to chase. Start with the softest, sit longest with the drones and the raga, and keep the steady pulses at the end for walking practice.",
@@ -3906,7 +3961,8 @@ const MODES = [
     ["psych_soul","A soul song opened out past where it should end"],
     ["neopsych","Modern studio swirl rewarding a pair of headphones"],
     ["protorap","Poetry against bass, decades before the template"],
-    ["artpop","Hooks delivered with avant-garde production, for close listening"]
+    ["artpop","Hooks delivered with avant-garde production, for close listening"],
+    ["sf_sound","The Dead and the Airplane stretched out, worth the whole side"]
    ],1],
   ["morning","Morning","The first hour, before the day has decided anything.",
    "Bright without being loud, and already moving. Nothing that asks you to decide anything, since you have not had the coffee yet.",
@@ -4164,7 +4220,8 @@ const MODES = [
     ["hauntology","Music about remembering, made from old library records"],
     ["hypnagogic","Eighties radio half-remembered through tape hiss"],
     ["chillwave","Summers seen through a broken VHS"],
-    ["vaporwave","A shopping mall that only exists in memory now"]
+    ["vaporwave","A shopping mall that only exists in memory now"],
+    ["poprap","The rap a whole schoolyard knew every word to"]
    ],2],
   ["lonely","Keep Me Company","When the quiet is the problem, not the cure.",
    "Not grief, which is Sit With It, and not the walk you chose to take alone, which is Wandering. This is the empty apartment and the phone that does not ring. Psychologists studying music as a social surrogate found that lonely people reach for favourite, familiar music rather than something new, and that it works through connection: to the singer, and to the people a song reminds you of. So this is built around voices, close-miked and talking to one person, many of them singing about being alone so that you are not the only one who is.",
@@ -4241,7 +4298,9 @@ const MODES = [
     ["antifolk","The East Village's answer to the coffeehouse singer"],
     ["psychobilly","Rockabilly by way of horror films and punk"],
     ["alt_hh","Rap that wandered off from what rap was expected to be"],
-    ["deathrock","Los Angeles punk in eyeliner and cobwebs"]
+    ["deathrock","Los Angeles punk in eyeliner and cobwebs"],
+    ["vocaloid","Hit songs sung by software, written by bedroom producers"],
+    ["jesusmusic","Hippie folk rock turned into Sunday testimony"]
    ],3],
 ];
 

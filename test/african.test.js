@@ -33,10 +33,12 @@ const SIX=[
   const errs=[];
   const byId=Object.fromEntries(D.DATA.map(r=>[r[0],r]));
 
+  // each is on the map; one that has since got its playlist (Congolese Rumba, Nov 14) has
+  // both services and its course title, and the rest have none of the three yet
   for(const [id] of SIX){
-    const r=byId[id];
-    say(id+" is on the map, without a playlist or course number yet",
-      !!r && !D.PLAY[id] && !D.SPLAY[id] && !D.PTITLE[id] && !D.COVER[id]);
+    const r=byId[id], has=!!D.PLAY[id];
+    say(id+" is on the map, "+(has?"with its playlist and course title":"without a playlist or course number yet"),
+      !!r && (has ? !!D.SPLAY[id] && !!D.PTITLE[id] : !D.SPLAY[id] && !D.PTITLE[id] && !D.COVER[id]));
   }
 
   // search, on the desktop map's own field
