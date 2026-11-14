@@ -1021,6 +1021,7 @@ function pageTitleOf(key){
     const m=typeof MODES!=="undefined" && MODES.find(x=>x[0]===key.slice(5));
     return m ? m[1] : "";
   }
+  if(key.indexOf("crate:")===0) return "A Shared Crate";
   const d=PAGES_DEF[key];
   if(!d) return "";
   try{ const p=d(); return p ? p.title : ""; }catch(e){ return ""; }
@@ -1970,6 +1971,12 @@ $("panel").addEventListener("click",e=>{
   const sv=e.target.closest("[data-svc]"); if(sv){ setSvc(sv.dataset.svc); return; }
   { const sv=e.target.closest("[data-save]");
     if(sv){ e.preventDefault(); e.stopPropagation(); paintSave(sv,toggleCrate(sv.dataset.save)); return; } }
+  { const ca=e.target.closest("[data-crateadd]");
+    if(ca){ e.preventDefault();
+      const k=addToCrate(ca.dataset.crateadd.split(",")), l=ca.querySelector(".shlbl");
+      ca.classList.add("done");
+      if(l) l.textContent = k ? "Added "+k+" to your crate" : "Already in your crate";
+      return; } }
   { const cc=e.target.closest("[data-crateclear]");
     if(cc){ e.preventDefault();
       if(confirm("Clear your saved styles and everything you’ve opened? This can’t be undone.")){
@@ -2267,7 +2274,7 @@ function openAbout(scroll,hash){
   // deep-links them pushes one
   return pushPage(hash||ABOUT_HASH);
 }
-function hashOf(key){ return encodeURIComponent(key).replace(/%3A/g,":"); }
+function hashOf(key){ return encodeURIComponent(key).replace(/%3A/g,":").replace(/%2C/g,","); }
 function setHash(id){
   const want = id ? "#"+hashOf(id) : "";
   if((location.hash||"") === want) return;
@@ -2802,6 +2809,37 @@ function crateSec(key,title,sub,count,body){
     + (sub?`<span class="msecsub">${esc(sub)}</span>`:"")
     + (count!=null?`<span class="sectaside">${count}</span>`:"") + `</h3>${body}</section>`;
 }
+// A crate travels as a link: #crate:shoegaze,dub,bebop. It opens a page of those styles
+// for whoever has the link, with a way to keep them, and touches nobody's own crate until
+// they ask. Capped so a link stays a link.
+const CRATE_SHARE_MAX=150;
+function crateKey(ids){ return "crate:"+ids.slice(0,CRATE_SHARE_MAX).join(","); }
+function sharedIds(key){
+  const seen=new Set();
+  return key.slice(6).split(",").map(s=>s.trim()).filter(id=>byId[id] && !seen.has(id) && seen.add(id))
+    .slice(0,CRATE_SHARE_MAX);
+}
+function sharedCratePage(key){
+  const ids=sharedIds(key);
+  if(!ids.length) return {title:"A Shared Crate",
+    html:`<div class="modelist cratelist sharedcrate"><p class="note crateempty">None of the styles in this link are on the map any more.</p></div>`};
+  const n=ids.length;
+  return {title:"A Shared Crate",
+    lede:(n===1?"One style":spellCount(n)+" styles")+" someone saved on Music Atlas and sent you.",
+    html:`<div class="modelist cratelist sharedcrate">`
+      + crateSec("shared","In This Crate","",n,
+          `<div class="moderows listgrp" role="list">${ids.map(topRow).join("")}</div>`)
+      + `<button type="button" class="shbtn wide crateadd" data-crateadd="${esc(ids.join(","))}"`
+      + ` aria-label="Add these ${n} styles to your crate">`
+      + BOOKMARK_OFF.replace("<svg ","<svg class=\"shg\" ")+TICKGLYPH+`<span class="shlbl">Add to your crate</span></button>`
+      + `</div>`};
+}
+// adds what is missing, in the order sent, after what is already there at the top
+function addToCrate(ids){
+  const mine=crateIds(), add=ids.filter(id=>byId[id] && mine.indexOf(id)<0);
+  crateWrite(CRATE_KEY,add.concat(mine));
+  return add.length;
+}
 function cratePageHtml(){
   const saved=crateIds(), seen=seenMap(), recent=seenRecent(12), prog=crateProgress();
   const nseen=Object.keys(seen).length;
@@ -2818,10 +2856,14 @@ function cratePageHtml(){
       + ` title="Show ${esc(f.name)} on the map">`
       + `<i class="dot" style="background:${esc(f.c)}"></i>`
       + `<span class="cptx"><span class="lrlbl">${esc(f.name)}</span>`
-      + `<span class="cpbar" aria-hidden="true"><i style="width:${(100*f.seen/f.total).toFixed(1)}%"></i></span></span>`
+      // no bar until something in the family has been opened: a column of empty tracks
+      // read as stray rules, not as gauges
+      + (f.seen?`<span class="cpbar" aria-hidden="true"><i style="width:${(100*f.seen/f.total).toFixed(1)}%"></i></span>`:"")
+      + `</span>`
       + `<em class="lrct">${f.seen}/${f.total}</em>${GOCHEV}</button>`).join("") + `</div>`;
   return `<div class="modelist cratelist">`
-    + crateSec("saved","Saved","Newest first",saved.length||null,savedHtml)
+    + crateSec("saved","Saved","Newest first",saved.length||null,savedHtml
+        + (saved.length?pageShareBtn(crateKey(saved),"A crate of "+saved.length+" styles","Share your saved styles"):""))
     + crateSec("recent","Recently Opened","",null,recentHtml)
     + crateSec("prog","How Far You’ve Gone",nseen+" of "+nodes.length+" styles · "+pct+"%",null,progHtml)
     + `<button type="button" class="crateclear" data-crateclear>Clear your crate and history</button>`
@@ -3405,6 +3447,7 @@ function modePage(k){
       + pageShareBtn("mode:"+m[0], m[1])};
 }
 function pageExists(key){
+  if(key.indexOf("crate:")===0) return key.length>6;
   if(key.indexOf("mode:")===0) return typeof MODES!=="undefined"
     && MODES.some(m=>m[0]===key.slice(5));
   if(key.indexOf("med:")===0) return !!mediaPage(key.slice(4));
@@ -3413,7 +3456,8 @@ function pageExists(key){
 function pushPage(key){
   peekEnd();
   if(key.indexOf("mode:")===0) bumpMode(key.slice(5));
-  const def = key.indexOf("mode:")===0 ? (()=>modePage(key.slice(5)))
+  const def = key.indexOf("crate:")===0 ? (()=>sharedCratePage(key))
+    : key.indexOf("mode:")===0 ? (()=>modePage(key.slice(5)))
     : key.indexOf("med:")===0 ? (()=>mediaPage(key.slice(4)))
     : PAGES_DEF[key];
   if(!def) return false;
@@ -4453,7 +4497,7 @@ function boot(){
   let h=decodeURIComponent((location.hash||"").slice(1));
   if(RENAMED[h]){ h=RENAMED[h]; try{ history.replaceState(null,"","#"+h); }catch(e){} }
   // a collection or a media page: the key is the hash, so it opens the page it names
-  if(/^(mode|med):/.test(h) && pageExists(h)){
+  if(/^(mode|med|crate):/.test(h) && pageExists(h)){
     emptyPanel(); scroller.scrollLeft=0; scroller.scrollTop=0; syncPeek();
     setOpen(true);
     setTimeout(()=>pushPage(h),420);

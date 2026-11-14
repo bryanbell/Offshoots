@@ -11,7 +11,7 @@ const ready=async q=>{ await arm(q); await until(q,()=>!!document.querySelector(
 // a fresh document each time: a hash-only goto is a same-document navigation (README)
 const open=async(p,h)=>{ await p.goto("about:blank"); await p.goto(URL+(h?"#"+h:"")); await ready(p);
   // a page hash opens its page once the sheet has finished opening, not at load
-  if(h==="crate"){ await until(p,()=>!!document.querySelector('.ppage[data-p="crate"] .cratelist')); await settle(p); } };
+  if(/^crate/.test(h)){ await until(p,()=>!!document.querySelector('.ppage:not([hidden]) .cratelist')); await settle(p); } };
 
 (async()=>{
   const b=await chromium.launch({args:["--allow-file-access-from-files"]});
@@ -61,6 +61,11 @@ const open=async(p,h)=>{ await p.goto("about:blank"); await p.goto(URL+(h?"#"+h:
     const prog=await p.$$eval(".crate-prog .cprow",e=>e.map(x=>x.dataset.fam+":"+x.querySelector(".lrct").textContent));
     const sum=prog.reduce((a,x)=>a+ +x.split(":")[1].split("/")[0],0);
     say("one progress row per family, adding up to what was opened", prog.length>10 && sum===3);
+    // an empty track read as a stray rule, so a family shows a bar only once it has progress
+    const bars=await p.$$eval(".crate-prog .cprow",e=>e.filter(x=>x.querySelector(".cpbar")).map(x=>x.querySelector(".lrct").textContent));
+    say("  a bar only where something has been opened: "+bars.join(" "), bars.length===3 && bars.every(t=>/^1\//.test(t)));
+    const sk=await p.$eval(".crate-saved [data-share]",e=>e.dataset.sharekey).catch(()=>null);
+    say("saved styles can be shared as a link: #"+sk, sk==="crate:dub,shoegaze");
 
     // a saved row goes to its style
     await p.click('.crate-saved .toprow[data-go="dub"]');
@@ -88,6 +93,24 @@ const open=async(p,h)=>{ await p.goto("about:blank"); await p.goto(URL+(h?"#"+h:
     await open(p,"crate");
     { const got=await p.$$eval(".crate-saved .toprow",e=>e.map(x=>x.dataset.go).join());
       say("ids no longer on the map are skipped: "+got, got==="bebop"); }
+
+    // a shared crate: someone else's list, opened from a link, kept only on request
+    await p.evaluate(()=>{ localStorage.setItem("musicatlas.crate",'["bebop"]'); });
+    await open(p,"crate:shoegaze,nosuchstyle,bebop,shoegaze");
+    const sh=await p.evaluate(()=>{ const pg=[...document.querySelectorAll(".ppage")].pop();
+      return {title:(pg.querySelector(".bigttl .mn")||{}).textContent, key:pg.dataset.p,
+        ids:[...pg.querySelectorAll(".toprow")].map(x=>x.dataset.go).join(),
+        add:!!pg.querySelector("[data-crateadd]"), addShown:(()=>{ const b=pg.querySelector("[data-crateadd]"); return !!b && b.getBoundingClientRect().height>0; })()}; });
+    say("a crate link opens a shared crate: "+sh.ids, sh.title==="A Shared Crate" && sh.ids==="shoegaze,bebop");
+    say("  unknown and repeated ids dropped, the address kept", /^#crate:shoegaze,/.test(await p.evaluate(()=>location.hash)));
+    say("  with an Add button on screen", sh.add && sh.addShown);
+    say("  and the visitor's own crate untouched until they ask",
+      await p.evaluate(()=>localStorage.getItem("musicatlas.crate"))==='["bebop"]');
+    await p.click(".ppage:not([hidden]) [data-crateadd]");
+    say("Add puts in only what was missing", await p.evaluate(()=>localStorage.getItem("musicatlas.crate"))==='["shoegaze","bebop"]'
+      && /Added 1/.test(await p.$eval(".ppage:not([hidden]) [data-crateadd]",e=>e.textContent)));
+    await open(p,"crate:nosuchstyle");
+    say("a link with nothing left on the map says so", /any more/.test(await p.evaluate(()=>[...document.querySelectorAll(".ppage")].pop().textContent)));
     say("no page errors", errs.length===0 ? true : errs.join(" | "));
     await c.close();
   }

@@ -102,7 +102,13 @@ reached from a Your Crate section on the home panel (under Collections) that app
 in it. It is all in the browser's localStorage, under `musicatlas.crate` (saved ids,
 newest first) and `musicatlas.visited` (id to last-opened time), and never leaves the
 device. `musicatlas.seen` is the welcome card's flag, not this. Ids that are no longer
-on the map are skipped when read. `test/crate.test.js` covers it.
+on the map are skipped when read. A family's progress bar shows only once something in it
+has been opened.
+
+Saved styles can be shared as a link, `#crate:shoegaze,dub,bebop` (at most 150 ids). It
+opens A Shared Crate for whoever follows it, with an Add to your crate button that adds
+only what is missing; nothing is written to their crate until they press it.
+`test/crate.test.js` covers all of this.
 
 ## Building
 

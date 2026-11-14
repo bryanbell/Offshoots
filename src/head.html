@@ -1861,6 +1861,8 @@ body:not(.open) aside#panel{width:var(--sidew);cursor:pointer}
     border-top:.5px solid var(--line);background:inherit}
   #sharefoot .shbtn.wide{margin:0}
   #panelBody .shbtn.wide{display:none}
+  /* not a share button: Add to your crate stays in the page, where its list is */
+  #panelBody .shbtn.wide.crateadd{display:flex}
   body:not(.open) .pcard>h3.sec{display:block}
   .pcard .links{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin-top:16px}
   #pclose{display:none}
