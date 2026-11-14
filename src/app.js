@@ -1281,7 +1281,10 @@ function setPbar(t,s){ PBAR={t:t||"",s:s||""}; const a1=$("pbarTitle"), a2=$("pb
       // line cannot flicker.
       // The root's title rests inside the bar's height, so at rest it is not under the bar
       // whatever the geometry says: nothing is painted there until you scroll.
-      ttl: big&&nav ? (()=>{ if(body.scrollTop<=0) return false;
+      // and never before the bar itself is drawn (past 2px): Safari settles a pixel or two
+      // short of the top after its bounce, which lit the compact title over a bare header,
+      // beside the root's big one
+      ttl: big&&nav ? (()=>{ if(body.scrollTop<=2) return false;
         const t=big.getBoundingClientRect().top,
           b=nav.getBoundingClientRect().bottom;
         return cls.contains("barttl") ? t < b+6 : t <= b; })() : cls.contains("barttl")};
@@ -2984,21 +2987,26 @@ function modeSect(){
   if(window.__MA_ROWALL) return sect("modes","Collections",
     `<div class="mrow" role="list">${clockOrder().map(m=>modeTile(m)).join("")}</div>`,
     "", "modes", "Find music for the moment.", true);
-  const g=clockGroups(clockHour()), first=g.now.length?g.now:g.any;
-  const circles=first.map(m=>modeTile(m)).join("")
+  // A speed dial, not a row: three across and three down, the first eight in the Right now
+  // order (what suits the hour, then the any-time ones, then what comes up next) and the
+  // last cell opening every collection. The row asked for a sideways swipe to see a fourth;
+  // this is the most-used way into the app, so the likely picks are all in view at once
+  // and one tap from playing.
+  const circles=clockOrder().slice(0,DIALN-1).map(m=>modeTile(m)).join("")
     + `<button type="button" class="mcirc mcall" data-page="modes"`
     + ` aria-label="All ${MODES.length} collections" title="All ${MODES.length} collections">`
     + `<i class="mco mcallco"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">`
     + `<path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></i>`
-    + `<span class="mclbl">All ${MODES.length}</span></button>`;
+    + `<span class="mclbl">Show All</span></button>`;
   // The lede is the welcome card's line, word for word. Not a caption for the pictures
   // ("By mood, place or task" was that, and the pictures said it better): it says why
   // this section is a different way in from the Atlas below it, in the words the
   // welcome already used to draw the same line.
   return sect("modes","Collections",
-    `<div class="mrow" role="list">${circles}</div>`,
+    `<div class="mdial" role="list">${circles}</div>`,
     "", "modes", "Find music for the moment.", true);
 }
+const DIALN=9;
 // the same set as a page, which is what the row's heading opens. The same tiles too:
 // this was a two-column list of 28px thumbnails in a shaded card, so the one picture per
 // collection — the thing that tells you what a collection is before the label does — was
