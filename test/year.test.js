@@ -1,0 +1,67 @@
+// A year on the timeline opens that year: the biggest songs on the Hot 100, the styles
+// taking off and the ones that began, with the map lit for them. The arrows step a year
+// in place rather than stacking pages, and leaving the page puts the map back.
+const {chromium}=require("playwright");
+const skipWelcome=require("./_hello");
+const {settle,until,arm}=require("./_wait");
+const D=require("../src/data.js");
+const URL="file://"+__dirname+"/../index.html";
+const say=(k,v)=>console.log((v===true?"PASS ":"FAIL ")+k+(typeof v!=="boolean"?": "+v:""));
+const ready=async q=>{ await arm(q); await until(q,()=>!!document.querySelector("#chart .n")); await settle(q); };
+const page=p=>p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden).pop();
+  const svg=document.getElementById("chart");
+  return {key:u&&u.dataset.p, title:(u&&u.querySelector(".bigttl")||{}).textContent||"",
+    hits:u?[...u.querySelectorAll(".hitrow")].map(r=>({song:r.querySelector(".hitsong b").textContent, href:r.querySelector(".hitsong").getAttribute("href"),
+      sty:(r.querySelector(".hitsty")||{dataset:{}}).dataset.go||""})):[],
+    rising:u?[...u.querySelectorAll(".yrpage .plist")].map(g=>[...g.querySelectorAll("[data-go]")].map(x=>x.dataset.go)):[],
+    lit:svg.classList.contains("yrlit"), yh:[...svg.querySelectorAll(".n.yh")].map(g=>g.dataset.id),
+    pill:(document.querySelector("#axsel text")||{}).textContent||"", hash:location.hash}; });
+
+(async()=>{
+  const b=await chromium.launch({args:["--allow-file-access-from-files"]});
+  skipWelcome(b);
+  const errs=[];
+  const p=await b.newPage({viewport:{width:1440,height:900}}); p.on("pageerror",e=>errs.push(String(e)));
+  await p.goto(URL); await ready(p);
+  say("the axis says a year can be tapped", await p.evaluate(()=>/tap a year/.test(document.querySelector("#axis .axcap").textContent)));
+  // tap 1984 on the axis, a little past the 1980 label
+  const at=await p.evaluate(()=>{ const t=[...document.querySelectorAll("#axis text.yl")], a=t.find(x=>x.textContent==="1980"), c=t.find(x=>x.textContent==="1990");
+    const x=+a.getAttribute("x")+0.4*(+c.getAttribute("x")-+a.getAttribute("x"));
+    const sc=document.getElementById("scroller"); sc.scrollLeft=Math.max(0,x-500); return x; });
+  await settle(p);
+  const xy=await p.evaluate(x=>{ const r=document.getElementById("axis").getBoundingClientRect(); return {x:r.left+x,y:r.bottom-8}; },at);
+  await p.mouse.click(xy.x,xy.y);
+  await until(p,()=>/^#year:/.test(location.hash)); await settle(p);
+  const y=await page(p), want=D.HITS["1984"];
+  say("tapping the axis at 1984 opens 1984 ("+y.key+")", y.key==="year:1984" && y.title==="1984" && y.hash==="#year:1984");
+  say("  with the year's ten biggest songs, in chart order", y.hits.length===10 && y.hits.every((h,i)=>h.song===want[i][0]));
+  say("  each opening in the listening service", y.hits.every(h=>/^https:\/\/|^music:/.test(h.href)));
+  say("  and each tied to its style on the map", y.hits.filter(h=>h.sty).length===want.filter(h=>h[2]).length);
+  say("  plus what was taking off and what began, never a style in both",
+    y.rising.length>=1 && (y.rising.length<2 || !y.rising[0].some(id=>y.rising[1].includes(id))));
+  const hitIds=[...new Set(want.map(h=>h[2]).filter(Boolean))];
+  say("the map lights the year's charting styles ("+y.yh.length+")", y.lit && hitIds.every(id=>y.yh.includes(id)));
+  say("  and marks 1984 on the axis", y.pill==="1984");
+  // the arrows step in place: one page, a new year
+  const depth=async()=>p.evaluate(()=>[...document.querySelectorAll(".pstack > .ppage")].length);
+  const d0=await depth();
+  await p.click('.ppage:not([hidden]) .yrstep[data-year="1985"]'); await settle(p);
+  const y2=await page(p);
+  say("the later arrow steps to 1985 in place", y2.key==="year:1985" && y2.hash==="#year:1985" && (await depth())===d0 && y2.pill==="1985");
+  // a style from the list opens, and the year's lighting gives way to it
+  const sid=y2.hits.find(h=>h.sty).sty;
+  await p.click(`.ppage:not([hidden]) .hitsty[data-go="${sid}"]`); await until(p,id=>!!document.querySelector(`#chart .n.cur[data-id="${id}"]`),sid); await settle(p);
+  say("a song's style opens that style, and the year stands down", !(await page(p)).lit);
+  // a sent link opens the year directly
+  const q=await b.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true}); q.on("pageerror",e=>errs.push(String(e)));
+  await q.goto(URL+"#year:1966"); await ready(q); await until(q,()=>!!document.querySelector('.ppage[data-p="year:1966"]')); await settle(q);
+  const m=await page(q);
+  say("a link to #year:1966 opens 1966 on a phone", m.key==="year:1966" && m.hits.length===10 && m.lit);
+  await q.click("#panelBack"); await settle(q);
+  say("  and back puts the map as it was", !(await page(q)).lit && !(await q.evaluate(()=>!!document.querySelector("#axsel text"))));
+  // before the Hot 100 there is no chart, and the page says why
+  await q.goto(URL+"#year:1950"); await ready(q); await until(q,()=>!!document.querySelector('.ppage[data-p="year:1950"]')); await settle(q);
+  say("1950 says the charts start in 1959", await q.evaluate(()=>/1958/.test(document.querySelector('.ppage[data-p="year:1950"] .yrnone').textContent)));
+  say("no page errors", errs.length===0 || errs.join(" | "));
+  await b.close();
+})();

@@ -577,7 +577,8 @@ function draw(){
   // a break mark sits on the divider. ('55-style shorthand was misread; years are whole.)
   const AY=AXH-11, TB=AXH;   // the label row's baseline, and the axis's bottom edge
   let ax=`<svg width="${W}" height="${AXH}">`
-    + `<text class="axcap" x="${X0}" y="13">Year each style emerged →</text>`
+    // and that a year is something to tap: it opens what was popular then
+    + `<text class="axcap" x="${X0}" y="13">Year each style emerged →<tspan class="axhint">${NARROW?" · tap one":"  · tap a year to see what was popular"}</tspan></text>`
     + `<text class="rt" x="${X0}" y="${AY}">${NARROW?"Roots (compressed)":"Roots, before 1950 (compressed)"}</text>`
     + `<text x="${xOf(END)}" y="${AY}" text-anchor="middle" class="now yl">${END}</text>`;
   for(let yr=1950; yr<=2020; yr+=10) ax += `<text class="yl" x="${xOf(yr)}" y="${AY}" text-anchor="middle">${yr}</text>`;
@@ -630,6 +631,7 @@ function draw(){
   $("inner").style.width=W+"px";
   const L=$("lanes"); L.style.top=(bar+AXH)+"px"; L.style.setProperty("--lz",1);
   paintYear();
+  if(typeof syncYear==="function") syncYear(true);   // a redraw drops the lit year's classes
   L.innerHTML = `<div class="lane fill" style="top:0;height:${HEADH}px;left:0;width:${LABELW-8}px"></div>` + lanes.map((l,i)=>`<div class="lane c${i%2?"":" b2"}" data-fam="${l.k}" style="--c:${FAM[l.k].c};top:${l.y0}px;height:${l.h}px;left:0;width:${LABELW-8}px" title="${esc(FAM[l.k].name)} · ${l.count} styles"><span class="vt">${esc(FAM[l.k].short)}</span></div>`).join("");
   L.style.transform=`translateX(${scroller.scrollLeft}px)`;
 }
@@ -1041,6 +1043,7 @@ function pageTitleOf(key){
     return m ? m[1] : "";
   }
   if(key.indexOf("crate:")===0) return "A Shared Crate";
+  if(isYearKey(key)) return key.slice(5);
   const d=PAGES_DEF[key];
   if(!d) return "";
   try{ const p=d(); return p ? p.title : ""; }catch(e){ return ""; }
@@ -2014,6 +2017,8 @@ $("panel").addEventListener("click",e=>{
       return; } }
   { const pg=e.target.closest("[data-page]");
     if(pg){ e.preventDefault(); pushPage(pg.dataset.page); return; } }
+  { const yb=e.target.closest("[data-year]");
+    if(yb){ e.preventDefault(); openYear(+yb.dataset.year); return; } }
   // one of this collection, rather than one of the map: the point of standing in a
   // collection is that everything in it already fits
   // the All / What's Current switch, and Show All under a narrowed list, which is the same
@@ -2210,6 +2215,13 @@ function noteWho(n){
   document.addEventListener("keydown",hide,true);
   addEventListener("resize",hide);
 })();
+// Tap a year on the timeline for that year's page. The axis sits inside the scroller, so
+// its box already moves with the map and the year is read straight off the tap.
+$("axis").addEventListener("click",e=>{
+  const r=e.currentTarget.getBoundingClientRect(), y=yearAt(e.clientX-r.left);
+  if(y==null || y>END+0.5) return;
+  openYear(y);
+});
 // picking another style keeps the card as it is; empty space collapses it, then clears the selection
 $("chart").addEventListener("click",e=>{
   const g=e.target.closest(".n");
@@ -2308,6 +2320,8 @@ function openAbout(scroll,hash){
 }
 function hashOf(key){ return encodeURIComponent(key).replace(/%3A/g,":").replace(/%2C/g,","); }
 function setHash(id){
+  // whatever moved, the lit year follows it (after the move has finished settling state)
+  Promise.resolve().then(()=>syncYear());
   const want = id ? "#"+hashOf(id) : "";
   if((location.hash||"") === want) return;
   // replace: the entry for this step was pushed already by histPush(), so this only names it
@@ -3466,6 +3480,7 @@ function pageExists(key){
   if(key.indexOf("mode:")===0) return typeof MODES!=="undefined"
     && MODES.some(m=>m[0]===key.slice(5));
   if(key.indexOf("med:")===0) return !!mediaPage(key.slice(4));
+  if(key.indexOf("year:")===0) return isYearKey(key);
   return !!PAGES_DEF[key];
 }
 function pushPage(key){
@@ -3474,6 +3489,7 @@ function pushPage(key){
   const def = key.indexOf("crate:")===0 ? (()=>sharedCratePage(key))
     : key.indexOf("mode:")===0 ? (()=>modePage(key.slice(5)))
     : key.indexOf("med:")===0 ? (()=>mediaPage(key.slice(4)))
+    : isYearKey(key) ? (()=>yearPage(+key.slice(5)))
     : PAGES_DEF[key];
   if(!def) return false;
   const card=panelCard(); if(!card) return false;
@@ -3624,6 +3640,104 @@ function topListHtml(){
     + `<span class="sectaside">${g.rows.length}</span></h3>`
     + `<div class="moderows listgrp" role="list">${g.rows.map(topRow).join("")}</div></section>`).join("");
   return `<div class="modelist toplist">${secs}</div>`;
+}
+// ---------- a year ----------
+// Tap a year on the timeline and this is what was going on: the ten biggest songs on the
+// Billboard Hot 100 that year (HITS, from 1959), the styles that were taking off, and the
+// styles that began. The map lights all of them while the page is up. The earlier and
+// later arrows swap the page in place, so back still means back to where you were.
+const YMIN=1900, YMAX=END;
+const isYearKey=k=>/^year:\d{4}$/.test(k||"") && +k.slice(5)>=YMIN && +k.slice(5)<=YMAX;
+// Taking off: of the artists the atlas names for a style, how many started out in the six
+// years up to this one and were still going in it. A share, so a style with eight names
+// and five newcomers outranks one with forty and six; four names with years at least,
+// so one early starter does not make a scene.
+function yearRising(Y){
+  const out=[];
+  for(const x of nodes){ if(x.year>Y) continue;
+    const names=[...new Set([...(ART[x.id]||[]),...(ROSTER[x.id]||[])])];
+    const sp=names.map(n=>ACTIVE[n]).filter(Boolean); if(sp.length<4) continue;
+    const fresh=sp.filter(([a,b])=>a<=Y && a>=Y-6 && (b||YMAX)>=Y).length;
+    if(fresh>=2) out.push({id:x.id,fresh,of:sp.length,score:fresh/sp.length}); }
+  return out.sort((a,b)=>b.score-a.score||b.fresh-a.fresh).slice(0,8);
+}
+const yearHits=Y=>(typeof HITS!=="undefined" && HITS[Y]) || [];
+const yearNew=Y=>nodes.filter(x=>x.year===Y).map(x=>x.id);
+function yearSets(Y){
+  return {hit:new Set(yearHits(Y).map(h=>h[2]).filter(id=>byId[id])),
+    up:new Set([...yearRising(Y).map(r=>r.id),...yearNew(Y)])};
+}
+function yearPage(Y){
+  if(!(Y>=YMIN && Y<=YMAX)) return null;
+  // a style that began this year is listed as new, not also as taking off
+  const born=yearNew(Y), up=yearRising(Y).filter(r=>!born.includes(r.id)), hits=yearHits(Y);
+  const nav=(y,dir)=> y<YMIN||y>YMAX ? `<span class="yrstep off" aria-hidden="true"></span>`
+    : `<button type="button" class="yrstep" data-year="${y}" aria-label="${y}">`
+      + (dir<0?`<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg>${y}`
+              :`${y}<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg>`)
+      + `</button>`;
+  const head=(t,sub,n)=>`<h3 class="modesech yrsech"><span class="msecttl">${esc(t)}</span>`
+    + (sub?`<span class="msecsub">${esc(sub)}</span>`:"") + (n?`<span class="sectaside">${n}</span>`:"") + `</h3>`;
+  const song=(h,i)=>{ const [t,a,id]=h, x=byId[id];
+    return `<div class="hitrow"><em class="hitn">${i+1}</em>`
+      + `<a class="hitsong" href="${svcHref(t+" "+a)}" target="_blank" rel="noopener" title="Find it in ${svcName()}">`
+      + `<b>${esc(t)}</b><span>${esc(a)}</span></a>`
+      + (x?`<button type="button" class="hitsty" data-go="${x.id}"><i class="dot" style="background:${FAM[x.fam].c}"></i>${esc(x.name)}</button>`:"")
+      + `</div>`; };
+  const charts = hits.length
+    ? head("On the Charts","The year's biggest Hot 100 songs") + `<div class="listgrp hitlist">${hits.map(song).join("")}</div>`
+    : `<p class="note yrnone">${Y<1959?"The Billboard Hot 100 began in August 1958, so the charts here start with 1959.":"No chart for this year yet."}</p>`;
+  const rising = up.length
+    ? head("Taking Off","Styles with artists starting out",up.length) + styleRows(up.map(r=>r.id),x=>{ const r=up.find(u=>u.id===x.id); return r.fresh+" new"; })
+    : "";
+  const newborn = born.length ? head("New This Year","",born.length) + styleRows(born,()=> "") : "";
+  return {title:String(Y),
+    lede:Y<1959?"What was taking off and what began.":"What was on the charts, what was taking off and what began.",
+    top:`<div class="yrnav">${nav(Y-1,-1)}${nav(Y+1,1)}</div>`,
+    html:`<div class="yrpage">${charts}${rising}${newborn}</div>`
+      + `<p class="note yrsrc">Charts: Billboard Hot 100, each song scored 101 minus its position for every week that year, via the weekly archive at github.com/mhollingshead/billboard-hot-100. Taking off: the share of a style's named artists who started in the six years up to this one.</p>`
+      + pageShareBtn("year:"+Y,String(Y),"Share this year")};
+}
+// the year the map is lit for, or null; undefined forces the next sync to redo it
+let YLIT=null;
+function syncYear(force){
+  const top=PSTACK.length?PSTACK[PSTACK.length-1].key:"";
+  const Y = !state.sel && isYearKey(top) ? +top.slice(5) : null;
+  const svg=$("chart"); if(!svg) return;
+  const changed = force || Y!==YLIT;
+  if(changed){
+    svg.querySelectorAll(".n.yh,.n.yt").forEach(g=>g.classList.remove("yh","yt"));
+    svg.classList.toggle("yrlit",Y!=null);
+    if(Y!=null){ const s=yearSets(Y);
+      svg.querySelectorAll(".n").forEach(g=>{ const k=g.dataset.id;
+        if(s.hit.has(k)) g.classList.add("yh"); else if(s.up.has(k)) g.classList.add("yt"); }); }
+  }
+  const was=YLIT; YLIT=Y;
+  if(Y==null){ if(was!=null) paintYear(); return; }
+  const x=xOf(Y), ln=document.getElementById("yrguide");
+  axisPill("axsel",x,String(Y),"axsel");
+  if(ln){ ln.setAttribute("x1",x); ln.setAttribute("x2",x); ln.setAttribute("y2",svg.getAttribute("height")||9999); ln.removeAttribute("visibility"); }
+  // bring the year into view, a third of the way across, when it is a new one
+  if(changed && was!==Y){ const sc=$("scroller"), left=Math.max(0,x-sc.clientWidth/3);
+    if(Math.abs(sc.scrollLeft-left)>sc.clientWidth/4) sc.scrollTo({left,behavior:reduce?"auto":"smooth"}); }
+}
+// open a year: in place over a year page already showing, otherwise as a new page
+function openYear(Y){
+  Y=Math.max(YMIN,Math.min(YMAX,Math.round(Y)));
+  const top=PSTACK.length?PSTACK[PSTACK.length-1].key:"";
+  if(isYearKey(top) && !state.sel){ swapYear(Y); return; }
+  if(state.sel) clearSel();
+  pushPage("year:"+Y);
+}
+function swapYear(Y){
+  const card=panelCard(), stack=card&&card.querySelector(":scope > .pstack"), page=stack&&stack.lastElementChild;
+  const d=yearPage(Y); if(!page||!d) return;
+  page.dataset.p="year:"+Y;
+  page.innerHTML=`<h1 class="bigttl"><span class="mn">${esc(d.title)}</span></h1>`
+    + `<p class="note pglede">${esc(d.lede)}</p>` + d.top + `<div class="more pgbody">${d.html}</div>`;
+  const t=PSTACK[PSTACK.length-1]; t.key="year:"+Y; t.title=d.title;
+  setHash(t.key); syncBack();
+  const body=$("panelBody"); body.scrollTop=0; body.dispatchEvent(new Event("scroll"));
 }
 function styleRows(ids,detail){
   return `<div class="listgrp plist">` + ids.map(id=>{ const x=byId[id];
@@ -4512,7 +4626,7 @@ function boot(){
   let h=decodeURIComponent((location.hash||"").slice(1));
   if(RENAMED[h]){ h=RENAMED[h]; try{ history.replaceState(null,"","#"+h); }catch(e){} }
   // a collection or a media page: the key is the hash, so it opens the page it names
-  if(/^(mode|med|crate):/.test(h) && pageExists(h)){
+  if(/^(mode|med|crate|year):/.test(h) && pageExists(h)){
     emptyPanel(); scroller.scrollLeft=0; scroller.scrollTop=0; syncPeek();
     setOpen(true);
     setTimeout(()=>pushPage(h),420);
