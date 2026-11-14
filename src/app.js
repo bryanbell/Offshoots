@@ -3412,16 +3412,19 @@ document.addEventListener("keydown",e=>{
   const to=all[Math.max(0,Math.min(all.length-1,i))]; if(!to||to===b) return;
   e.preventDefault(); to.focus(); to.click();
 });
-// Five stops in one track, the one chosen filled, its count under its name so you can see
-// what each would leave before you pick it
+// Five stops in one track, the one chosen filled. No counts on them: the heading and Surprise
+// Me already say how many are shown. A generation with nothing in this collection is dimmed
+// and cannot be chosen, so the switch never leads to an empty list.
 function pickFiltHtml(m){
   const on=pickFilt(), have=m[4].filter(([id])=>byId[id]);
   const i=GENSTOPS.findIndex(g=>g[0]===on);
   return `<div class="pkfilt gens" role="radiogroup" aria-label="Which generation" style="--gi:${i};--gn:${GENSTOPS.length}">`
     + `<span class="pkthumb" aria-hidden="true"></span>`
     + GENSTOPS.map(([k,lbl,sr])=>{ const n=have.filter(([id])=>genHas(id,k)).length;
+        const off=!n && on!==k;
         return `<button type="button" class="pkfb" role="radio" data-pickfilt="${k}" aria-checked="${on===k}" aria-pressed="${on===k}"`
-          + ` aria-label="${esc(sr.replace("{n}",n))}"><span class="pkfl">${esc(lbl)}</span><span class="pkfn">${n}</span></button>`; }).join("")
+          + (off?` disabled aria-disabled="true"`:"")
+          + ` aria-label="${esc(n ? sr.replace("{n}",n) : lbl+": none in this collection")}"><span class="pkfl">${esc(lbl)}</span></button>`; }).join("")
     + `</div>`;
 }
 function pickSortHtml(){

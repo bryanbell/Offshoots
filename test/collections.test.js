@@ -160,13 +160,13 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
     // Surprise Me following, and the rest one tap away
     { const sw=await p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
         const s=u.querySelector(".pkfilt"), top=u.querySelector(".modetop"), h=u.querySelector(".secthead.picksort");
-        return {txt:s?[...s.querySelectorAll("[data-pickfilt]")].map(b=>b.querySelector(".pkfl").textContent+b.querySelector(".pkfn").textContent+(b.getAttribute("aria-pressed")==="true"?"*":"")):[],
+        return {txt:s?[...s.querySelectorAll("[data-pickfilt]")].map(b=>b.querySelector(".pkfl").textContent+(b.disabled?"-":"")+(b.getAttribute("aria-pressed")==="true"?"*":"")):[],
           clipped:s?[...s.querySelectorAll(".pkfl")].filter(e=>e.scrollWidth>e.clientWidth+1).length:-1,
           placed:!!s && s.getBoundingClientRect().bottom<=top.getBoundingClientRect().top && top.getBoundingClientRect().bottom<=h.getBoundingClientRect().top,
           tap:s?Math.min(...[...s.querySelectorAll("button")].map(b=>b.getBoundingClientRect().height)):0}; });
       const ng=g=>dinner[4].filter(([id])=>g==="Z"?D.CURRENT[id]:(D.GENS[id]||"").includes(g)).length;
-      say("  a generation switch with counts ("+sw.txt.join(" | ")+")",
-        JSON.stringify(sw.txt)===JSON.stringify(["All"+dinner[4].length+"*","Boomer"+ng("B"),"Gen X"+ng("X"),"Millennial"+ng("M"),"Gen Z"+ng("Z")]));
+      say("  a generation switch, a stop with none here dimmed ("+sw.txt.join(" | ")+")",
+        JSON.stringify(sw.txt)===JSON.stringify(["All*",...[["B","Boomer"],["X","Gen X"],["M","Millennial"],["Z","Gen Z"]].map(([g,l])=>l+(ng(g)?"":"-"))]));
       say("    every name whole", sw.clipped===0);
       say("    above Surprise Me, which sits on the list it draws from, clearing the tap floor", sw.placed && sw.tap>=44); }
     for(const [g,lbl] of [["B","Boomer"],["current","Gen Z"]]){
