@@ -701,6 +701,19 @@ body.open .pcnt{display:none}
 .navback.tomap{padding:0 12px}
 .navback[hidden]{display:grid;visibility:hidden;pointer-events:none}
 .navback svg{width:20px;height:20px}
+/* After a Surprise Me draw: Back goes bare and round, and Again sits beside it in the
+   same pill shape, in accent, since it is the thing you came for */
+.navrow.surprised .navback{padding:0;width:var(--tap);justify-content:center}
+.navrow.surprised .navback .bklbl,.navrow.surprised .navback .bkmap{display:none}
+.navagain{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:8px;flex:none;
+  height:var(--tap);padding:0 18px 0 14px;border-radius:999px;cursor:pointer;
+  color:var(--acc,var(--bluetx));background:color-mix(in srgb,var(--acc,var(--blue)) 14%,transparent);
+  font:600 var(--t-sub)/1 var(--f-body)}
+.navagain[hidden]{display:none}
+.navagain .agico{width:20px;height:20px;flex:none}
+@media (hover:hover){.navagain:hover{background:color-mix(in srgb,var(--acc,var(--blue)) 22%,transparent)}}
+.navagain:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+@media (prefers-reduced-motion:no-preference){ .navagain:active .agico{transform:rotate(-12deg)} }
 /* Home, round and unlabelled, to the left of Back in the same group */
 .navhome{all:unset;box-sizing:border-box;display:grid;place-items:center;flex:none;
   width:var(--tap);height:var(--tap);border-radius:50%;cursor:pointer;color:var(--fg);background-color:var(--fill2)}
