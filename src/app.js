@@ -2017,6 +2017,9 @@ $("panel").addEventListener("click",e=>{
       return; } }
   { const pg=e.target.closest("[data-page]");
     if(pg){ e.preventDefault(); pushPage(pg.dataset.page); return; } }
+  { const hp=e.target.closest("[data-hitpg]");
+    if(hp){ const r=hp.parentElement.querySelector(".hitrail");
+      r.scrollBy({left:+hp.dataset.hitpg*r.clientWidth*0.85,behavior:reduce?"auto":"smooth"}); return; } }
   { const yb=e.target.closest("[data-year]");
     if(yb){ e.preventDefault(); openYear(+yb.dataset.year); return; } }
   // one of this collection, rather than one of the map: the point of standing in a
@@ -3540,6 +3543,7 @@ function pushPage(key){
   body.scrollTop=0; setOpen(true); syncBack(); closeNav();
   body.dispatchEvent(new Event("scroll"));
   amUpgrade();   // a pushed page brings its own artist links, which start life as search URLs
+  if(isYearKey(key)) paintSongArt(page);
   paintPlay();   // and its own play links, which have no href until the service is read
   return true;
 }
@@ -3667,6 +3671,50 @@ function yearSets(Y){
   return {hit:new Set(yearHits(Y).map(h=>h[2]).filter(id=>byId[id])),
     up:new Set([...yearRising(Y).map(r=>r.id),...yearNew(Y)])};
 }
+// the first name on a credit, which is whose face or record a card shows
+const leadArtist=a=>a.split(/ (?:Featuring|featuring|Feat\.|feat\.|With|with|&|And His|and His|And The|and The|x|X|Duet With|, )/)[0].trim();
+// a style as the Most Influential rows draw it: its art, its name, its one line
+function yearRow(id,detail){
+  const x=byId[id], deck=(typeof DESC!=="undefined"&&DESC[id]) || (FAM[x.fam].name+" \u00b7 "+(x.disp||x.year));
+  return `<button type="button" class="moderow toprow" data-go="${esc(id)}" style="--lvc:${esc(FAM[x.fam].c)}"`
+    + ` title="Show ${esc(x.name)} on the map" aria-label="${esc(x.name)}. ${esc(deck)}${detail?" "+esc(detail)+".":""} Shows it on the map.">`
+    + `<i class="mrart hasimg">${cover(id,x,true)}</i>`
+    + `<span class="mrtx"><b class="mrlbl">${esc(x.name)}</b><span class="mrdeck">${esc(deck)}</span></span>`
+    + (detail?`<em class="mrct yrct">${esc(detail)}</em>`:"") + GOCHEV + `</button>`;
+}
+// The record each song came out on, looked up from Apple's catalogue the first time a year
+// is opened and kept on this device. The circle starts as the artist's photo or silhouette
+// and the cover slides in over it when it arrives; offline, it simply stays as it was.
+let SONGART={}; try{ SONGART=JSON.parse(localStorage.getItem("songart")||"{}")||{}; }catch(e){}
+const songKey=(t,a)=>t+"\u0000"+a;
+function songArt(t,a){
+  const k=songKey(t,a); if(SONGART[k]!==undefined) return Promise.resolve(SONGART[k]);
+  const norm=v=>String(v||"").toLowerCase().replace(/\(.*?\)|\[.*?\]/g,"").replace(/[^a-z0-9]+/g," ").trim();
+  const nt=norm(t), na=norm(leadArtist(a));
+  return fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(t+" "+leadArtist(a))}&entity=song&limit=8&country=US`)
+    .then(r=>r.json()).then(j=>{ const rs=j.results||[];
+      const hit=rs.find(r=>norm(r.trackName).startsWith(nt) && norm(r.artistName).includes(na))
+        || rs.find(r=>norm(r.artistName).includes(na)) || null;
+      SONGART[k]=hit&&hit.artworkUrl100 ? hit.artworkUrl100.replace(/100x100bb/,"300x300bb") : "";
+      try{ localStorage.setItem("songart",JSON.stringify(SONGART)); }catch(e){}
+      return SONGART[k]; }).catch(()=>null);
+}
+function paintSongArt(root){
+  (root||document).querySelectorAll(".hitsong[data-song]:not([data-art])").forEach(el=>{
+    el.dataset.art="1";
+    songArt(el.dataset.song,el.dataset.by).then(u=>{ if(!u) return;
+      const face=el.querySelector(".hitface"); if(!face) return;
+      const img=new Image(); img.alt=""; img.decoding="async"; img.className="hitrec";
+      // the record replaces the stand-in outright: the silhouette's ink filter applies to
+      // every image in a .hasfb face, and would tint the cover too
+      img.onload=()=>{ face.querySelectorAll("img").forEach(i=>i.remove()); face.classList.remove("hasfb","hascov");
+        face.appendChild(img); face.classList.add("hasimg","hasrec"); };
+      img.src=u; }); });
+}
+document.addEventListener("scroll",e=>{ const r=e.target;
+  if(!r.classList || !r.classList.contains("hitrail")) return;
+  const w=r.parentElement, end=r.scrollWidth-r.clientWidth-4;
+  w.querySelector(".hitpg.prev").hidden=r.scrollLeft<4; w.querySelector(".hitpg.next").hidden=r.scrollLeft>=end; },true);
 function yearPage(Y){
   if(!(Y>=YMIN && Y<=YMAX)) return null;
   // a style that began this year is listed as new, not also as taking off
@@ -3678,19 +3726,30 @@ function yearPage(Y){
       + `</button>`;
   const head=(t,sub,n)=>`<h3 class="modesech yrsech"><span class="msecttl">${esc(t)}</span>`
     + (sub?`<span class="msecsub">${esc(sub)}</span>`:"") + (n?`<span class="sectaside">${n}</span>`:"") + `</h3>`;
+  // a card per song, side by side: the record in a circle, then the song, who, and the
+  // style it belongs to under its own art, so all ten styles are a swipe away instead of
+  // a scroll down
   const song=(h,i)=>{ const [t,a,id]=h, x=byId[id];
-    return `<div class="hitrow"><em class="hitn">${i+1}</em>`
-      + `<a class="hitsong" href="${svcHref(t+" "+a)}" target="_blank" rel="noopener" title="Find it in ${svcName()}">`
-      + `<b>${esc(t)}</b><span>${esc(a)}</span></a>`
-      + (x?`<button type="button" class="hitsty" data-go="${x.id}"><i class="dot" style="background:${FAM[x.fam].c}"></i>${esc(x.name)}</button>`:"")
+    return `<div class="hitcard">`
+      + `<a class="hitsong" href="${svcHref(t+" "+a)}" target="_blank" rel="noopener" title="Find it in ${svcName()}"`
+      + ` data-song="${esc(t)}" data-by="${esc(a)}">`
+      + `<span class="hitart">${artFace(leadArtist(a),"hitface mi")}<em class="hitn">${i+1}</em></span>`
+      + `<b class="hitttl">${esc(t)}</b><span class="hitby">${esc(a)}</span></a>`
+      + (x?`<button type="button" class="hitsty" data-go="${x.id}" title="${esc(x.name)} on the map">`
+        + `<i class="hitsart hasimg">${cover(x.id,x,true)}</i><span>${esc(x.name)}</span></button>`:"")
       + `</div>`; };
   const charts = hits.length
-    ? head("On the Charts","The year's biggest Hot 100 songs") + `<div class="listgrp hitlist">${hits.map(song).join("")}</div>`
+    ? head("On the Charts","The year's biggest Hot 100 songs") + `<div class="hitwrap"><div class="hitrail" role="list">${hits.map(song).join("")}</div>`
+      // a mouse has no sideways swipe, so the rail gets arrows where one can hover
+      + `<button type="button" class="hitpg prev" data-hitpg="-1" aria-label="Earlier on the chart" hidden><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg></button>`
+      + `<button type="button" class="hitpg next" data-hitpg="1" aria-label="Further down the chart"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg></button></div>`
     : `<p class="note yrnone">${Y<1959?"The Billboard Hot 100 began in August 1958, so the charts here start with 1959.":"No chart for this year yet."}</p>`;
   const rising = up.length
-    ? head("Taking Off","Styles with artists starting out",up.length) + styleRows(up.map(r=>r.id),x=>{ const r=up.find(u=>u.id===x.id); return r.fresh+" new"; })
+    ? head("Taking Off","Styles with artists starting out",up.length)
+      + `<div class="moderows listgrp yrrows" role="list">${up.map(r=>yearRow(r.id,r.fresh+" new")).join("")}</div>`
     : "";
-  const newborn = born.length ? head("New This Year","",born.length) + styleRows(born,()=> "") : "";
+  const newborn = born.length ? head("New This Year","",born.length)
+    + `<div class="moderows listgrp yrrows" role="list">${born.map(id=>yearRow(id,"")).join("")}</div>` : "";
   return {title:String(Y),
     lede:Y<1959?"What was taking off and what began.":"What was on the charts, what was taking off and what began.",
     top:`<div class="yrnav">${nav(Y-1,-1)}${nav(Y+1,1)}</div>`,
@@ -3736,7 +3795,7 @@ function swapYear(Y){
   page.innerHTML=`<h1 class="bigttl"><span class="mn">${esc(d.title)}</span></h1>`
     + `<p class="note pglede">${esc(d.lede)}</p>` + d.top + `<div class="more pgbody">${d.html}</div>`;
   const t=PSTACK[PSTACK.length-1]; t.key="year:"+Y; t.title=d.title;
-  setHash(t.key); syncBack();
+  setHash(t.key); syncBack(); paintSongArt(page);
   const body=$("panelBody"); body.scrollTop=0; body.dispatchEvent(new Event("scroll"));
 }
 function styleRows(ids,detail){

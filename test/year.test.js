@@ -11,9 +11,11 @@ const ready=async q=>{ await arm(q); await until(q,()=>!!document.querySelector(
 const page=p=>p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden).pop();
   const svg=document.getElementById("chart");
   return {key:u&&u.dataset.p, title:(u&&u.querySelector(".bigttl")||{}).textContent||"",
-    hits:u?[...u.querySelectorAll(".hitrow")].map(r=>({song:r.querySelector(".hitsong b").textContent, href:r.querySelector(".hitsong").getAttribute("href"),
-      sty:(r.querySelector(".hitsty")||{dataset:{}}).dataset.go||""})):[],
-    rising:u?[...u.querySelectorAll(".yrpage .plist")].map(g=>[...g.querySelectorAll("[data-go]")].map(x=>x.dataset.go)):[],
+    hits:u?[...u.querySelectorAll(".hitcard")].map(r=>({song:r.querySelector(".hitttl").textContent, href:r.querySelector(".hitsong").getAttribute("href"),
+      sty:(r.querySelector(".hitsty")||{dataset:{}}).dataset.go||"", styArt:!!r.querySelector(".hitsty .hitsart img")})):[],
+    rail:!!(u&&u.querySelector(".hitrail")),
+    rising:u?[...u.querySelectorAll(".yrpage .yrrows")].map(g=>[...g.querySelectorAll("[data-go]")].map(x=>x.dataset.go)):[],
+    rowArt:u?[...u.querySelectorAll(".yrpage .yrrows .toprow")].every(r=>!!r.querySelector(".mrart img")):false,
     lit:svg.classList.contains("yrlit"), yh:[...svg.querySelectorAll(".n.yh")].map(g=>g.dataset.id),
     pill:(document.querySelector("#axsel text")||{}).textContent||"", hash:location.hash}; });
 
@@ -22,6 +24,13 @@ const page=p=>p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].
   skipWelcome(b);
   const errs=[];
   const p=await b.newPage({viewport:{width:1440,height:900}}); p.on("pageerror",e=>errs.push(String(e)));
+  // Apple's catalogue stands in here: each song's cover is looked up once and kept
+  const looked=[];
+  await p.route("https://itunes.apple.com/search**",r=>{ const t=new (require("url").URL)(r.request().url()).searchParams.get("term"); looked.push(t);
+    r.fulfill({contentType:"application/json",headers:{"access-control-allow-origin":"*"},
+      body:JSON.stringify({results:[{trackName:t,artistName:t,artworkUrl100:"https://is1-ssl.mzstatic.com/t/"+looked.length+"/100x100bb.jpg"}]})}); });
+  await p.route("https://is1-ssl.mzstatic.com/**",r=>r.fulfill({contentType:"image/jpeg",
+    body:require("fs").readFileSync(__dirname+"/../assets/album-covers/"+require("fs").readdirSync(__dirname+"/../assets/album-covers").find(f=>f.endsWith(".jpg")))}));
   await p.goto(URL); await ready(p);
   say("the axis says a year can be tapped", await p.evaluate(()=>/tap a year/.test(document.querySelector("#axis .axcap").textContent)));
   // tap 1984 on the axis, a little past the 1980 label
@@ -34,9 +43,13 @@ const page=p=>p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].
   await until(p,()=>/^#year:/.test(location.hash)); await settle(p);
   const y=await page(p), want=D.HITS["1984"];
   say("tapping the axis at 1984 opens 1984 ("+y.key+")", y.key==="year:1984" && y.title==="1984" && y.hash==="#year:1984");
-  say("  with the year's ten biggest songs, in chart order", y.hits.length===10 && y.hits.every((h,i)=>h.song===want[i][0]));
+  say("  with the year's ten biggest songs side by side, in chart order", y.rail && y.hits.length===10 && y.hits.every((h,i)=>h.song===want[i][0]));
+  await until(p,()=>document.querySelectorAll(".ppage:not([hidden]) .hitface img.hitrec").length===10);
+  say("  each song's record in its circle, looked up once each", looked.length===10
+    && await p.evaluate(()=>[...document.querySelectorAll(".ppage:not([hidden]) .hitface")].every(f=>!f.classList.contains("hasfb"))));
   say("  each opening in the listening service", y.hits.every(h=>/^https:\/\/|^music:/.test(h.href)));
-  say("  and each tied to its style on the map", y.hits.filter(h=>h.sty).length===want.filter(h=>h[2]).length);
+  say("  and each tied to its style, labelled with the style's art", y.hits.filter(h=>h.sty).length===want.filter(h=>h[2]).length && y.hits.filter(h=>h.sty).every(h=>h.styArt));
+  say("  the styles listed as rows with their art", y.rowArt);
   say("  plus what was taking off and what began, never a style in both",
     y.rising.length>=1 && (y.rising.length<2 || !y.rising[0].some(id=>y.rising[1].includes(id))));
   const hitIds=[...new Set(want.map(h=>h[2]).filter(Boolean))];
@@ -49,6 +62,10 @@ const page=p=>p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].
   const y2=await page(p);
   say("the later arrow steps to 1985 in place", y2.key==="year:1985" && y2.hash==="#year:1985" && (await depth())===d0 && y2.pill==="1985");
   // a style from the list opens, and the year's lighting gives way to it
+  // the rail's arrow pages it on a desktop
+  await p.click('.ppage:not([hidden]) .hitpg.next'); await p.waitForTimeout(700);
+  say("the chart rail pages sideways with its arrow", await p.evaluate(()=>document.querySelector('.ppage:not([hidden]) .hitrail').scrollLeft>100
+    && !document.querySelector('.ppage:not([hidden]) .hitpg.prev').hidden));
   const sid=y2.hits.find(h=>h.sty).sty;
   await p.click(`.ppage:not([hidden]) .hitsty[data-go="${sid}"]`); await until(p,id=>!!document.querySelector(`#chart .n.cur[data-id="${id}"]`),sid); await settle(p);
   say("a song's style opens that style, and the year stands down", !(await page(p)).lit);
