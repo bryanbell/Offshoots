@@ -2987,7 +2987,7 @@ function modeSect(){
   if(window.__MA_ROWALL) return sect("modes","Collections",
     `<div class="mrow" role="list">${clockOrder().map(m=>modeTile(m)).join("")}</div>`,
     "", "modes", "Find music for the moment.", true);
-  // A speed dial, not a row: three across and three down, the first eight in the Right now
+  // A speed dial, not a row: four across and two down, the first seven in the Right now
   // order (what suits the hour, then the any-time ones, then what comes up next) and the
   // last cell opening every collection. The row asked for a sideways swipe to see a fourth;
   // this is the most-used way into the app, so the likely picks are all in view at once
@@ -3006,7 +3006,7 @@ function modeSect(){
     `<div class="mdial" role="list">${circles}</div>`,
     "", "modes", "Find music for the moment.", true);
 }
-const DIALN=9;
+const DIALN=8;   // four across, two down: seven collections and Show All
 // the same set as a page, which is what the row's heading opens. The same tiles too:
 // this was a two-column list of 28px thumbnails in a shaded card, so the one picture per
 // collection — the thing that tells you what a collection is before the label does — was
