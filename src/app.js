@@ -2436,9 +2436,9 @@ function modePicks(m){
   let foot="";
   if(pickFilt()!=="all"){
     const all=m[4].filter(([id])=>byId[id]).length, n=shownPicks(m).length;
-    const who=(GENSTOPS.find(g=>g[0]===pickFilt())||[])[1];
+    const era=(GENSTOPS.find(g=>g[0]===pickFilt())||[])[3];
     foot=`<div class="pkfoot">`
-      + (n ? "" : `<p class="note">Nothing here is from what ${esc(who)} grew up on.</p>`)
+      + (n ? "" : `<p class="note">Nothing here is from ${esc(era)}.</p>`)
       + `<button type="button" class="pkall" data-pickall>Show All ${all}</button></div>`;
   }
   return shownPicks(m).map(([id,why])=>{
@@ -3361,18 +3361,21 @@ const PICKSORTS=[
   ["fit","Best fit","Best fit for this collection first"],
   ["az","A\u2013Z","By name, A to Z"],
   ["used","Most used","What this browser opens most"]];
-// The generation switch narrows a collection to the styles one generation grew up on: All,
-// then oldest to youngest. A control of its own, not entries in the sort menu, where nobody
+// The era switch narrows a collection to the styles one generation grew up on: All, then
+// oldest to youngest (Vinyl, Cassette, CD, Stream). A control of its own, not entries in the sort menu, where nobody
 // would find it: it changes what is listed, the menu only changes the order. Kept on this
 // device, so it is set once and holds for every collection. Gen Z keeps the key the first
 // version of this switch ("What's Current") saved, so nobody's setting is lost.
 const PICKFILT_KEY="musicatlas.pickfilter";
+// Named for what each generation played its music on rather than for the generation:
+// shorter, friendlier than a cohort label, and it says "era" without saying "old". The
+// spoken label says who each one is for.
 const GENSTOPS=[
-  ["all","All","All {n} styles"],
-  ["B","Boomer","{n} styles Boomers grew up on"],
-  ["X","Gen X","{n} styles Gen X grew up on"],
-  ["M","Millennial","{n} styles Millennials grew up on"],
-  ["current","Gen Z","{n} styles Gen Z plays now"]];
+  ["all","All","All {n} styles","everyone"],
+  ["B","Vinyl","Vinyl: {n} styles Boomers grew up on","the vinyl years"],
+  ["X","Cassette","Cassette: {n} styles Gen X grew up on","the cassette years"],
+  ["M","CD","CD: {n} styles Millennials grew up on","the CD years"],
+  ["current","Stream","Stream: {n} styles Gen Z plays now","what streams now"]];
 function pickFilt(){ try{ const v=localStorage.getItem(PICKFILT_KEY);
   return GENSTOPS.some(g=>g[0]===v) ? v : "all"; }catch(e){ return "all"; } }
 const genHas=(id,g)=> g==="all" ? true : g==="current" ? isCurrent(id)

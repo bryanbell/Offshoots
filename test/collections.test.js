@@ -154,8 +154,8 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
     say("    and puts what this browser opens most at the top (\""+un2[0]+"\")",
       un2[0]==="Tropicália" && un2.length===v.names.length);
     await p.selectOption('.psortsel','fit'); await settle(p);
-    // The generation switch narrows rather than reorders: All, Boomer, Gen X, Millennial,
-    // Gen Z, each with its count, above Surprise Me. A generation keeps only its styles (GENS,
+    // The era switch narrows rather than reorders: All, Vinyl, Cassette, CD, Stream (one
+    // generation each, Boomers to Gen Z), above Surprise Me. A generation keeps only its styles (GENS,
     // or CURRENT for Gen Z), in the collection's own order, with the heading's count and
     // Surprise Me following, and the rest one tap away
     { const sw=await p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
@@ -166,10 +166,10 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
           tap:s?Math.min(...[...s.querySelectorAll("button")].map(b=>b.getBoundingClientRect().height)):0}; });
       const ng=g=>dinner[4].filter(([id])=>g==="Z"?D.CURRENT[id]:(D.GENS[id]||"").includes(g)).length;
       say("  a generation switch, a stop with none here dimmed ("+sw.txt.join(" | ")+")",
-        JSON.stringify(sw.txt)===JSON.stringify(["All*",...[["B","Boomer"],["X","Gen X"],["M","Millennial"],["Z","Gen Z"]].map(([g,l])=>l+(ng(g)?"":"-"))]));
+        JSON.stringify(sw.txt)===JSON.stringify(["All*",...[["B","Vinyl"],["X","Cassette"],["M","CD"],["Z","Stream"]].map(([g,l])=>l+(ng(g)?"":"-"))]));
       say("    every name whole", sw.clipped===0);
       say("    above Surprise Me, which sits on the list it draws from, clearing the tap floor", sw.placed && sw.tap>=44); }
-    for(const [g,lbl] of [["B","Boomer"],["current","Gen Z"]]){
+    for(const [g,lbl] of [["B","Vinyl"],["current","Stream"]]){
     await p.click(`.ppage:not([hidden]) [data-pickfilt="${g}"]`); await settle(p);
     const want=dinner[4].filter(([id])=>g==="current"?D.CURRENT[id]:(D.GENS[id]||"").includes(g)).map(([id])=>D.DATA.find(r=>r[0]===id)[1]);
       const cv=await p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
