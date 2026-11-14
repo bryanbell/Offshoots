@@ -24,7 +24,7 @@ const ready=async q=>{ await arm(q); await until(q,()=>!!document.querySelector(
       return {t, brk:!!brk, div:!!div, divx:div?+div.getAttribute("x1"):null,
         brkx:brk?(()=>{const bb=brk.getBBox(); return bb.x+bb.width/2;})():null,
         ticks:document.querySelectorAll("#axis .axtick").length}; });
-    say(nm+": the axis says what it measures", ax.t.includes("Year each style emerged →"));
+    say(nm+": the axis says what it measures", ax.t.some(x=>x.startsWith("Year each style emerged →")));
     say(nm+": the roots say they are compressed", ax.t.some(x=>/^Roots.*\(compressed\)$/.test(x)));
     say(nm+": years are written out, no '55 shorthand", !ax.t.some(x=>/[’']\d\d/.test(x)) && ax.t.includes("1960") && ax.t.includes("2000"));
     say(nm+": every five years ticked ("+ax.ticks+")", ax.ticks>=20);

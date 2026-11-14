@@ -95,6 +95,13 @@ say("every head track belongs to a mode and a style",
   few(Object.entries(D.HEADTRACK).filter(([k,h])=>!modeKeys.has(k)||!set.has(h.style)).map(([k])=>k)));
 say("every What's Current style exists and has a playlist",
   few(Object.keys(D.CURRENT).filter(k=>!set.has(k)||!(D.PLAY[k]||D.SPLAY[k]))));
+// the charts by year: ten songs each, every style chosen for one on the map, every year in range
+{ const H=D.HITS||{}, ys=Object.keys(H).map(Number), now=new Date().getFullYear();
+  say("every chart year holds ten songs, title, credit and a style or none",
+    few(Object.entries(H).filter(([y,r])=>r.length!==10||r.some(h=>h.length!==3||!h[0]||!h[1]||typeof h[2]!=="string")).map(([y])=>y)));
+  say("every chart song's style exists", few(Object.entries(H).flatMap(([y,r])=>r.filter(h=>h[2]&&!set.has(h[2])).map(h=>y+": "+h[0]+" -> "+h[2]))));
+  say("the charts run unbroken from 1959", ys.length>0 && Math.min(...ys)===1959 && ys.every((y,i,a)=>!i||y===a[i-1]+1) && Math.max(...ys)<=now);
+}
 say("every What's Current style says why it is there",
   few(Object.entries(D.CURRENT).filter(([k,v])=>typeof v!=="string"||v.length<20||/\u2014/.test(v)).map(([k])=>k)));
 say("every collection keyword list belongs to a mode",
