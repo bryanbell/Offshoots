@@ -1242,13 +1242,28 @@ a.deepsug:focus-visible{outline:0;box-shadow:inset 0 0 0 2px color-mix(in srgb,v
    width, and the disc inside it stays the size it is on the row */
 .modegrid .mcirc{width:100%}
 /* The root's Collections as a speed dial: three by three, the last cell opening the rest.
-   Smaller circles than the row had, so all nine sit in view with their names. */
-.mdial{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 6px;padding:8px 0 4px}
-.mdial .mcirc{width:100%;min-width:0;gap:7px}
-.mdial .mcirc .mco{width:72px;height:72px}
-.mdial .mcirc .mco .facefb svg{width:35px;height:35px}
-.mdial .mcirc.mcall .mco svg{width:26px;height:26px}
-.mdial .mclbl{max-width:100%;padding-inline:2px}
+   Each cell is the whole tap target: the picture fills a rounded square edge to edge and
+   the name sits inside it, on a fade at the foot, the way a phone's dialer labels a
+   contact. Nothing outside the tiles, so the grid fills the panel's width. */
+/* the label follows the grid's width, so a 320px phone's tiles still fit Commuting */
+.mdial{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:8px 0 4px;container-type:inline-size}
+.mdial .mcirc{position:relative;width:100%;min-width:0;aspect-ratio:1;gap:0;border-radius:18px}
+.mdial .mcirc .mco{width:100%;height:100%;border-radius:inherit}
+.mdial .mcirc .mco::after{border-radius:inherit}
+.mdial .mcirc:focus-visible .mco{transform:none}
+@media (hover:hover){.mdial .mcirc:hover .mco{transform:scale(1.03)}}
+.mdial .mcirc:active .mco{transform:scale(.96)}
+.mdial .mcirc .mco .facefb svg{width:42%;height:42%}
+.mdial .mclbl{position:absolute;left:0;right:0;bottom:0;z-index:3;pointer-events:none;
+  padding:22px 6px 9px;border-radius:0 0 18px 18px;
+  font:600 var(--t-sub)/1.15 var(--f-body);font-size:clamp(12px,4.5cqi,var(--t-sub));
+  letter-spacing:-.01em;color:#fff;text-align:center;
+  text-shadow:0 1px 2px rgb(0 0 0 / .55);
+  background:linear-gradient(to bottom,rgb(0 0 0 / 0),rgb(0 0 0 / .62) 62%)}
+/* the last tile opens every collection: an arrow on the panel's fill, the label in ink */
+.mdial .mcirc.mcall .mco{background:var(--fill,rgb(0 0 0 / .06))}
+.mdial .mcirc.mcall .mco svg{width:30%;height:30%;margin-bottom:14%}
+.mdial .mcirc.mcall .mclbl{background:none;color:var(--fg);text-shadow:none}
 /* ---------- the Collections page as rows ----------
    Art as a rounded square at the left, the name, the line on what it is for, a chevron.
    One per line in the panel's grouped card, with the hairline starting where the text
