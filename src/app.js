@@ -3824,8 +3824,8 @@ function emptyPanel(){
   resetPages();
   $("panelBody").innerHTML=`<div class="pcard ovcard"><div class="navrow"><div class="navleft">${HOMEBTN}<button id="panelBack" class="navback" type="button" hidden aria-label="Back" title="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg><span class="bklbl"></span><svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.4L7.4 3.4v11.2L2.8 16.6z"/><path d="M7.4 3.4l5.2 2v11.2l-5.2-2z"/><path d="M12.6 5.4l4.6-2v11.2l-4.6 2z"/></svg></button></div><div class="navttl navgap ovttl"><span class="mn">Music Atlas</span></div>${CLOSEBTN}</div><h1 class="bigttl"><span class="mn">Music Atlas</span></h1><div class="more">
     ${modeSect()}
-    ${onMapSect()}
     ${crateSect()}
+    ${onMapSect()}
     ${deeperSect()}
     ${aboutMapSect()}
     ${ovFooter()}

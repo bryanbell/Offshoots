@@ -98,7 +98,7 @@ lines are all the same family color.
 
 Every style page has a bookmark beside its name. Saved styles, every style opened (with
 when), and how much of each family has been opened make up the crate page (`#crate`),
-reached from a Your Crate section on the home panel that appears once there is anything
+reached from a Your Crate section on the home panel (under Collections) that appears once there is anything
 in it. It is all in the browser's localStorage, under `musicatlas.crate` (saved ids,
 newest first) and `musicatlas.visited` (id to last-opened time), and never leaves the
 device. `musicatlas.seen` is the welcome card's flag, not this. Ids that are no longer

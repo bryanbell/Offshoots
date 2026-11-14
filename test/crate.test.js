@@ -48,9 +48,9 @@ const open=async(p,h)=>{ await p.goto("about:blank"); await p.goto(URL+(h?"#"+h:
     await open(p,"");
     const row=await p.$eval(".sect-crate",e=>e.innerText);
     say("home grows Your Crate once there is something in it", /Your Crate/.test(row) && /2 saved/.test(row) && /3 of \d+ styles explored/.test(row));
-    say("  after the map shortcuts, before Go Deeper", await p.evaluate(()=>{
+    say("  after Collections, before Explore the Atlas", await p.evaluate(()=>{
       const s=[...document.querySelectorAll("#panelBody .sect")].map(x=>[...x.classList].find(c=>/^sect-/.test(c)));
-      return s.indexOf("sect-onmap")<s.indexOf("sect-crate") && s.indexOf("sect-crate")<s.indexOf("sect-deeper"); }));
+      return s.indexOf("sect-modes")<s.indexOf("sect-crate") && s.indexOf("sect-crate")<s.indexOf("sect-onmap"); }));
     await p.evaluate(()=>document.querySelector('.sect-crate [data-page="crate"]').click());
     await until(p,()=>!!document.querySelector('.ppage[data-p="crate"]')); await settle(p);
     say("the row opens the crate page at #crate", await p.evaluate(()=>location.hash)==="#crate");
