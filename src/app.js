@@ -847,6 +847,25 @@ function centerOn(n,smooth,onlyIfNeeded){
 // they had open. Four taps into a lineage it is easy to lose the way out, so every real
 // change of view drops a crumb and the floating button walks back down the trail.
 const TRAIL=[], TRAILMAX=30;
+// ---------- Surprise Me, again ----------
+// A style reached by Surprise Me remembers the pool it was drawn from (a collection, the
+// What's Current part of one, or every style), so the style can offer Again: another draw
+// from the same pool, without going back for it. Draws do not repeat until the pool runs
+// out. Again replaces the style rather than stacking up, so Back still leads to where the
+// first draw was made. Going anywhere else by any other way ends it.
+let SURPRISE=null;
+function surpriseFrom(pool,pick){
+  SURPRISE={pool:pool.slice(), at:pick, seen:new Set([pick])};
+}
+function surpriseNext(){
+  if(!SURPRISE) return null;
+  let left=SURPRISE.pool.filter(id=>byId[id] && !SURPRISE.seen.has(id) && id!==state.sel);
+  if(!left.length){ SURPRISE.seen=new Set([state.sel]); left=SURPRISE.pool.filter(id=>byId[id] && id!==state.sel); }
+  const pick=left[Math.floor(Math.random()*left.length)];
+  if(pick){ SURPRISE.seen.add(pick); SURPRISE.at=pick; }
+  return pick||null;
+}
+const surpriseHere=()=>!!SURPRISE && SURPRISE.at===state.sel && SURPRISE.pool.length>1;
 // The crumb carries where you were reading, not only what you were reading. Back used to
 // rebuild Explore and drop you at the top of it, so a style opened from halfway down a
 // list cost you your place in that list on the way out. pushTrail() runs before the view
@@ -1057,12 +1076,18 @@ function syncBack(){
   // straight to it: Back from a page pushed over the bare root, or from a style whose
   // crumb is the root, is already the way home.
   const hm=$("panelHome");
+  // On a Surprise Me draw the bar is Back, bare, and Again beside it: the map button goes
+  // to make the room, and the crumb's name with it (the place back leads is where you just
+  // were, and the pill is needed for Again)
+  const sp=surpriseHere() && !PSTACK.length;
+  const ag=$("panelAgain"); if(ag) ag.hidden=!sp;
+  const nr=ag&&ag.closest(".navrow"); if(nr) nr.classList.toggle("surprised",sp);
   if(hm){
     const rootUp = !state.sel && !PSTACK.length;
     const v=TRAIL[TRAIL.length-1];
     const backIsHome = PSTACK.length ? (PSTACK.length===1 && !state.sel)
       : !!v && !v.page && !(v.sel&&byId[v.sel]);
-    hm.hidden = rootUp || backIsHome;
+    hm.hidden = rootUp || backIsHome || sp;
     const nl=hm.closest(".navrow"); if(nl) nl.classList.toggle("hashome",!hm.hidden);
   }
   // back itself lives in the panel now, where it is not sitting beside a From button
@@ -1088,10 +1113,12 @@ function syncBack(){
   if(t) t.textContent = pt || (toMap ? "" : byId[v.sel].name);
   b.classList.toggle("tomap",toMap);
 }
-function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
+function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true,again=false}={}){
   if(!byId[id]) return;
   const switched = state.sel!==id;
-  if(switched && !GOINGBACK){ pushTrail(); bumpStyle(id); }
+  // Again swaps one draw for the next without a step of its own
+  if(switched && !GOINGBACK){ if(!again) pushTrail(); bumpStyle(id); }
+  if(switched && SURPRISE && SURPRISE.at!==id) SURPRISE=null;
   if(switched) markSeen(id);
   state.sel=id; paintYear(); closeNav(); if(typeof stepClose==="function"&&STEP) stepClose();
   // only a real change of style brings a dismissed sheet back; re-selects from
@@ -1134,7 +1161,9 @@ function select(id,{scroll=true,smooth=true,keepPlace=false,repaint=true}={}){
     + `<button id="panelBack" class="navback" type="button" hidden aria-label="Back" title="Back">`
     + `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.6"/><path d="M9.4 4.6L4 10l5.4 5.4"/></svg>`
     + `<span class="bklbl"></span>`
-    + `<svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.6 7.4 3.6v10.8l-4.6 2z"/><path d="M7.4 3.6 12.6 5.6v10.8L7.4 14.4z"/><path d="M12.6 5.6 17.2 3.6v10.8l-4.6 2z"/></svg></button></div>`
+    + `<svg class="bkmap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 5.6 7.4 3.6v10.8l-4.6 2z"/><path d="M7.4 3.6 12.6 5.6v10.8L7.4 14.4z"/><path d="M12.6 5.6 17.2 3.6v10.8l-4.6 2z"/></svg></button>`
+    + `<button id="panelAgain" class="navagain" type="button" hidden aria-label="Surprise me again" title="Surprise me again">`
+    + ROWICON.random.replace("<svg ",'<svg class="agico" ') + `<span>Again</span></button></div>`
     + `<div class="navttl navgap ovttl"><span class="mn"></span></div>`
     + CLOSEBTN
     + `</div>`;                       // .pcard stays open: .more goes inside it, so the
@@ -2004,11 +2033,14 @@ $("panel").addEventListener("click",e=>{
       const narrow=m && pickFilt()==="current" ? shownPicks(m).map(([id])=>id) : [];
       const pool=m ? (narrow.length ? narrow : m[4].map(([id])=>id)).filter(id=>byId[id] && id!==state.sel) : [];
       const pick=pool[Math.floor(Math.random()*pool.length)];
-      if(pick){ closeNav(); select(pick); panelTop(); } return; } }
+      if(pick){ closeNav(); surpriseFrom(pool,pick); select(pick); panelTop(); } return; } }
   { const rr=e.target.closest("[data-random]");
     if(rr){ const pool=nodes.filter(n=>n.id!==state.sel);
       const pick=pool[Math.floor(Math.random()*pool.length)];
-      if(pick){ closeNav(); select(pick.id); panelTop(); } return; } }
+      if(pick){ closeNav(); surpriseFrom(pool.map(n=>n.id),pick.id); select(pick.id); panelTop(); } return; } }
+  { const ag=e.target.closest("#panelAgain");
+    if(ag){ e.preventDefault(); const pick=surpriseNext();
+      if(pick){ closeNav(); select(pick,{again:true}); panelTop(); } return; } }
   // the sort swaps the rows where they stand rather than rebuilding the page: a rebuild
   // would throw away the scroll position, and the whole point of re-sorting is to look
   // at the same set from somewhere else

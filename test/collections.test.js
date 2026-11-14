@@ -211,6 +211,26 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
     say("  surprise lands inside this collection every time ("+landed.length+" tries)",
       landed.every(h=>inHere.has(h)) ? true : landed.filter(h=>!inHere.has(h)).join(" "));
     say("    and not always on the same one", new Set(landed).size>1);
+    // Again: a draw offers another from the same pool, beside a bare Back, with the map
+    // button gone to make the room. Each Again lands in the collection, does not repeat
+    // until it has to, and Back still goes to the collection, not the previous draw.
+    { const bar=()=>p.evaluate(()=>{ const a=document.getElementById("panelAgain"), h=document.getElementById("panelHome"),
+        b=document.getElementById("panelBack"), l=b&&b.querySelector(".bklbl");
+        return {again:!!a&&!a.hidden&&a.textContent.trim(), home:!!h&&!h.hidden,
+          label:!!l&&getComputedStyle(l).display!=="none", back:b&&b.getAttribute("aria-label")}; });
+      const v0=await bar();
+      say("  a draw shows Again beside a bare Back, no map button ("+JSON.stringify(v0)+")",
+        v0.again==="Again" && !v0.home && !v0.label && /^Back to /.test(v0.back||""));
+      const drawn=[await p.evaluate(()=>location.hash.slice(1))];
+      for(let i=0;i<5;i++){ await p.click("#panelAgain"); await settle(p); drawn.push(await p.evaluate(()=>location.hash.slice(1))); }
+      say("  Again draws from the same collection without repeating ("+drawn.join(", ")+")",
+        drawn.every(h=>inHere.has(h)) && new Set(drawn).size===drawn.length);
+      await p.click("#panelBack"); await settle(p);
+      say("  and Back after it goes to the collection",
+        await p.evaluate(()=>location.hash==="#mode:dinner"));
+      // reached any other way, a style has no Again
+      await p.click('.ppage[data-p="mode:dinner"] .pick'); await settle(p);
+      say("  a style picked from the list has no Again", !(await bar()).again); }
     await p.close();
   }
   // ---- the same painting wherever you meet a collection ----

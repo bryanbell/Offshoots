@@ -68,8 +68,10 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp});
     await d.$eval(".pttl", e=>e.tagName==="H1" && !e.querySelector("button")));
   say("  with the date beside it", await d.$eval(".pttl .ptyr",e=>/\d{4}/.test(e.textContent)));
   // Home sits beside Back now, shown only when Back would not reach the root in one press
-  say("no control left in the nav row but Home, Back and Close",
-    (await d.$$eval(".navrow button",bs=>bs.map(b=>b.id||b.className.split(" ")[0]).sort().join())) ==="panelBack,panelHome,pmin");
+  // (and Again, which is only there after a Surprise Me draw)
+  say("no control left in the nav row but Home, Back, Again and Close",
+    (await d.$$eval(".navrow button",bs=>bs.map(b=>b.id||b.className.split(" ")[0]).sort().join())) ==="panelAgain,panelBack,panelHome,pmin");
+  say("  and Again hidden on a style that was not drawn", await d.$eval("#panelAgain",e=>e.hidden));
   // a menu, specifically: the bar does carry the style's name once you scroll past it,
   // but that is a label, not somewhere to go
   say("the lineage is a section, not a menu on the title",
