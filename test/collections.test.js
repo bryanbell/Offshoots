@@ -154,28 +154,32 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
     say("    and puts what this browser opens most at the top (\""+un2[0]+"\")",
       un2[0]==="Tropicália" && un2.length===v.names.length);
     await p.selectOption('.psortsel','fit'); await settle(p);
-    // What's Current narrows rather than reorders: a switch of its own under Surprise Me,
-    // each half carrying its count. On, only CURRENT styles, in the collection's own order,
-    // with the heading's count and Surprise Me following, and the rest one tap away
+    // The era switch narrows rather than reorders: All, Vinyl, Cassette, CD, Stream (one
+    // generation each, Boomers to Gen Z), above Surprise Me. A generation keeps only its styles (GENS,
+    // or CURRENT for Gen Z), in the collection's own order, with the heading's count and
+    // Surprise Me following, and the rest one tap away
     { const sw=await p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
         const s=u.querySelector(".pkfilt"), top=u.querySelector(".modetop"), h=u.querySelector(".secthead.picksort");
-        return {txt:s?[...s.querySelectorAll("[data-pickfilt]")].map(b=>b.textContent+(b.getAttribute("aria-pressed")==="true"?"*":"")):[],
+        return {txt:s?[...s.querySelectorAll("[data-pickfilt]")].map(b=>b.querySelector(".pkfl").textContent+(b.disabled?"-":"")+(b.getAttribute("aria-pressed")==="true"?"*":"")):[],
+          clipped:s?[...s.querySelectorAll(".pkfl")].filter(e=>e.scrollWidth>e.clientWidth+1).length:-1,
           placed:!!s && s.getBoundingClientRect().bottom<=top.getBoundingClientRect().top && top.getBoundingClientRect().bottom<=h.getBoundingClientRect().top,
           tap:s?Math.min(...[...s.querySelectorAll("button")].map(b=>b.getBoundingClientRect().height)):0}; });
-      const nc=dinner[4].filter(([id])=>D.CURRENT[id]).length;
-      say("  an All / What's Current switch with counts ("+sw.txt.join(" | ")+")",
-        JSON.stringify(sw.txt)===JSON.stringify(["All"+dinner[4].length+"*","What's Current"+nc]));
+      const ng=g=>dinner[4].filter(([id])=>g==="Z"?D.CURRENT[id]:(D.GENS[id]||"").includes(g)).length;
+      say("  a generation switch, a stop with none here dimmed ("+sw.txt.join(" | ")+")",
+        JSON.stringify(sw.txt)===JSON.stringify(["All*",...[["B","Vinyl"],["X","Cassette"],["M","CD"],["Z","Stream"]].map(([g,l])=>l+(ng(g)?"":"-"))]));
+      say("    every name whole", sw.clipped===0);
       say("    above Surprise Me, which sits on the list it draws from, clearing the tap floor", sw.placed && sw.tap>=44); }
-    await p.click('.ppage:not([hidden]) [data-pickfilt="current"]'); await settle(p);
-    { const want=dinner[4].filter(([id])=>D.CURRENT[id]).map(([id])=>D.DATA.find(r=>r[0]===id)[1]);
+    for(const [g,lbl] of [["B","Vinyl"],["current","Stream"]]){
+    await p.click(`.ppage:not([hidden]) [data-pickfilt="${g}"]`); await settle(p);
+    const want=dinner[4].filter(([id])=>g==="current"?D.CURRENT[id]:(D.GENS[id]||"").includes(g)).map(([id])=>D.DATA.find(r=>r[0]===id)[1]);
       const cv=await p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
         return {names:[...u.querySelectorAll(".picks .pknm")].map(e=>e.textContent),
           count:u.querySelector(".pkcount").textContent, sub:u.querySelector(".modetop .lrsub").textContent,
-          on:u.querySelector('[data-pickfilt="current"]').getAttribute("aria-pressed"), all:(u.querySelector("[data-pickall]")||{}).textContent}; });
-      say("  What's Current keeps only what younger listeners play ("+cv.names.join(", ")+")",
+          on:u.querySelector('[data-pickfilt][aria-pressed="true"]').dataset.pickfilt, all:(u.querySelector("[data-pickall]")||{}).textContent}; });
+      say("  "+lbl+" keeps only its styles ("+cv.names.join(", ")+")",
         JSON.stringify(cv.names)===JSON.stringify(want));
       say("    and the switch, the count and Surprise Me say so",
-        cv.on==="true" && cv.count===String(want.length) && cv.sub==="One of these "+want.length+", at random");
+        cv.on===g && cv.count===String(want.length) && cv.sub==="One of these "+want.length+", at random");
       say("    with the rest one tap away ("+cv.all+")", cv.all==="Show All "+dinner[4].length);
       await p.click(".ppage:not([hidden]) [data-pickall]"); await settle(p);
       const back=await look();
