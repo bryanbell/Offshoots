@@ -3418,6 +3418,13 @@ document.addEventListener("keydown",e=>{
 // Five stops in one track, the one chosen filled. No counts on them: the heading and Surprise
 // Me already say how many are shown. A generation with nothing in this collection is dimmed
 // and cannot be chosen, so the switch never leads to an empty list.
+// one glyph per stop, line-drawn at the weight of the bar's other icons
+const GENICON={
+  all:'<rect x="4" y="4" width="7" height="7" rx="1.6"/><rect x="13" y="4" width="7" height="7" rx="1.6"/><rect x="4" y="13" width="7" height="7" rx="1.6"/><rect x="13" y="13" width="7" height="7" rx="1.6"/>',
+  B:'<circle cx="12" cy="12" r="8.6" fill="currentColor" fill-opacity=".14"/><circle cx="12" cy="12" r="6" stroke-opacity=".4"/><circle cx="12" cy="12" r="3.4" stroke-opacity=".4"/><circle cx="12" cy="12" r=".9" fill="currentColor"/>',
+  X:'<rect x="2.8" y="5.2" width="18.4" height="13.6" rx="2"/><circle cx="8.6" cy="11" r="2"/><circle cx="15.4" cy="11" r="2"/><path d="M10.6 11h2.8"/><path d="M7 18.8l1.4-3h7.2l1.4 3"/>',
+  M:'<circle cx="12" cy="12" r="8.6"/><circle cx="12" cy="12" r="2.4"/><path d="M12 5.6a6.4 6.4 0 0 1 6.4 6.4" stroke-opacity=".45"/>',
+  current:'<path d="M4 10v4"/><path d="M8 7v10"/><path d="M12 4.5v15"/><path d="M16 7v10"/><path d="M20 10v4"/>'};
 function pickFiltHtml(m){
   const on=pickFilt(), have=m[4].filter(([id])=>byId[id]);
   const i=GENSTOPS.findIndex(g=>g[0]===on);
@@ -3427,7 +3434,9 @@ function pickFiltHtml(m){
         const off=!n && on!==k;
         return `<button type="button" class="pkfb" role="radio" data-pickfilt="${k}" aria-checked="${on===k}" aria-pressed="${on===k}"`
           + (off?` disabled aria-disabled="true"`:"")
-          + ` aria-label="${esc(n ? sr.replace("{n}",n) : lbl+": none in this collection")}"><span class="pkfl">${esc(lbl)}</span></button>`; }).join("")
+          + ` aria-label="${esc(n ? sr.replace("{n}",n) : lbl+": none in this collection")}" title="${esc(n ? sr.replace("{n}",n) : lbl+": none in this collection")}">`
+          + `<svg class="pkfi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${GENICON[k]}</svg>`
+          + `<span class="pkfl">${esc(lbl)}</span></button>`; }).join("")
     + `</div>`;
 }
 function pickSortHtml(){

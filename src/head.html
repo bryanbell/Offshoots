@@ -409,16 +409,22 @@ aside h3,.pcard h3.sec{font:700 var(--t-head)/var(--t-head-lh) var(--f-body);let
 @media (hover:hover){.pkfb[aria-pressed="false"]:hover{background:color-mix(in srgb,var(--fg) 8%,transparent)}}
 /* The generation switch: five stops in one track, a filled thumb that slides to the chosen
    one, each stop's count under its name */
-.pkfilt.gens{position:relative;gap:0}
-.pkfilt.gens .pkfb{padding:0 2px;position:relative;z-index:1;background:transparent;transition:color .2s}
+.pkfilt.gens{position:relative;gap:0;margin-top:16px}
+.pkfilt.gens .pkfb{flex-direction:column;gap:2px;padding:5px 2px 6px;min-height:54px;position:relative;z-index:1;
+  background:transparent;transition:color .2s}
+.pkfilt.gens .pkfi{width:22px;height:22px;flex:none}
+/* a rounded rectangle, not a pill: a pill this short and wide bit the corners off longer
+   names. The track's corner is the thumb's plus the 4px between them, so they nest. */
+.pkfilt.gens{border-radius:16px}
+.pkfilt.gens .pkfb{border-radius:12px}
 .pkfilt.gens .pkfb:disabled{opacity:.35;cursor:default}
 .pkfilt.gens .pkfb[aria-pressed="true"]{background:transparent}
-.pkfilt.gens .pkfl{font:600 var(--t-sub)/1.1 var(--f-body);white-space:nowrap}
-.pkfilt.gens .pkthumb{position:absolute;top:4px;bottom:4px;left:4px;z-index:0;border-radius:999px;
+.pkfilt.gens .pkfl{font:600 12.5px/1.1 var(--f-body);white-space:nowrap;letter-spacing:.01em}
+.pkfilt.gens .pkthumb{position:absolute;top:4px;bottom:4px;left:4px;z-index:0;border-radius:12px;
   width:calc((100% - 8px) / var(--gn));transform:translateX(calc(100% * var(--gi)));
   background:var(--acc,var(--bluebtn));transition:transform .28s cubic-bezier(.3,.7,.2,1)}
 @media (prefers-reduced-motion:reduce){ .pkfilt.gens .pkthumb{transition:none} }
-@media (max-width:380px){ .pkfilt.gens .pkfl{font-size:13px} }
+
 /* under a collection narrowed to What's Current: what is left out is one tap away */
 .pkfoot{padding:14px 16px 4px;display:flex;flex-direction:column;align-items:flex-start;gap:10px}
 .pkfoot .note{margin:0}
