@@ -78,7 +78,14 @@ const page=p=>p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].
   say("  and back puts the map as it was", !(await page(q)).lit && !(await q.evaluate(()=>!!document.querySelector("#axsel text"))));
   // before the Hot 100 there is no chart, and the page says why
   await q.goto(URL+"#year:1950"); await ready(q); await until(q,()=>!!document.querySelector('.ppage[data-p="year:1950"]')); await settle(q);
-  say("1950 says the charts start in 1959", await q.evaluate(()=>/1958/.test(document.querySelector('.ppage[data-p="year:1950"] .yrnone').textContent)));
+  say("1950 has no chart, so no charts section, and still what was taking off",
+    await q.evaluate(()=>{ const u=document.querySelector('.ppage[data-p="year:1950"]');
+      return !u.querySelector(".hitrail") && ![...u.querySelectorAll(".msecttl")].some(x=>/Charts/.test(x.textContent))
+        && !!u.querySelector(".yrrows"); }));
+  say("the year sits between its arrows, with nothing written under it",
+    await q.evaluate(()=>{ const u=document.querySelector('.ppage[data-p="year:1950"]'), f=u.querySelector(".pgflank");
+      const k=f?[...f.children].map(x=>x.matches(".yrstep")?"arrow":x.matches(".bigttl")?"year":"?").join(" "):"";
+      return k==="arrow year arrow" && !u.querySelector(".pglede") && !u.querySelector(".msecsub"); }));
   say("no page errors", errs.length===0 || errs.join(" | "));
   await b.close();
 })();
