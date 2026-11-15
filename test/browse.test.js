@@ -67,8 +67,8 @@ const state=p=>p.evaluate(()=>{
   // ---------- mobile ----------
   let p=await fresh(b,M);
   const rows=await p.$$eval(".sect-onmap .listgrp .listrow .lrlbl",e=>e.map(x=>x.textContent));
-  say("two ways in: "+rows.join(" / "),
-    rows.join("/")==="Most Influential/Surprise Me");
+  say("three ways in: "+rows.join(" / "),
+    rows.join("/")==="Most Influential/A Year in Music/Surprise Me");
   // About moved into a fold under the title and Install into the footer, so the two that
   // were a colophon at the foot are now in two different places and neither is a row
   const col=await p.evaluate(()=>({

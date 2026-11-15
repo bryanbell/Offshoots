@@ -2031,6 +2031,8 @@ $("panel").addEventListener("click",e=>{
       r.scrollBy({left:+hp.dataset.hitpg*r.clientWidth*0.85,behavior:reduce?"auto":"smooth"}); return; } }
   { const yb=e.target.closest("[data-year]");
     if(yb){ e.preventDefault(); openYear(+yb.dataset.year); return; } }
+  { const yn=e.target.closest("[data-yearnow]");
+    if(yn){ e.preventDefault(); openYear(viewYear()); return; } }
   // one of this collection, rather than one of the map: the point of standing in a
   // collection is that everything in it already fits
   // the generation switch, and Show All under a narrowed list, which is the same
@@ -2705,6 +2707,7 @@ const LRCHEV="<svg class=\"lrcv\" viewBox=\"0 0 256 256\" fill=\"currentColor\" 
 const ROWICON={"roots":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M198.1,62.59a76,76,0,0,0-140.2,0A71.71,71.71,0,0,0,16,127.8C15.9,166,48,199,86.14,200A72.09,72.09,0,0,0,120,192.47V232a8,8,0,0,0,16,0V192.47A72.17,72.17,0,0,0,168,200l1.82,0C208,199,240.11,166,240,127.8A71.71,71.71,0,0,0,198.1,62.59ZM169.45,184a56.08,56.08,0,0,1-33.45-10v-41l43.58-21.78a8,8,0,1,0-7.16-14.32L136,115.06V88a8,8,0,0,0-16,0v51.06L83.58,120.84a8,8,0,1,0-7.16,14.32L120,156.94v17a56,56,0,0,1-33.45,10C56.9,183.23,31.92,157.52,32,127.84A55.77,55.77,0,0,1,67.11,76a8,8,0,0,0,4.53-4.67,60,60,0,0,1,112.72,0A8,8,0,0,0,188.89,76,55.79,55.79,0,0,1,224,127.84C224.08,157.52,199.1,183.23,169.45,184Z\"/></svg>","fams":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M230.91,172A8,8,0,0,1,228,182.91l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,36,169.09l92,53.65,92-53.65A8,8,0,0,1,230.91,172ZM220,121.09l-92,53.65L36,121.09A8,8,0,0,0,28,134.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,121.09ZM24,80a8,8,0,0,1,4-6.91l96-56a8,8,0,0,1,8.06,0l96,56a8,8,0,0,1,0,13.82l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,24,80Zm23.88,0L128,126.74,208.12,80,128,33.26Z\"/></svg>","pl":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M32,64a8,8,0,0,1,8-8H216a8,8,0,0,1,0,16H40A8,8,0,0,1,32,64Zm8,72H160a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16Zm72,48H40a8,8,0,0,0,0,16h72a8,8,0,0,0,0-16Zm135.66-57.7a8,8,0,0,1-10,5.36L208,122.75V192a32.05,32.05,0,1,1-16-27.69V112a8,8,0,0,1,10.3-7.66l40,12A8,8,0,0,1,247.66,126.3ZM192,192a16,16,0,1,0-16,16A16,16,0,0,0,192,192Z\"/></svg>","top":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M240,56v64a8,8,0,0,1-16,0V75.31l-82.34,82.35a8,8,0,0,1-11.32,0L96,123.31,29.66,189.66a8,8,0,0,1-11.32-11.32l72-72a8,8,0,0,1,11.32,0L136,140.69,212.69,64H168a8,8,0,0,1,0-16h64A8,8,0,0,1,240,56Z\"/></svg>","random":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M237.66,178.34a8,8,0,0,1,0,11.32l-24,24a8,8,0,0,1-11.32-11.32L212.69,192H200.94a72.12,72.12,0,0,1-58.59-30.15l-41.72-58.4A56.1,56.1,0,0,0,55.06,80H32a8,8,0,0,1,0-16H55.06a72.12,72.12,0,0,1,58.59,30.15l41.72,58.4A56.1,56.1,0,0,0,200.94,176h11.75l-10.35-10.34a8,8,0,0,1,11.32-11.32ZM143,107a8,8,0,0,0,11.16-1.86l1.2-1.67A56.1,56.1,0,0,1,200.94,80h11.75L202.34,90.34a8,8,0,0,0,11.32,11.32l24-24a8,8,0,0,0,0-11.32l-24-24a8,8,0,0,0-11.32,11.32L212.69,64H200.94a72.12,72.12,0,0,0-58.59,30.15l-1.2,1.67A8,8,0,0,0,143,107Zm-30,42a8,8,0,0,0-11.16,1.86l-1.2,1.67A56.1,56.1,0,0,1,55.06,176H32a8,8,0,0,0,0,16H55.06a72.12,72.12,0,0,0,58.59-30.15l1.2-1.67A8,8,0,0,0,113,149Z\"/></svg>","about":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z\"/></svg>","install":"<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,124.69V32a8,8,0,0,0-16,0v92.69L93.66,98.34a8,8,0,0,0-11.32,11.32Z\"/></svg>"};
 const ROWICON_PICKS="<svg viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24ZM74.08,197.5a64,64,0,0,1,107.84,0,87.83,87.83,0,0,1-107.84,0ZM96,120a32,32,0,1,1,32,32A32,32,0,0,1,96,120Zm97.76,66.41a79.66,79.66,0,0,0-36.06-28.75,48,48,0,1,0-59.4,0,79.66,79.66,0,0,0-36.06,28.75,88,88,0,1,1,131.52,0Z\"/></svg>";
 ROWICON.picks=ROWICON_PICKS;
+ROWICON.year='<svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Z"/></svg>';
 const rowIcon = k => {
   // the medium rows carry the medium's own glyph and colour, which the Go deeper rows on
   // every style already use, so the two read as the same thing seen from two directions
@@ -2735,6 +2738,10 @@ function onMapSect(){
     `<div class="listgrp sep">`
     + goRow("top","Most Influential","Explore musical crossroads",top.length,
         ` data-page="top"`,`The ${top.length} styles that led to the most`)
+    // The year pages were reachable only by tapping the timeline, which nothing said you
+    // could do. This row opens the year the map is showing, and its line teaches the tap.
+    + goRow("year","A Year in Music","Tap any year on the timeline, too",null,
+        ` data-yearnow`,"Open the year the map is showing: its biggest songs and its styles")
     + goRow("random","Surprise Me","Jump somewhere unexpected",null,
         ` data-random`,"Open any style, chosen at random")
     + `</div>`,
@@ -3822,6 +3829,17 @@ function syncYear(force){
   // bring the year into view, a third of the way across, when it is a new one
   if(changed && was!==Y){ const sc=$("scroller"), left=Math.max(0,x-sc.clientWidth/3);
     if(Math.abs(sc.scrollLeft-left)>sc.clientWidth/4) sc.scrollTo({left,behavior:reduce?"auto":"smooth"}); }
+}
+// The year at the middle of the map as it is scrolled. Back in the roots, before the charts
+// begin (where the map opens), it is this year instead: a page of what is playing now beats
+// a page about 1959 for somebody who has not scrolled yet.
+function viewYear(){
+  const sc=$("scroller"), ax=$("axis");
+  const s=sc.getBoundingClientRect(), a=ax.getBoundingClientRect();
+  const y=yearAt(s.left+s.width/2-a.left);
+  const first=typeof HITS!=="undefined" ? Math.min(...Object.keys(HITS).map(Number)) : 1950;
+  if(y==null || y<first) return END;
+  return Math.round(Math.min(END,y));
 }
 // open a year: in place over a year page already showing, otherwise as a new page
 function openYear(Y){

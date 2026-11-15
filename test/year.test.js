@@ -86,6 +86,28 @@ const page=p=>p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].
     await q.evaluate(()=>{ const u=document.querySelector('.ppage[data-p="year:1950"]'), f=u.querySelector(".pgflank");
       const k=f?[...f.children].map(x=>x.matches(".yrstep")?"arrow":x.matches(".bigttl")?"year":"?").join(" "):"";
       return k==="arrow year arrow" && !u.querySelector(".pglede") && !u.querySelector(".msecsub"); }));
+  // Explore the Atlas has a way in that says the timeline can be tapped. Fresh, the map
+  // is in the roots before any chart, so it opens this year; scrolled to the 80s, the 80s.
+  { const r=await b.newPage({viewport:{width:1440,height:900}}); r.on("pageerror",e=>errs.push(String(e)));
+    await r.route("https://itunes.apple.com/search**",x=>x.fulfill({contentType:"application/json",headers:{"access-control-allow-origin":"*"},body:'{"results":[]}'}));
+    await r.goto(URL); await ready(r);
+    const row=await r.evaluate(()=>{ const x=document.querySelector(".sect-onmap [data-yearnow]");
+      return x ? x.querySelector(".lrlbl, .lrt, span").textContent+" | "+x.textContent : ""; });
+    say("Explore the Atlas has A Year in Music, saying the timeline can be tapped ("+row.replace(/\s+/g," ").trim()+")",
+      /A Year in Music/.test(row) && /timeline/.test(row));
+    await r.click(".sect-onmap [data-yearnow]"); await settle(r);
+    const h1=await r.evaluate(()=>location.hash);
+    say("  from a fresh map it opens this year ("+h1+")", /^#year:20\d\d$/.test(h1));
+    await r.click("#panelBack"); await settle(r);
+    // centre the map on Post-Hardcore, a 1985 style, by where its dot sits
+    await r.evaluate(()=>{ const sc=document.getElementById("scroller"), s=sc.getBoundingClientRect();
+      const g=document.querySelector('#chart .n[data-id="posthc"]'), d=(g.querySelector("circle,path,use")||g).getBoundingClientRect();
+      sc.scrollLeft+= (d.left+d.width/2)-(s.left+s.width/2); });
+    await settle(r);
+    await r.click(".sect-onmap [data-yearnow]"); await settle(r);
+    const h2=await r.evaluate(()=>location.hash);
+    say("  and from a map scrolled to the mid-80s it opens a year there ("+h2+")", /^#year:198[3-8]$/.test(h2));
+    await r.close(); }
   say("no page errors", errs.length===0 || errs.join(" | "));
   await b.close();
 })();
