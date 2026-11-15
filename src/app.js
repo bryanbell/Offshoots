@@ -868,6 +868,12 @@ function surpriseNext(){
   return pick||null;
 }
 const surpriseHere=()=>!!SURPRISE && SURPRISE.at===state.sel && SURPRISE.pool.length>1;
+// Choosing a style on purpose ends the run, even when it is the one already drawn: picked
+// from a list or tapped on the map, it was not a surprise. select() only notices a change
+// of style, and picking the drawn one again is not one.
+document.addEventListener("click",e=>{
+  if(SURPRISE && e.target.closest && e.target.closest("[data-go], #chart .n")) SURPRISE=null;
+},true);
 // The crumb carries where you were reading, not only what you were reading. Back used to
 // rebuild Explore and drop you at the top of it, so a style opened from halfway down a
 // list cost you your place in that list on the way out. pushTrail() runs before the view
