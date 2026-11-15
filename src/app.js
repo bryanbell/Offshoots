@@ -2477,7 +2477,8 @@ function modePicks(m){
       + listen + `</div>`;
   }).join("") + foot;
 }
-// Hovering a collection row, or a Most Influential row, previews the style on the map: it lights the style and the
+// Hovering a style on any pushed page (a collection, Most Influential, a year, your crate)
+// previews it on the map: it lights the style and the
 // lines straight to and from it, and the map slides to it. A preview only. It is its own
 // layer of classes (peek, pv, pvn, pve), so state.sel, the trail and the address are
 // untouched. Moving off the list leaves it showing; leaving the page, opening a style,
@@ -2504,7 +2505,10 @@ function peekStyle(id){
 // through every row it crosses on the way
 document.addEventListener("pointerover",e=>{
   if(e.pointerType!=="mouse" || !PEEKOK()) return;
-  const b=e.target.closest && e.target.closest(".picks .pk .pick[data-go], .toplist .toprow[data-go]");
+  // any style on a page opened from the panel: a collection, Most Influential, a year,
+  // your crate, Roots. Not the style page itself, whose lineage would drag the map off
+  // the style you are on.
+  const b=e.target.closest && e.target.closest('.ppage:not([data-p="root"]) [data-go]');
   // off a row the map keeps showing the last style hovered, so the eye can travel from
   // the list to the map without the highlight vanishing on the way
   if(!b){ clearTimeout(PEEKT); return; }
@@ -3735,9 +3739,13 @@ function yearRow(id,detail){
 // is opened and kept on this device. The circle starts as the artist's photo or silhouette
 // and the cover slides in over it when it arrives; offline, it simply stays as it was.
 let SONGART={}; try{ SONGART=JSON.parse(localStorage.getItem("songart")||"{}")||{}; }catch(e){}
+// The same lookup gives the song's own page in Apple Music, which is where the card links.
+// A search link was what it had before, and the Music app on a Mac opens a search link by
+// launching and then doing nothing. Kept beside the art; "" when the catalogue had no match.
+let SONGURL={}; try{ SONGURL=JSON.parse(localStorage.getItem("songurl")||"{}")||{}; }catch(e){}
 const songKey=(t,a)=>t+"\u0000"+a;
 function songArt(t,a){
-  const k=songKey(t,a); if(SONGART[k]!==undefined) return Promise.resolve(SONGART[k]);
+  const k=songKey(t,a); if(SONGART[k]!==undefined && SONGURL[k]!==undefined) return Promise.resolve(SONGART[k]);
   const norm=v=>String(v||"").toLowerCase().replace(/\(.*?\)|\[.*?\]/g,"").replace(/[^a-z0-9]+/g," ").trim();
   const nt=norm(t), na=norm(leadArtist(a));
   return fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(t+" "+leadArtist(a))}&entity=song&limit=8&country=US`)
@@ -3745,13 +3753,33 @@ function songArt(t,a){
       const hit=rs.find(r=>norm(r.trackName).startsWith(nt) && norm(r.artistName).includes(na))
         || rs.find(r=>norm(r.artistName).includes(na)) || null;
       SONGART[k]=hit&&hit.artworkUrl100 ? hit.artworkUrl100.replace(/100x100bb/,"300x300bb") : "";
-      try{ localStorage.setItem("songart",JSON.stringify(SONGART)); }catch(e){}
+      SONGURL[k]=hit&&/^https:\/\/music\.apple\.com\//.test(hit.trackViewUrl||"") ? hit.trackViewUrl.replace(/[?&]uo=\d+/,"") : "";
+      try{ localStorage.setItem("songart",JSON.stringify(SONGART)); localStorage.setItem("songurl",JSON.stringify(SONGURL)); }catch(e){}
       return SONGART[k]; }).catch(()=>null);
 }
+// Apple Music only: the card goes to the song itself once it has been looked up. Failing
+// that, the artist's page, and only then the search it used to open.
+function songHref(t,a){
+  const u=SONGURL[songKey(t,a)]; if(u) return u;
+  const who=leadArtist(a); return AMID[who] ? amHref(who) : svcHref(t+" "+a);
+}
+function songLink(el){ if(SVC==="apple") el.href=songHref(el.dataset.song,el.dataset.by); }
+// a tap before the lookup has come back waits for it rather than opening the search: the
+// tab is opened inside the tap, so it is not blocked, and pointed where it goes once known
+document.addEventListener("click",e=>{
+  const el=e.target.closest && e.target.closest("a.hitsong[data-song]");
+  if(!el || SVC!=="apple" || e.metaKey||e.ctrlKey||e.shiftKey) return;
+  const t=el.dataset.song, by=el.dataset.by;
+  if(SONGURL[songKey(t,by)]){ el.href=SONGURL[songKey(t,by)]; return; }
+  e.preventDefault();
+  const w=window.open("about:blank","_blank");
+  const go=()=>{ const u=songHref(t,by); el.href=u; if(w) w.location.href=u; else location.href=u; };
+  Promise.race([songArt(t,by),new Promise(r=>setTimeout(r,4000))]).then(go,go);
+});
 function paintSongArt(root){
   (root||document).querySelectorAll(".hitsong[data-song]:not([data-art])").forEach(el=>{
     el.dataset.art="1";
-    songArt(el.dataset.song,el.dataset.by).then(u=>{ if(!u) return;
+    songArt(el.dataset.song,el.dataset.by).then(u=>{ songLink(el); if(!u) return;
       const face=el.querySelector(".hitface"); if(!face) return;
       const img=new Image(); img.alt=""; img.decoding="async"; img.className="hitrec";
       // the record replaces the stand-in outright: the silhouette's ink filter applies to

@@ -557,8 +557,12 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
               .filter(c=>parseFloat(getComputedStyle(c).strokeWidth)>=2).length,
       playMatches: same(of(document.querySelector(".n.root.has")),
                         of(document.querySelector(".n:not(.root).has"))),
-      plainMatches: same(of(document.querySelector(".n.root:not(.has)")),
-                         of(document.querySelector(".n:not(.root):not(.has)"))),
+      // fill is the family colour, so the other one is from the same family where there is
+      // one; when every playlist-less style left is in another family, outline and mark only
+      plainMatches: (()=>{ const r=document.querySelector(".n.root:not(.has)"); if(!r) return true;
+        const c=r.style.getPropertyValue("--c"), all=[...document.querySelectorAll(".n:not(.root):not(.has)")];
+        const k=all.find(g=>g.style.getPropertyValue("--c")===c), a=of(r), o=of(k||all[0]);
+        return k ? same(a,o) : !!o && a.stroke===o.stroke && a.tri===o.tri; })(),
       rootsItalic: getComputedStyle(document.querySelector(".n.root text:not(.halo)")).fontStyle==="italic"
     };});
   say("no hollow rings left on the map ("+marks.rings+")", marks.rings===0);

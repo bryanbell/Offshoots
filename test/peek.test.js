@@ -117,6 +117,28 @@ const look=p=>p.evaluate(()=>{
     say("  leaving the page ends it", !(await look(t)).peek);
     await t.close(); }
 
+  // and so do a year's styles, the ones taking off and the ones new that year
+  { const t=await b.newPage({viewport:{width:1280,height:800}});
+    t.on("pageerror",e=>errs.push(String(e)));
+    await t.goto(URL+"#year:1983"); await ready(t);
+    await until(t,()=>document.querySelectorAll(".yrrows [data-go]").length>2); await settle(t);
+    const tb=await look(t);
+    const ids=await t.$$eval(".yrrows [data-go]",r=>r.map(x=>x.dataset.go));
+    for(const tid of [ids[0],ids[ids.length-1]]){
+      await t.hover(`.yrrows [data-go="${tid}"]`);
+      const lit=await until(t,id=>{const g=document.querySelector("#chart .n.pv"); return !!g&&g.dataset.id===id;},tid);
+      say("hovering a year's style ("+tid+") lights it on the map", !!lit && (await look(t)).peek); }
+    say("  without selecting it", (await look(t)).sel===tb.sel && (await look(t)).hash===tb.hash);
+    await t.close(); }
+  // the style page's own rows do not: they would drag the map off the style you are on
+  { const t=await b.newPage({viewport:{width:1280,height:800}});
+    t.on("pageerror",e=>errs.push(String(e)));
+    await t.goto(URL+"#shoegaze"); await ready(t);
+    const g=await t.$('.ppage[data-p="root"] [data-go]:not([hidden])');
+    if(g){ await g.hover(); await new Promise(r=>setTimeout(r,500)); }
+    say("hovering the style page's own lineage previews nothing", !!g && !(await look(t)).peek);
+    await t.close(); }
+
   say("no page errors", errs.length===0 || errs.join(" | "));
   await b.close();
 })();
