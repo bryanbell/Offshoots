@@ -2475,7 +2475,8 @@ function modePicks(m){
       + listen + `</div>`;
   }).join("") + foot;
 }
-// Hovering a collection row, or a Most Influential row, previews the style on the map: it lights the style and the
+// Hovering a style on any pushed page (a collection, Most Influential, a year, your crate)
+// previews it on the map: it lights the style and the
 // lines straight to and from it, and the map slides to it. A preview only. It is its own
 // layer of classes (peek, pv, pvn, pve), so state.sel, the trail and the address are
 // untouched. Moving off the list leaves it showing; leaving the page, opening a style,
@@ -2502,7 +2503,10 @@ function peekStyle(id){
 // through every row it crosses on the way
 document.addEventListener("pointerover",e=>{
   if(e.pointerType!=="mouse" || !PEEKOK()) return;
-  const b=e.target.closest && e.target.closest(".picks .pk .pick[data-go], .toplist .toprow[data-go]");
+  // any style on a page opened from the panel: a collection, Most Influential, a year,
+  // your crate, Roots. Not the style page itself, whose lineage would drag the map off
+  // the style you are on.
+  const b=e.target.closest && e.target.closest('.ppage:not([data-p="root"]) [data-go]');
   // off a row the map keeps showing the last style hovered, so the eye can travel from
   // the list to the map without the highlight vanishing on the way
   if(!b){ clearTimeout(PEEKT); return; }
