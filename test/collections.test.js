@@ -232,14 +232,13 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
       await p.click("#panelBack"); await settle(p);
       say("  and Back after it goes to the collection",
         await p.evaluate(()=>location.hash==="#mode:dinner"));
-      // reached any other way, a style has no Again, and that includes picking the very
-      // style the last draw landed on (which is what failed in CI: the first row was it)
+      // Reopen the last draw first: a different choice would already clear its state.
       const last=drawn[drawn.length-1];
-      await p.click('.ppage[data-p="mode:dinner"] .pick'); await settle(p);
-      say("  a style picked from the list has no Again", !(await bar()).again);
-      await p.click("#panelBack"); await settle(p);
       await p.click(`.ppage[data-p="mode:dinner"] .pick[data-go="${last}"]`); await settle(p);
-      say("  not even the one the last draw landed on", !(await bar()).again); }
+      say("  not even the one the last draw landed on", !(await bar()).again);
+      await p.click("#panelBack"); await settle(p);
+      await p.click('.ppage[data-p="mode:dinner"] .pick'); await settle(p);
+      say("  a style picked from the list has no Again", !(await bar()).again); }
     await p.close();
   }
   // ---- the same painting wherever you meet a collection ----

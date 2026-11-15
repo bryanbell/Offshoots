@@ -67,13 +67,12 @@ const SIX=[
       await q.goto(URL+"#"+id); await arm(q);
       const ok=await until(q,i=>!!document.querySelector(`#chart .n.cur[data-id="${i}"]`),id);
       await settle(q);
-      // a style with no art of its own asks for one and swaps in its family tile when that
-      // fails, so give a missing file its error event before calling anything broken
-      // ... and one with no cover yet asks twice, half a second apart, before the tile goes
-      // in: wait out the second try too, not just the first (a slow runner caught the retry
-      // failed but its error event not yet handled)
-      await until(q,()=>![...document.querySelectorAll("#panelBody img")].some(x=>!x.closest("[hidden]")
-        && ((x.complete&&x.naturalWidth===0) || (x.classList.contains("pcov") && x.dataset.retried && !(x.complete&&x.naturalWidth>0)))));
+      // Check every panel image, including lazy connection thumbnails below the fold.
+      // A pending retry briefly has complete=false: that is not a successful image.
+      // Load the whole panel and wait for real images or their replacement tiles.
+      await q.$$eval("#panelBody img",images=>images.forEach(x=>{ x.loading="eager"; }));
+      const artReady=await until(q,()=>[...document.querySelectorAll("#panelBody img")]
+        .every(x=>x.closest("[hidden]") || (x.complete && x.naturalWidth>0)));
       const v=await q.evaluate(i=>{
         const t=document.querySelector("#panelBody .pttl .ptnm");
         const body=document.getElementById("panelBody").textContent;
@@ -82,7 +81,7 @@ const SIX=[
         return {name:t?t.textContent:"", hash:location.hash, undef:/undefined|NaN/.test(body), broken, which};
       },id);
       say(`${vpName} #${id} opens ${byId[id][1]}`, !!ok && v.name===byId[id][1] && v.hash==="#"+id);
-      say(`  with no blank or broken parts (${v.broken} broken images${v.which?": "+v.which:""})`, !v.undef && v.broken===0);
+      say(`  with no blank or broken parts (${v.broken} broken images${v.which?": "+v.which:""})`, artReady && !v.undef && v.broken===0);
       await q.close();
     }
   }
