@@ -104,8 +104,8 @@ say("every What's Current style exists and has a playlist",
 }
 say("every What's Current style says why it is there",
   few(Object.entries(D.CURRENT).filter(([k,v])=>typeof v!=="string"||v.length<20||/\u2014/.test(v)).map(([k])=>k)));
-say("every generation tag is on a style with a playlist, and is only B, X or M",
-  few(Object.entries(D.GENS).filter(([k,v])=>!set.has(k)||!(D.PLAY[k]||D.SPLAY[k])||!/^B?X?M?$/.test(v)||!v).map(([k])=>k)));
+say("every age tag is on a style with a playlist, and is only bands 2, 3, 4 and 6 in order",
+  few(Object.entries(D.AGES).filter(([k,v])=>!set.has(k)||!(D.PLAY[k]||D.SPLAY[k])||!/^2?3?4?6?$/.test(v)||!v).map(([k])=>k)));
 say("every collection keyword list belongs to a mode",
   few(Object.keys(D.MODEWORDS||{}).filter(k=>!modeKeys.has(k))));
 say("every cross-style playlist spans styles that exist",
