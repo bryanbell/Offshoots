@@ -2447,6 +2447,7 @@ const COVER = {
   "sf_sound":"san_francisco_sound",
   "swamp_pop":"swamp_pop",
   "vocaloid":"vocaloid_miku_pop",
+  "corridostumbados":"corridos_tumbados",
 };
 const PTITLE = {
   "merengue":"72.33 MERENGUE · The Two-Step Opens Into a Band",
