@@ -3770,7 +3770,7 @@ function yearPage(Y){
   const born=yearNew(Y), up=yearRising(Y).filter(r=>!born.includes(r.id)), hits=yearHits(Y);
   // the year sits between its arrows: round buttons, each named for the year it goes to
   const nav=(y,dir)=> y<YMIN||y>YMAX ? `<span class="yrstep off" aria-hidden="true"></span>`
-    : `<button type="button" class="yrstep" data-year="${y}" aria-label="${y}" title="${y}">`
+    : `<button type="button" class="yrstep" data-year="${y}" aria-label="${y}" aria-haspopup="menu" title="${y} \u00b7 hold for decades">`
       + (dir<0?`<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg>`
               :`<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg>`)
       + `</button>`;
@@ -3849,6 +3849,60 @@ function openYear(Y){
   if(state.sel) clearSel();
   pushPage("year:"+Y);
 }
+// Hold either arrow and a menu of decades opens beside it: a quicker way from 1962 to
+// the 2010s than fifty taps. A right-click opens it too. The release that ends a hold
+// does not also step the year, and the menu goes on a choice, a tap outside, Escape,
+// or the panel scrolling.
+let DEC=null, decHeld=false, decTimer=0;
+function decClose(){ if(DEC){ DEC.el.remove(); const b=DEC.btn; DEC=null; if(b&&b.isConnected) b.setAttribute("aria-expanded","false"); } }
+function decOpen(btn){
+  decClose();
+  const top=PSTACK.length?PSTACK[PSTACK.length-1].key:"", Y=isYearKey(top)?+top.slice(5):+btn.dataset.year;
+  const cur=Math.floor(Y/10)*10, el=document.createElement("div");
+  el.className="stepmenu decmenu"; el.setAttribute("role","menu"); el.setAttribute("aria-label","Jump to a decade");
+  let h=`<div class="stephd">Jump to a decade</div>`;
+  for(let d=Math.floor(YMIN/10)*10; d<=YMAX; d+=10)
+    h+=`<button type="button" role="menuitem" class="stepit decit${d===cur?" on":""}" data-dec="${d}">`
+      + `<span class="stepnm">${d}s</span>${d===cur?`<span class="stepyr">${Y}</span>`:""}</button>`;
+  el.innerHTML=h; document.body.appendChild(el);
+  // under the arrow, kept on screen; the decade you are in scrolled into view
+  const r=btn.getBoundingClientRect(), w=el.offsetWidth, hh=el.offsetHeight, m=8;
+  let x=btn.matches(".yrstep:first-child")?r.left:r.right-w; x=Math.max(m,Math.min(x,innerWidth-m-w));
+  let y=r.bottom+6; if(y+hh>innerHeight-m) y=Math.max(m,r.top-6-hh);
+  el.style.left=Math.round(x)+"px"; el.style.top=Math.round(y)+"px";
+  const on=el.querySelector(".decit.on")||el.querySelector(".decit");
+  el.scrollTop=Math.max(0,on.offsetTop-(el.clientHeight-on.offsetHeight)/2); on.focus({preventScroll:true});
+  btn.setAttribute("aria-expanded","true");
+  DEC={el,btn};
+}
+document.addEventListener("pointerdown",e=>{
+  if(DEC && !e.target.closest(".decmenu")) decClose();
+  const b=e.target.closest && e.target.closest(".pgflank .yrstep[data-year]"); if(!b) return;
+  decHeld=false; clearTimeout(decTimer);
+  decTimer=setTimeout(()=>{ decHeld=true; if(navigator.vibrate) try{ navigator.vibrate(8); }catch(_){}
+    decOpen(b); },450);
+},true);
+["pointerup","pointercancel","pointerleave"].forEach(t=>document.addEventListener(t,e=>{
+  if(e.target.closest && e.target.closest(".pgflank .yrstep")) clearTimeout(decTimer); },true));
+document.addEventListener("contextmenu",e=>{
+  const b=e.target.closest && e.target.closest(".pgflank .yrstep[data-year]"); if(!b) return;
+  e.preventDefault(); clearTimeout(decTimer); decHeld=true; decOpen(b);
+},true);
+// the click that ends a hold is swallowed, so the year stays where the menu opened it
+document.addEventListener("click",e=>{
+  if(decHeld && e.target.closest && e.target.closest(".pgflank .yrstep")){ e.preventDefault(); e.stopImmediatePropagation(); decHeld=false; return; }
+  const it=e.target.closest && e.target.closest(".decmenu .decit");
+  if(it){ e.preventDefault(); e.stopImmediatePropagation(); const d=+it.dataset.dec; decClose(); openYear(d<YMIN?YMIN:d); }
+},true);
+document.addEventListener("keydown",e=>{
+  if(!DEC) return;
+  if(e.key==="Escape"){ e.preventDefault(); e.stopImmediatePropagation(); const b=DEC.btn; decClose(); b.focus(); return; }
+  if(e.key==="ArrowDown"||e.key==="ArrowUp"){ e.preventDefault(); e.stopImmediatePropagation();
+    const its=[...DEC.el.querySelectorAll(".decit")], i=its.indexOf(document.activeElement);
+    const n=its[Math.max(0,Math.min(its.length-1,(i<0?0:i)+(e.key==="ArrowDown"?1:-1)))]; n.focus(); n.scrollIntoView({block:"nearest"}); }
+},true);
+addEventListener("resize",decClose);
+document.addEventListener("scroll",e=>{ if(DEC && !(e.target.closest && e.target.closest(".decmenu"))) decClose(); },true);
 function swapYear(Y){
   const card=panelCard(), stack=card&&card.querySelector(":scope > .pstack"), page=stack&&stack.lastElementChild;
   const d=yearPage(Y); if(!page||!d) return;
