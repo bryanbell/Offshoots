@@ -3556,7 +3556,9 @@ function pushPage(key){
   if(d.lv) page.classList.add("lv"+d.lv);
   // the deck says when you would reach for this page; the lede says what it sounds
   // like. Only the collections carry a deck.
-  const ttl=`<h1 class="bigttl"><span class="mn">${esc(d.title)}</span></h1>`;
+  const h1=`<h1 class="bigttl"><span class="mn">${esc(d.title)}</span></h1>`;
+  // a page can flank its title with a control each side (a year's earlier and later)
+  const ttl=d.flank?`<div class="pgflank">${d.flank[0]}${h1}${d.flank[1]}</div>`:h1;
   const say=(d.deck?`<p class="pgdeck">${esc(d.deck)}</p>`:"")
     + (d.lede?`<p class="note pglede">${esc(d.lede)}</p>`:"");
   // With a picture, the title and what it says sit in a column beside it, so the
@@ -3765,13 +3767,14 @@ function yearPage(Y){
   if(!(Y>=YMIN && Y<=YMAX)) return null;
   // a style that began this year is listed as new, not also as taking off
   const born=yearNew(Y), up=yearRising(Y).filter(r=>!born.includes(r.id)), hits=yearHits(Y);
+  // the year sits between its arrows: round buttons, each named for the year it goes to
   const nav=(y,dir)=> y<YMIN||y>YMAX ? `<span class="yrstep off" aria-hidden="true"></span>`
-    : `<button type="button" class="yrstep" data-year="${y}" aria-label="${y}">`
-      + (dir<0?`<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg>${y}`
-              :`${y}<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg>`)
+    : `<button type="button" class="yrstep" data-year="${y}" aria-label="${y}" title="${y}">`
+      + (dir<0?`<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg>`
+              :`<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg>`)
       + `</button>`;
-  const head=(t,sub,n)=>`<h3 class="modesech yrsech"><span class="msecttl">${esc(t)}</span>`
-    + (sub?`<span class="msecsub">${esc(sub)}</span>`:"") + (n?`<span class="sectaside">${n}</span>`:"") + `</h3>`;
+  const head=(t,n)=>`<h3 class="modesech yrsech"><span class="msecttl">${esc(t)}</span>`
+    + (n?`<span class="sectaside">${n}</span>`:"") + `</h3>`;
   // a card per song, side by side: the record in a circle, then the song, who, and the
   // style it belongs to under its own art, so all ten styles are a swipe away instead of
   // a scroll down
@@ -3785,21 +3788,21 @@ function yearPage(Y){
         + `<i class="hitsart hasimg">${cover(x.id,x,true)}</i><span>${esc(x.name)}</span></button>`:"")
       + `</div>`; };
   const charts = hits.length
-    ? head("On the Charts","The year's biggest Hot 100 songs") + `<div class="hitwrap"><div class="hitrail" role="list">${hits.map(song).join("")}</div>`
+    ? head("On the Charts") + `<div class="hitwrap"><div class="hitrail" role="list">${hits.map(song).join("")}</div>`
       // a mouse has no sideways swipe, so the rail gets arrows where one can hover
       + `<button type="button" class="hitpg prev" data-hitpg="-1" aria-label="Earlier on the chart" hidden><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg></button>`
       + `<button type="button" class="hitpg next" data-hitpg="1" aria-label="Further down the chart"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg></button></div>`
-    : `<p class="note yrnone">${Y<1959?"The Billboard Hot 100 began in August 1958, so the charts here start with 1959.":"No chart for this year yet."}</p>`;
+    : "";   // no chart that year (the Hot 100 starts in 1959): the section is left out
   const rising = up.length
-    ? head("Taking Off","Styles with artists starting out",up.length)
+    ? head("Taking Off",up.length)
       + `<div class="moderows listgrp yrrows" role="list">${up.map(r=>yearRow(r.id,r.fresh+" new")).join("")}</div>`
     : "";
-  const newborn = born.length ? head("New This Year","",born.length)
+  const newborn = born.length ? head("New This Year",born.length)
     + `<div class="moderows listgrp yrrows" role="list">${born.map(id=>yearRow(id,"")).join("")}</div>` : "";
   return {title:String(Y),
-    lede:Y<1959?"What was taking off and what began.":"What was on the charts, what was taking off and what began.",
-    top:`<div class="yrnav">${nav(Y-1,-1)}${nav(Y+1,1)}</div>`,
-    html:`<div class="yrpage">${charts}${rising}${newborn}</div>`
+    flank:[nav(Y-1,-1),nav(Y+1,1)],
+    html:`<div class="yrpage">${charts}${rising}${newborn}`
+      + (charts||rising||newborn?"":`<p class="note yrnone">Nothing on the atlas for this year.</p>`) + `</div>`
       + `<p class="note yrsrc">Charts: Billboard Hot 100, each song scored 101 minus its position for every week that year, via the weekly archive at github.com/mhollingshead/billboard-hot-100. Taking off: the share of a style's named artists who started in the six years up to this one.</p>`
       + pageShareBtn("year:"+Y,String(Y),"Share this year")};
 }
@@ -3838,8 +3841,8 @@ function swapYear(Y){
   const card=panelCard(), stack=card&&card.querySelector(":scope > .pstack"), page=stack&&stack.lastElementChild;
   const d=yearPage(Y); if(!page||!d) return;
   page.dataset.p="year:"+Y;
-  page.innerHTML=`<h1 class="bigttl"><span class="mn">${esc(d.title)}</span></h1>`
-    + `<p class="note pglede">${esc(d.lede)}</p>` + d.top + `<div class="more pgbody">${d.html}</div>`;
+  page.innerHTML=`<div class="pgflank">${d.flank[0]}<h1 class="bigttl"><span class="mn">${esc(d.title)}</span></h1>${d.flank[1]}</div>`
+    + `<div class="more pgbody">${d.html}</div>`;
   const t=PSTACK[PSTACK.length-1]; t.key="year:"+Y; t.title=d.title;
   setHash(t.key); syncBack(); paintSongArt(page);
   const body=$("panelBody"); body.scrollTop=0; body.dispatchEvent(new Event("scroll"));
