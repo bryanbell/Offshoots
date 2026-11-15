@@ -4763,6 +4763,8 @@ const MODES = [
   ["curious","Something New","Corners of the atlas no other collection goes to.",
    "Every other collection is built to suit a mood, so the same well-loved styles turn up in a dozen of them and some never turn up at all. This one is the reverse: styles the other collections rarely or never reach, chosen for being strange, specific or local enough to surprise you, and anything no mood suits ends up here rather than somewhere it does not belong. Lonely listening wants the familiar; this is for the other mood, when what you want is to hear something you could not have guessed.",
    [
+    ["artmusic","A survey of how composed music changes across centuries"],
+    ["ukgarage","Skipped kicks and swinging vocals make the gaps dance"],
     ["danzon","Cuba's ballroom music, older than jazz on record"],
     ["loft","Free jazz in rooms the musicians rented themselves"],
     ["ballroom","The beats of New York's voguing houses"],
