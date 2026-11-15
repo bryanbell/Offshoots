@@ -232,14 +232,13 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
       await p.click("#panelBack"); await settle(p);
       say("  and Back after it goes to the collection",
         await p.evaluate(()=>location.hash==="#mode:dinner"));
-      // reached any other way, a style has no Again, and that includes picking the very
-      // style the last draw landed on (which is what failed in CI: the first row was it)
+      // Reopen the last draw first: a different choice would already clear its state.
       const last=drawn[drawn.length-1];
-      await p.click('.ppage[data-p="mode:dinner"] .pick'); await settle(p);
-      say("  a style picked from the list has no Again", !(await bar()).again);
-      await p.click("#panelBack"); await settle(p);
       await p.click(`.ppage[data-p="mode:dinner"] .pick[data-go="${last}"]`); await settle(p);
-      say("  not even the one the last draw landed on", !(await bar()).again); }
+      say("  not even the one the last draw landed on", !(await bar()).again);
+      await p.click("#panelBack"); await settle(p);
+      await p.click('.ppage[data-p="mode:dinner"] .pick'); await settle(p);
+      say("  a style picked from the list has no Again", !(await bar()).again); }
     await p.close();
   }
   // ---- the same painting wherever you meet a collection ----
@@ -441,11 +440,13 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
         // the line on what it is for is not printed on a tile, so a screen reader is told it
         told:t.every(x=>{ const m=MODES.find(y=>y[0]===x.dataset.mode); return (x.getAttribute("aria-label")||"").includes(m[2]); }),
         opens:t.every(x=>/Opens the collection/.test(x.getAttribute("aria-label")||"")),
-        square:t.every(x=>{const r=x.getBoundingClientRect(); return Math.abs(r.width-r.height)<2;}),
-        same:!home || (getComputedStyle(home).borderRadius===getComputedStyle(t[0]).borderRadius
-          && Math.abs(home.getBoundingClientRect().width-t[0].getBoundingClientRect().width)<2)};});
+        // the picture is a rounded square, shaped like the home panel's; the name sits
+        // under it, so the tile is the square plus a line or two
+        square:t.every(x=>{const r=x.querySelector(".mco").getBoundingClientRect(); return Math.abs(r.width-r.height)<2;}),
+        under:t.every(x=>x.querySelector(".mclbl").getBoundingClientRect().top>=x.querySelector(".mco").getBoundingClientRect().bottom-1),
+        same:!home || getComputedStyle(home.querySelector(".mco")).borderRadius===getComputedStyle(t[0].querySelector(".mco")).borderRadius};});
     say("the Collections page shows all "+g.n+" as the home panel's tiles", g.n===D.MODES.length && g.square && g.same);
-    say("  each named on its picture", g.named===g.n);
+    say("  each named under its picture", g.named===g.n && g.under);
     say("  with what it is for and that it opens in its label", g.told && g.opens);
     // the sort cuts the list into sections with a heading each
     const secs=async()=>p.evaluate(()=>[...document.querySelectorAll(".ppage:not([hidden]) .modesec")]
