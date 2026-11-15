@@ -232,8 +232,9 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
       await p.click("#panelBack"); await settle(p);
       say("  and Back after it goes to the collection",
         await p.evaluate(()=>location.hash==="#mode:dinner"));
-      // reached any other way, a style has no Again
-      await p.click('.ppage[data-p="mode:dinner"] .pick'); await settle(p);
+      // Manually reopen the last draw itself: choosing a different style would
+      // clear the draw anyway and miss a stale Again button on the same style.
+      await p.click('.ppage[data-p="mode:dinner"] .pick[data-go="'+drawn[drawn.length-1]+'"]'); await settle(p);
       say("  a style picked from the list has no Again", !(await bar()).again); }
     await p.close();
   }

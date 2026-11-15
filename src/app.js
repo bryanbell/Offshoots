@@ -2067,7 +2067,7 @@ $("panel").addEventListener("click",e=>{
   // otherwise tap-anywhere-to-open: the mode picks sit there, and expanding the panel
   // is not what tapping a named style asks for
   const g0=e.target.closest("[data-go]");
-  if(g0){ closeNav(); select(g0.dataset.go); panelTop(); return; }
+  if(g0){ closeNav(); SURPRISE=null; select(g0.dataset.go); panelTop(); return; }
   // before tap-anywhere-to-open, or closing a minimised sheet opens it instead
   if(e.target.closest("[data-dismiss]")){ dismissSheet(); return; }
   if(!OPEN && OVERLAY){ if(!e.target.closest("a")) setOpen(true); return; }   // only the minimised sheet is tap-to-open
