@@ -1302,16 +1302,16 @@ a.deepsug:focus-visible{outline:0;box-shadow:inset 0 0 0 2px color-mix(in srgb,v
    it. Under the picture, in ink, a row of names scans the way the circles' names did;
    the art is the tile again, whole, nothing laid over it. */
 .mdial .mcirc{aspect-ratio:auto;display:flex;flex-direction:column;align-items:stretch;gap:7px;border-radius:0}
-.mdial .mcirc .mco{width:100%;height:auto;aspect-ratio:1;border-radius:16px}
+/* round, like the covers everywhere a collection or a style is a thing you open */
+.mdial .mcirc .mco{width:100%;height:auto;aspect-ratio:1;border-radius:50%}
+.mdial .mclbl{text-align:center}
 .mdial .mclbl{position:static;padding:0 2px;border-radius:0;background:none;
   color:var(--fg);text-shadow:none;font:600 13px/1.2 var(--f-body);letter-spacing:-.005em;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .mdial{row-gap:14px;column-gap:10px}
 .mdial .mcirc.mcall .mco svg{margin-bottom:0}
-/* the Collections page: three across, so each picture is big enough to tell apart, and
-   room between the shelves so a heading belongs to the grid under it */
-.mdial.mgrid{grid-template-columns:repeat(3,minmax(0,1fr));column-gap:12px;row-gap:16px}
-.mdial.mgrid .mclbl{font-size:14px}
+/* the Collections page: the home panel's circles at the home panel's size, four across,
+   with room between the shelves so a heading belongs to the grid under it */
 .modelist .modesec{margin-bottom:28px}
 /* ---------- the Collections page as rows ----------
    Art as a rounded square at the left, the name, the line on what it is for, a chevron.

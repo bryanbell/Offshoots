@@ -444,7 +444,8 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
         // under it, so the tile is the square plus a line or two
         square:t.every(x=>{const r=x.querySelector(".mco").getBoundingClientRect(); return Math.abs(r.width-r.height)<2;}),
         under:t.every(x=>x.querySelector(".mclbl").getBoundingClientRect().top>=x.querySelector(".mco").getBoundingClientRect().bottom-1),
-        same:!home || getComputedStyle(home.querySelector(".mco")).borderRadius===getComputedStyle(t[0].querySelector(".mco")).borderRadius};});
+        same:!home || (getComputedStyle(home.querySelector(".mco")).borderRadius===getComputedStyle(t[0].querySelector(".mco")).borderRadius
+          && Math.abs(home.querySelector(".mco").getBoundingClientRect().width-t[0].querySelector(".mco").getBoundingClientRect().width)<2)};});
     say("the Collections page shows all "+g.n+" as the home panel's tiles", g.n===D.MODES.length && g.square && g.same);
     say("  each named under its picture", g.named===g.n && g.under);
     say("  with what it is for and that it opens in its label", g.told && g.opens);
