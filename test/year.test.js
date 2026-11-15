@@ -28,7 +28,8 @@ const page=p=>p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].
   const looked=[];
   await p.route("https://itunes.apple.com/search**",r=>{ const t=new (require("url").URL)(r.request().url()).searchParams.get("term"); looked.push(t);
     r.fulfill({contentType:"application/json",headers:{"access-control-allow-origin":"*"},
-      body:JSON.stringify({results:[{trackName:t,artistName:t,artworkUrl100:"https://is1-ssl.mzstatic.com/t/"+looked.length+"/100x100bb.jpg"}]})}); });
+      body:JSON.stringify({results:[{trackName:t,artistName:t,artworkUrl100:"https://is1-ssl.mzstatic.com/t/"+looked.length+"/100x100bb.jpg",
+        trackViewUrl:"https://music.apple.com/us/album/t/"+looked.length+"?i="+looked.length+"&uo=4"}]})}); });
   await p.route("https://is1-ssl.mzstatic.com/**",r=>r.fulfill({contentType:"image/jpeg",
     body:require("fs").readFileSync(__dirname+"/../assets/album-covers/"+require("fs").readdirSync(__dirname+"/../assets/album-covers").find(f=>f.endsWith(".jpg")))}));
   await p.goto(URL); await ready(p);
@@ -48,6 +49,11 @@ const page=p=>p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].
   say("  each song's record in its circle, looked up once each", looked.length===10
     && await p.evaluate(()=>[...document.querySelectorAll(".ppage:not([hidden]) .hitface")].every(f=>!f.classList.contains("hasfb"))));
   say("  each opening in the listening service", y.hits.every(h=>/^https:\/\/|^music:/.test(h.href)));
+  // the song's own page, not a search: the Music app on a Mac opens a search link by
+  // launching and then doing nothing
+  { const hrefs=await p.$$eval(".ppage:not([hidden]) a.hitsong",e=>e.map(x=>x.getAttribute("href")));
+    say("  and once looked up, each goes to the song itself, not a search",
+      hrefs.length===10 && hrefs.every(h=>/^https:\/\/music\.apple\.com\/us\/album\/t\/\d+\?i=\d+$/.test(h)) || hrefs.slice(0,2).join(" ")); }
   say("  and each tied to its style, labelled with the style's art", y.hits.filter(h=>h.sty).length===want.filter(h=>h[2]).length && y.hits.filter(h=>h.sty).every(h=>h.styArt));
   say("  the styles listed as rows with their art", y.rowArt);
   say("  plus what was taking off and what began, never a style in both",
