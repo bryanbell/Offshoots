@@ -72,6 +72,31 @@ by_url = {playlist("https://music.apple.com/us" + u): i for i, u in atlas["PLAY"
 by_url.update({playlist("https://open.spotify.com/playlist/" + u): i for i, u in atlas["SPLAY"].items()})
 by_url.pop("", None)
 styles = {r[0]: r for r in atlas["DATA"]}
+# An optional publication manifest identifies newly published classes whose
+# links have not yet been added to the application map. The workbook still
+# supplies the descriptions, public links, artists and ordered tracks.
+publication_by_url = {}
+if len(sys.argv) > 2:
+    manifest = json.loads(Path(sys.argv[2]).read_text())
+    for entry in manifest["classes"]:
+        style = entry["styleID"]
+        if style not in styles:
+            raise ValueError("Unknown manifest style: " + style)
+        title_key = normalized(entry["title"])
+        if title_key in by_title and by_title[title_key] != style:
+            raise ValueError("Conflicting manifest title: " + entry["title"])
+        by_title[title_key] = style
+        for field in ("appleMusicURL", "spotifyURL"):
+            url = playlist(entry.get(field) or "")
+            if not url:
+                continue
+            if url in by_url and by_url[url] != style:
+                raise ValueError("Conflicting manifest playlist URL: " + url)
+            by_url[url] = style
+            publication_by_url[url] = {
+                'date':manifest['date'], 'status':entry['status'],
+                'serviceNotes':{name:entry.get(field) for name,field in [('Apple Music','appleMusicNotes'),('Spotify','spotifyNotes')] if entry.get(field)},
+                'serviceArtPending':not entry.get('imageExists',False)}
 children = collections.defaultdict(list)
 for node in styles.values():
     for parent in node[4].split():
@@ -104,6 +129,7 @@ def add(number, title, links, description="", library="", lineage=""):
         return
     seen.update(links.values())
     style = next((by_url[u] for u in links.values() if u in by_url), by_title.get(normalized(title)))
+    publication = next((publication_by_url[u] for u in links.values() if u in publication_by_url), None)
     node = styles.get(style)
     sequences = {service: [pair + [position] for position, pair in sorted(tracks_by_link[url].items())]
                  for service, url in links.items() if tracks_by_link[url]}
@@ -117,7 +143,7 @@ def add(number, title, links, description="", library="", lineage=""):
         style=style, family=node[3] if node else None, art="/" + art if art in covers else None,
         parents=[styles[p][1] for p in node[4].split() if p in styles] if node else [],
         children=children[style] if node else [], lineage=lineage if not node else "",
-        sequences=sequences))
+        sequences=sequences, **({"publication":publication} if publication else {})))
 
 
 for row in workbook["Classes"]:
