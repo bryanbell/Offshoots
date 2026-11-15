@@ -2439,15 +2439,14 @@ function setTint(fam){
 // a way in for people who know what they want the music to DO but not what to call it
 let MODE=null;
 function modePicks(m){
-  // Narrowed to what younger listeners play, the end of the list says so and offers the
-  // rest, so a collection that keeps only two never reads as a collection of two. With
-  // none left it says that plainly rather than showing an empty page.
+  // Narrowed to one age, the end of the list says so and offers the rest, so a collection
+  // that keeps only a few never reads as a collection of a few
   let foot="";
   if(pickFilt()!=="all"){
     const all=m[4].filter(([id])=>byId[id]).length, n=shownPicks(m).length;
-    const era=(GENSTOPS.find(g=>g[0]===pickFilt())||[])[3];
+    const who=(GENSTOPS.find(g=>g[0]===pickFilt())||[])[3];
     foot=`<div class="pkfoot">`
-      + (n ? "" : `<p class="note">Nothing here is from ${esc(era)}.</p>`)
+      + `<p class="note">${n ? `Popular with ${esc(who)}: ${n} of ${all}.` : `Nothing here is popular with ${esc(who)}.`}</p>`
       + `<button type="button" class="pkall" data-pickall>Show All ${all}</button></div>`;
   }
   return shownPicks(m).map(([id,why])=>{
@@ -3376,19 +3375,21 @@ const PICKSORTS=[
 // device, so it is set once and holds for every collection. Gen Z keeps the key the first
 // version of this switch ("What's Current") saved, so nobody's setting is lost.
 const PICKFILT_KEY="musicatlas.pickfilter";
-// Named for what each generation played its music on rather than for the generation:
-// shorter, friendlier than a cohort label, and it says "era" without saying "old". The
-// spoken label says who each one is for.
+// It asks who is listening, because that is why anyone would touch it: you alone, the
+// kids in the back seat, the parents at dinner. The answers are ages, which everyone
+// knows, rather than generations, which people are unsure of, and each age keeps what it
+// plays now (AGES), old and new, not only what it grew up on. Everyone is the default.
 const GENSTOPS=[
-  ["all","All","All {n} styles","everyone"],
-  ["B","Vinyl","Vinyl: {n} styles Boomers grew up on","the vinyl years"],
-  ["X","Cassette","Cassette: {n} styles Gen X grew up on","the cassette years"],
-  ["M","CD","CD: {n} styles Millennials grew up on","the CD years"],
-  ["current","Stream","Stream: {n} styles Gen Z plays now","what streams now"]];
-function pickFilt(){ try{ const v=localStorage.getItem(PICKFILT_KEY);
+  ["all","Everyone","Everyone: all {n} styles","everyone"],
+  ["2","Under 30","Popular with under-30s: {n} styles","under-30s"],
+  ["3","30–44","Popular with 30 to 44: {n} styles","30 to 44"],
+  ["4","45–59","Popular with 45 to 59: {n} styles","45 to 59"],
+  ["6","60+","Popular with 60 and up: {n} styles","60 and up"]];
+// a setting saved by the earlier versions of this switch lands on the nearest age
+const OLDFILT={current:"2",M:"3",X:"4",B:"6"};
+function pickFilt(){ try{ let v=localStorage.getItem(PICKFILT_KEY); if(OLDFILT[v]) v=OLDFILT[v];
   return GENSTOPS.some(g=>g[0]===v) ? v : "all"; }catch(e){ return "all"; } }
-const genHas=(id,g)=> g==="all" ? true : g==="current" ? isCurrent(id)
-  : typeof GENS!=="undefined" && !!GENS[id] && GENS[id].includes(g);
+const genHas=(id,g)=> g==="all" ? true : typeof AGES!=="undefined" && !!AGES[id] && AGES[id].includes(g);
 function setPickFilt(v){ try{ localStorage.setItem(PICKFILT_KEY,v); }catch(e){} }
 function pickSort(){
   try{ const v=localStorage.getItem(PICKSORT_KEY);
@@ -3424,27 +3425,20 @@ document.addEventListener("keydown",e=>{
   const to=all[Math.max(0,Math.min(all.length-1,i))]; if(!to||to===b) return;
   e.preventDefault(); to.focus(); to.click();
 });
-// Five stops in one track, the one chosen filled. No counts on them: the heading and Surprise
-// Me already say how many are shown. A generation with nothing in this collection is dimmed
-// and cannot be chosen, so the switch never leads to an empty list.
-// one glyph per stop, line-drawn at the weight of the bar's other icons
-const GENICON={
-  all:'<rect x="4" y="4" width="7" height="7" rx="1.6"/><rect x="13" y="4" width="7" height="7" rx="1.6"/><rect x="4" y="13" width="7" height="7" rx="1.6"/><rect x="13" y="13" width="7" height="7" rx="1.6"/>',
-  B:'<circle cx="12" cy="12" r="8.6" fill="currentColor" fill-opacity=".14"/><circle cx="12" cy="12" r="6" stroke-opacity=".4"/><circle cx="12" cy="12" r="3.4" stroke-opacity=".4"/><circle cx="12" cy="12" r=".9" fill="currentColor"/>',
-  X:'<rect x="2.8" y="5.2" width="18.4" height="13.6" rx="2"/><circle cx="8.6" cy="11" r="2"/><circle cx="15.4" cy="11" r="2"/><path d="M10.6 11h2.8"/><path d="M7 18.8l1.4-3h7.2l1.4 3"/>',
-  M:'<circle cx="12" cy="12" r="8.6"/><circle cx="12" cy="12" r="2.4"/><path d="M12 5.6a6.4 6.4 0 0 1 6.4 6.4" stroke-opacity=".45"/>',
-  current:'<path d="M4 10v4"/><path d="M8 7v10"/><path d="M12 4.5v15"/><path d="M16 7v10"/><path d="M20 10v4"/>'};
+// Five stops in one track under the question, the one chosen filled. No counts on them: the
+// heading and Surprise Me already say how many are shown. An age with nothing in this
+// collection is dimmed and cannot be chosen, so the switch never leads to an empty list.
 function pickFiltHtml(m){
   const on=pickFilt(), have=m[4].filter(([id])=>byId[id]);
   const i=GENSTOPS.findIndex(g=>g[0]===on);
-  return `<div class="pkfilt gens" role="radiogroup" aria-label="Which generation" style="--gi:${i};--gn:${GENSTOPS.length}">`
+  return `<p class="pkq" id="pkq-${esc(m[0])}">Who's listening?</p>`
+    + `<div class="pkfilt gens" role="radiogroup" aria-labelledby="pkq-${esc(m[0])}" style="--gi:${i};--gn:${GENSTOPS.length}">`
     + `<span class="pkthumb" aria-hidden="true"></span>`
     + GENSTOPS.map(([k,lbl,sr])=>{ const n=have.filter(([id])=>genHas(id,k)).length;
         const off=!n && on!==k;
         return `<button type="button" class="pkfb" role="radio" data-pickfilt="${k}" aria-checked="${on===k}" aria-pressed="${on===k}"`
           + (off?` disabled aria-disabled="true"`:"")
           + ` aria-label="${esc(n ? sr.replace("{n}",n) : lbl+": none in this collection")}" title="${esc(n ? sr.replace("{n}",n) : lbl+": none in this collection")}">`
-          + `<svg class="pkfi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${GENICON[k]}</svg>`
           + `<span class="pkfl">${esc(lbl)}</span></button>`; }).join("")
     + `</div>`;
 }

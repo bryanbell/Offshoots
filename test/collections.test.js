@@ -154,32 +154,35 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
     say("    and puts what this browser opens most at the top (\""+un2[0]+"\")",
       un2[0]==="Tropicália" && un2.length===v.names.length);
     await p.selectOption('.psortsel','fit'); await settle(p);
-    // The era switch narrows rather than reorders: All, Vinyl, Cassette, CD, Stream (one
-    // generation each, Boomers to Gen Z), above Surprise Me. A generation keeps only its styles (GENS,
-    // or CURRENT for Gen Z), in the collection's own order, with the heading's count and
-    // Surprise Me following, and the rest one tap away
+    // "Who's listening?" narrows rather than reorders: Everyone, Under 30, 30-44, 45-59, 60+,
+    // above Surprise Me, under the question that says why it is there. An age keeps only the
+    // styles popular with it (AGES), in the collection's own order, with the heading's count
+    // and Surprise Me following, a line saying so, and the rest one tap away
     { const sw=await p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
         const s=u.querySelector(".pkfilt"), top=u.querySelector(".modetop"), h=u.querySelector(".secthead.picksort");
         return {txt:s?[...s.querySelectorAll("[data-pickfilt]")].map(b=>b.querySelector(".pkfl").textContent+(b.disabled?"-":"")+(b.getAttribute("aria-pressed")==="true"?"*":"")):[],
           clipped:s?[...s.querySelectorAll(".pkfl")].filter(e=>e.scrollWidth>e.clientWidth+1).length:-1,
+          asks:(u.querySelector(".pkq")||{}).textContent==="Who's listening?" && s.getAttribute("aria-labelledby")===u.querySelector(".pkq").id,
           placed:!!s && s.getBoundingClientRect().bottom<=top.getBoundingClientRect().top && top.getBoundingClientRect().bottom<=h.getBoundingClientRect().top,
           tap:s?Math.min(...[...s.querySelectorAll("button")].map(b=>b.getBoundingClientRect().height)):0}; });
-      const ng=g=>dinner[4].filter(([id])=>g==="Z"?D.CURRENT[id]:(D.GENS[id]||"").includes(g)).length;
-      say("  a generation switch, a stop with none here dimmed ("+sw.txt.join(" | ")+")",
-        JSON.stringify(sw.txt)===JSON.stringify(["All*",...[["B","Vinyl"],["X","Cassette"],["M","CD"],["Z","Stream"]].map(([g,l])=>l+(ng(g)?"":"-"))]));
+      const ng=g=>dinner[4].filter(([id])=>(D.AGES[id]||"").includes(g)).length;
+      say("  a Who's listening? switch, an age with none here dimmed ("+sw.txt.join(" | ")+")",
+        sw.asks && JSON.stringify(sw.txt)===JSON.stringify(["Everyone*",...[["2","Under 30"],["3","30–44"],["4","45–59"],["6","60+"]].map(([g,l])=>l+(ng(g)?"":"-"))]));
       say("    every name whole", sw.clipped===0);
       say("    above Surprise Me, which sits on the list it draws from, clearing the tap floor", sw.placed && sw.tap>=44); }
-    for(const [g,lbl] of [["B","Vinyl"],["current","Stream"]]){
+    for(const [g,lbl,who] of [["6","60+","60 and up"],["2","Under 30","under-30s"]]){
     await p.click(`.ppage:not([hidden]) [data-pickfilt="${g}"]`); await settle(p);
-    const want=dinner[4].filter(([id])=>g==="current"?D.CURRENT[id]:(D.GENS[id]||"").includes(g)).map(([id])=>D.DATA.find(r=>r[0]===id)[1]);
+    const want=dinner[4].filter(([id])=>(D.AGES[id]||"").includes(g)).map(([id])=>D.DATA.find(r=>r[0]===id)[1]);
       const cv=await p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];
         return {names:[...u.querySelectorAll(".picks .pknm")].map(e=>e.textContent),
           count:u.querySelector(".pkcount").textContent, sub:u.querySelector(".modetop .lrsub").textContent,
-          on:u.querySelector('[data-pickfilt][aria-pressed="true"]').dataset.pickfilt, all:(u.querySelector("[data-pickall]")||{}).textContent}; });
+          on:u.querySelector('[data-pickfilt][aria-pressed="true"]').dataset.pickfilt, all:(u.querySelector("[data-pickall]")||{}).textContent,
+          line:(u.querySelector(".pkfoot .note")||{}).textContent}; });
       say("  "+lbl+" keeps only its styles ("+cv.names.join(", ")+")",
         JSON.stringify(cv.names)===JSON.stringify(want));
       say("    and the switch, the count and Surprise Me say so",
         cv.on===g && cv.count===String(want.length) && cv.sub==="One of these "+want.length+", at random");
+      say("    saying who it is for ("+cv.line+")", cv.line===`Popular with ${who}: ${want.length} of ${dinner[4].length}.`);
       say("    with the rest one tap away ("+cv.all+")", cv.all==="Show All "+dinner[4].length);
       await p.click(".ppage:not([hidden]) [data-pickall]"); await settle(p);
       const back=await look();
