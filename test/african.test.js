@@ -69,7 +69,11 @@ const SIX=[
       await settle(q);
       // a style with no art of its own asks for one and swaps in its family tile when that
       // fails, so give a missing file its error event before calling anything broken
-      await until(q,()=>![...document.querySelectorAll("#panelBody img")].some(x=>x.complete&&x.naturalWidth===0&&!x.closest("[hidden]")));
+      // ... and one with no cover yet asks twice, half a second apart, before the tile goes
+      // in: wait out the second try too, not just the first (a slow runner caught the retry
+      // failed but its error event not yet handled)
+      await until(q,()=>![...document.querySelectorAll("#panelBody img")].some(x=>!x.closest("[hidden]")
+        && ((x.complete&&x.naturalWidth===0) || (x.classList.contains("pcov") && x.dataset.retried && !(x.complete&&x.naturalWidth>0)))));
       const v=await q.evaluate(i=>{
         const t=document.querySelector("#panelBody .pttl .ptnm");
         const body=document.getElementById("panelBody").textContent;
