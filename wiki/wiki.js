@@ -79,6 +79,17 @@ function classPage(record, families) {
   for (const [name, url] of Object.entries(record.links)) row('Listen on ' + name, url, true);
   if (record.style) row('Show it on Music Atlas', '/#' + encodeURIComponent(record.style), false);
   if (actions.children.length) detail.append(actions);
+  if (record.publication) {
+    const check = make('details');
+    check.append(make('summary', 'Publication check · ' + record.publication.date));
+    check.append(make('p', record.publication.status));
+    for (const [service, note] of Object.entries(record.publication.serviceNotes || {})) {
+      const p = make('p'); p.append(make('b', service + ': '), document.createTextNode(note));
+      check.append(p);
+    }
+    if (record.publication.serviceArtPending) check.append(make('p', 'Series cover upload pending; the services currently use their default cover.'));
+    detail.append(check);
+  }
   if (record.parents.length) detail.append(lineLine('From', record.parents));
   if (record.children.length) detail.append(lineLine('Led to', record.children));
   if (record.lineage) detail.append(make('p', record.lineage));

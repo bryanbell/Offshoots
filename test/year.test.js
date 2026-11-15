@@ -75,6 +75,27 @@ const page=p=>p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].
   const sid=y2.hits.find(h=>h.sty).sty;
   await p.click(`.ppage:not([hidden]) .hitsty[data-go="${sid}"]`); await until(p,id=>!!document.querySelector(`#chart .n.cur[data-id="${id}"]`),sid); await settle(p);
   say("a song's style opens that style, and the year stands down", !(await page(p)).lit);
+  // holding an arrow opens the decades instead of stepping a year
+  { const t=await b.newPage({viewport:{width:1440,height:900}}); t.on("pageerror",e=>errs.push(String(e)));
+    await t.route("https://itunes.apple.com/**",r=>r.abort());
+    await t.goto(URL+"#year:1988"); await ready(t); await until(t,()=>!!document.querySelector('.pgflank .yrstep[data-year="1989"]')); await settle(t);
+    const r=await t.evaluate(()=>{ const b=document.querySelector('.pgflank .yrstep[data-year="1989"]').getBoundingClientRect(); return {x:b.left+b.width/2,y:b.top+b.height/2}; });
+    await t.mouse.move(r.x,r.y); await t.mouse.down(); await t.waitForTimeout(650); await t.mouse.up(); await t.waitForTimeout(200);
+    const m=await t.evaluate(()=>({open:!!document.querySelector(".decmenu"), hash:location.hash,
+      decs:[...document.querySelectorAll(".decmenu .decit")].map(x=>x.dataset.dec),
+      on:(document.querySelector(".decmenu .decit.on")||{dataset:{}}).dataset.dec, focus:document.activeElement.classList.contains("decit")}));
+    say("holding an arrow opens the decades, 1900s to 2020s, the year staying put",
+      m.open && m.hash==="#year:1988" && m.decs[0]==="1900" && m.decs[m.decs.length-1]==="2020" && m.on==="1980" && m.focus);
+    await t.click('.decmenu .decit[data-dec="1960"]'); await settle(t);
+    say("  and a decade jumps to its first year, in place", await t.evaluate(()=>location.hash==="#year:1960" && !document.querySelector(".decmenu")
+      && document.querySelector(".ppage:not([hidden]) .bigttl").textContent==="1960"));
+    await t.click('.pgflank .yrstep[data-year="1961"]'); await settle(t);
+    say("  while a tap still steps one year", await t.evaluate(()=>location.hash==="#year:1961"));
+    await t.click('.pgflank .yrstep[data-year="1960"]',{button:"right"}); await t.waitForTimeout(200);
+    const rc=await t.evaluate(()=>!!document.querySelector(".decmenu"));
+    await t.keyboard.press("Escape"); await t.waitForTimeout(200);
+    say("  a right-click opens it too, and Escape closes it", rc && await t.evaluate(()=>!document.querySelector(".decmenu") && location.hash==="#year:1961"));
+    await t.close(); }
   // a sent link opens the year directly
   const q=await b.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true}); q.on("pageerror",e=>errs.push(String(e)));
   await q.goto(URL+"#year:1966"); await ready(q); await until(q,()=>!!document.querySelector('.ppage[data-p="year:1966"]')); await settle(q);
@@ -92,6 +113,28 @@ const page=p=>p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].
     await q.evaluate(()=>{ const u=document.querySelector('.ppage[data-p="year:1950"]'), f=u.querySelector(".pgflank");
       const k=f?[...f.children].map(x=>x.matches(".yrstep")?"arrow":x.matches(".bigttl")?"year":"?").join(" "):"";
       return k==="arrow year arrow" && !u.querySelector(".pglede") && !u.querySelector(".msecsub"); }));
+  // Explore the Atlas has a way in that says the timeline can be tapped. Fresh, the map
+  // is in the roots before any chart, so it opens this year; scrolled to the 80s, the 80s.
+  { const r=await b.newPage({viewport:{width:1440,height:900}}); r.on("pageerror",e=>errs.push(String(e)));
+    await r.route("https://itunes.apple.com/search**",x=>x.fulfill({contentType:"application/json",headers:{"access-control-allow-origin":"*"},body:'{"results":[]}'}));
+    await r.goto(URL); await ready(r);
+    const row=await r.evaluate(()=>{ const x=document.querySelector(".sect-onmap [data-yearnow]");
+      return x ? x.querySelector(".lrlbl, .lrt, span").textContent+" | "+x.textContent : ""; });
+    say("Explore the Atlas has A Year in Music, saying the timeline can be tapped ("+row.replace(/\s+/g," ").trim()+")",
+      /A Year in Music/.test(row) && /timeline/.test(row));
+    await r.click(".sect-onmap [data-yearnow]"); await settle(r);
+    const h1=await r.evaluate(()=>location.hash);
+    say("  from a fresh map it opens this year ("+h1+")", /^#year:20\d\d$/.test(h1));
+    await r.click("#panelBack"); await settle(r);
+    // centre the map on Post-Hardcore, a 1985 style, by where its dot sits
+    await r.evaluate(()=>{ const sc=document.getElementById("scroller"), s=sc.getBoundingClientRect();
+      const g=document.querySelector('#chart .n[data-id="posthc"]'), d=(g.querySelector("circle,path,use")||g).getBoundingClientRect();
+      sc.scrollLeft+= (d.left+d.width/2)-(s.left+s.width/2); });
+    await settle(r);
+    await r.click(".sect-onmap [data-yearnow]"); await settle(r);
+    const h2=await r.evaluate(()=>location.hash);
+    say("  and from a map scrolled to the mid-80s it opens a year there ("+h2+")", /^#year:198[3-8]$/.test(h2));
+    await r.close(); }
   say("no page errors", errs.length===0 || errs.join(" | "));
   await b.close();
 })();
