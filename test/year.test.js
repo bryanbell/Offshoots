@@ -69,6 +69,27 @@ const page=p=>p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].
   const sid=y2.hits.find(h=>h.sty).sty;
   await p.click(`.ppage:not([hidden]) .hitsty[data-go="${sid}"]`); await until(p,id=>!!document.querySelector(`#chart .n.cur[data-id="${id}"]`),sid); await settle(p);
   say("a song's style opens that style, and the year stands down", !(await page(p)).lit);
+  // holding an arrow opens the decades instead of stepping a year
+  { const t=await b.newPage({viewport:{width:1440,height:900}}); t.on("pageerror",e=>errs.push(String(e)));
+    await t.route("https://itunes.apple.com/**",r=>r.abort());
+    await t.goto(URL+"#year:1988"); await ready(t); await until(t,()=>!!document.querySelector('.pgflank .yrstep[data-year="1989"]')); await settle(t);
+    const r=await t.evaluate(()=>{ const b=document.querySelector('.pgflank .yrstep[data-year="1989"]').getBoundingClientRect(); return {x:b.left+b.width/2,y:b.top+b.height/2}; });
+    await t.mouse.move(r.x,r.y); await t.mouse.down(); await t.waitForTimeout(650); await t.mouse.up(); await t.waitForTimeout(200);
+    const m=await t.evaluate(()=>({open:!!document.querySelector(".decmenu"), hash:location.hash,
+      decs:[...document.querySelectorAll(".decmenu .decit")].map(x=>x.dataset.dec),
+      on:(document.querySelector(".decmenu .decit.on")||{dataset:{}}).dataset.dec, focus:document.activeElement.classList.contains("decit")}));
+    say("holding an arrow opens the decades, 1900s to 2020s, the year staying put",
+      m.open && m.hash==="#year:1988" && m.decs[0]==="1900" && m.decs[m.decs.length-1]==="2020" && m.on==="1980" && m.focus);
+    await t.click('.decmenu .decit[data-dec="1960"]'); await settle(t);
+    say("  and a decade jumps to its first year, in place", await t.evaluate(()=>location.hash==="#year:1960" && !document.querySelector(".decmenu")
+      && document.querySelector(".ppage:not([hidden]) .bigttl").textContent==="1960"));
+    await t.click('.pgflank .yrstep[data-year="1961"]'); await settle(t);
+    say("  while a tap still steps one year", await t.evaluate(()=>location.hash==="#year:1961"));
+    await t.click('.pgflank .yrstep[data-year="1960"]',{button:"right"}); await t.waitForTimeout(200);
+    const rc=await t.evaluate(()=>!!document.querySelector(".decmenu"));
+    await t.keyboard.press("Escape"); await t.waitForTimeout(200);
+    say("  a right-click opens it too, and Escape closes it", rc && await t.evaluate(()=>!document.querySelector(".decmenu") && location.hash==="#year:1961"));
+    await t.close(); }
   // a sent link opens the year directly
   const q=await b.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true}); q.on("pageerror",e=>errs.push(String(e)));
   await q.goto(URL+"#year:1966"); await ready(q); await until(q,()=>!!document.querySelector('.ppage[data-p="year:1966"]')); await settle(q);
