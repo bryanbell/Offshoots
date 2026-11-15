@@ -2439,6 +2439,14 @@ const COVER = {
   "crust":"crust-punk",
   "nyhc":"new-york-hardcore",
   "deathrock":"deathrock",
+  "guaracha":"guaracha_aleteo",
+  "jesusmusic":"jesus_music",
+  "jump":"jump_blues",
+  "minimal":"minimal_techno",
+  "poprap":"pop_rap",
+  "sf_sound":"san_francisco_sound",
+  "swamp_pop":"swamp_pop",
+  "vocaloid":"vocaloid_miku_pop",
 };
 const PTITLE = {
   "merengue":"72.33 MERENGUE · The Two-Step Opens Into a Band",
