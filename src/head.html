@@ -726,17 +726,16 @@ body.open .pcnt{display:none}
 .navback.tomap{padding:0 12px}
 .navback[hidden]{display:grid;visibility:hidden;pointer-events:none}
 .navback svg{width:20px;height:20px}
-/* After a Surprise Me draw: Back goes bare and round, and Again sits beside it in the
-   same pill shape, in accent, since it is the thing you came for */
+/* After a Surprise Me draw: Back goes bare and round, and Again sits beside it as the
+   same control, the same fill, ring, shadow and type, so the two read as one bar */
 .navrow.surprised .navback{padding:0;width:var(--tap);justify-content:center}
 .navrow.surprised .navback .bklbl,.navrow.surprised .navback .bkmap{display:none}
 .navagain{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:8px;flex:none;
   height:var(--tap);padding:0 18px 0 14px;border-radius:999px;cursor:pointer;
-  color:var(--acc,var(--bluetx));background:color-mix(in srgb,var(--acc,var(--blue)) 14%,transparent);
-  font:600 var(--t-sub)/1 var(--f-body)}
+  color:var(--fg);background-color:var(--fill2);font:500 var(--t-sub)/var(--t-sub-lh) var(--f-body)}
 .navagain[hidden]{display:none}
 .navagain .agico{width:20px;height:20px;flex:none}
-@media (hover:hover){.navagain:hover{background:color-mix(in srgb,var(--acc,var(--blue)) 22%,transparent)}}
+@media (hover:hover){.navagain:hover{background:var(--fill)}}
 .navagain:focus-visible{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
 @media (prefers-reduced-motion:no-preference){ .navagain:active .agico{transform:rotate(-12deg)} }
 /* Home, round and unlabelled, to the left of Back in the same group */
@@ -1709,7 +1708,7 @@ aside{display:flex;flex-direction:column;position:absolute;z-index:30;top:calc(e
    as a card. The rim is an inset shadow, not a background layer: as a background gradient
    it rasterised as a wide pale band across the top of these controls, which read as the
    button being cut off. An inset shadow follows the border radius and stays 1px. */
-.pmin,.navback,.navhome,.brback,#wikix,#wikiout{
+.pmin,.navback,.navagain,.navhome,.brback,#wikix,#wikiout{
   box-shadow:inset 0 1px 0 var(--cardtop),0 0 0 1px var(--cardline),var(--ctlsh)}
 /* The two map circles wear the same glass as the zoom control. They were filled with
    --fg, which made them the heaviest thing on the map, darker than any style name and
@@ -2798,6 +2797,7 @@ span.xcov b{font:700 19px var(--f-body);color:#fff;opacity:.92}
 .pmin,
 .listrow,
 .navback,
+.navagain,
 .navhome,
 .shuf,
 .navmenu button,
