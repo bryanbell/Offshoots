@@ -210,8 +210,8 @@ const spell=n=>n<=20?WORDS[n]
   const upDisc=await p.$eval(".sect-modes .mcirc .mco",
     e=>Math.round(e.getBoundingClientRect().width));
   await p.click(".sect-modes .secthead"); await onPage(p,"modes");
-  // The page is the home panel's tiles at full length, three across so each picture is
-  // big enough to tell apart, the name under it, cut into the sort's sections.
+  // The page is the home panel's circles at full length and at the same size, four
+  // across, the name under each, cut into the sort's sections.
   const all=await p.evaluate(()=>{
     const g=document.querySelector(".ppage:not([hidden]) .modelist");
     const t=[...g.querySelectorAll(".mgrid .mcirc")];
@@ -223,7 +223,7 @@ const spell=n=>n<=20?WORDS[n]
       art:t.every(x=>!!x.querySelector("img")),
       opens:t.every(x=>/Opens the collection/.test(x.getAttribute("aria-label")||"")),
       tall:t.every(x=>x.getBoundingClientRect().height>=64)};});
-  say("showing all "+all.n+" as tiles, three across", all.n===nModes && all.cols===3 && !all.over && all.inside);
+  say("showing all "+all.n+" as tiles, four across", all.n===nModes && all.cols===4 && !all.over && all.inside);
   say("  each its picture with its name under it", all.labelled && all.art);
   say("  saying in its label that it opens", all.opens);
   say("  every one a real tap target", all.tall);
@@ -431,7 +431,7 @@ const spell=n=>n<=20?WORDS[n]
     return {cols:new Set(t.map(x=>Math.round(x.getBoundingClientRect().left))).size,
       clipped:t.filter(x=>x.getBoundingClientRect().right>gb.right+1)
                .map(x=>x.querySelector(".mclbl").textContent)};});
-  say("and its full set is the same tiles there, three across", dl.cols===3);
+  say("and its full set is the same tiles there, four across", dl.cols===4);
   await d.click("#panelBack"); await onPage(d,"root");
   say("and clips nothing"+(dl.clipped.length?": "+dl.clipped.join(", "):""), dl.clipped.length===0);
   await d.click('[data-mode="sit"]'); await onPage(d,"mode:sit");
