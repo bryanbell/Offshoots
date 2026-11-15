@@ -4398,7 +4398,9 @@ document.addEventListener("error",e=>{
   if(!t.dataset.retried){
     t.dataset.retried="1";
     const src=(t.getAttribute("src")||"").split("?")[0];
-    setTimeout(()=>{ if(t.isConnected) t.src=src+"?r=1"; },500);
+    // A failed lazy image may be below the fold. Its retry must load there too,
+    // otherwise it stays broken until scrolled into view and never reaches the tile.
+    setTimeout(()=>{ if(t.isConnected){ t.loading="eager"; t.src=src+"?r=1"; } },500);
     return;
   }
   const ph=document.createElement("span");
