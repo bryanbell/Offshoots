@@ -4986,6 +4986,83 @@ const HITS = {
 "2026":[["Choosin' Texas","Ella Langley","countrypop"],["I Just Might","Bruno Mars","retro_soul"],["Man I Need","Olivia Dean","retro_soul"],["So Easy (To Fall In Love)","Olivia Dean","retro_soul"],["Be Her","Ella Langley","countrypop"],["Risk It All","Bruno Mars","retro_soul"],["Dracula","Tame Impala & JENNIE","neopsych"],["Babydoll","Dominic Fike","altpop"],["Midnight Sun","Zara Larsson","dancepop"],["Boston","Stella Lefty",""]],
 };
 
+// ---------- what held the charts ----------
+// For each year from 1959, the eight styles that held the most of the Billboard Hot 100:
+// every song's chart points (101 minus its position, each week) credited to the style its
+// HITS row gives it, or to the styles whose artist lists name its lead artist. The number
+// is that style's share of the year's whole chart, in percent; about two fifths of each
+// year's points find a style, so shares read low. Written by node tools/hits.js.
+const POPULAR = {
+"1959":[["teenidol",11.7],["tradpop",4.7],["doowop",4.5],["rnb",2.7],["brill",2.4],["rockabilly",2],["nashville",1.8],["ac",1.7]],
+"1960":[["teenidol",13.3],["nashville",5.7],["rockabilly",3.2],["doowop",2.7],["soul",2.6],["tradpop",2.6],["rnb",2.2],["rocknroll",2.2]],
+"1961":[["teenidol",8.7],["nashville",4.2],["brill",3.8],["rockabilly",3.7],["rocknroll",3.1],["doowop",3.1],["rnb",2.4],["girl_group",2]],
+"1962":[["teenidol",8.9],["tradpop",3.5],["rockabilly",3.3],["brill",3.2],["nashville",2.6],["soul",2.2],["girl_group",2],["easy",1.9]],
+"1963":[["teenidol",6.5],["brill",4.2],["tradpop",4.1],["girl_group",3.9],["nashville",3.1],["rockabilly",2.4],["motown",2.2],["soul",1.7]],
+"1964":[["teenidol",4.8],["invasion",4],["tradpop",3.9],["motown",3.5],["girl_group",2.7],["merseybeat",2.6],["chicago_soul",2.3],["brill",2.3]],
+"1965":[["invasion",6],["motown",4.2],["tradpop",2.9],["girl_group",2.4],["teenidol",2.4],["soul",1.7],["rockabilly",1.6],["folkrock",1.6]],
+"1966":[["motown",3.6],["invasion",3.1],["southern_soul",2.7],["sunshine",2.6],["folkrock",2.6],["tradpop",2.4],["blueeyed",2.1],["garage",1.8]],
+"1967":[["blueeyed",4.4],["sunshine",3.8],["motown",3.1],["bubblegum",2.4],["soul",2.4],["southern_soul",2.3],["folkrock",2],["invasion",1.9]],
+"1968":[["southern_soul",4.4],["bubblegum",3.4],["soul",3],["sunshine",2.9],["motown",2.3],["philly",2],["easy",1.8],["disco",1.7]],
+"1969":[["bubblegum",4.7],["sunshine",2.7],["psych_soul",2.6],["motown",2.3],["southern_soul",2],["disco",1.9],["soul",1.8],["rockabilly",1.5]],
+"1970":[["motown",4.4],["softrock",3],["bubblegum",3],["southern_soul",2.6],["soul",1.8],["hardrock",1.7],["philly",1.6],["psych_soul",1.4]],
+"1971":[["softrock",3.2],["motown",3.1],["singer_songwriter",3],["southern_soul",2.7],["soul",2.1],["ac",2.1],["psych_soul",1.7],["roots_rock",1.4]],
+"1972":[["softrock",4.3],["singer_songwriter",4.1],["southern_soul",2.6],["soul",2.4],["ac",2.4],["motown",2.2],["philly",1.9],["chicago_soul",1.5]],
+"1973":[["singer_songwriter",4.4],["motown",3.5],["ac",3],["philly",2.4],["softrock",2.4],["yacht",2.4],["soul",2.3],["funk",2.2]],
+"1974":[["countrypop",3.9],["philly",3.9],["singer_songwriter",3.6],["softrock",3.4],["funk",2.3],["disco",2.2],["yacht",1.9],["ac",1.9]],
+"1975":[["softrock",3.9],["countrypop",3.5],["disco",2.6],["countryrock",2.5],["singer_songwriter",2.5],["funk",2],["yacht",1.6],["glam",1.6]],
+"1976":[["disco",6.7],["softrock",3.7],["funk",3.5],["hardrock",3.4],["yacht",2.4],["philly",2.2],["singer_songwriter",2.1],["countrypop",1.5]],
+"1977":[["disco",5.5],["yacht",2.8],["softrock",2.7],["arena",2.4],["ac",2.3],["singer_songwriter",2.1],["hardrock",1.9],["countrypop",1.8]],
+"1978":[["disco",7],["yacht",4.1],["arena",3.5],["ac",2.6],["countrypop",2.6],["singer_songwriter",2.4],["rocknroll",1.9],["softrock",1.9]],
+"1979":[["disco",7.8],["arena",3.1],["countrypop",2.9],["yacht",2.9],["softrock",2.4],["urbancowboy",2.2],["powerpop",2.1],["newwave",1.5]],
+"1980":[["yacht",6.1],["arena",3.8],["urbancowboy",3.2],["countrypop",2.9],["singer_songwriter",2.7],["ac",2.7],["disco",2.6],["softrock",2.5]],
+"1981":[["arena",5.6],["countrypop",4.9],["ac",3.9],["yacht",2.8],["urbancowboy",2.7],["newwave",2],["blueeyed",1.6],["disco",1.5]],
+"1982":[["arena",5.9],["countrypop",4.3],["yacht",3.5],["newwave",3.4],["ac",2.5],["softrock",2.3],["urbancowboy",2.2],["disco",2.1]],
+"1983":[["newwave",5.2],["ac",4.8],["arena",4.4],["yacht",2.7],["dancepop",2.3],["countrypop",2.1],["singer_songwriter",1.9],["synthpop",1.6]],
+"1984":[["newwave",3.6],["yacht",3.2],["ac",3],["arena",2.5],["minneapolis",2.2],["glammetal",1.9],["dancepop",1.9],["singer_songwriter",1.8]],
+"1985":[["arena",4.7],["ac",4.2],["synthpop",3.3],["dancepop",2.8],["heartland",2.3],["yacht",2.3],["rocknroll",1.9],["blueeyed",1.8]],
+"1986":[["ac",3.7],["arena",3.3],["rocknroll",2.6],["synthpop",2.6],["contemp_rnb",2],["dancepop",1.8],["quiet_storm",1.8],["yacht",1.7]],
+"1987":[["arena",4.1],["ac",3.3],["dancepop",2.7],["glammetal",2.7],["newwave",2.2],["quiet_storm",2.1],["yacht",1.7],["singer_songwriter",1.5]],
+"1988":[["dancepop",5.4],["glammetal",4.1],["freestyle",2.7],["njs",2.5],["hardrock",2.4],["teenpop",2.3],["yacht",2.3],["arena",1.9]],
+"1989":[["dancepop",7.2],["glammetal",5.3],["teenpop",3.8],["freestyle",2.4],["contemp_rnb",2.2],["hardrock",1.5],["njs",1.5],["ac",1.2]],
+"1990":[["njs",4.7],["freestyle",4],["dancepop",3.3],["contemp_rnb",2.9],["glammetal",2.2],["hardrock",1.9],["ac",1.8],["rocknroll",1.3]],
+"1991":[["dancepop",5.7],["glammetal",3.7],["contemp_rnb",3.4],["njs",3.3],["freestyle",1.9],["ac",1.8],["newschool",1.5],["arena",1.4]],
+"1992":[["contemp_rnb",7.3],["njs",5.4],["dancepop",3.2],["ac",2.3],["prog",2],["poprap",1.9],["singer_songwriter",1.8],["latinpop",1.4]],
+"1993":[["contemp_rnb",7],["njs",5.5],["dancepop",2.8],["ac",2.2],["poprap",2],["gangsta",1.8],["miamibass",1.6],["eurodance",1.6]],
+"1994":[["contemp_rnb",9],["eurodance",3.8],["heartland",3.4],["singer_songwriter",2.5],["ac",2.2],["njs",2.1],["dancepop",1.7],["postgrunge",1.6]],
+"1995":[["contemp_rnb",7.3],["hiphop_soul",3.8],["eurodance",3.4],["njs",2.6],["altrock",2.5],["teenpop",2.3],["ac",2],["heartland",1.9]],
+"1996":[["contemp_rnb",6.6],["altrock",3.5],["njs",3.3],["singer_songwriter",2.9],["ac",2.6],["teenpop",2.5],["dancepop",2.4],["hiphop_soul",1.8]],
+"1997":[["contemp_rnb",10.4],["singer_songwriter",4.7],["teenpop",4.6],["njs",2],["ac",1.6],["countrypop",1.3],["postgrunge",1.3],["dancepop",1.1]],
+"1998":[["contemp_rnb",7.5],["teenpop",4.7],["countrypop",4.3],["singer_songwriter",2.8],["altrock",2.1],["southern_hh",1.8],["ac",1.6],["crunknb",1.2]],
+"1999":[["contemp_rnb",5.8],["teenpop",5.7],["altrock",4.3],["dancepop",3.4],["countrypop",2.9],["latinpop",2.2],["neotrad",2],["hiphop_soul",2]],
+"2000":[["contemp_rnb",7.3],["postgrunge",6.1],["teenpop",4.8],["countrypop",3.9],["neotrad",2],["latin_rock",2],["newcountry",1.9],["salsa",1.7]],
+"2001":[["contemp_rnb",6.9],["postgrunge",5.4],["newcountry",2.6],["altrock",2.2],["countrypop",1.8],["numetal",1.7],["teenpop",1.6],["neosoul",1.3]],
+"2002":[["postgrunge",5.9],["contemp_rnb",4.3],["latinpop",2.3],["numetal",2.2],["teenpop",1.9],["neotrad",1.9],["poprap",1.8],["skapunk",1.6]],
+"2003":[["postgrunge",4.8],["gangsta",4.1],["teenpop",3.5],["contemp_rnb",2.4],["crunk",2.2],["countrypop",2.1],["roots_rock",2.1],["neotrad",1.8]],
+"2004":[["postgrunge",5.1],["crunknb",4.1],["contemp_rnb",3.4],["teenpop",3.4],["crunk",3],["southern_hh",2.7],["gangsta",1.9],["numetal",1.8]],
+"2005":[["contemp_rnb",5.8],["poppunk",4.1],["gangsta",3.8],["crunknb",3.6],["postgrunge",3.1],["dancepop",2.7],["electropop",2.4],["crunk",2.1]],
+"2006":[["snap",3.8],["crunknb",3.3],["countrypop",3.1],["contemp_rnb",3],["postgrunge",2.8],["emopop",2.5],["dancepop",2.2],["electropop",1.7]],
+"2007":[["dancepop",5.9],["countrypop",3.9],["postgrunge",3.4],["crunknb",3.1],["snap",2.8],["teenpop",2.4],["contemp_rnb",1.6],["emopop",1.6]],
+"2008":[["contemp_rnb",7.2],["dancepop",5.2],["countrypop",4.3],["southern_hh",3.4],["crunknb",2.4],["teenpop",2.3],["singer_songwriter",2],["electropop",1.8]],
+"2009":[["electropop",7.5],["countrypop",5.3],["teenpop",3.3],["postgrunge",2.5],["contemp_rnb",2.3],["dancepop",1.9],["altrock",1.9],["alt_hh",1.5]],
+"2010":[["electropop",7],["countrypop",4.8],["dancepop",3.8],["edmpop",3.7],["teenpop",2.6],["altrock",2.6],["crunknb",2.4],["contemp_rnb",2.4]],
+"2011":[["electropop",5.4],["dancepop",5.2],["brocountry",4.3],["edmpop",3.8],["countrypop",3],["njs",2.7],["crunknb",2.5],["retro_soul",2.5]],
+"2012":[["electropop",7.3],["dancepop",5.1],["teenpop",3.8],["countrypop",3.7],["brocountry",3.7],["ac",2.6],["edmpop",2.4],["indiepop",2.4]],
+"2013":[["brocountry",6.1],["teenpop",4.9],["electropop",3.9],["contemp_rnb",3.8],["countrypop",3.2],["dancepop",3.1],["altrock",3],["stompclap",2.7]],
+"2014":[["brocountry",6],["ac",4.1],["teenpop",3.9],["dancepop",2.7],["electropop",2.6],["ratchet",2.5],["indiepop",2.1],["countrypop",1.8]],
+"2015":[["brocountry",5.8],["countrypop",5.1],["teenpop",3.7],["electropop",3.3],["trapsoul",3.2],["altrnb",2.6],["ratchet",2.5],["dancepop",2.3]],
+"2016":[["trapsoul",6.6],["brocountry",4.8],["teenpop",4],["altrnb",2.8],["altpop",2.6],["trap",2.6],["plugg",2.4],["electropop",2]],
+"2017":[["trap",7.3],["countrypop",3.1],["dancepop",2.8],["trapsoul",2.5],["brocountry",2.5],["electropop",2.3],["singer_songwriter",1.7],["retro_soul",1.5]],
+"2018":[["trap",5.3],["emorap",3.6],["countrypop",2.8],["dancepop",2.7],["brocountry",2.6],["trapsoul",2.6],["scrap",2.4],["teenpop",2.4]],
+"2019":[["altpop",5.4],["trap",3.9],["dancepop",3.8],["teenpop",3.5],["brocountry",3],["countrypop",2.3],["ac",2.1],["countrytrap",2]],
+"2020":[["trap",4.8],["countrypop",4.2],["brocountry",3.8],["teenpop",3.7],["altpop",3.4],["nydrill",2.9],["trapsoul",2.1],["synthwave",1.8]],
+"2021":[["altpop",6.1],["teenpop",4.5],["brocountry",3.5],["trapsoul",2.9],["dancepop",2.6],["nudisco",2.1],["plugg",2],["countrypop",1.9]],
+"2022":[["altpop",5],["latintrap",4.9],["trapsoul",3.4],["brocountry",3.3],["dancepop",2.7],["ac",2.3],["countrypop",2.2],["trap",2.1]],
+"2023":[["altrnb",6.3],["countrypop",4.8],["brocountry",4.1],["trapsoul",3.1],["newoutlaw",3],["dancepop",2.8],["synthpop",2.5],["trap",2.1]],
+"2024":[["countrypop",5.1],["altpop",4],["dancepop",4],["newoutlaw",2.8],["brocountry",2.6],["indiefolk",2.5],["synthpop",2.4],["teenpop",2.4]],
+"2025":[["altrnb",4.1],["countrypop",3.1],["altpop",3],["brocountry",2.9],["trapsoul",2.8],["alt_hh",2.7],["latintrap",2.3],["teenpop",2.3]],
+"2026":[["countrypop",7.5],["retro_soul",6.2],["teenpop",4.7],["stompclap",3.2],["trapsoul",2.8],["altpop",2.8],["plugg",2.5],["neopsych",2]],
+};
+
 // ---------- what younger listeners play now ----------
 // The styles people under about 25 are actually playing, new ones and the old ones they have
 // taken up again (shoegaze, City Pop, the Cure). A collection can be narrowed to these with
@@ -14431,4 +14508,4 @@ const PHOTO = {
 };
 
 // ---------- export tail ---------- (build.js drops everything from this line on)
-if (typeof module !== "undefined") module.exports = {FAMS, DATA, ART, DONE, PLAY, SPLAY, QPLAY, YPLAY, DESC, COVER, PTITLE, FAMSKIN, FAMMAP, MODES, MODEWORDS, HEADTRACK, CURRENT, AGES, HITS, ROSTER, SONGS, READ, ACTIVE, ROLE, PICKERS, PICKED, PHOTO, COVERART, STYLEART, XPLAY};
+if (typeof module !== "undefined") module.exports = {FAMS, DATA, ART, DONE, PLAY, SPLAY, QPLAY, YPLAY, DESC, COVER, PTITLE, FAMSKIN, FAMMAP, MODES, MODEWORDS, HEADTRACK, CURRENT, AGES, HITS, POPULAR, ROSTER, SONGS, READ, ACTIVE, ROLE, PICKERS, PICKED, PHOTO, COVERART, STYLEART, XPLAY};
