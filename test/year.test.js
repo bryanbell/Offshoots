@@ -60,6 +60,14 @@ const page=p=>p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].
   say("  the styles listed as rows with their art", y.rowArt);
   say("  plus what was taking off and what began, never a style in both",
     y.rising.length>=1 && (y.rising.length<2 || !y.rising[0].some(id=>y.rising[1].includes(id))));
+  // the styles that held the most of the chart that year, wherever they began, each once
+  const sec=await p.evaluate(()=>Object.fromEntries([...document.querySelectorAll(".ppage:not([hidden]) .yrsech")].map(h=>
+    [h.querySelector(".msecttl").textContent,[...h.nextElementSibling.querySelectorAll("[data-go]")].map(x=>x.dataset.go)])));
+  const popWant=D.POPULAR["1984"].map(p=>p[0]).filter(id=>!(sec["New This Year"]||[]).includes(id));
+  const listed=Object.values(sec).slice(1).flat();
+  say("Most Popular lists 1984's biggest styles in order, older ones too", JSON.stringify(sec["Most Popular"])===JSON.stringify(popWant)
+    && D.DATA.some(d=>popWant.includes(d[0]) && d[2]<1975));
+  say("  and no style is listed twice across the sections", new Set(listed).size===listed.length);
   const hitIds=[...new Set(want.map(h=>h[2]).filter(Boolean))];
   say("the map lights the year's charting styles ("+y.yh.length+")", y.lit && hitIds.every(id=>y.yh.includes(id)));
   say("  and marks 1984 on the axis", y.pill==="1984");

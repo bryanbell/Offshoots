@@ -100,6 +100,10 @@ say("every What's Current style exists and has a playlist",
   say("every chart year holds ten songs, title, credit and a style or none",
     few(Object.entries(H).filter(([y,r])=>r.length!==10||r.some(h=>h.length!==3||!h[0]||!h[1]||typeof h[2]!=="string")).map(([y])=>y)));
   say("every chart song's style exists", few(Object.entries(H).flatMap(([y,r])=>r.filter(h=>h[2]&&!set.has(h[2])).map(h=>y+": "+h[0]+" -> "+h[2]))));
+  const P=D.POPULAR||{};
+  say("every year with a chart has its most popular styles, real ones, biggest first",
+    few(Object.keys(H).filter(y=>{ const r=P[y]; return !r || !r.length || r.length>8 || r.some(([id,v])=>!set.has(id)||!(v>0))
+      || r.some((x,i)=>i&&x[1]>r[i-1][1]); })));
   say("the charts run unbroken from 1959", ys.length>0 && Math.min(...ys)===1959 && ys.every((y,i,a)=>!i||y===a[i-1]+1) && Math.max(...ys)<=now);
 }
 say("every What's Current style says why it is there",

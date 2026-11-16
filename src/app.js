@@ -3720,9 +3720,11 @@ function yearRising(Y){
 }
 const yearHits=Y=>(typeof HITS!=="undefined" && HITS[Y]) || [];
 const yearNew=Y=>nodes.filter(x=>x.year===Y).map(x=>x.id);
+// the styles that held the most of the year's Hot 100, wherever they began (POPULAR)
+const yearPopular=Y=>((typeof POPULAR!=="undefined" && POPULAR[Y]) || []).filter(([id])=>byId[id]);
 function yearSets(Y){
   return {hit:new Set(yearHits(Y).map(h=>h[2]).filter(id=>byId[id])),
-    up:new Set([...yearRising(Y).map(r=>r.id),...yearNew(Y)])};
+    up:new Set([...yearPopular(Y).map(p=>p[0]),...yearRising(Y).map(r=>r.id),...yearNew(Y)])};
 }
 // the first name on a credit, which is whose face or record a card shows
 const leadArtist=a=>a.split(/ (?:Featuring|featuring|Feat\.|feat\.|With|with|&|And His|and His|And The|and The|x|X|Duet With|, )/)[0].trim();
@@ -3794,8 +3796,9 @@ document.addEventListener("scroll",e=>{ const r=e.target;
   w.querySelector(".hitpg.prev").hidden=r.scrollLeft<4; w.querySelector(".hitpg.next").hidden=r.scrollLeft>=end; },true);
 function yearPage(Y){
   if(!(Y>=YMIN && Y<=YMAX)) return null;
-  // a style that began this year is listed as new, not also as taking off
-  const born=yearNew(Y), up=yearRising(Y).filter(r=>!born.includes(r.id)), hits=yearHits(Y);
+  // each style is listed once: what was biggest first, then what was taking off, then new
+  const born=yearNew(Y), pop=yearPopular(Y).filter(([id])=>!born.includes(id)),
+    up=yearRising(Y).filter(r=>!born.includes(r.id) && !pop.some(p=>p[0]===r.id)), hits=yearHits(Y);
   // the year sits between its arrows: round buttons, each named for the year it goes to
   const nav=(y,dir)=> y<YMIN||y>YMAX ? `<span class="yrstep off" aria-hidden="true"></span>`
     : `<button type="button" class="yrstep" data-year="${y}" aria-label="${y}" aria-haspopup="menu" title="${y} \u00b7 hold for decades">`
@@ -3822,6 +3825,10 @@ function yearPage(Y){
       + `<button type="button" class="hitpg prev" data-hitpg="-1" aria-label="Earlier on the chart" hidden><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg></button>`
       + `<button type="button" class="hitpg next" data-hitpg="1" aria-label="Further down the chart"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg></button></div>`
     : "";   // no chart that year (the Hot 100 starts in 1959): the section is left out
+  // biggest first. The share itself is left off: it is of the whole chart, of which only
+  // about two fifths finds a style, so even the year's leader reads as a few percent
+  const popular = pop.length ? head("Most Popular",pop.length)
+    + `<div class="moderows listgrp yrrows" role="list">${pop.map(([id])=>yearRow(id,"")).join("")}</div>` : "";
   const rising = up.length
     ? head("Taking Off",up.length)
       + `<div class="moderows listgrp yrrows" role="list">${up.map(r=>yearRow(r.id,r.fresh+" new")).join("")}</div>`
@@ -3830,9 +3837,9 @@ function yearPage(Y){
     + `<div class="moderows listgrp yrrows" role="list">${born.map(id=>yearRow(id,"")).join("")}</div>` : "";
   return {title:String(Y),
     flank:[nav(Y-1,-1),nav(Y+1,1)],
-    html:`<div class="yrpage">${charts}${rising}${newborn}`
-      + (charts||rising||newborn?"":`<p class="note yrnone">Nothing on the atlas for this year.</p>`) + `</div>`
-      + `<p class="note yrsrc">Charts: Billboard Hot 100, each song scored 101 minus its position for every week that year, via the weekly archive at github.com/mhollingshead/billboard-hot-100. Taking off: the share of a style's named artists who started in the six years up to this one.</p>`
+    html:`<div class="yrpage">${charts}${popular}${rising}${newborn}`
+      + (charts||popular||rising||newborn?"":`<p class="note yrnone">Nothing on the atlas for this year.</p>`) + `</div>`
+      + `<p class="note yrsrc">Charts: Billboard Hot 100, each song scored 101 minus its position for every week that year, via the weekly archive at github.com/mhollingshead/billboard-hot-100. Most popular: the styles with the most of the year's chart points, from songs by artists the atlas names for them. Taking off: the share of a style's named artists who started in the six years up to this one.</p>`
       + pageShareBtn("year:"+Y,String(Y),"Share this year")};
 }
 // the year the map is lit for, or null; undefined forces the next sync to redo it
