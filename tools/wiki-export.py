@@ -96,7 +96,7 @@ if len(sys.argv) > 2:
             publication_by_url[url] = {
                 'date':manifest['date'], 'status':entry['status'],
                 'serviceNotes':{name:entry.get(field) for name,field in [('Apple Music','appleMusicNotes'),('Spotify','spotifyNotes')] if entry.get(field)},
-                'serviceArtPending':not entry.get('imageExists',False)}
+                'serviceArtPending':entry.get('serviceArtPending',not entry.get('imageExists',False))}
 children = collections.defaultdict(list)
 for node in styles.values():
     for parent in node[4].split():

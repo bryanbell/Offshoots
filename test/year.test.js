@@ -12,10 +12,12 @@ const page=p=>p.evaluate(()=>{ const u=[...document.querySelectorAll(".ppage")].
   const svg=document.getElementById("chart");
   return {key:u&&u.dataset.p, title:(u&&u.querySelector(".bigttl")||{}).textContent||"",
     hits:u?[...u.querySelectorAll(".hitcard")].map(r=>({song:r.querySelector(".hitttl").textContent, href:r.querySelector(".hitsong").getAttribute("href"),
-      sty:(r.querySelector(".hitsty")||{dataset:{}}).dataset.go||"", styArt:!!r.querySelector(".hitsty .hitsart img")})):[],
+      sty:(r.querySelector(".hitsty")||{dataset:{}}).dataset.go||"", styArt:!!r.querySelector(".hitsty .hitsart img, .hitsty .hitsart .pcovph")})):[],
     rail:!!(u&&u.querySelector(".hitrail")),
     rising:u?[...u.querySelectorAll(".yrpage .yrrows")].map(g=>[...g.querySelectorAll("[data-go]")].map(x=>x.dataset.go)):[],
-    rowArt:u?[...u.querySelectorAll(".yrpage .yrrows .toprow")].every(r=>!!r.querySelector(".mrart img")):false,
+    // its cover, or, for a style with a playlist but no cover yet, the tile with its
+    // initials that replaces a cover that will not load (South African Bubblegum, Nov 15)
+    rowArt:u?[...u.querySelectorAll(".yrpage .yrrows .toprow")].every(r=>!!r.querySelector(".mrart img, .mrart .pcovph")):false,
     lit:svg.classList.contains("yrlit"), yh:[...svg.querySelectorAll(".n.yh")].map(g=>g.dataset.id),
     pill:(document.querySelector("#axsel text")||{}).textContent||"", hash:location.hash}; });
 

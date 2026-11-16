@@ -4,7 +4,7 @@
   const el = (tag, value, parent=root) => {const n=document.createElement(tag);if(value!==undefined)n.textContent=value;parent.append(n);return n;};
   const normalize=value=>value.normalize('NFKD').replace(/\p{M}/gu,'').toLowerCase().replaceAll('ø','o');
   const readable=value=>String(value).replaceAll('_',' ');
-  const status=c=>c.id==='artmusic'?'Existing class: reconcile map link':c.id==='jangle'?'Existing private playlist: reconcile contents':c.id==='ukgarage'?'Existing class: reconcile catalog copy and links':'Prepared, unpublished';
+  const status=c=>c.id==='artmusic'?'Existing class: reconcile map link':c.id==='jangle'?'Existing private playlist: reconcile contents':c.id==='ukgarage'?'Existing class: reconcile catalog copy and links':'Prepared on November 14';
   const paragraphs=(values,parent)=>{for(const v of values){if(typeof v==='string'&&v)el('p',readable(v),parent);}};
   try {
     const data = await (await fetch('/wiki/preparation/preparation.json')).json();
@@ -22,7 +22,7 @@
     function show(c){
       detail.textContent='';indexPanel.hidden=true;const back=el('button','Back to prepared classes',detail);back.id='prep-back';back.addEventListener('click',()=>{detail.textContent='';indexPanel.hidden=false;const url=new URL(location.href);url.searchParams.delete('class');history.replaceState(null,'',url);input.focus();indexPanel.scrollIntoView({block:'start'});});
       el('h2',c.title,detail);el('p',`${status(c)} · Number ${readable(c.numberStatus)} · Proposed batch ${c.batch}`,detail);const atlas=el('a','View this style in Music Atlas',detail);atlas.href=c.nodeUrl;
-      el('p','Preparation only. Publication is not authorized. Catalog matches confirm artist and song names; selected recording versions still need review. Spotify availability has not been checked.',detail).className='note';
+      el('p','Historical preparation snapshot from November 14. Candidate versions and review notes below are retained as originally researched. Use the published catalog for current service availability, recording corrections and playlists.',detail).className='note';
       el('h3','Description',detail);el('p',c.description,detail);el('p',`${c.descriptionCharacters} characters`,detail);
       for(const [heading,value] of [['Listening question',c.listeningQuestion],['Listening revelation',c.revelation],['Contradiction',c.contradiction],['Musical argument',c.musicalArgument]]){el('h3',heading,detail);el('p',value,detail);}
       el('h3','Readiness and review issues',detail);paragraphs([c.readiness.research,c.readiness.catalog,c.readiness.chronology],detail);const issues=el('ul',undefined,detail);for(const issue of [...(c.readiness.issues||[]),...(c.readiness.chronologyNotes||[]),...(c.readiness.integrationReviewIssues||[]).map(x=>x.issue)])el('li',readable(issue),issues);
