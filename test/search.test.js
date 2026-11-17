@@ -213,15 +213,15 @@ async function ask(p,t){
       r4=await ask(p,"cant zone"), r5=await ask(p,"collections");
     const top3=(rs,n)=>rs.slice(0,3).some(x=>x.kind==="res-page" && x.name===n);
     say('"dinner" offers the Dinner collection', top3(r,"Dinner"));
-    say('"sit with" offers Sit With It', top3(r2,"Sit With It"));
-    say('"sad" offers Sit With It ('+r3.slice(0,3).map(x=>x.name).join(", ")+")", top3(r3,"Sit With It"));
+    say('"sit with", the old name, still offers Sad', top3(r2,"Sad"));
+    say('"sad" offers Sad ('+r3.slice(0,3).map(x=>x.name).join(", ")+")", top3(r3,"Sad"));
     say('"cant zone" finds Can\'t Zone In without the apostrophe', top3(r4,"Can't Zone In"));
     say('"collections" offers the Collections page', top3(r5,"Collections"));
     say("  each wearing a glyph", [r,r2,r3].every(rs=>rs.filter(x=>x.kind==="res-page").every(x=>x.glyph)));
     // and it opens: the page for that collection, not a style
     await ask(p,"sad");
     await p.evaluate(()=>{ const b=[...document.querySelectorAll("#res button")]
-      .find(x=>(x.querySelector(".rnm")||{}).textContent==="Sit With It"); if(b) b.click(); });
+      .find(x=>(x.querySelector(".rnm")||{}).textContent==="Sad"); if(b) b.click(); });
     await onPage(p,"mode:sit");
     say("  and tapping it opens the collection", await p.evaluate(()=>{
       const u=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden)[0];

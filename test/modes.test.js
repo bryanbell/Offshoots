@@ -67,7 +67,8 @@ const spell=n=>n<=20?WORDS[n]
   // is that the row is scrollable, that the first few are reachable without it, and that
   // the heading really does open the rest.
   let p=await fresh(b,M);
-  const nModes=await p.evaluate(()=>typeof MODES!=="undefined"?MODES.length:-1);
+  // the collections on the shelves: two (Speaker Test, Something New) open from Explore instead
+  const nModes=await p.evaluate(()=>typeof MODES!=="undefined"?MODES.filter(m=>Object.values(SHELVES).some(s=>s[1].includes(m[0]))).length:-1);
   const rows=await p.$$(".mcirc");
   say("one circle per mode ("+nModes+")", nModes>0 && rows.length===nModes);
   say("and no chips or rows left over", (await p.$$(".modechip")).length===0
@@ -123,7 +124,7 @@ const spell=n=>n<=20?WORDS[n]
     for(const x of document.querySelectorAll(".mcirc .mco svg")){
       const k=x.innerHTML.replace(/\s+/g," ").trim();
       if(seen.has(k)) return false; seen.add(k);
-    } return seen.size===MODES.length;}));
+    } return seen.size===MODES.filter(m=>Object.values(SHELVES).some(s=>s[1].includes(m[0]))).length;}));
   say("  filling "+gl.share+"% of its circle", gl.share>=45 && gl.share<=60);
   // a mouse has no momentum of its own, so the row carries a flick after the button is up
   const fling=await p.evaluate(async()=>{
@@ -192,8 +193,10 @@ const spell=n=>n<=20?WORDS[n]
   say("  none of them torn", torn.length===0 ? true : torn.join(", "));
   say("  with the glyph still under it, for one that will not load",
     moodart.every(a=>a.glyph));
+  // the two collections that open from Explore rather than the row keep their paintings
+  const DM=require("../src/data.js"), offShelf=DM.MODES.map(m=>m[0]).filter(id=>!Object.values(DM.SHELVES).some(s=>s[1].includes(id)));
   const extra=fs.readdirSync(dir).filter(f=>/\.jpg$/.test(f))
-    .filter(f=>!moodart.some(a=>a.mode+".jpg"===f));
+    .filter(f=>!moodart.some(a=>a.mode+".jpg"===f) && !offShelf.some(id=>id+".jpg"===f));
   say("  with none left over", extra.length===0 ? true : extra.join(", "));
 
   say("  and no label cut off"+(lay.clipped.length?": "+lay.clipped.join(", "):""), lay.clipped.length===0);
@@ -210,21 +213,21 @@ const spell=n=>n<=20?WORDS[n]
   const upDisc=await p.$eval(".sect-modes .mcirc .mco",
     e=>Math.round(e.getBoundingClientRect().width));
   await p.click(".sect-modes .secthead"); await onPage(p,"modes");
-  // The page is the home panel's circles at full length and at the same size, four
-  // across, the name under each, cut into the sort's sections.
+  // The page is shelves, one per question, each a swiping row of the home panel's tiles.
   const all=await p.evaluate(()=>{
     const g=document.querySelector(".ppage:not([hidden]) .modelist");
-    const t=[...g.querySelectorAll(".mgrid .mcirc")];
-    const gb=g.getBoundingClientRect(), bb=document.getElementById("panelBody").getBoundingClientRect();
-    return {n:t.length, cols:new Set(t.map(x=>Math.round(x.getBoundingClientRect().left))).size,
-      over:t.some(x=>x.getBoundingClientRect().right>gb.right+1 || x.getBoundingClientRect().left<gb.left-1),
-      inside:gb.right<=bb.right+1,
+    const t=[...g.querySelectorAll(".mshelf:not([data-shelf='now']) .mcirc")];
+    const bb=document.getElementById("panelBody").getBoundingClientRect();
+    return {n:t.length, shelves:g.querySelectorAll(".mshelf").length,
+      inside:g.getBoundingClientRect().right<=bb.right+1,
       labelled:t.every(x=>((x.querySelector(".mclbl")||{}).textContent||"").trim().length>0),
       art:t.every(x=>!!x.querySelector("img")),
       opens:t.every(x=>/Opens the collection/.test(x.getAttribute("aria-label")||"")),
-      tall:t.every(x=>x.getBoundingClientRect().height>=64)};});
-  say("showing all "+all.n+" as tiles, four across", all.n===nModes && all.cols===4 && !all.over && all.inside);
-  say("  each its picture with its name under it", all.labelled && all.art);
+      tall:t.every(x=>x.getBoundingClientRect().height>=64),
+      // names fit their tiles: Commuting was the one clipped at shelf width
+      fit:t.every(x=>{ const l=x.querySelector(".mclbl"); return l.scrollWidth<=l.clientWidth+1; })};});
+  say("showing all "+all.n+" on "+all.shelves+" shelves", all.n===nModes && all.shelves===6 && all.inside);
+  say("  each its picture with its name under it, the name fitting", all.labelled && all.art && all.fit);
   say("  saying in its label that it opens", all.opens);
   say("  every one a real tap target", all.tall);
   // the page ends with the share button every collection page has, not the bare
@@ -425,15 +428,15 @@ const spell=n=>n<=20?WORDS[n]
   const d=await fresh(b,Dk);
   say("the sidebar opens on circles too", (await d.$$(".mcirc")).length===nModes);
   await d.click(".sect-modes .secthead"); await onPage(d,"modes");
-  const dl=await d.evaluate(()=>{
-    const g=document.querySelector(".ppage:not([hidden]) .modelist");
-    const t=[...g.querySelectorAll(".mgrid .mcirc")], gb=g.getBoundingClientRect();
-    return {cols:new Set(t.map(x=>Math.round(x.getBoundingClientRect().left))).size,
-      clipped:t.filter(x=>x.getBoundingClientRect().right>gb.right+1)
-               .map(x=>x.querySelector(".mclbl").textContent)};});
-  say("and its full set is the same tiles there, four across", dl.cols===4);
+  // a mouse has no swipe: the row's arrow moves it along, and only shows when it can
+  const rail='.ppage:not([hidden]) .mshelf[data-shelf="doing"]';
+  const dl0=await d.evaluate(r=>({next:!document.querySelector(r+" .hitpg.next").hidden, prev:!document.querySelector(r+" .hitpg.prev").hidden}),rail);
+  await d.click(rail+" .hitpg.next"); await d.waitForTimeout(700);
+  const dl=await d.evaluate(r=>({moved:document.querySelector(r+" .mrail").scrollLeft>40, prev:!document.querySelector(r+" .hitpg.prev").hidden,
+    clipped:[...document.querySelectorAll(".ppage:not([hidden]) .mshelf .mclbl")].filter(l=>l.scrollWidth>l.clientWidth+1).map(l=>l.textContent)}),rail);
+  say("and its shelves page along with an arrow there", dl0.next && !dl0.prev && dl.moved && dl.prev);
   await d.click("#panelBack"); await onPage(d,"root");
-  say("and clips nothing"+(dl.clipped.length?": "+dl.clipped.join(", "):""), dl.clipped.length===0);
+  say("and clips no name"+(dl.clipped.length?": "+dl.clipped.join(", "):""), dl.clipped.length===0);
   await d.click('[data-mode="sit"]'); await onPage(d,"mode:sit");
   say("tapping one pushes a page of picks ("+MODESIZE("sit")+")",
     (await d.$$eval(".ppage:not([hidden]) .picks [data-go]",e=>e.length))===MODESIZE("sit"));
@@ -453,80 +456,26 @@ const spell=n=>n<=20?WORDS[n]
   // Persistence is checked by seeding storage before load rather than by reloading:
   // Chromium's localStorage under file:// is unreliable across a reload, and that is the
   // harness, not the page. The click path and the load path are both covered either way.
+  // The page counts what is on its shelves, has no sort, and the two collections that
+  // left them open from Explore the Atlas instead
   { const s=await b.newPage({viewport:M}); const serrs=[];
     s.on("pageerror",e=>serrs.push(String(e)));
     await s.goto(URL+"#modes"); await ready(s); await landed(s,"modes");
-
-    const read=()=>s.evaluate(()=>{
-      const ps=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden), u=ps[ps.length-1];
-      return {on:[...u.querySelectorAll(".sortx")].map(x=>x.textContent),
-        labels:[...u.querySelectorAll(".mgrid .mclbl")].map(x=>x.textContent),
-        stored:(()=>{try{return localStorage.getItem("musicatlas.modesort")}catch(e){return null}})()};});
-
-    const start=await read();
-      say("the page counts the collections correctly ("+spell(DATA.MODES.length)+")",
-      new RegExp("\\b"+spell(DATA.MODES.length)+"\\b","i")
-        .test(await s.$eval(".pglede",e=>e.textContent)));
-  say("the collections page has a sort, defaulting to right now",
-      start.on.length===1 && start.on[0]==="Right now");
-
-    const seen={now:start.labels.join("|")};
-    const total=start.labels.length;
-    // the real count, not a number typed here: a mode added later must not read as a bug
-    const want=await s.evaluate(()=>MODES.length);
-    let kept=total===want, named=true;
-    for(const [k,lbl] of [["quiet","Quietest"],["used","Most used"],["az","A–Z"]]){
-      // wait on the control actually flipping rather than on a stopwatch: under a loaded
-      // machine a fixed pause is a coin toss, and a half-rendered list reads as a bug
-      await s.selectOption(".msortsel",k);
-      await s.waitForFunction(key=>{
-        const sel=document.querySelector(".msortsel");
-        return sel && sel.value===key;
-      },k,{timeout:5000});
-      const r=await read();
-      seen[k]=r.labels.join("|");
-      if(r.labels.length!==total) kept=false;
-      if(r.on.length!==1 || r.on[0]!==lbl || r.stored!==k) named=false;
-    }
-    say("  all "+total+" modes survive every sort", kept && total===want);
-    say("  and the control marks and stores the one that is on", named);
-    // Loudest-first is back: as an icon it was the same speaker with one more wave on it,
-    // but the control is a word now, and a list that opens on Workout is a different list
-    say("  both intensity orders are offered, as words",
-      await s.evaluate(()=>{const sel=document.querySelector(".msortsel");
-        const v=[...sel.options].map(o=>o.value), t=[...sel.options].map(o=>o.textContent);
-        return v.includes("quiet") && v.includes("loud") && t.includes("Quietest") && t.includes("Loudest");}));
-    say("  A–Z really is alphabetical", seen.az===seen.az.split("|").slice()
-      .sort((x,y)=>x.localeCompare(y)).join("|"));
-    // nothing has been opened in this browser, so "most used" has no tally to go on and
-    // must fall back to the default order rather than to however MODES is declared
-    say("  most used falls back to right now when nothing has been opened", seen.used===seen.now);
-    say("  no page errors from sorting", serrs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
-    await s.close(); }
-
-  // the stored choice is honoured when the page is built, not just when it is clicked
-  { const s2=await b.newPage({viewport:M});
-    await s2.addInitScript(()=>{ try{ localStorage.setItem("musicatlas.modesort","az"); }catch(e){} });
-    await s2.goto(URL+"#modes"); await ready(s2); await landed(s2,"modes");
-    const r=await s2.evaluate(()=>{
-      const ps=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden), u=ps[ps.length-1];
-      return {on:(u.querySelector(".sortx")||{}).textContent,
-        first:(u.querySelector(".mgrid .mclbl")||{}).textContent};});
-    say("a remembered sort is honoured next time the page opens",
-      r.on==="A–Z" && r.first==="Back Then");
-    await s2.close(); }
-
-  // a stored value that is not one of the four must not strand the page on an empty list
-  { const s3=await b.newPage({viewport:M});
-    await s3.addInitScript(()=>{ try{ localStorage.setItem("musicatlas.modesort","nonsense"); }catch(e){} });
-    await s3.goto(URL+"#modes"); await ready(s3); await landed(s3,"modes");
-    const r=await s3.evaluate(()=>{
-      const ps=[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden), u=ps[ps.length-1];
-      return {on:(u.querySelector(".sortx")||{}).textContent,
-        rows:u.querySelectorAll(".mgrid .mcirc").length};});
-    say("a nonsense stored sort falls back to right now, with every mode still there",
-      r.on==="Right now" && r.rows===(await s3.evaluate(()=>MODES.length)));
-    await s3.close(); }
+    const n=await s.evaluate(()=>MODES.filter(m=>Object.values(SHELVES).some(s=>s[1].includes(m[0]))).length);
+    say("the page counts the collections on its shelves ("+spell(n)+")",
+      new RegExp("\\b"+spell(n)+"\\b","i").test(await s.$eval(".pglede",e=>e.textContent)));
+    say("  with no sort control", await s.evaluate(()=>!document.querySelector(".msortsel")));
+    say("  and Speaker Test and Something New on no shelf", await s.evaluate(()=>
+      !document.querySelector('.mshelf [data-mode="speakertest"], .mshelf [data-mode="curious"]')));
+    await s.close();
+    const e=await b.newPage({viewport:M});
+    await e.goto(URL); await ready(e);
+    const rows=await e.evaluate(()=>[...document.querySelectorAll('.sect-onmap [data-mode]')].map(x=>x.dataset.mode));
+    say("Explore the Atlas opens them instead ("+rows.join(", ")+")", rows.includes("speakertest") && rows.includes("curious"));
+    await e.click('.sect-onmap [data-mode="speakertest"]'); await landed(e,"mode:speakertest");
+    say("  and Speaker Test opens as a collection", await e.evaluate(()=>[...document.querySelectorAll(".ppage")].filter(x=>!x.hidden).pop().dataset.p==="mode:speakertest"));
+    say("  no page errors", serrs.filter(x=>!/Failed to load/.test(x)).join(" | ")||true);
+    await e.close(); }
 
   // The default follows the local clock. Freeze it at four hours and check what leads, both
   // on the Collections page and in the row on the root, which starts from the same order.
@@ -537,8 +486,9 @@ const spell=n=>n<=20?WORDS[n]
     await s.addInitScript(t=>{const [H,Mi]=t.split(":").map(Number), R=Date, fix=new R(2026,10,9,H,Mi).getTime();
       window.Date=class extends R{constructor(...a){super(...(a.length?a:[fix]))} static now(){return fix}};},t);
     await s.goto(URL+"#modes"); await ready(s); await landed(s,"modes");
-    const r=await s.evaluate(()=>{const sec=document.querySelector(".ppage:not([hidden]) .modesec");
-      return {title:sec.querySelector(".msecttl").textContent,
+    // Right Now leads the page, named for the part of the day underneath
+    const r=await s.evaluate(()=>{const sec=document.querySelector('.ppage:not([hidden]) .mshelf[data-shelf="now"]');
+      return {title:(sec.querySelector(".msecsub")||{}).textContent,
         modes:[...sec.querySelectorAll(".mcirc")].map(x=>x.dataset.mode)};});
     // the real row, without the suite-wide full row
     await s.addInitScript(()=>{ window.__MA_ROWALL=false; });
@@ -551,7 +501,7 @@ const spell=n=>n<=20?WORDS[n]
       r.title===part && r.modes.includes(lead) && !r.modes.includes(notFirst));
     // the root's speed dial: seven in the same order, that group first, then Show All
     say("  and the root's dial leads with that group ("+row.modes.length+": "+row.modes.slice(0,3).join(", ")+")",
-      row.modes.length===7 && row.modes.slice(0,Math.min(7,r.modes.length)).join()===r.modes.slice(0,7).join());
+      row.modes.length===7 && r.modes.length>=1 && row.modes.slice(0,r.modes.length).join()===r.modes.join());
     say("  ending in a cell that opens every collection ("+row.allLbl+")",
       row.lastIsAll && row.allPage==="modes" && row.allLbl==="Show All");
     { const g=await s.evaluate(()=>{ const d=document.querySelector(".ppage[data-p=root] .mdial");
@@ -566,35 +516,15 @@ const spell=n=>n<=20?WORDS[n]
       say("  which opens the Collections page", await s.evaluate(()=>[...document.querySelectorAll(".ppage")].pop().dataset.p==="modes")); }
     await c.close(); }
 
-  // the control has to survive the narrowest phone without clipping a label
+  // the narrowest phone: every name whole on its shelf, nothing pushing the page sideways
   { const s4=await b.newPage({viewport:{width:320,height:700,isMobile:true,hasTouch:true}});
     await s4.goto(URL+"#modes"); await ready(s4); await landed(s4,"modes");
-    const nSorts=await s4.evaluate(()=>document.querySelector(".msortsel").options.length);
-    // It used to be four words in a track that filled the panel and then scrolled, so the
-    // last option sat off the edge. Icons fit outright at 320, beside the heading, which
-    // is the whole reason for the change: reachable now means on screen, not scrollable to.
-    const fit=await s4.evaluate(()=>{
-      const seg=document.querySelector(".sortpick");
-      const head=document.querySelector(".secthead.picksort .secttl");
-      const page=seg&&seg.closest(".ppage");
-      const r=x=>x.getBoundingClientRect();
-      return {n:seg?seg.querySelector("select").options.length:0,
-        tall:!!seg && r(seg).height>=28,
-        onScreen:!!seg && r(seg).right<=r(page).right+1 && r(seg).left>=r(page).left-1,
-        noScroll:!!seg && seg.scrollWidth<=seg.clientWidth+1,
-        // the picker sits inside the heading now, so "beside" is the same line
-        besideHead:!!head && !!seg && Math.abs(r(head).top-r(seg).top)<r(head).height,
-        headOneLine:!!head && r(head).height<parseFloat(getComputedStyle(head).lineHeight)*2.2,
-        nopush:document.documentElement.scrollWidth<=320+1};});
-    // the count comes off the control, not off a number typed here: dropping an order
-    // should not read as this check breaking, which is exactly what it did
-    say("at 320px all "+fit.n+" sit on screen beside the heading, no scrolling",
-      fit.n===nSorts && fit.onScreen && fit.noScroll && fit.nopush
-        ? true
-        : JSON.stringify({...fit, want:nSorts}));
-    say("  with the heading still on one line and the taps big enough",
-      fit.besideHead && fit.headOneLine && fit.tall);
-    await s4.screenshot({path:__dirname+"/screens/m-modesort.png"});
+    const fit=await s4.evaluate(()=>({clipped:[...document.querySelectorAll(".ppage:not([hidden]) .mshelf .mclbl")]
+        .filter(l=>l.scrollWidth>l.clientWidth+1).map(l=>l.textContent),
+      nopush:document.documentElement.scrollWidth<=320+1}));
+    say("at 320px every shelf name fits and nothing pushes the page sideways"+(fit.clipped.length?": "+fit.clipped.join(", "):""),
+      fit.clipped.length===0 && fit.nopush);
+    await s4.screenshot({path:__dirname+"/screens/m-modeshelves.png"});
     await s4.close(); }
 
 // ---- leaving a mood and coming back to it ----

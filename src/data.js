@@ -3954,7 +3954,7 @@ const MODES = [
     ["banda","A full brass band at full volume, all of it in major"],
     ["edmpop","Big major choruses with a drop to lift the room"]
    ],3],
-  ["hype","Walk In Tall","The ten minutes before you walk in.",
+  ["hype","Psych Up","The ten minutes before you walk in.",
    "Swagger rather than speed. Front-loaded, brash and certain of itself, for the three minutes before the thing rather than during it. Workout is led by tempo and Burn it off is anger; this is neither.",
    [
     ["melmetalcore","The big chorus, then the drop everyone waits for"],
@@ -4010,7 +4010,7 @@ const MODES = [
     ["sampledrill","Familiar hooks turned menacing under sliding bass"],
     ["nu_metalcore","Nu metal swagger with a modern breakdown under it"]
    ],4],
-  ["burn","Burn It Off","Anger with nowhere else to go.",
+  ["burn","Angry","Anger with nowhere else to go.",
    "Anger wants volume, distortion and a tempo above your pulse. Playing it through tends to work better than reaching for something calming first.",
    [
     ["blackmetal","Cold, fast and indifferent to you"],
@@ -4101,7 +4101,7 @@ const MODES = [
     ["classic_blues","Bessie Smith's big voice for a late glass alone"],
     ["westcoast_blues","Charles Brown's after-hours piano, smooth and unhurried"]
    ],1],
-  ["sit","Sit With It","For bad news, and for not wanting to be cheered up.",
+  ["sit","Sad","For bad news, and for not wanting to be cheered up.",
    "Sad music is reliably one of the most pleasurable kinds there is: slow, minor, a single voice close to the microphone, the feeling rehearsed at a safe distance.",
    [
     ["delta","One voice, one guitar, nothing hidden"],
@@ -4144,7 +4144,7 @@ const MODES = [
     ["classic_blues","Ma Rainey singing the hurt to a full theatre"],
     ["hymns","Abide With Me and the slow hymns sung at funerals"]
    ],1],
-  ["onmind","On Your Mind","Someone you keep thinking about, present or gone.",
+  ["onmind","Missing Someone","Someone you keep thinking about, present or gone.",
    "Not being with someone: thinking about them. High major keys, a voice close and a little nervous, and words in the second person about something that has not been said yet. A great deal of pop exists to sell this one feeling.",
    [
     ["synthpop","Longing routed through a synthesiser"],
@@ -4318,7 +4318,7 @@ const MODES = [
     ["banda","Brass every quinceañera and wedding has danced to"],
     ["newcountry","Nineties country three generations already know by heart"]
    ],3],
-  ["cosmic","Third Eye","The long way out, with the lights off.",
+  ["cosmic","Trippy","The long way out, with the lights off.",
    "Music for the part of the mind that wants out: the long form, the drone, the repetition that stops being repetition, the echo that becomes a room. Its lineage runs from the evening raga through Coltrane and Sun Ra, the acid scenes of 1966, the Krautrock and Berlin school that turned a synthesizer into a spaceship, Eno's ambient and the new age that followed, dub's echo chamber, the rave and its comedown rooms, out to Flying Lotus and the modern psych bands. Nothing here is in a hurry, and all of it is for lying on the floor with the lights off.",
    [
     ["raga","Where the drone and the long form came from; an evening raga is the original trip"],
@@ -4688,7 +4688,7 @@ const MODES = [
     ["jangle","R.E.M. and the Smiths, chiming along at walking pace"],
     ["roots","Heavy bass and a steady skank for an aimless stroll"]
    ],2],
-  ["backthen","Back Then","For a time you miss, not a person.",
+  ["backthen","Nostalgic","For a time you miss, not a person.",
    "Not On Your Mind, which is about someone, and not Sit With It, which is about loss. This is for an era: a summer, a school year, a kitchen radio. Music hits hardest from the years around twenty, and Carol Krumhansl's work at Cornell found the pull runs back a generation or two as well: young listeners were most moved by their parents' music from the early eighties, and next by the sixties records handed down from grandparents. So this runs from the grandparents' dance floor through the parents' car radio to your own cassettes, and ends with music about remembering itself, the nostalgia for a time nobody here actually lived.",
    [
     ["motown","The songs everyone's grandparents knew every word of"],
@@ -4730,7 +4730,7 @@ const MODES = [
     ["rockespanol","The cassette every Latin American teenager wore out in 1990"],
     ["synthwave","An eighties that never happened, through VHS and neon"]
    ],2],
-  ["lonely","Keep Me Company","When the quiet is the problem, not the cure.",
+  ["lonely","Lonely","When the quiet is the problem, not the cure.",
    "Not grief, which is Sit With It, and not the walk you chose to take alone, which is Wandering. This is the empty apartment and the phone that does not ring. Psychologists studying music as a social surrogate found that lonely people reach for favourite, familiar music rather than something new, and that it works through connection: to the singer, and to the people a song reminds you of. So this is built around voices, close-miked and talking to one person, many of them singing about being alone so that you are not the only one who is.",
    [
     ["honkytonk","Lonesome is the native language here"],
@@ -4848,6 +4848,20 @@ const MODES = [
 // a track is not a playlist and the two services address them differently.
 // Words someone might type for a collection that are not in its name or line, so a
 // search for a feeling ("sad") finds the collection for it (Sit With It).
+// ---------- the Collections page, in shelves ----------
+// The page is a shelf per question someone arrives with: what they are doing, where they
+// are going, who is there, how they feel, and how far down they are winding. Each
+// collection sits on one shelf, in the order listed. A collection in MODES on no shelf
+// (Speaker Test, Something New) is still a collection, opened from Explore the Atlas
+// rather than from here.
+const SHELVES = {
+"doing":["Doing",["focus","coding","restless","chores","cooking","garage","gaming","coffee","workout"]],
+"going":["Going",["miles","road","commute","clockout","nightdrive","wander","camping"]],
+"together":["Together",["party","houseparty","cocktails","dinner","family","together","showkid","aux","phone"]],
+"feeling":["Feeling",["lift","hype","burn","sit","onmind","lonely","backthen"]],
+"slowing":["Slowing Down",["morning","winddown","nightcap","meditate","sleep","cosmic","deep"]],
+};
+
 const MODEWORDS = {
 "focus":"concentrate concentration study studying reading homework work deep work flow zone focused productive exam essay writing library quiet desk stressed deadline cramming",
 "coding":"programming code developer hacking debugging terminal late night programmer hacker loop hypnotic",
@@ -4871,15 +4885,15 @@ const MODEWORDS = {
 "chores":"cleaning housework laundry errands admin productive motivation tidy tidying up to do list procrastinating get going garage clear out",
 "garage":"garage workshop tools working on the car wrenching tinkering fixing building greasy saturday shop",
 "lift":"happy happiness cheer up cheerful upbeat feel good mood sunshine sunny bright joy joyful optimistic smile vibes cheery chipper bouncy positive hopeful brighten uplifting uplift",
-"hype":"confidence pump up hype nervous interview big game courage brave pep talk adrenaline day speech presentation jitters butterflies psyched determined",
-"burn":"angry anger mad furious rage frustrated pissed vent venting stress stressed aggression heavy grumpy irritable cranky annoyed livid irate fuming seething off",
+"hype":"confidence pump up hype nervous interview big game courage brave pep talk adrenaline day speech presentation jitters butterflies psyched determined walk in tall",
+"burn":"angry anger mad furious rage frustrated pissed vent venting stress stressed aggression heavy grumpy irritable cranky annoyed livid irate fuming seething off burn it off",
 "nightcap":"drunk late night whiskey alone solitude bourbon wine jazz lounge reflective quiet contemplative pensive thoughtful mellow tipsy buzzed drinking nightcap",
-"sit":"sad sadness grief grieving heartbreak heartbroken depressed down blue crying melancholy loss mourning tears lonely numb rainy grey gray low bummer bummed gloomy glum miserable upset hurt hurting bleak mopey unhappy defeated rough day bad day blues",
-"onmind":"heartbreak heartbroken missing someone love crush longing breakup yearning ache heartache you ex unrequited wistful bittersweet lovesick smitten pining infatuated",
+"sit":"sad sadness grief grieving heartbreak heartbroken depressed down blue crying melancholy loss mourning tears lonely numb rainy grey gray low bummer bummed gloomy glum miserable upset hurt hurting bleak mopey unhappy defeated rough day bad day blues sit with it",
+"onmind":"heartbreak heartbroken missing someone love crush longing breakup yearning ache heartache you ex unrequited wistful bittersweet lovesick smitten pining infatuated on your mind",
 "together":"romantic romance date night love couple intimate sensual slow dance anniversary candlelight tender first date dating cuddle cuddling snuggle",
 "showkid":"kids children teaching learning young education teach first records",
 "family":"family grandparents holidays thanksgiving christmas reunion gathering sunday grandma grandpa all ages",
-"cosmic":"psychedelic trippy trip meditation spaced out space spacey cosmic otherworldly hypnotic drone ambient mind floaty dreamlike",
+"cosmic":"psychedelic trippy trip meditation spaced out space spacey cosmic otherworldly hypnotic drone ambient mind floaty dreamlike third eye",
 "meditate":"meditation meditate meditating mindfulness mindful breathe breathing breathwork zen stillness still presence present yoga savasana prayer pray contemplation contemplative retreat vipassana om chant centering grounding walking meditation body scan awareness",
 "deep":"headphones audiophile album close listening immersive attentive vinyl record player hifi",
 "morning":"wake up waking up breakfast sunrise early dawn coffee fresh start gentle hopeful slow groggy",
@@ -4887,8 +4901,8 @@ const MODEWORDS = {
 "speakertest":"stereo speakers sound system audiophile hifi car audio test bass demo subwoofer",
 "phone":"phone speaker no headphones laptop small speaker",
 "wander":"walk walking wander wandering stroll strolling alone solo explore exploring flaneur headphones city park sightseeing aimless meander daydream reflective",
-"backthen":"nostalgia nostalgic memories memory remember throwback retro old days childhood growing up the good old days youth high school college times reminisce sentimental homesick wistful",
-"lonely":"lonely loneliness alone isolated isolation empty apartment nobody solitude missing people quiet night company comfort house by myself lonesome",
+"backthen":"nostalgia nostalgic memories memory remember throwback retro old days childhood growing up the good old days youth high school college times reminisce sentimental homesick wistful back then",
+"lonely":"lonely loneliness alone isolated isolation empty apartment nobody solitude missing people quiet night company comfort house by myself lonesome keep me company",
 "curious":"new discover discovery curious curiosity explore something different obscure surprise random unknown unfamiliar rare deep cuts adventurous weird strange bored of everything stuck in a rut",
 };
 
@@ -14508,4 +14522,4 @@ const PHOTO = {
 };
 
 // ---------- export tail ---------- (build.js drops everything from this line on)
-if (typeof module !== "undefined") module.exports = {FAMS, DATA, ART, DONE, PLAY, SPLAY, QPLAY, YPLAY, DESC, COVER, PTITLE, FAMSKIN, FAMMAP, MODES, MODEWORDS, HEADTRACK, CURRENT, AGES, HITS, POPULAR, ROSTER, SONGS, READ, ACTIVE, ROLE, PICKERS, PICKED, PHOTO, COVERART, STYLEART, XPLAY};
+if (typeof module !== "undefined") module.exports = {FAMS, DATA, ART, DONE, PLAY, SPLAY, QPLAY, YPLAY, DESC, COVER, PTITLE, FAMSKIN, FAMMAP, MODES, SHELVES, MODEWORDS, HEADTRACK, CURRENT, AGES, HITS, POPULAR, ROSTER, SONGS, READ, ACTIVE, ROLE, PICKERS, PICKED, PHOTO, COVERART, STYLEART, XPLAY};

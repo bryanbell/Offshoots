@@ -1318,6 +1318,15 @@ a.deepsug:focus-visible{outline:0;box-shadow:inset 0 0 0 2px color-mix(in srgb,v
 /* the Collections page: the home panel's circles at the home panel's size, four across,
    with room between the shelves so a heading belongs to the grid under it */
 .modelist .modesec{margin-bottom:28px}
+/* each shelf one row you swipe: the dial's own tiles, four and a bit across so the next
+   one shows at the edge and says there are more; a mouse gets the rail's arrows */
+.mshelfwrap .mrail.mdial{display:flex;gap:10px;padding:6px 16px 10px;row-gap:0;column-gap:10px}
+/* four and a bit across, but never under 80px: a narrow phone shows three and a bit, names whole */
+.mshelfwrap .mrail .mcirc{flex:none;width:max(80px,calc((100% - 32px - 30px)/4.35));scroll-snap-align:start}
+.mshelfwrap .hitpg{top:calc(6px + max(80px,(100% - 32px - 30px)/4.35)/2 - 16px)}
+.modelist .mshelf{margin-bottom:22px}
+/* a touch smaller than the dial's names: a shelf tile is narrower, and Commuting has to fit */
+.mshelfwrap .mrail .mclbl{font-size:12.5px;letter-spacing:-.015em}
 /* ---------- the Collections page as rows ----------
    Art as a rounded square at the left, the name, the line on what it is for, a chevron.
    One per line in the panel's grouped card, with the hairline starting where the text
@@ -2894,7 +2903,7 @@ button,[role="button"]{-webkit-user-select:none; user-select:none}
 .hitwrap{position:relative}
 .hitpg{display:none}
 @media (hover:hover) and (pointer:fine){
-  .hitpg{all:unset;box-sizing:border-box;cursor:pointer;position:absolute;top:36px;z-index:4;width:32px;height:32px;
+  .hitpg{all:unset;box-sizing:border-box;cursor:pointer;-webkit-user-select:none;user-select:none;position:absolute;top:36px;z-index:4;width:32px;height:32px;
     display:grid;place-items:center;border-radius:50%;background:var(--panel);color:var(--fg);
     box-shadow:0 0 0 .5px var(--line),0 2px 8px rgb(0 0 0 / .18)}
   .hitpg[hidden]{display:none}

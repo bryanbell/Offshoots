@@ -179,7 +179,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   // and A Year in Music, since Nov 14: the year pages had no way in but the timeline
   say("  the rows left go to the map, and say what for: "
     + noRoots.rows.map(r=>r.lbl+" ("+r.sub+")").join(", "),
-    noRoots.rows.length===3
+    noRoots.rows.length===5
     && noRoots.rows[0].lbl==="Most Influential" && noRoots.rows[0].sub==="Explore musical crossroads"
     && noRoots.rows[1].lbl==="A Year in Music" && noRoots.rows[1].sub==="Tap any year on the timeline, too"
     && noRoots.rows[2].lbl==="Surprise Me" && noRoots.rows[2].sub==="Jump somewhere unexpected");
@@ -360,7 +360,7 @@ async function fresh(b,vp,hash){ const p=await b.newPage({viewport:vp}); const e
   // they were reference lists, and the map is the reference. What is left is the two
   // rows that take you somewhere the map cannot take you by being looked at.
   say("one list: "+(grp&&grp.labels.join(" / ")),
-    !!grp && grp.labels.join("/")==="Most Influential/A Year in Music/Surprise Me");
+    !!grp && grp.labels.join("/")==="Most Influential/A Year in Music/Surprise Me/Something New/Speaker Test");
   say("  with a second line on each ("+(grp&&grp.subs.join(", "))+")",
     !!grp && grp.subs.every(c=>c.length>0));
   say("  with an icon on each, the same as the library rows below", !!grp && grp.icons===true);
