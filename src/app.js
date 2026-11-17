@@ -1875,14 +1875,6 @@ $("panel").addEventListener("change",e=>{
   // both sorts swap what is on screen rather than rebuilding the page, which would throw
   // the scroll away: re-sorting is for looking at the same set again. The heading is
   // rebuilt too, because the picker's own label is the thing that says where you are.
-  if(t.classList.contains("msortsel")){
-    setModeSort(t.value);
-    const page=t.closest(".ppage");
-    const list=page&&page.querySelector(".modelist");
-    const head=page&&page.querySelector(".secthead.picksort");
-    if(list) list.outerHTML=modeListHtml();
-    if(head) head.outerHTML=modeSortHtml();
-    return; }
   if(t.classList.contains("tsortsel")){
     setTopSort(t.value);
     const page=t.closest(".ppage");
@@ -2717,7 +2709,7 @@ const rowIcon = k => {
   // every style already use, so the two read as the same thing seen from two directions
   const med = k.indexOf("med:")===0 ? k.slice(4) : "";
   return `<i class="lrico mi lr-${esc(med?"med-"+med:k)}">`
-    + (med ? (MEDPAGEICON[med]||"") : (ROWICON[k]||"")) + `</i>`;
+    + (med ? (MEDPAGEICON[med]||"") : (ROWICON[k]||MODEICON[k]||"")) + `</i>`;
 };
 // The roots menu, the roots row and the random row all lived here. Roots came off the
 // Explore panel when the map took that job back, and Surprise me is now one of the two
@@ -2748,10 +2740,17 @@ function onMapSect(){
         ` data-yearnow`,"Open the year the map is showing: its biggest songs and its styles")
     + goRow("random","Surprise Me","Jump somewhere unexpected",null,
         ` data-random`,"Open any style, chosen at random")
+    // two collections that are about the atlas and the speaker rather than a moment,
+    // so they live here and not on the Collections shelves
+    + (byMode("curious")?goRow("curious",byMode("curious")[1],"Corners no collection reaches",byMode("curious")[4].length,
+        ` data-mode="curious"`,byMode("curious")[2]):"")
+    + (byMode("speakertest")?goRow("speakertest",byMode("speakertest")[1],"What a stereo has got",byMode("speakertest")[4].length,
+        ` data-mode="speakertest"`,byMode("speakertest")[2]):"")
     + `</div>`,
     // the welcome card's line, word for word, paired with the one over Collections
     "", "", "Follow the connections between musical styles.");
 }
+const byMode=id=>typeof MODES!=="undefined" && MODES.find(m=>m[0]===id);
 function goRow(key,label,sub,count,attr,title){
   return `<button type="button" class="listrow lrtwo"${attr||""}`
     + ` title="${esc(title||label)}" aria-label="${esc(title||label)}">`
@@ -2967,19 +2966,24 @@ const MODEPARTS={
   evening:["commute", "cooking", "dinner", "cocktails", "together", "family", "gaming", "workout", "miles", "lonely", "deep", "wander", "houseparty"],
   tonight:["coding", "houseparty", "gaming", "nightcap", "together", "deep", "lonely", "onmind", "winddown", "party", "nightdrive", "cosmic", "camping", "cocktails", "sleep"]};
 function clockHour(){ const d=new Date(); return d.getHours()+d.getMinutes()/60; }
+// The collections on the Collections page's shelves. Speaker Test and Something New are
+// collections too, but they open from Explore the Atlas: they are about a speaker and
+// about the atlas itself, not a moment someone is in.
+const SHELFIDS=new Set(typeof SHELVES==="undefined" ? [] : Object.values(SHELVES).flatMap(s=>s[1]));
+const shelved=()=>SHELFIDS.size ? MODES.filter(m=>SHELFIDS.has(m[0])) : MODES;
 const partAt=h=>DAYPARTS.find(([,a,b])=>h>=a && h<b) || DAYPARTS[0];
 // what to call the part of the day, for the first section's heading
 function dayPart(h){ return partAt(h)[3]; }
 // Three groups: the current part's list in its own order, the collections in no part, and
 // the rest by how soon a part that lists them comes round (then their place in that part).
 function clockGroups(h){
-  const byId=Object.fromEntries(MODES.map(m=>[m[0],m])), cur=partAt(h);
+  const SM=shelved(), byId=Object.fromEntries(SM.map(m=>[m[0],m])), cur=partAt(h);
   const now=(MODEPARTS[cur[0]]||[]).filter(id=>byId[id]).map(id=>byId[id]);
   const inNow=new Set(now.map(m=>m[0]));
   const timed=new Set(Object.values(MODEPARTS).flat());
-  const any=MODES.filter(m=>!timed.has(m[0]));
+  const any=SM.filter(m=>!timed.has(m[0]));
   const later=[];
-  MODES.forEach((m,i)=>{ if(inNow.has(m[0]) || !timed.has(m[0])) return;
+  SM.forEach((m,i)=>{ if(inNow.has(m[0]) || !timed.has(m[0])) return;
     let k=Infinity;
     DAYPARTS.forEach(([key,a])=>{ const at=(MODEPARTS[key]||[]).indexOf(m[0]);
       if(at>=0) k=Math.min(k, ((a-h)%24+24)%24*100 + at); });
@@ -2990,47 +2994,8 @@ function clockGroups(h){
 function clockOrder(h){ const g=clockGroups(h==null?clockHour():h); return g.now.concat(g.any,g.later); }
 // The root's row follows the clock and nothing else: what suits the hour leads every time
 // it is built. It used to float the most-opened collections to the front once a browser
-// had a tally, which froze the row on last week's habits whatever the time; that order is
-// still one choice away as Most used on the Collections page.
+// had a tally, which froze the row on last week's habits whatever the time.
 
-// ---------- the sort on the list ----------
-// The row learns on its own and the list did not, which is the right split for the row but
-// leaves the list with one order whether you are reading down it to pick a feeling or
-// hunting a name you already know. So the list gets the choice stated out loud: quiet to
-// loud, what this browser opens most, or plain A to Z. The default is Right now: what suits
-// the local hour first, so a first visit in the afternoon does not open on Sleep.
-// Loudest-first is back now that the control is a word rather than an icon: as a glyph it
-// was the same speaker with one more wave on it, which is not a difference you can see at
-// 18px, but "Loudest" reads fine and a list that opens on Workout is a different list.
-const MODESORT_KEY="musicatlas.modesort";
-const MODESORTS=[
-  ["now","Right now","What suits the time of day"],
-  ["quiet","Quietest","Quietest first"],
-  ["loud","Loudest","Loudest first"],
-  ["used","Most used","What this browser opens most"],
-  ["az","A–Z","By name, A to Z"]];
-function modeSort(){
-  try{ const v=localStorage.getItem(MODESORT_KEY);
-    return MODESORTS.some(s=>s[0]===v) ? v : "now";
-  }catch(e){ return "now"; }
-}
-function setModeSort(v){ try{ localStorage.setItem(MODESORT_KEY,v); }catch(e){} }
-function modeOrderBy(how){
-  const lv=m=>m[5]||3, quiet=MODES.slice().sort((a,b)=>lv(a)-lv(b));
-  if(how==="az")   return MODES.slice().sort((a,b)=>a[1].localeCompare(b[1]));
-  // the same bands read from the other end, each band in its written order
-  if(how==="loud") return MODES.slice().sort((a,b)=>lv(b)-lv(a));
-  if(how==="quiet") return quiet;
-  const clock=clockOrder();
-  if(how==="used"){
-    // ties fall back to the clock order, so an untouched browser reads the same as the
-    // default rather than scrambling into whatever order MODES happens to be declared in
-    const use=modeUse();
-    return clock.map((m,i)=>[m,i]).sort((a,b)=>
-      ((+use[b[0][0]]||0)-(+use[a[0][0]]||0)) || a[1]-b[1]).map(x=>x[0]);
-  }
-  return clock;
-}
 // ---------- an inline picker ----------
 // The sorts were a segmented track of unlabelled glyphs. Four little drawings, one of
 // them a speaker with one more wave on it than its neighbour, standing for ideas no
@@ -3049,11 +3014,6 @@ function inlinePick(attr,label,opts,now){
     + opts.map(([k,l])=>`<option value="${esc(k)}"${k===now?" selected":""}>`
         + `${esc(l)}</option>`).join("")
     + `</select></span>`;
-}
-function modeSortHtml(){
-  return `<div class="secthead picksort"><h3 class="secttl">Sorted by `
-    + inlinePick('class="msortsel"',"Sort the collections.",MODESORTS,modeSort())
-    + `</h3></div>`;
 }
 // How far a case leans, derived from its own name rather than drawn fresh.
 //
@@ -3109,7 +3069,7 @@ function modeSect(){
   // and one tap from playing.
   const circles=clockOrder().slice(0,DIALN-1).map(m=>modeTile(m)).join("")
     + `<button type="button" class="mcirc mcall" data-page="modes"`
-    + ` aria-label="All ${MODES.length} collections" title="All ${MODES.length} collections">`
+    + ` aria-label="All ${shelved().length} collections" title="All ${shelved().length} collections">`
     + `<i class="mco mcallco"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">`
     + `<path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></i>`
     + `<span class="mclbl">Show All</span></button>`;
@@ -3122,46 +3082,38 @@ function modeSect(){
     "", "modes", "Find music for the moment.", true);
 }
 const DIALN=8;   // four across, two down: seven collections and Show All
-// The list in sections, cut where the sort cuts it, so the order is visible rather than
-// inferred. Quietest gives five bands of intensity, named for the room they suit; A to Z
-// gives letters; Most used splits what this browser has opened from what it has not.
-// Each band is a grid of the home panel's tiles with a small heading over it, so the
-// page reads as a few shelves of the same dial.
-const LVNAME={1:["Still","Low lights, nothing to do"],2:["Quiet","Company, a table, a window seat"],
-  3:["Steady","A job to do, a room to fill"],4:["Lively","On your feet"],5:["Loud","As loud as it goes"]};
-function modeSections(how){
-  if(how==="now"){
-    const h=clockHour(), g=clockGroups(h), out=[];
-    if(g.now.length) out.push({key:"now",title:dayPart(h),sub:"Suits the hour",rows:g.now});
-    if(g.any.length) out.push({key:"any",title:"Any Time",sub:"Not tied to the clock",rows:g.any});
-    if(g.later.length) out.push({key:"later",title:"Later",sub:"Soonest first",rows:g.later});
-    return out; }
-  const list=modeOrderBy(how);
-  if(how==="az"){
-    const out=[]; list.forEach(m=>{ const k=m[1][0].toUpperCase();
-      const g=out[out.length-1]; if(g && g.key===k) g.rows.push(m); else out.push({key:k,title:k,rows:[m]}); });
-    return out; }
-  if(how==="used"){
-    const use=modeUse(), hot=list.filter(m=>(+use[m[0]]||0)>0), cold=list.filter(m=>!((+use[m[0]]||0)>0));
-    const out=[];
-    if(hot.length) out.push({key:"hot",title:"Opened Here",sub:"What this browser comes back to",rows:hot});
-    if(cold.length) out.push({key:"cold",title:hot.length?"Not Opened Yet":"Everything",sub:hot.length?"":"Nothing opened here yet",rows:cold});
-    return out; }
-  const out=[]; list.forEach(m=>{ const k=m[5]||3;
-    const g=out[out.length-1]; if(g && g.key===k) g.rows.push(m);
-    else out.push({key:k,title:LVNAME[k][0],sub:LVNAME[k][1],rows:[m]}); });
-  return out;
+// The page in shelves, one per question someone arrives with (SHELVES): what they are
+// doing, where they are going, who is there, how they feel, how far down they are
+// winding. Forty-one equal tiles in one grid asked a person to look at every one; five
+// headings ask them which question is theirs, then show seven or nine pictures. Each
+// shelf is a row you swipe, the way the charts rail on a year page is. Above them, Right
+// Now: four from what suits the hour, which is all the old "Right now" sort was really for.
+const RAILPG=`<button type="button" class="hitpg prev" data-hitpg="-1" aria-label="Back along the row" hidden><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg></button>`
+  + `<button type="button" class="hitpg next" data-hitpg="1" aria-label="Further along the row"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg></button>`;
+function modeShelf(key,title,rows,sub){
+  return `<section class="modesec mshelf" data-shelf="${esc(key)}" aria-labelledby="msec-${esc(key)}">`
+    + `<h3 class="modesech" id="msec-${esc(key)}"><span class="msecttl">${esc(title)}</span>`
+    + (sub?`<span class="msecsub">${esc(sub)}</span>`:"") + `<span class="sectaside">${rows.length}</span></h3>`
+    + `<div class="hitwrap mshelfwrap"><div class="hitrail mrail mdial" role="list">${rows.map(m=>modeTile(m)).join("")}</div>${RAILPG}</div>`
+    + `</section>`;
 }
 function modeListHtml(){
   if(typeof MODES==="undefined") return "";
-  const secs=modeSections(modeSort()).map(g=>
-    `<section class="modesec lv${g.key}" aria-labelledby="msec-${esc(String(g.key))}">`
-    + `<h3 class="modesech" id="msec-${esc(String(g.key))}"><span class="msecttl">${esc(g.title)}</span>`
-    + (g.sub?`<span class="msecsub">${esc(g.sub)}</span>`:"")
-    + `<span class="sectaside">${g.rows.length}</span></h3>`
-    + modeGrid(g.rows) + `</section>`).join("");
-  return `<div class="modelist">${secs}</div>`;
+  const byId=Object.fromEntries(MODES.map(m=>[m[0],m])), h=clockHour(), g=clockGroups(h);
+  const now=g.now.concat(g.any).slice(0,4);
+  return `<div class="modelist">`
+    + (now.length ? modeShelf("now","Right Now",now,dayPart(h)) : "")
+    + Object.entries(SHELVES).map(([k,[t,ids]])=>modeShelf(k,t,ids.map(id=>byId[id]).filter(Boolean))).join("")
+    + `</div>`;
 }
+// The arrows on a row show only where it can move: none on a row that fits, the back one
+// once it has moved. Rows are drawn before they are measured, so each new page is checked.
+function syncRails(root){
+  (root||document).querySelectorAll(".hitwrap").forEach(w=>{ const r=w.querySelector(".hitrail"); if(!r) return;
+    const p=w.querySelector(".hitpg.prev"), n=w.querySelector(".hitpg.next"); if(!p||!n) return;
+    p.hidden=r.scrollLeft<4; n.hidden=r.scrollLeft>=r.scrollWidth-r.clientWidth-4; });
+}
+addEventListener("resize",()=>syncRails());
 // ---------- finding a collection by what you type ----------
 // The Collections page has its own filter: type a mood, a place, a moment or a feeling
 // and the list narrows to the collections that fit. Every word typed is matched against
@@ -3596,6 +3548,7 @@ function pushPage(key){
   body.scrollTop=0; setOpen(true); syncBack(); closeNav();
   body.dispatchEvent(new Event("scroll"));
   amUpgrade();   // a pushed page brings its own artist links, which start life as search URLs
+  requestAnimationFrame(()=>syncRails(page));
   if(isYearKey(key)) paintSongArt(page);
   paintPlay();   // and its own play links, which have no href until the service is read
   return true;
@@ -3991,8 +3944,8 @@ const PAGES_DEF={
       html:`<div class="listgrp sep amlist">${all.map(row).join("")}</div>`};
   },
   modes:()=>({title:"Collections",
-    lede:spellCount(MODES.length)+" moods, places and tasks, each opening the styles that suit it.",
-    top:modeFindHtml()+modeSortHtml(),
+    lede:spellCount(shelved().length)+" moods, places and tasks, each opening the styles that suit it.",
+    top:modeFindHtml(),
     // the same share button every collection page ends with, not the bare copy-link
     // that About and How to install carry: this page is something to hand to someone
     html:modeListHtml()+pageShareBtn("modes","Collections","Share the collections")}),

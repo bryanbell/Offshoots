@@ -259,7 +259,7 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
     for(const k of ["focus","dinner","showkid"]){
       const want=await p.evaluate(key=>{
         const c=document.querySelector('.mcirc[data-mode="'+key+'"] img')
-          || document.querySelector('.mgrid [data-mode="'+key+'"] img');
+          || document.querySelector('.mshelf [data-mode="'+key+'"] img');
         return c?c.getAttribute("src"):null; },k);
       await p.click('[data-mode="'+k+'"]');
       await until(p,()=>!!document.querySelector(".ppage:not([hidden]) .pghead .pgi"));
@@ -431,58 +431,39 @@ const note=(k,v)=>console.log("     "+k+(v===undefined?"":": "+v));
       bare.wk && bare.text==="Wikipedia" && !bare.fold);
     await p.close(); }
 
-  // ---- the page is the home panel's dial, every collection on it ----
+  // ---- the page is shelves of the home panel's tiles, every collection on one ----
   { const p=await (await b.newContext({viewport:{width:390,height:844}})).newPage();
     await p.goto(URL+"#modes"); await arm(p); await shown(p,"#chart .n"); await settle(p);
-    await until(p,()=>!!document.querySelector('.ppage:not([hidden]) .mgrid'));
+    await until(p,()=>!!document.querySelector('.ppage:not([hidden]) .mshelf'));
     const g=await p.evaluate(()=>{
-      const t=[...document.querySelectorAll(".ppage:not([hidden]) .mgrid .mcirc")];
+      const shelves=[...document.querySelectorAll(".ppage:not([hidden]) .mshelf")];
+      const topic=shelves.filter(x=>x.dataset.shelf!=="now"), t=topic.flatMap(x=>[...x.querySelectorAll(".mcirc")]);
       const home=document.querySelector(".sect-modes .mdial .mcirc:not(.mcall)");
-      return {n:t.length,
+      const want=Object.entries(SHELVES).map(([k,v])=>[k,v[0],v[1]]);
+      return {titles:shelves.map(x=>x.querySelector(".msecttl").textContent),
+        // each shelf holds exactly its SHELVES list, in order, and says how many
+        rightful:topic.every((x,i)=>JSON.stringify([...x.querySelectorAll(".mcirc")].map(c=>c.dataset.mode))===JSON.stringify(want[i][2])
+          && +x.querySelector(".sectaside").textContent===want[i][2].length),
+        now:(shelves.find(x=>x.dataset.shelf==="now")||{querySelectorAll:()=>[]}).querySelectorAll(".mcirc").length,
+        n:t.length, ids:t.map(x=>x.dataset.mode),
         named:t.filter(x=>((x.querySelector(".mclbl")||{}).textContent||"").trim()).length,
-        // the line on what it is for is not printed on a tile, so a screen reader is told it
         told:t.every(x=>{ const m=MODES.find(y=>y[0]===x.dataset.mode); return (x.getAttribute("aria-label")||"").includes(m[2]); }),
         opens:t.every(x=>/Opens the collection/.test(x.getAttribute("aria-label")||"")),
-        // the picture is a rounded square, shaped like the home panel's; the name sits
-        // under it, so the tile is the square plus a line or two
-        square:t.every(x=>{const r=x.querySelector(".mco").getBoundingClientRect(); return Math.abs(r.width-r.height)<2;}),
+        round:t.every(x=>{const r=x.querySelector(".mco").getBoundingClientRect(); return Math.abs(r.width-r.height)<2;}),
         under:t.every(x=>x.querySelector(".mclbl").getBoundingClientRect().top>=x.querySelector(".mco").getBoundingClientRect().bottom-1),
-        same:!home || (getComputedStyle(home.querySelector(".mco")).borderRadius===getComputedStyle(t[0].querySelector(".mco")).borderRadius
-          && Math.abs(home.querySelector(".mco").getBoundingClientRect().width-t[0].querySelector(".mco").getBoundingClientRect().width)<2)};});
-    say("the Collections page shows all "+g.n+" as the home panel's tiles", g.n===D.MODES.length && g.square && g.same);
-    say("  each named under its picture", g.named===g.n && g.under);
+        // a row of nine runs past the edge: the next tile shows, and the row swipes
+        swipes:(()=>{ const r=topic[0].querySelector(".mrail"); return r.scrollWidth>r.clientWidth+20; })(),
+        sameShape:!home || getComputedStyle(home.querySelector(".mco")).borderRadius===getComputedStyle(t[0].querySelector(".mco")).borderRadius};});
+    const shelvedIds=Object.values(D.SHELVES).flatMap(x=>x[1]);
+    say("the Collections page is shelves: "+g.titles.join(", "),
+      g.titles.join()==="Right Now,"+Object.values(D.SHELVES).map(x=>x[0]).join() && g.rightful);
+    say("  every collection on a shelf once, "+g.n+" in all", g.n===shelvedIds.length && new Set(g.ids).size===g.n);
+    say("  with Right Now first, four from what suits the hour", g.now>=1 && g.now<=4);
+    say("  each the home panel's round picture, named under it", g.round && g.sameShape && g.named===g.n && g.under);
     say("  with what it is for and that it opens in its label", g.told && g.opens);
-    // the sort cuts the list into sections with a heading each
-    const secs=async()=>p.evaluate(()=>[...document.querySelectorAll(".ppage:not([hidden]) .modesec")]
-      .map(x=>({t:x.querySelector(".msecttl").textContent, n:x.querySelectorAll(".mcirc").length,
-        said:+x.querySelector(".sectaside").textContent})));
-    // the default is the clock order; quietest is one choice away
-    const dflt=await secs();
-    say("by default the list is cut by the clock: "+dflt.map(x=>x.t).join(", "),
-      /^(Late night|This morning|This afternoon|This evening|Tonight),Any Time,Later$/.test(dflt.map(x=>x.t).join())
-      && dflt.every(x=>x.n===x.said) && dflt.reduce((a,x)=>a+x.n,0)===D.MODES.length);
-    await p.selectOption(".msortsel","quiet");
-    await until(p,()=>document.querySelector(".msortsel").value==="quiet"); await settle(p);
-    const quiet=await secs();
-    say("sorted quietest, the list is "+quiet.length+" bands: "+quiet.map(x=>x.t).join(", "),
-      quiet.map(x=>x.t).join()==="Still,Quiet,Steady,Lively,Loud" && quiet.every(x=>x.n===x.said)
-      && quiet.reduce((a,x)=>a+x.n,0)===D.MODES.length);
-    await p.selectOption(".msortsel","loud");
-    await until(p,()=>document.querySelector(".msortsel").value==="loud"); await settle(p);
-    const loud=await secs();
-    say("  loudest, the same bands the other way: "+loud.map(x=>x.t).join(", "),
-      loud.map(x=>x.t).join()==="Loud,Lively,Steady,Quiet,Still" && loud.reduce((a,x)=>a+x.n,0)===D.MODES.length);
-    await p.selectOption(".msortsel","az");
-    await until(p,()=>document.querySelector(".msortsel").value==="az"); await settle(p);
-    const az=await secs();
-    say("  A to Z, one per letter ("+az.length+"): "+az.map(x=>x.t).join(""),
-      az.every(x=>x.t.length===1) && az.map(x=>x.t).join("")===az.map(x=>x.t).sort().join("")
-      && az.reduce((a,x)=>a+x.n,0)===D.MODES.length);
-    await p.selectOption(".msortsel","used");
-    await until(p,()=>document.querySelector(".msortsel").value==="used"); await settle(p);
-    const used=await secs();
-    say("  most used, with nothing opened yet: one band, "+used.map(x=>x.t).join(", "),
-      used.length===1 && used[0].n===D.MODES.length);
+    say("  each shelf a row that swipes, the next tile showing at its edge", g.swipes);
+    // no sort any more: the shelves are the order
+    say("  and no sort control", await p.evaluate(()=>!document.querySelector(".ppage:not([hidden]) .msortsel")));
     await p.close(); }
   await b.close();
 })();

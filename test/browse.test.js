@@ -67,8 +67,9 @@ const state=p=>p.evaluate(()=>{
   // ---------- mobile ----------
   let p=await fresh(b,M);
   const rows=await p.$$eval(".sect-onmap .listgrp .listrow .lrlbl",e=>e.map(x=>x.textContent));
-  say("three ways in: "+rows.join(" / "),
-    rows.join("/")==="Most Influential/A Year in Music/Surprise Me");
+  // and since Nov 16, the two collections that are about the atlas and the speaker
+  say("five ways in: "+rows.join(" / "),
+    rows.join("/")==="Most Influential/A Year in Music/Surprise Me/Something New/Speaker Test");
   // About moved into a fold under the title and Install into the footer, so the two that
   // were a colophon at the foot are now in two different places and neither is a row
   const col=await p.evaluate(()=>({
@@ -135,15 +136,16 @@ const state=p=>p.evaluate(()=>{
       return {lede:!!u.querySelector(".pglede"),
         sortedBy:((u.querySelector(".secthead.picksort .secttl")||{}).textContent||"").trim().slice(0,9),
         picker:!!u.querySelector(".sortpick select"),
-        list:!!u.querySelector(".modelist .modesec .moderows .moderow, .modelist .modesec .mgrid .mcirc"),
+        list:!!u.querySelector(".modelist .modesec .moderows .moderow, .modelist .mshelf .mcirc"),
         copy:!!u.querySelector(".shbtn.wide[data-share]")};});
     await q.close(); return v; };
   const a=await skel("#top"), c=await skel("#modes");
   note("top", JSON.stringify(a)); note("modes", JSON.stringify(c));
-  say("Most influential is built like Collections", JSON.stringify(a)===JSON.stringify(c)
+  // Collections has shelves instead of a sort, so the two share all but the picker
+  say("Most influential is built like Collections, but for the sort", a.lede===c.lede && a.list===c.list && a.copy===c.copy
     ? true : JSON.stringify(a)+" vs "+JSON.stringify(c));
-  say("  both: a lede, a Sorted by picker, the list and a link to the page",
-    a.lede && a.sortedBy==="Sorted by" && a.picker && a.list && a.copy);
+  say("  both: a lede, the list and a link to the page; Most Influential's sorted by a picker",
+    a.lede && a.sortedBy==="Sorted by" && a.picker && a.list && a.copy && !c.picker);
 
   // and the sort on it actually sorts
   { const q=await fresh(b,M,"#top");
@@ -206,7 +208,8 @@ const state=p=>p.evaluate(()=>{
 
   // ---------- a deep link lands on the page itself ----------
   // the mode count comes off the data, so adding a way in is not a test failure
-  const MODECOUNT=await p.evaluate(()=>MODES.length);
+  // every tile on the page: Right Now and the five shelves
+  const MODECOUNT=await p.evaluate(()=>MODES.filter(m=>Object.values(SHELVES).some(s=>s[1].includes(m[0]))).length+Math.min(4,MODES.filter(m=>Object.values(SHELVES).some(s=>s[1].includes(m[0]))).length));
   // #roots and #top are in this list because the panel no longer carries a row to either:
   // the map took that job back, and the address is the only way left in.
   for(const [hash,key,rows] of [["#install","install",0],["#about","about",0],
@@ -217,7 +220,7 @@ const state=p=>p.evaluate(()=>{
     say("  with a way back to the map ("+d.backLbl+")", d.back && d.backLbl==="Music Atlas");
     // plain list rows, Most Influential's rows, or the Collections tiles
     if(rows) say("  carrying all "+rows,
-      (await dl.$$eval('.ppage:not([hidden]) .listrow, .ppage:not([hidden]) .moderows .moderow, .ppage:not([hidden]) .mgrid .mcirc',
+      (await dl.$$eval('.ppage:not([hidden]) .listrow, .ppage:not([hidden]) .moderows .moderow, .ppage:not([hidden]) .mshelf .mcirc',
         e=>e.length))===rows);
     await dl.close();
   }

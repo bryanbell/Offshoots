@@ -24,7 +24,7 @@ const ready=async q=>{ await arm(q); await until(q,()=>!!document.querySelector(
     return {hits:[...pg.querySelectorAll(".mfindout .mclbl")].map(x=>x.textContent),
       none:(pg.querySelector(".mfnone")||{}).textContent||"",
       head:(pg.querySelector(".mfindout .msecttl")||{}).textContent||"",
-      sections:shown(pg.querySelector(".modelist")), sort:shown(pg.querySelector(".secthead.picksort")),
+      sections:shown(pg.querySelector(".modelist")),
       clear:shown(pg.querySelector(".mfclear")), value:pg.querySelector(".mfindin").value,
       page:pg.dataset.p};});
   const type=async v=>{ await p.fill(".ppage:not([hidden]) .mfindin",v); await settle(p); return state(); };
@@ -50,8 +50,8 @@ const ready=async q=>{ await arm(q); await until(q,()=>!!document.querySelector(
   const g2=await geo();
   say("  and leaving it puts the sheet back", Math.abs(g2.sheet-g0.sheet)<4);
   const s0=await state();
-  say("the filter sits on the Collections page, empty, with the sorted sections under it",
-    s0.page==="modes" && s0.value==="" && s0.sections && s0.sort && !s0.clear && !s0.hits.length);
+  say("the filter sits on the Collections page, empty, with the shelves under it",
+    s0.page==="modes" && s0.value==="" && s0.sections && !s0.clear && !s0.hits.length);
   const ph=await p.$eval(".mfindin",e=>({ph:e.placeholder, lbl:e.getAttribute("aria-label"),
     fs:parseFloat(getComputedStyle(e).fontSize), h:e.getBoundingClientRect().height}));
   say("  saying what to type, with a label for a screen reader", /mood/i.test(ph.ph) && /collection/i.test(ph.lbl||""));
@@ -59,13 +59,13 @@ const ready=async q=>{ await arm(q); await until(q,()=>!!document.querySelector(
   say("  at 16px, so a phone does not zoom in on it, and a full tap high", ph.fs>=16 && ph.h>=44);
 
   // the words someone would type for a feeling find the collection made for it, first
-  const firsts=[["sad","Sit With It"],["angry","Burn It Off"],["relaxed","Wind Down"],
-    ["nostalgic","Back Then"],["heartbreak","On Your Mind"],["first date","With Someone"],
-    ["i want to feel happy","Lift the Mood"],["something to study to","Focus"],["grumpy","Burn It Off"],
-    ["bummer","Sit With It"],["exhausted","Wind Down"],["smitten","On Your Mind"],
+  const firsts=[["sad","Sad"],["angry","Angry"],["relaxed","Wind Down"],
+    ["nostalgic","Nostalgic"],["heartbreak","Missing Someone"],["first date","With Someone"],
+    ["i want to feel happy","Lift the Mood"],["something to study to","Focus"],["grumpy","Angry"],
+    ["bummer","Sad"],["exhausted","Wind Down"],["smitten","Missing Someone"],
     ["drunk","Nightcap"],["garage","Shop Radio"],["uplifting","Lift the Mood"],
     // ties go to the exact word, and to the collection that lists the word first
-    ["lifting","Workout"],["trippy","Third Eye"],["walking","Wandering"],["concentrate","Focus"]];
+    ["lifting","Workout"],["trippy","Trippy"],["sit with it","Sad"],["third eye","Trippy"],["walk in tall","Psych Up"],["walking","Wandering"],["concentrate","Focus"]];
   const miss=[];
   for(const [q,want] of firsts){ const s=await type(q); if(s.hits[0]!==want) miss.push(q+" gave "+(s.hits[0]||"nothing")); }
   say("feelings and moments find their collection first ("+firsts.length+" phrases)", miss.length?miss.join("; "):true);
@@ -75,7 +75,7 @@ const ready=async q=>{ await arm(q); await until(q,()=>!!document.querySelector(
   say("a word shared by several collections finds all of them (drunk: "+dr.hits.join(", ")+"; garage: "+ga.hits.join(", ")+")",
     dr.hits.length>=3 && dr.hits.includes("House Party") && ga.hits.length>=3 && ga.hits.includes("Workout"));
   const s1=await type("sad");
-  say("  and the sorted sections and their sort step aside for the matches", !s1.sections && !s1.sort && s1.clear);
+  say("  and the shelves step aside for the matches", !s1.sections && s1.clear);
   say("  under a heading saying how many fit", /^One fits$|fit$/.test(s1.head));
   const s2=await type("slee");
   say("a half-typed word already works", s2.hits[0]==="Sleep");
@@ -83,19 +83,19 @@ const ready=async q=>{ await arm(q); await until(q,()=>!!document.querySelector(
   say("loud and quiet lean on how loud each collection is", s3.hits.length>=3 && s3.hits.includes("Workout"));
   // a slip of the thumb still finds it, but a real word is not read as a typo of another
   say("one letter off still finds it (hapy, nostalgc)",
-    (await type("hapy")).hits[0]==="Lift the Mood" && (await type("nostalgc")).hits[0]==="Back Then");
+    (await type("hapy")).hits[0]==="Lift the Mood" && (await type("nostalgc")).hits[0]==="Nostalgic");
   say("  while a real word is not read as a typo of another (bummer is not summer)",
-    (await type("bummer")).hits.join()==="Sit With It");
+    (await type("bummer")).hits.join()==="Sad");
   // nothing found is not a dead end: it says so and offers collections to tap
   const s4=await type("zzqx");
   say("nothing found says so, and offers "+s4.hits.length+" collections to start from instead",
-    /Nothing fits/.test(s4.head) && s4.hits.length>=4 && new Set(s4.hits).size===s4.hits.length && s4.hits.includes("Sit With It"));
+    /Nothing fits/.test(s4.head) && s4.hits.length>=4 && new Set(s4.hits).size===s4.hits.length && s4.hits.includes("Sad"));
 
   // clearing puts the page back as it was
   await type("sad");
   await p.tap(".ppage:not([hidden]) .mfclear"); await settle(p);
   const s5=await state();
-  say("clear empties the field and brings the sections back", s5.value==="" && s5.sections && s5.sort && !s5.hits.length && !s5.clear);
+  say("clear empties the field and brings the shelves back", s5.value==="" && s5.sections && !s5.hits.length && !s5.clear);
   // Escape clears first, and stays on the page; it is a second Escape that goes back
   await type("sad");
   await p.focus(".ppage:not([hidden]) .mfindin"); await p.keyboard.press("Escape"); await settle(p);
