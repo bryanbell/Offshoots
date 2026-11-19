@@ -2936,6 +2936,36 @@ const MODES = [
     ["dungeon_synth","Lo-fi medieval keyboards looping with no words at all"],
     ["dubtechno","Chords dissolving into echo over a muffled kick"]
    ],2],
+  ["zone","In the Zone","Design, a deck, a project: heads down and the hours going by.",
+   "Focus is for taking something in; this is for making something, in a design file, a spreadsheet or a long project, so it wants a little more lift. A steady groove around 95 to 125 BPM keeps your hands moving, and it stays warm, even and predictable: in studies, loud, fast music pulls people out of flow, and lyrics get in the way of anything with words in it. Nothing here drops, builds to a peak or speeds up, so it can play for hours and only be noticed when you look up.",
+   [
+    ["deephouse","A warm four-on-the-floor that keeps the hours moving"],
+    ["frenchhouse","Filtered disco loops, bright enough to make a deck feel lighter"],
+    ["nudisco","Disco basslines with the singing edited out"],
+    ["techhouse","A tight groove that never asks you to look up"],
+    ["afrohouse","Rolling percussion at an easy 120, hypnotic and warm"],
+    ["progressive_house","Long, even builds that carry a whole afternoon"],
+    ["minimal","Small changes over a steady pulse, nothing to break the thread"],
+    ["dubtechno","Chords drifting in echo over a soft, constant kick"],
+    ["jazzfunk","Electric piano grooves with a bounce in the step"],
+    ["souljazz","Organ and horns in a relaxed swing, sunny and unhurried"],
+    ["fusion","Virtuoso grooves with no lyric to follow"],
+    ["nujazz","Live jazz over club beats, made for a studio playlist"],
+    ["ukjazz","Ezra Collective's groove, lively without a word sung"],
+    ["ethiojazz","Mulatu's vibraphone in a steady, winding sway"],
+    ["acidjazz","Hammond and breakbeats, the London studios' working sound"],
+    ["wonky","Lurching beats that stay just steady enough to work to"],
+    ["abstract","Instrumental hip hop, all head-nod and no verse"],
+    ["krautrock","The motorik beat, built to run for twenty minutes"],
+    ["berlin_school","Sequencers cycling patiently under the work"],
+    ["electro","Drum machines and vocoder pulse at a walking pace"],
+    ["synthwave","Neon arpeggios at a cruising tempo"],
+    ["surf","Reverb guitar instrumentals, upbeat and wordless"],
+    ["instro","Guitar tunes carrying the melody so nobody has to sing it"],
+    ["exotica","Vibraphones and birdcalls, playful in the background"],
+    ["chillwave","Hazy, sunlit loops where the voice is just another texture"],
+    ["bossa","Soft guitar and hushed Portuguese, words you never have to follow"]
+   ],3],
   ["coding","Coding","Long hours in a text editor, repetition welcome.",
    "Not the same as Focus, which is for taking something in. This is for building, so it wants momentum rather than calm, and it has to survive being ignored for forty minutes and then noticed again. Words are the problem: anything with a lyric competes with the part of you reading the screen.",
    [
@@ -4855,7 +4885,7 @@ const MODES = [
 // (Speaker Test, Something New) is still a collection, opened from Explore the Atlas
 // rather than from here.
 const SHELVES = {
-"doing":["Doing",["focus","coding","restless","chores","cooking","garage","gaming","coffee","workout"]],
+"doing":["Doing",["focus","zone","coding","restless","chores","cooking","garage","gaming","coffee","workout"]],
 "going":["Going",["miles","road","commute","clockout","nightdrive","wander","camping"]],
 "together":["Together",["party","houseparty","cocktails","dinner","family","together","showkid","aux","phone"]],
 "feeling":["Feeling",["lift","hype","burn","sit","onmind","lonely","backthen"]],
@@ -4863,6 +4893,7 @@ const SHELVES = {
 };
 
 const MODEWORDS = {
+"zone":"in the zone zone flow flow state work working office design designing designer project deck slides presentation spreadsheet excel figma photoshop admin inbox email desk job workday nine to five productive productivity get it done heads down creative studio freelance making building upbeat",
 "focus":"concentrate concentration study studying reading homework work deep work flow zone focused productive exam essay writing library quiet desk stressed deadline cramming",
 "coding":"programming code developer hacking debugging terminal late night programmer hacker loop hypnotic",
 "restless":"adhd focus can't focus can't concentrate concentrate zone in lock in get started procrastinating procrastination distracted scattered restless fidgety antsy bored background noise fill the air white noise task meh blah",
